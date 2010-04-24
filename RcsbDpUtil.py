@@ -39,11 +39,12 @@ class RcsbDpUtil:
 
         self.appsPath     = "/lcl"
         
-        self.maxitOps = ["cif2cif","cif2cif-remove","cif2cif-ebi","cif2cif-pdbx",
+        self.maxitOps = ["cif2cif","cif2cif-remove","cif2cif-ebi","cif2cif-pdbx","cif-rcsb2cif-pdbx",
                         "cif2pdb","pdb2cif","pdb2cif-ebi","switch-dna",
                         "cif2pdb-assembly","pdbx2pdb-assembly","pdbx2deriv"]
 
-        self.rcsbOps = [ "rename-atoms", "cif2pdbx", "pdbx2xml", "pdb2dssp", "pdb2stride", "initial-version"]
+        self.rcsbOps = [ "rename-atoms", "cif2pdbx", "pdbx2xml", "pdb2dssp", "pdb2stride",
+                         "initial-version","poly-link-dist"]
         #
         # Source, destination and logfile path details
         self.srcPath     = None
@@ -224,6 +225,10 @@ class RcsbDpUtil:
             cmd +=  maxitCmd + " -o 8  -remove -i " + iPath
             cmd += " ; mv -f " + iPath + ".cif " + oPath
 
+        elif (op == "cif-rcsb2cif-pdbx"):
+            cmd +=  maxitCmd + " -o 56  -i " + iPath
+            cmd += " ; mv -f " + iPath + ".cif " + oPath                         
+
         elif (op == "cif2cif-pdbx"):
             cmd +=  maxitCmd + " -o 8  -standard -pdbids -no_deriv -no_pdbx_strand_id -no_site -i " + iPath
             cmd += " ; mv -f " + iPath + ".cif " + oPath                         
@@ -341,6 +346,11 @@ class RcsbDpUtil:
 
         pdb2stridePath = os.path.join(self.appsPath,"bin","stride")
         pdb2strideCmd = " ;  " + pdb2stridePath 
+
+
+        polyLinkPath =os.path.join(self.rcsbPath,"bin","cal_polymer_linkage_distance")
+        polyLinkCmd  = " ; " + polyLinkPath
+
         
         if (op == "rename-atoms"):
             cmd += switchAtomCmd + " -file " + iPath
@@ -369,7 +379,9 @@ class RcsbDpUtil:
             cmd += pdb2strideCmd + " -f" + oPath + " " + iPath
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
             # /lcl/bin/stride -f${id}.stride  ${id}.ent >&  ${id}.stride.log
-
+        elif (op == "poly-link-dist"):
+            cmd += polyLinkCmd + " -i " + iPath + " -o " + oPath
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
         else:
             return -1
         #
