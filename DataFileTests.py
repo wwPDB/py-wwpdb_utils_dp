@@ -8,8 +8,8 @@ Version: 0.001
 """
 import sys, unittest, os, os.path, traceback
 
-from sbkb.utils.ConfigInfo          import ConfigInfo
-from sbkb.utils.DataFile            import DataFile
+from wwpdb.api.facade.ConfigInfo          import ConfigInfo
+from wwpdb.utils.rcsb.DataFile            import DataFile
 
 
 

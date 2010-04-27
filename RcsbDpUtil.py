@@ -15,7 +15,7 @@ Adapted for SBKB
 """
 import sys, os, os.path, glob, time, datetime, shutil, tempfile
 
-from sbkb.utils.DataFile import DataFile
+from wwpdb.utils.rcsb.DataFile import DataFile
     
 class RcsbDpUtil:
     """ Wrapper class for RCSB data processing utilities.
