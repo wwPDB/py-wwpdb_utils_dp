@@ -40,7 +40,7 @@ class RcsbDpUtil:
         self.appsPath     = "/lcl"
         
         self.maxitOps = ["cif2cif","cif2cif-remove","cif2cif-ebi","cif2cif-pdbx","cif-rcsb2cif-pdbx",
-                        "cif2pdb","pdb2cif","pdb2cif-ebi","switch-dna",
+                         "cif-seqed2cif-pdbx", "cif2pdb","pdb2cif","pdb2cif-ebi","switch-dna",
                         "cif2pdb-assembly","pdbx2pdb-assembly","pdbx2deriv"]
 
         self.rcsbOps = [ "rename-atoms", "cif2pdbx", "pdbx2xml", "pdb2dssp", "pdb2stride",
@@ -226,6 +226,11 @@ class RcsbDpUtil:
             cmd += " ; mv -f " + iPath + ".cif " + oPath
 
         elif (op == "cif-rcsb2cif-pdbx"):
+            #cmd +=  maxitCmd + " -o 56  -i " + iPath
+            cmd +=  maxitCmd + " -o 10  -i " + iPath            
+            cmd += " ; mv -f " + iPath + ".cif " + oPath                         
+
+        elif (op == "cif-seqed2cif-pdbx"):
             #cmd +=  maxitCmd + " -o 56  -i " + iPath
             cmd +=  maxitCmd + " -o 10  -i " + iPath            
             cmd += " ; mv -f " + iPath + ".cif " + oPath                         
