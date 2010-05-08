@@ -1,3 +1,11 @@
+##
+# File: RcsbDpUtil.py
+# Date: 03-May-2007
+#
+# Updates:
+# 05-Feb-2010 jdw Adapted for SBKB
+# 08-May-2010 jdw Add log unit to constructor
+# 
 """
 Wrapper class for RCSB data processing utilities.
 
@@ -6,10 +14,6 @@ Author:  jdw
 Original:  03-Mar-2007
 Version: 001
 Initial version - adapted from file utils method collections.
-
-Update:  5-Feb-2010
-Version: 005
-Adapted for SBKB
 
 
 """
@@ -20,13 +24,13 @@ from wwpdb.utils.rcsb.DataFile import DataFile
 class RcsbDpUtil:
     """ Wrapper class for RCSB data processing utilities.
     """
-    def __init__(self,rcsbPath="/rcsbapps", tmpPath="/scratch", verbose=False):
+    def __init__(self,rcsbPath="/rcsbapps", tmpPath="/scratch", verbose=False, log=sys.stderr):
         self.test        = " "
         self.verbose     = verbose
         self.rcsbPath    =  rcsbPath
         self.tmpPath       = tmpPath
         
-        self.vout        = sys.stderr
+        self.vout        = log
         #
         # Working directory and file path details
         self.wrkPath       = None
