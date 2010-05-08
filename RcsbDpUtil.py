@@ -5,7 +5,9 @@
 # Updates:
 # 05-Feb-2010 jdw Adapted for SBKB
 # 08-May-2010 jdw Add log unit to constructor
-# 
+# 08-May-2010 jdw Add missing environment to polymer linkage command setup.
+#
+##
 """
 Wrapper class for RCSB data processing utilities.
 
@@ -279,9 +281,9 @@ class RcsbDpUtil:
         if (self.verbose):            
             cmd += " ; ls -la >> " + lPath        
         #
-        cmd += " ; echo '-BEGIN-PROGRAM-ERROR-LOG--------------------------'  >> " + lPath        
+        cmd += " ; echo '-BEGIN-PROGRAM-ERROR-LOG--------------------------\n'  >> " + lPath        
         cmd += " ; cat maxit.err >> " + lPath
-        cmd += " ; echo '-END-PROGRAM-ERROR-LOG--------------------------'  >> " + lPath        
+        cmd += " ; echo '-END-PROGRAM-ERROR-LOG--------------------------\n'  >> " + lPath        
 
             
         cmd += " ; rm -f maxit.err >> " + lPath
@@ -390,6 +392,7 @@ class RcsbDpUtil:
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
             # /lcl/bin/stride -f${id}.stride  ${id}.ent >&  ${id}.stride.log
         elif (op == "poly-link-dist"):
+            cmd += " ; RCSBROOT=" + self.rcsbPath + " ; export RCSBROOT "            
             cmd += polyLinkCmd + " -i " + iPath + " -o " + oPath
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
         else:
@@ -401,9 +404,9 @@ class RcsbDpUtil:
             
         cmd += " ) > %s 2>&1 " % ePathFull
 
-        cmd += " ; echo '-BEGIN-PROGRAM-ERROR-LOG--------------------------'  >> " + lPathFull                
+        cmd += " ; echo '-BEGIN-PROGRAM-ERROR-LOG--------------------------\n'  >> " + lPathFull                
         cmd += " ; cat " + ePathFull + " >> " + lPathFull
-        cmd += " ; echo '-END-PROGRAM-ERROR-LOG--------------------------'  >> " + lPathFull                        
+        cmd += " ; echo '-END-PROGRAM-ERROR-LOG-------------------------\n'  >> " + lPathFull                        
         
         if (self.verbose):
             self.vout.write("++INFO - Command string:\n%s\n" % cmd.replace(";","\n"))
