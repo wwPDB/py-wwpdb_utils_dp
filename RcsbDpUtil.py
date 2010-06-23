@@ -238,7 +238,8 @@ class RcsbDpUtil:
 
         elif (op == "cif-seqed2cif-pdbx"):
             #cmd +=  maxitCmd + " -o 56  -i " + iPath
-            cmd +=  maxitCmd + " -o 10  -i " + iPath            
+            #cmd +=  maxitCmd + " -o 10  -i " + iPath
+            cmd +=  maxitCmd + " -o 8  -i " + iPath                        
             cmd += " ; mv -f " + iPath + ".cif " + oPath                         
 
         elif (op == "cif2cif-pdbx"):
