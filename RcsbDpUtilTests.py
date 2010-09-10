@@ -5,6 +5,8 @@ Author:  jdw
 Date:    5-Feb-2010
 Version: 0.001
 
+Update: 
+
 """
 import sys, unittest, os, os.path, traceback
 
@@ -20,6 +22,7 @@ class RcsbDpUtilTests(unittest.TestCase):
         self.__testFileCif=cI.get('DP_TEST_FILE_CIF')
         self.__testFileCifEps=cI.get('DP_TEST_FILE_CIFEPS')        
         self.__tmpPath=cI.get('TMP_PATH')
+        self.__rcsbAppsPath=cI.get('SITE_RCSB_APPS_PATH')
         self.lfh=sys.stdout
             
     def tearDown(self):
@@ -30,7 +33,7 @@ class RcsbDpUtilTests(unittest.TestCase):
         """
         self.lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
         try:
-            dp = RcsbDpUtil(tmpPath=self.__tmpPath,verbose=True)
+            dp = RcsbDpUtil(tmpPath=self.__tmpPath,rcsbPath=self.__rcsbPath,verbose=True)
             cifPath=os.path.join(self.__testFilePath,self.__testFileCif)
             dp.imp(cifPath)
             dp.op("cif2pdb")
