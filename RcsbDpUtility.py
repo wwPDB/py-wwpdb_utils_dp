@@ -7,7 +7,9 @@
 # 9-Sep-2010  jdw  Extension of RcsbDpUtil generalizing configuration information.
 # 10-Sep-2010 jdw  Added new chemical component applications.
 #                  Added methods of set additional input files and parameters.
-#
+# 14-Sep-2010 jdw  Clarify the roles of tmpDir and wrkDir.
+#  5-Dec-2010 jdw  Add parameter for link_radii to bond distance calculation
+#  5-Dec-2010 jdw  Add parameters for bond_radii and inst_id for chemical component batch assignment.
 ##
 """
 Wrapper class for data processing and chemical component utilities.
@@ -28,10 +30,18 @@ class RcsbDpUtility(object):
         self.__verbose  = verbose
         self.__debug    = False
         self.__lfh      = log
+        #
+        # tmpPath is used to place working directories if these are not explicitly set.
+        # This path is not used otherwise.
+        #
         self.__tmpPath  = tmpPath
         self.__siteId   = siteId
         #
         # Working directory and file path details
+        #
+        # The working directory is where temporary files are stored by utility operations.
+        # This can be set explicity via the self.setWorkingDir() method or will be created
+        # as a temporary path dynamically as a subdirectory of self.__tmpDir.
         #
         self.__wrkPath        = None
         self.__sourceFileList = []
@@ -388,7 +398,10 @@ class RcsbDpUtility(object):
             cmdPath =os.path.join(self.__rcsbAppsPath,"bin","bond_dist")
             thisCmd  = " ; " + cmdPath                        
             cmd += " ; RCSBROOT=" + self.__rcsbAppsPath + " ; export RCSBROOT "            
-            cmd += thisCmd + " -i " + iPath + " -o " + oPath + " -format cif " 
+            cmd += thisCmd + " -i " + iPath + " -o " + oPath + " -format cif "
+            if  self.__inputParamDict.has_key('cc_link_radii'):
+                link_radii=self.__inputParamDict['cc_link_radii']                                
+                cmd += " -link_radii " + link_radii
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
             cmd += " ; cat bond_dist.err" + " >> " + lPath                        
         elif (op == "chem-comp-assign"):
@@ -407,8 +420,13 @@ class RcsbDpUtility(object):
             cmd += " -libsdb " + self.__ccDictPathSdb + " -idxFile " +  self.__ccDictPathIdx
             #
             if  self.__inputParamDict.has_key('cc_link_file_path'):
-                link_file_path=self.__inputParamDict['cc_link_file_path']                                
-                cmd += " -bond_info " + link_file_path
+                cmd += " -bond_info " + self.__inputParamDict['cc_link_file_path']
+            #
+            if  self.__inputParamDict.has_key('cc_instance_id'):
+                cmd += " -inst_id " + self.__inputParamDict['cc_instance_id']
+            #
+            if  self.__inputParamDict.has_key('cc_bond_radii'):
+                cmd += " -bond_radii " + self.__inputParamDict['cc_bond_radii']                
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
 
         elif (op == "chem-comp-instance-update"):
