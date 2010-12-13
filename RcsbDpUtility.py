@@ -10,6 +10,7 @@
 # 14-Sep-2010 jdw  Clarify the roles of tmpDir and wrkDir.
 #  5-Dec-2010 jdw  Add parameter for link_radii to bond distance calculation
 #  5-Dec-2010 jdw  Add parameters for bond_radii and inst_id for chemical component batch assignment.
+# 13-Dec-2010 jdw  Add additional explicit environment for cc-tools apps
 ##
 """
 Wrapper class for data processing and chemical component utilities.
@@ -28,7 +29,7 @@ class RcsbDpUtility(object):
     """
     def __init__(self, tmpPath="/scratch", siteId="DEV",  verbose=False, log=sys.stderr):
         self.__verbose  = verbose
-        self.__debug    = False
+        self.__debug    = True
         self.__lfh      = log
         #
         # tmpPath is used to place working directories if these are not explicitly set.
@@ -84,7 +85,14 @@ class RcsbDpUtility(object):
         #
         self.__pathDdlSdb      = os.path.join(self.__pdbxDictPath,"mmcif_ddl.sdb")
         self.__pathPdbxDictSdb = os.path.join(self.__pdbxDictPath,"mmcif_pdbx.sdb")
-        self.__pathPdbxDictOdb = os.path.join(self.__pdbxDictPath,"mmcif_pdbx.odb")        
+        self.__pathPdbxDictOdb = os.path.join(self.__pdbxDictPath,"mmcif_pdbx.odb")
+        #
+        self.__oeDirPath        = os.path.abspath(cI.get('SITE_CC_OE_DIR'))
+        self.__oeLicensePath    = os.path.abspath(cI.get('SITE_CC_OE_LICENSE'))
+        self.__babelDirPath     = os.path.abspath(cI.get('SITE_CC_BABEL_DIR'))
+        self.__babelDataDirPath = os.path.abspath(cI.get('SITE_CC_BABEL_DATADIR'))
+        self.__cactvsDirPath    = os.path.abspath(cI.get('SITE_CC_CACTVS_DIR'))
+        #
         
     def setRcsbAppsPath(self,fPath):
         if (fPath != None and os.path.isdir(fPath)):
@@ -407,6 +415,13 @@ class RcsbDpUtility(object):
         elif (op == "chem-comp-assign"):
             # set up
             #
+            cmd += " ; RCSBROOT="      + self.__rcsbAppsPath     + " ; export RCSBROOT "
+            cmd += " ; OE_DIR="        + self.__oeDirPath        + " ; export OE_DIR "
+            cmd += " ; OE_LICENSE="    + self.__oeLicensePath    + " ; export OE_LICENSE "
+            cmd += " ; BABEL_DIR="     + self.__babelDirPath     + " ; export BABEL_DIR "
+            cmd += " ; BABEL_DATADIR=" + self.__babelDataDirPath + " ; export BABEL_DATADIR "
+            cmd += " ; CACTVS_DIR="    + self.__cactvsDirPath    + " ; export CACTVS_DIR "
+            cmd += " ; env "
             cmdPath =os.path.join(self.__ccAppsPath,"bin","ChemCompAssign_main")
             thisCmd  = " ; " + cmdPath                        
             entryId   = self.__inputParamDict['id']
