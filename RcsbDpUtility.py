@@ -11,6 +11,7 @@
 #  5-Dec-2010 jdw  Add parameter for link_radii to bond distance calculation
 #  5-Dec-2010 jdw  Add parameters for bond_radii and inst_id for chemical component batch assignment.
 # 13-Dec-2010 jdw  Add additional explicit environment for cc-tools apps
+# 01-Feb-2011 rps  Updated to accommodate "chem-comp-assign-validation" operation
 ##
 """
 Wrapper class for data processing and chemical component utilities.
@@ -54,7 +55,7 @@ class RcsbDpUtility(object):
                            "cif-seqed2cif-pdbx", "cif2pdb","pdb2cif","pdb2cif-ebi","switch-dna",
                            "cif2pdb-assembly","pdbx2pdb-assembly","pdbx2deriv"]
         self.__rcsbOps = [ "rename-atoms", "cif2pdbx", "pdbx2xml", "pdb2dssp", "pdb2stride",
-                           "initial-version","poly-link-dist","chem-comp-link", "chem-comp-assign", "chem-comp-instance-update"]
+                           "initial-version","poly-link-dist","chem-comp-link", "chem-comp-assign", "chem-comp-assign-validation", "chem-comp-instance-update"]
         #
         # Source, destination and logfile path details
         #
@@ -438,12 +439,51 @@ class RcsbDpUtility(object):
                 cmd += " -bond_info " + self.__inputParamDict['cc_link_file_path']
             #
             if  self.__inputParamDict.has_key('cc_instance_id'):
-                cmd += " -inst_id " + self.__inputParamDict['cc_instance_id']
+                cmd += " -radii_inst_id " + self.__inputParamDict['cc_instance_id']
             #
             if  self.__inputParamDict.has_key('cc_bond_radii'):
                 cmd += " -bond_radii " + self.__inputParamDict['cc_bond_radii']                
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
-
+        elif (op == "chem-comp-assign-validation"):
+            # set up
+            #
+            cmd += " ; RCSBROOT="      + self.__rcsbAppsPath     + " ; export RCSBROOT "
+            cmd += " ; OE_DIR="        + self.__oeDirPath        + " ; export OE_DIR "
+            cmd += " ; OE_LICENSE="    + self.__oeLicensePath    + " ; export OE_LICENSE "
+            cmd += " ; BABEL_DIR="     + self.__babelDirPath     + " ; export BABEL_DIR "
+            cmd += " ; BABEL_DATADIR=" + self.__babelDataDirPath + " ; export BABEL_DATADIR "
+            cmd += " ; CACTVS_DIR="    + self.__cactvsDirPath    + " ; export CACTVS_DIR "
+            cmd += " ; env "
+            cmdPath =os.path.join(self.__ccAppsPath,"bin","ChemCompAssign_main")
+            thisCmd  = " ; " + cmdPath                        
+            entryId   = self.__inputParamDict['id']
+            #
+            #cc_link_file_path=''
+            #if  self.__inputParamDict.has_key('link_file_path'):
+            #    link_file=self.__inputParamDict['link_file_path']                
+            #    cmd += " ;  cp " + link_file + " " + self.__wrkPath
+            # 
+            cmd += thisCmd + " -i " + iPath + " -of " + oPath + " -o " + self.__wrkPath  +  " -ifmt pdbx " + " -id " + entryId
+            cmd += " -libsdb " + self.__ccDictPathSdb + " -idxFile " +  self.__ccDictPathIdx
+            cmd += " -force "
+            #
+            if  self.__inputParamDict.has_key('cc_validation_ref_file_path'):
+                cmd += " -ref " + self.__inputParamDict['cc_validation_ref_file_path']
+            #
+            if  self.__inputParamDict.has_key('cc_validation_instid_list'):
+                cmd += " -search_inst_id " + self.__inputParamDict['cc_validation_instid_list']
+            #
+            '''
+            if  self.__inputParamDict.has_key('cc_bond_radii'):
+                cmd += " -bond_radii " + self.__inputParamDict['cc_bond_radii']
+            #
+            if  self.__inputParamDict.has_key('cc_link_file_path'):
+                cmd += " -bond_info " + self.__inputParamDict['cc_link_file_path']
+            '''
+            #
+            cmd += " -log "+self.__inputParamDict['cc_validation_log_file']
+            #
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
         elif (op == "chem-comp-instance-update"):
             cmdPath =os.path.join(self.__ccAppsPath,"bin","updateInstance")
             thisCmd  = " ; " + cmdPath                        
