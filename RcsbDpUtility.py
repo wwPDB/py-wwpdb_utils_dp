@@ -12,6 +12,7 @@
 #  5-Dec-2010 jdw  Add parameters for bond_radii and inst_id for chemical component batch assignment.
 # 13-Dec-2010 jdw  Add additional explicit environment for cc-tools apps
 # 01-Feb-2011 rps  Updated to accommodate "chem-comp-assign-validation" operation
+# 16-Feb-2011 rps  "cif2cif-pdbx-skip-process" added to support creation of cif file amenable to load into jmol
 ##
 """
 Wrapper class for data processing and chemical component utilities.
@@ -51,7 +52,7 @@ class RcsbDpUtility(object):
         self.__inputParamDict  = {}
         #
         # List of known operations --- 
-        self.__maxitOps = ["cif2cif","cif2cif-remove","cif2cif-ebi","cif2cif-pdbx","cif-rcsb2cif-pdbx",
+        self.__maxitOps = ["cif2cif","cif2cif-remove","cif2cif-ebi","cif2cif-pdbx","cif2cif-pdbx-skip-process","cif-rcsb2cif-pdbx",
                            "cif-seqed2cif-pdbx", "cif2pdb","pdb2cif","pdb2cif-ebi","switch-dna",
                            "cif2pdb-assembly","pdbx2pdb-assembly","pdbx2deriv"]
         self.__rcsbOps = [ "rename-atoms", "cif2pdbx", "pdbx2xml", "pdb2dssp", "pdb2stride",
@@ -256,8 +257,12 @@ class RcsbDpUtility(object):
             cmd += " ; mv -f " + iPath + ".cif " + oPath                         
 
         elif (op == "cif2cif-pdbx"):
-            cmd +=  maxitCmd + " -o 8  -standard -pdbids -no_deriv -no_pdbx_strand_id -no_site -i " + iPath
-            cmd += " ; mv -f " + iPath + ".cif " + oPath                         
+            cmd +=  maxitCmd + " -o 8 -standard -pdbids -no_deriv -no_pdbx_strand_id -no_site -i " + iPath
+            cmd += " ; mv -f " + iPath + ".cif " + oPath          
+            
+        elif (op == "cif2cif-pdbx-skip-process"):
+            cmd +=  maxitCmd + " -o 8 -skip_process -i " + iPath
+            cmd += " ; mv -f " + iPath + ".cif " + oPath             
 
         elif (op == "cif2cif-ebi"):
             cmd +=  maxitCmd + " -o 8  "
