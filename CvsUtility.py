@@ -30,7 +30,7 @@ class  CvsWrapper(object):
         self.__verbose=None
         self.__lfh=None
         self.__logger=logging.getLogger("wwpdb.utils.rcsb.CvsWrapper")
-        self.__logger.info("Created instance of CvsWrapper\n")
+        self.__logger.debug("Created instance of CvsWrapper\n")
         #
         self.__debug=True        
         self.__repositoryHost=None
@@ -80,7 +80,7 @@ class  CvsWrapper(object):
     def checkOutFile(self,cvsPath,outPath,revId=None):
         text=""
         (pth,fn)=os.path.split(cvsPath)
-        self.__logger.info("Cvs directory %s   target file name %s\n" % (pth,fn))
+        self.__logger.debug("Cvs directory %s   target file name %s\n" % (pth,fn))
         if len(fn) > 0:
             cmd = self.__getCheckOutCmd(cvsPath,outPath,revId)
             if cmd is not None:
@@ -105,9 +105,8 @@ class  CvsWrapper(object):
         if self.__wrkPath is None:
             self.__makeTempWorkingDir()
         errPath=os.path.join(self.__wrkPath,self.__cvsErrorFileName)
-        #
         (pth,fn)=os.path.split(cvsPath)
-        self.__logger.info("CVS directory %s  target file name %s\n" % (pth,fn))
+        self.__logger.debug("CVS directory %s  target file name %s\n" % (pth,fn))
         lclPath=os.path.join(self.__wrkPath,fn)
         #
         #
@@ -144,19 +143,19 @@ class  CvsWrapper(object):
     def __runCvsCommand(self,myCommand):
         retcode=-100
         try:
-            self.__logger.info("Command: %s\n" % myCommand)
+            self.__logger.debug("Command: %s\n" % myCommand)
             
             #if (self.__debug):
             #    self.__lfh.write("+CvsWrapper(__runCvsCommand) command: %s\n" % myCommand)
             
             retcode = subprocess.call(myCommand, shell=True)
             if retcode < 0:
-                self.__logger.info("Child was terminated by signal %r\n" % retcode)
+                self.__logger.debug("Child was terminated by signal %r\n" % retcode)
                 #if self.__verbose:
                 #    self.__lfh.write("+CvsWrapper(__runCvsCommand) Child was terminated by signal %r\n" % retcode)
                 return False
             else:
-                self.__logger.info("Child was terminated by signal %r\n" % retcode)
+                self.__logger.debug("Child was terminated by signal %r\n" % retcode)
                 #if self.__verbose:
                 #    self.__lfh.write("+CvsWrapper(__runCvsCommand) Child was terminated by signal %r\n" % retcode)                
                 return True
@@ -182,6 +181,7 @@ class  CvsWrapper(object):
         revList=[]
         try:
             fName=os.path.join(self.__wrkPath,self.__cvsInfoFileName)
+            self.__logger.debug("Reading revisions from %r\n" % fName)            
             ifh=open(fName,'r')
             for line in ifh.readlines():
                 fields=line[:-1].split()
@@ -192,6 +192,9 @@ class  CvsWrapper(object):
         except:
             self.__logger.exception("Extracting revision list for : %s\n" % fName)            
             pass
+
+        revList.reverse()        
+        self.__logger.debug("Ordered revision list %r\n" % revList)
         
         return revList
 
@@ -222,6 +225,6 @@ class  CvsWrapper(object):
             self.__wrkPath = tempfile.mkdtemp('tmpdir','rcsbCVS',self.__tmpPath)
         else:
             self.__wrkPath = tempfile.mkdtemp('tmpdir','rcsbCVS')
-        self.__logger.info("Working directory path set to  %r\n" % self.__wrkPath)            
+        self.__logger.debug("Working directory path set to  %r\n" % self.__wrkPath)            
 
 

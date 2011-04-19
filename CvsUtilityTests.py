@@ -20,15 +20,12 @@ __version__   = "V0.001"
 
 import sys, unittest, os, os.path, traceback, logging
 
-from wwpdb.api.facade.ConfigInfo          import ConfigInfo
 from wwpdb.utils.rcsb.CvsUtility          import CvsWrapper
 
 class CvsUtilityTests(unittest.TestCase):
     def setUp(self):
         self.__logger=logging.getLogger("wwpdb.utils.rcsb")        
         self.__siteId='DEV'
-        cI=ConfigInfo(self.__siteId)
-        self.__tmpPath        =cI.get('TMP_PATH')
         self.__lfh=sys.stdout
         #
         self.__testFilePath="ligand-dict-v3/A/ATP/ATP.cif"
