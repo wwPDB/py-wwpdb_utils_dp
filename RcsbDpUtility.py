@@ -13,6 +13,7 @@
 # 13-Dec-2010 jdw  Add additional explicit environment for cc-tools apps
 # 01-Feb-2011 rps  Updated to accommodate "chem-comp-assign-validation" operation
 # 16-Feb-2011 rps  "cif2cif-pdbx-skip-process" added to support creation of cif file amenable to load into jmol
+# 03-May-2011 jdw update maxit operations 
 ##
 """
 Wrapper class for data processing and chemical component utilities.
@@ -246,14 +247,11 @@ class RcsbDpUtility(object):
             cmd += " ; mv -f " + iPath + ".cif " + oPath
 
         elif (op == "cif-rcsb2cif-pdbx"):
-            #cmd +=  maxitCmd + " -o 56  -i " + iPath
-            cmd +=  maxitCmd + " -o 10  -i " + iPath            
+            cmd +=  maxitCmd + " -o 56  -i " + iPath            
             cmd += " ; mv -f " + iPath + ".cif " + oPath                         
 
         elif (op == "cif-seqed2cif-pdbx"):
-            #cmd +=  maxitCmd + " -o 56  -i " + iPath
-            #cmd +=  maxitCmd + " -o 10  -i " + iPath
-            cmd +=  maxitCmd + " -o 8  -i " + iPath                        
+            cmd +=  maxitCmd + " -o 10  -i " + iPath                        
             cmd += " ; mv -f " + iPath + ".cif " + oPath                         
 
         elif (op == "cif2cif-pdbx"):

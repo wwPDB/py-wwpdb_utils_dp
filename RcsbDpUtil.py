@@ -6,7 +6,7 @@
 # 05-Feb-2010 jdw Adapted for SBKB
 # 08-May-2010 jdw Add log unit to constructor
 # 08-May-2010 jdw Add missing environment to polymer linkage command setup.
-#
+# 03-May-2011 jdw update maxit operations 
 ##
 """
 Wrapper class for RCSB data processing utilities.
@@ -232,14 +232,11 @@ class RcsbDpUtil:
             cmd += " ; mv -f " + iPath + ".cif " + oPath
 
         elif (op == "cif-rcsb2cif-pdbx"):
-            #cmd +=  maxitCmd + " -o 56  -i " + iPath
-            cmd +=  maxitCmd + " -o 10  -i " + iPath            
+            cmd +=  maxitCmd + " -o 56  -i " + iPath            
             cmd += " ; mv -f " + iPath + ".cif " + oPath                         
 
         elif (op == "cif-seqed2cif-pdbx"):
-            #cmd +=  maxitCmd + " -o 56  -i " + iPath
-            #cmd +=  maxitCmd + " -o 10  -i " + iPath
-            cmd +=  maxitCmd + " -o 8  -i " + iPath                        
+            cmd +=  maxitCmd + " -o 10  -i " + iPath                        
             cmd += " ; mv -f " + iPath + ".cif " + oPath                         
 
         elif (op == "cif2cif-pdbx"):
