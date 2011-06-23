@@ -8,6 +8,8 @@
 # Update:
 #  Sep 10, 2010 jdw -  Added test cases for chemical component applications.
 #                      Cleaned up error reporting .
+#
+#  Jun 23, 2011 jdw - Update examples -- verify configuration --  site_id = WWPDB_DEV tested 
 ##
 """
 Test cases from 
@@ -23,14 +25,14 @@ from wwpdb.utils.rcsb.RcsbDpUtility       import RcsbDpUtility
 
 class RcsbDpUtilityTests(unittest.TestCase):
     def setUp(self):
-        self.__siteId='DEV'
+        self.__siteId='WWPDB_DEV'
         cI=ConfigInfo(self.__siteId)
-        self.__testFilePath   =cI.get('DP_TEST_FILE_PATH')
-        self.__testFileCif    =cI.get('DP_TEST_FILE_CIF')
+        self.__testFilePath    =cI.get('DP_TEST_FILE_PATH')
+        self.__testFileCif     =cI.get('DP_TEST_FILE_CIF')
         self.__testFileCifEps1 =cI.get('DP_TEST_FILE_CIFEPS')
-        self.__testFileCifEps2 =cI.get('DP_TEST_FILE_CIFEPS_2')                
-        self.__tmpPath        =cI.get('TMP_PATH')
-        self.__lfh=sys.stdout
+        self.__testFileCifEps2 =cI.get('DP_TEST_FILE_CIFEPS_2')
+        self.__tmpPath         =cI.get('TMP_PATH')
+        self.__lfh=sys.stderr
             
     def tearDown(self):
         pass

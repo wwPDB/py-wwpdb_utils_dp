@@ -13,7 +13,8 @@
 # 13-Dec-2010 jdw  Add additional explicit environment for cc-tools apps
 # 01-Feb-2011 rps  Updated to accommodate "chem-comp-assign-validation" operation
 # 16-Feb-2011 rps  "cif2cif-pdbx-skip-process" added to support creation of cif file amenable to load into jmol
-# 03-May-2011 jdw update maxit operations 
+# 03-May-2011 jdw update maxit operations
+# 23-Jun-2011 jdw add hostname to differentiate temp/working directory -
 ##
 """
 Wrapper class for data processing and chemical component utilities.
@@ -23,6 +24,7 @@ Initial RCSB version - adapted from file utils method collections.
 
 """
 import sys, os, os.path, glob, time, datetime, shutil, tempfile
+import socket
 
 from wwpdb.utils.rcsb.DataFile    import DataFile
 from wwpdb.api.facade.ConfigInfo  import ConfigInfo
@@ -116,10 +118,17 @@ class RcsbDpUtility(object):
                 self.__lfh.write("++INFO - Using result from step %s\n" % self.__stepNoSaved)        
         
     def __makeTempWorkingDir(self):
-        if (self.__tmpPath != None and os.path.isdir(self.__tmpPath)):
-            self.__wrkPath = tempfile.mkdtemp('dir','rcsbDp',self.__tmpPath)
+        hostName=str(socket.gethostname()).split('.')[0]
+        if ((hostName is not None) and (len(hostName) > 0)):
+            suffix = '-' + hostName
         else:
-            self.__wrkPath = tempfile.mkdtemp('dir','rcsbDp')            
+            suffix = '-dir'
+
+        prefix='rcsb-'
+        if (self.__tmpPath != None and os.path.isdir(self.__tmpPath)):
+            self.__wrkPath = tempfile.mkdtemp(suffix,prefix,self.__tmpPath)
+        else:
+            self.__wrkPath = tempfile.mkdtemp(suffix,prefix)            
 
         
     def setWorkingDir(self,dPath):
