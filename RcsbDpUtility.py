@@ -34,7 +34,7 @@ class RcsbDpUtility(object):
     """
     def __init__(self, tmpPath="/scratch", siteId="DEV",  verbose=False, log=sys.stderr):
         self.__verbose  = verbose
-        self.__debug    = True
+        self.__debug    = False
         self.__lfh      = log
         #
         # tmpPath is used to place working directories if these are not explicitly set.
@@ -77,26 +77,50 @@ class RcsbDpUtility(object):
     def __initPath(self):
         """Set paths that depend on top-level resource paths
         """
-        cI=ConfigInfo(self.__siteId)
-        self.__rcsbAppsPath  =  os.path.abspath(cI.get('SITE_RCSB_APPS_PATH'))
-        self.__ccAppsPath    =  os.path.abspath(cI.get('SITE_CC_APPS_PATH'))
-        self.__pdbxDictPath  =  os.path.abspath(cI.get('SITE_PDBX_DICT_PATH'))
-        self.__ccDictPath    =  os.path.abspath(cI.get('SITE_CC_DICT_PATH'))
-        self.__localAppsPath =  os.path.abspath(cI.get('SITE_LOCAL_APPS_PATH'))
-        
-        self.__schemaPath    = os.path.join(self.__localAppsPath,"schema")
-        self.__ccDictPathSdb = os.path.join(self.__ccDictPath,"Components-all-v3.sdb")
-        self.__ccDictPathIdx = os.path.join(self.__ccDictPath,"Components-all-v3-r4.idx")        
+        defPath = os.path.abspath('/.')
+        self.__rcsbAppsPath  = defPath  
+        self.__ccAppsPath    = defPath 
+        self.__pdbxDictPath  = defPath 
+        self.__ccDictPath    = defPath 
+        self.__localAppsPath = defPath 
         #
-        self.__pathDdlSdb      = os.path.join(self.__pdbxDictPath,"mmcif_ddl.sdb")
-        self.__pathPdbxDictSdb = os.path.join(self.__pdbxDictPath,"mmcif_pdbx.sdb")
-        self.__pathPdbxDictOdb = os.path.join(self.__pdbxDictPath,"mmcif_pdbx.odb")
+        self.__schemaPath    = defPath
+        self.__ccDictPathSdb = defPath
+        self.__ccDictPathIdx = defPath
         #
-        self.__oeDirPath        = os.path.abspath(cI.get('SITE_CC_OE_DIR'))
-        self.__oeLicensePath    = os.path.abspath(cI.get('SITE_CC_OE_LICENSE'))
-        self.__babelDirPath     = os.path.abspath(cI.get('SITE_CC_BABEL_DIR'))
-        self.__babelDataDirPath = os.path.abspath(cI.get('SITE_CC_BABEL_DATADIR'))
-        self.__cactvsDirPath    = os.path.abspath(cI.get('SITE_CC_CACTVS_DIR'))
+        self.__pathDdlSdb      = defPath
+        self.__pathPdbxDictSdb = defPath
+        self.__pathPdbxDictOdb = defPath
+        #
+        self.__oeDirPath        = defPath
+        self.__oeLicensePath    = defPath
+        self.__babelDirPath     = defPath
+        self.__babelDataDirPath = defPath
+        self.__cactvsDirPath    = defPath
+        try:
+            cI=ConfigInfo(self.__siteId)
+            self.__rcsbAppsPath  =  os.path.abspath(cI.get('SITE_RCSB_APPS_PATH'))
+            self.__ccAppsPath    =  os.path.abspath(cI.get('SITE_CC_APPS_PATH'))
+            self.__pdbxDictPath  =  os.path.abspath(cI.get('SITE_PDBX_DICT_PATH'))
+            self.__ccDictPath    =  os.path.abspath(cI.get('SITE_CC_DICT_PATH'))
+            self.__localAppsPath =  os.path.abspath(cI.get('SITE_LOCAL_APPS_PATH'))
+            
+            self.__schemaPath    = os.path.join(self.__localAppsPath,"schema")
+            self.__ccDictPathSdb = os.path.join(self.__ccDictPath,"Components-all-v3.sdb")
+            self.__ccDictPathIdx = os.path.join(self.__ccDictPath,"Components-all-v3-r4.idx")        
+            #
+            self.__pathDdlSdb      = os.path.join(self.__pdbxDictPath,"mmcif_ddl.sdb")
+            self.__pathPdbxDictSdb = os.path.join(self.__pdbxDictPath,"mmcif_pdbx.sdb")
+            self.__pathPdbxDictOdb = os.path.join(self.__pdbxDictPath,"mmcif_pdbx.odb")
+            #
+            self.__oeDirPath        = os.path.abspath(cI.get('SITE_CC_OE_DIR'))
+            self.__oeLicensePath    = os.path.abspath(cI.get('SITE_CC_OE_LICENSE'))
+            self.__babelDirPath     = os.path.abspath(cI.get('SITE_CC_BABEL_DIR'))
+            self.__babelDataDirPath = os.path.abspath(cI.get('SITE_CC_BABEL_DATADIR'))
+            self.__cactvsDirPath    = os.path.abspath(cI.get('SITE_CC_CACTVS_DIR'))
+        except:
+            if (self.__verbose): 
+                self.__lfh.write("++INFO - some configuration information could not be found.\n")
         #
         
     def setRcsbAppsPath(self,fPath):
