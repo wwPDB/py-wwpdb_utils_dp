@@ -15,6 +15,7 @@
 # 16-Feb-2011 rps  "cif2cif-pdbx-skip-process" added to support creation of cif file amenable to load into jmol
 # 03-May-2011 jdw update maxit operations
 # 23-Jun-2011 jdw add hostname to differentiate temp/working directory -
+# 27-Jun-2011 jdw revised configuration error reporting.  Added comp_path for maxit.
 ##
 """
 Wrapper class for data processing and chemical component utilities.
@@ -34,7 +35,7 @@ class RcsbDpUtility(object):
     """
     def __init__(self, tmpPath="/scratch", siteId="DEV",  verbose=False, log=sys.stderr):
         self.__verbose  = verbose
-        self.__debug    = False
+        self.__debug    = True
         self.__lfh      = log
         #
         # tmpPath is used to place working directories if these are not explicitly set.
@@ -71,57 +72,44 @@ class RcsbDpUtility(object):
         self.__stepOpList  = []
         self.__stepNo      = 0
         self.__stepNoSaved = None
-        
+
+        self.__cI=ConfigInfo(self.__siteId)        
         self.__initPath()
+
+    def __getConfigPath(self, ky):
+        try:
+            pth =  os.path.abspath(self.__cI.get(ky))
+        except:
+            if (self.__verbose): 
+                self.__lfh.write("++WARN - site %s configuration data missing for %s\n" % (self.__siteId,ky))
+            pth = ''
+        return pth
 
     def __initPath(self):
         """Set paths that depend on top-level resource paths
         """
-        defPath = os.path.abspath('/.')
-        self.__rcsbAppsPath  = defPath  
-        self.__ccAppsPath    = defPath 
-        self.__pdbxDictPath  = defPath 
-        self.__ccDictPath    = defPath 
-        self.__localAppsPath = defPath 
         #
-        self.__schemaPath    = defPath
-        self.__ccDictPathSdb = defPath
-        self.__ccDictPathIdx = defPath
+        self.__rcsbAppsPath  =  self.__getConfigPath('SITE_RCSB_APPS_PATH')
+        self.__ccAppsPath    =  self.__getConfigPath('SITE_CC_APPS_PATH')
+        self.__pdbxDictPath  =  self.__getConfigPath('SITE_PDBX_DICT_PATH')
+        self.__ccDictPath    =  self.__getConfigPath('SITE_CC_DICT_PATH')
+        self.__ccCvsPath     =  self.__getConfigPath('SITE_CC_CVS_PATH')
+        self.__localAppsPath =  self.__getConfigPath('SITE_LOCAL_APPS_PATH')
+        
+        self.__schemaPath    = os.path.join(self.__localAppsPath,"schema")
+        self.__ccDictPathSdb = os.path.join(self.__ccDictPath,"Components-all-v3.sdb")
+        self.__ccDictPathIdx = os.path.join(self.__ccDictPath,"Components-all-v3-r4.idx")        
         #
-        self.__pathDdlSdb      = defPath
-        self.__pathPdbxDictSdb = defPath
-        self.__pathPdbxDictOdb = defPath
+        self.__pathDdlSdb      = os.path.join(self.__pdbxDictPath,"mmcif_ddl.sdb")
+        self.__pathPdbxDictSdb = os.path.join(self.__pdbxDictPath,"mmcif_pdbx.sdb")
+        self.__pathPdbxDictOdb = os.path.join(self.__pdbxDictPath,"mmcif_pdbx.odb")
         #
-        self.__oeDirPath        = defPath
-        self.__oeLicensePath    = defPath
-        self.__babelDirPath     = defPath
-        self.__babelDataDirPath = defPath
-        self.__cactvsDirPath    = defPath
-        try:
-            cI=ConfigInfo(self.__siteId)
-            self.__rcsbAppsPath  =  os.path.abspath(cI.get('SITE_RCSB_APPS_PATH'))
-            self.__ccAppsPath    =  os.path.abspath(cI.get('SITE_CC_APPS_PATH'))
-            self.__pdbxDictPath  =  os.path.abspath(cI.get('SITE_PDBX_DICT_PATH'))
-            self.__ccDictPath    =  os.path.abspath(cI.get('SITE_CC_DICT_PATH'))
-            self.__localAppsPath =  os.path.abspath(cI.get('SITE_LOCAL_APPS_PATH'))
-            
-            self.__schemaPath    = os.path.join(self.__localAppsPath,"schema")
-            self.__ccDictPathSdb = os.path.join(self.__ccDictPath,"Components-all-v3.sdb")
-            self.__ccDictPathIdx = os.path.join(self.__ccDictPath,"Components-all-v3-r4.idx")        
-            #
-            self.__pathDdlSdb      = os.path.join(self.__pdbxDictPath,"mmcif_ddl.sdb")
-            self.__pathPdbxDictSdb = os.path.join(self.__pdbxDictPath,"mmcif_pdbx.sdb")
-            self.__pathPdbxDictOdb = os.path.join(self.__pdbxDictPath,"mmcif_pdbx.odb")
-            #
-            self.__oeDirPath        = os.path.abspath(cI.get('SITE_CC_OE_DIR'))
-            self.__oeLicensePath    = os.path.abspath(cI.get('SITE_CC_OE_LICENSE'))
-            self.__babelDirPath     = os.path.abspath(cI.get('SITE_CC_BABEL_DIR'))
-            self.__babelDataDirPath = os.path.abspath(cI.get('SITE_CC_BABEL_DATADIR'))
-            self.__cactvsDirPath    = os.path.abspath(cI.get('SITE_CC_CACTVS_DIR'))
-        except:
-            if (self.__verbose): 
-                self.__lfh.write("++INFO - some configuration information could not be found.\n")
-        #
+        self.__oeDirPath        = self.__getConfigPath('SITE_CC_OE_DIR')
+        self.__oeLicensePath    = self.__getConfigPath('SITE_CC_OE_LICENSE')
+        self.__babelDirPath     = self.__getConfigPath('SITE_CC_BABEL_DIR')
+        self.__babelDataDirPath = self.__getConfigPath('SITE_CC_BABEL_DATADIR')
+        self.__cactvsDirPath    = self.__getConfigPath('SITE_CC_CACTVS_DIR')
+        
         
     def setRcsbAppsPath(self,fPath):
         if (fPath != None and os.path.isdir(fPath)):
@@ -130,7 +118,7 @@ class RcsbDpUtility(object):
     def setAppsPath(self,fPath):
         if (fPath != None and os.path.isdir(fPath)):
             self.__localAppsPath = os.path.abspath(fPath)
-            self.__initPath()
+            #self.__initPath()
 
     def saveResult(self):
         return(self.__stepNo)
@@ -267,7 +255,9 @@ class RcsbDpUtility(object):
             cmd += "; cp " + pPath + " "  + iPath
         #
         maxitPath   = os.path.join(self.__rcsbAppsPath,"bin","maxit")        
-        maxitCmd = " ; RCSBROOT=" + self.__rcsbAppsPath 
+        maxitCmd = " ; RCSBROOT=" + self.__rcsbAppsPath
+        if ((self.__ccCvsPath is not None) and (len(self.__ccCvsPath) > 0)):
+            maxitCmd += " ; COMP_PATH=" + self.__ccCvsPath
         maxitCmd += " ; "   +  maxitPath + " -path " + self.__rcsbAppsPath
 
 
