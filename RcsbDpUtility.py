@@ -16,6 +16,7 @@
 # 03-May-2011 jdw update maxit operations
 # 23-Jun-2011 jdw add hostname to differentiate temp/working directory -
 # 27-Jun-2011 jdw revised configuration error reporting.  Added comp_path for maxit.
+# 29-Jun-2011 jdw add additional configuration checks.
 ##
 """
 Wrapper class for data processing and chemical component utilities.
@@ -79,6 +80,8 @@ class RcsbDpUtility(object):
     def __getConfigPath(self, ky):
         try:
             pth =  os.path.abspath(self.__cI.get(ky))
+            if (self.__debug): 
+                self.__lfh.write("++INFO - site %s configuration for %s is %s\n" % (self.__siteId,ky,pth))            
         except:
             if (self.__verbose): 
                 self.__lfh.write("++WARN - site %s configuration data missing for %s\n" % (self.__siteId,ky))
