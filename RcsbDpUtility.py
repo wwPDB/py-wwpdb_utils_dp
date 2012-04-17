@@ -61,7 +61,11 @@ class RcsbDpUtility(object):
                            "cif-seqed2cif-pdbx", "cif2pdb","pdb2cif","pdb2cif-ebi","switch-dna",
                            "cif2pdb-assembly","pdbx2pdb-assembly","pdbx2deriv"]
         self.__rcsbOps = [ "rename-atoms", "cif2pdbx", "pdbx2xml", "pdb2dssp", "pdb2stride",
-                           "initial-version","poly-link-dist","chem-comp-link", "chem-comp-assign", "chem-comp-assign-validation", "chem-comp-instance-update"]
+                           "initial-version","poly-link-dist","chem-comp-link", "chem-comp-assign",
+                           "chem-comp-assign-validation", "chem-comp-instance-update"]
+        self.__pisaOps = ["pisa-analysis","pisa-assembly-report-xml","pisa-assembly-report-text",
+                          "pisa-interface-report-xml","pisa-assembly-coordinates-pdb",
+                          "pisa-assembly-coordinates-cif","pisa-assembly-merge-cif"]
         #
         # Source, destination and logfile path details
         #
@@ -89,39 +93,24 @@ class RcsbDpUtility(object):
         return pth
 
     def __initPath(self):
-        """Set paths that depend on top-level resource paths
+        """ Provide placeholder values for application specific path details
         """
         #
-        self.__rcsbAppsPath  =  self.__getConfigPath('SITE_RCSB_APPS_PATH')
-        self.__ccAppsPath    =  self.__getConfigPath('SITE_CC_APPS_PATH')
-        self.__pdbxDictPath  =  self.__getConfigPath('SITE_PDBX_DICT_PATH')
-        self.__ccDictPath    =  self.__getConfigPath('SITE_CC_DICT_PATH')
-        self.__ccCvsPath     =  self.__getConfigPath('SITE_CC_CVS_PATH')
-        self.__localAppsPath =  self.__getConfigPath('SITE_LOCAL_APPS_PATH')
-        
-        self.__schemaPath    = os.path.join(self.__localAppsPath,"schema")
-        self.__ccDictPathSdb = os.path.join(self.__ccDictPath,"Components-all-v3.sdb")
-        self.__ccDictPathIdx = os.path.join(self.__ccDictPath,"Components-all-v3-r4.idx")        
+        self.__rcsbAppsPath  = None
+        self.__localAppsPath = None        
         #
-        self.__pathDdlSdb      = os.path.join(self.__pdbxDictPath,"mmcif_ddl.sdb")
-        self.__pathPdbxDictSdb = os.path.join(self.__pdbxDictPath,"mmcif_pdbx.sdb")
-        self.__pathPdbxDictOdb = os.path.join(self.__pdbxDictPath,"mmcif_pdbx.odb")
-        #
-        self.__oeDirPath        = self.__getConfigPath('SITE_CC_OE_DIR')
-        self.__oeLicensePath    = self.__getConfigPath('SITE_CC_OE_LICENSE')
-        self.__babelDirPath     = self.__getConfigPath('SITE_CC_BABEL_DIR')
-        self.__babelDataDirPath = self.__getConfigPath('SITE_CC_BABEL_DATADIR')
-        self.__cactvsDirPath    = self.__getConfigPath('SITE_CC_CACTVS_DIR')
-        
         
     def setRcsbAppsPath(self,fPath):
+        """ Set or overwrite the configuration setting for __rcsbAppsPath.
+        """ 
         if (fPath != None and os.path.isdir(fPath)):
             self.__rcsbAppsPath = os.path.abspath(fPath)
 
     def setAppsPath(self,fPath):
+        """ Set or overwrite the configuration setting for __localAppsPath.
+        """         
         if (fPath != None and os.path.isdir(fPath)):
             self.__localAppsPath = os.path.abspath(fPath)
-            #self.__initPath()
 
     def saveResult(self):
         return(self.__stepNo)
@@ -151,6 +140,9 @@ class RcsbDpUtility(object):
             os.makedirs(dPath,0755)
         if (os.access(dPath,os.F_OK)):
             self.__wrkPath = os.path.abspath(dPath)
+
+    def getWorkingDir(self):
+        return self.__wrkPath
 
     def setSource(self, fPath):
         if (os.access(fPath,os.F_OK)):
@@ -182,6 +174,10 @@ class RcsbDpUtility(object):
         elif op in self.__rcsbOps:
             self.__stepNo += 1            
             self.__rcsbStep(op)
+
+        elif op in self.__pisaOps:
+            self.__stepNo += 1            
+            self.__pisaStep(op)
 
         else:
             self.__lfh.write("++ERROR - Unknown operation %s\n" % op)
@@ -222,7 +218,7 @@ class RcsbDpUtility(object):
         return("temp_file_"  + str(stepNo))                
 
     def __updateInputPath(self):
-        """Shuffle the output from the previous or a selected previous
+        """Shuffle the output from the previous step or a selected previous
            step as the input for the current operation.
         """
         #
@@ -234,10 +230,17 @@ class RcsbDpUtility(object):
                 return(self.__getResultWrkFile(self.__stepNo - 1))
             
         
-    def __maxitStep(self, op):
+    def __maxitStep(self, op, progName="maxit"):
         """ Internal method that performs a single maxit operation.
+         
         """
+        # Set application specific path details --
         #
+        # If this has not been initialized take if from the configuration class.        
+        if self.__rcsbAppsPath is None:        
+            self.__rcsbAppsPath  =  self.__getConfigPath('SITE_RCSB_APPS_PATH')
+        self.__ccCvsPath     =  self.__getConfigPath('SITE_CC_CVS_PATH')        
+        # 
         iPath=     self.__getSourceWrkFile(self.__stepNo)
         iPathList= self.__getSourceWrkFileList(self.__stepNo)
         oPath=     self.__getResultWrkFile(self.__stepNo)
@@ -255,9 +258,10 @@ class RcsbDpUtility(object):
         #
         if (self.__stepNo > 1):
             pPath = self.__updateInputPath()
-            cmd += "; cp " + pPath + " "  + iPath
+            if (os.access(pPath,os.F_OK)):            
+                cmd += "; cp " + pPath + " "  + iPath
         #
-        maxitPath   = os.path.join(self.__rcsbAppsPath,"bin","maxit")        
+        maxitPath   = os.path.join(self.__rcsbAppsPath,"bin",progName)        
         maxitCmd = " ; RCSBROOT=" + self.__rcsbAppsPath
         if ((self.__ccCvsPath is not None) and (len(self.__ccCvsPath) > 0)):
             maxitCmd += " ; COMP_PATH=" + self.__ccCvsPath
@@ -356,9 +360,39 @@ class RcsbDpUtility(object):
         
         return iret
 
+
     def __rcsbStep(self, op):
         """ Internal method that performs a single rcsb application operation.
         """
+        #
+        # Set application specific path details here -
+        #
+        if self.__rcsbAppsPath is None:                
+            self.__rcsbAppsPath  =  self.__getConfigPath('SITE_RCSB_APPS_PATH')
+        if self.__localAppsPath is None:                            
+            self.__localAppsPath =  self.__getConfigPath('SITE_LOCAL_APPS_PATH')
+
+        #
+        self.__ccAppsPath    =  self.__getConfigPath('SITE_CC_APPS_PATH')
+        self.__pdbxDictPath  =  self.__getConfigPath('SITE_PDBX_DICT_PATH')
+        self.__ccDictPath    =  self.__getConfigPath('SITE_CC_DICT_PATH')
+        self.__ccCvsPath     =  self.__getConfigPath('SITE_CC_CVS_PATH')
+
+        
+        self.__ccDictPathSdb = os.path.join(self.__ccDictPath,"Components-all-v3.sdb")
+        self.__ccDictPathIdx = os.path.join(self.__ccDictPath,"Components-all-v3-r4.idx")        
+        #
+        self.__pathDdlSdb      = os.path.join(self.__pdbxDictPath,"mmcif_ddl.sdb")
+        self.__pathPdbxDictSdb = os.path.join(self.__pdbxDictPath,"mmcif_pdbx.sdb")
+        self.__pathPdbxDictOdb = os.path.join(self.__pdbxDictPath,"mmcif_pdbx.odb")
+        #
+        self.__oeDirPath        = self.__getConfigPath('SITE_CC_OE_DIR')
+        self.__oeLicensePath    = self.__getConfigPath('SITE_CC_OE_LICENSE')
+        self.__babelDirPath     = self.__getConfigPath('SITE_CC_BABEL_DIR')
+        self.__babelDataDirPath = self.__getConfigPath('SITE_CC_BABEL_DATADIR')
+        self.__cactvsDirPath    = self.__getConfigPath('SITE_CC_CACTVS_DIR')
+
+        # -------------
         #
         iPath=     self.__getSourceWrkFile(self.__stepNo)
         iPathList= self.__getSourceWrkFileList(self.__stepNo)
@@ -380,7 +414,8 @@ class RcsbDpUtility(object):
         #
         if (self.__stepNo > 1):
             pPath = self.__updateInputPath()
-            cmd += "; cp " + pPath + " "  + iPath
+            if (os.access(pPath,os.F_OK)):            
+                cmd += "; cp " + pPath + " "  + iPath
         #
         
         if (op == "rename-atoms"):
@@ -556,6 +591,112 @@ class RcsbDpUtility(object):
         
         return iret
 
+    def __pisaStep(self, op):
+        """ Internal method that performs a single tool application operation.
+
+        """
+        #
+        pisaTopPath       =  self.__getConfigPath('SITE_PISA_TOP_PATH')
+        dpToolsPath       =  self.__getConfigPath('SITE_DP_TOOLS_PATH')        
+        #
+        iPath=     self.__getSourceWrkFile(self.__stepNo)
+        iPathList= self.__getSourceWrkFileList(self.__stepNo)
+        oPath=     self.__getResultWrkFile(self.__stepNo)
+        lPath=     self.__getLogWrkFile(self.__stepNo)
+        ePath=     self.__getErrWrkFile(self.__stepNo)
+        tPath=     self.__getTmpWrkFile(self.__stepNo)        
+        #
+        if (self.__wrkPath != None):
+            iPathFull=os.path.abspath(os.path.join(self.__wrkPath, iPath))
+            ePathFull=os.path.join(self.__wrkPath, ePath)
+            lPathFull=os.path.join(self.__wrkPath, lPath)
+            tPathFull=os.path.join(self.__wrkPath, tPath)                                    
+            cmd = "(cd " + self.__wrkPath
+        else:
+            iPathull  = iPath
+            ePathFull = ePath
+            lPathFull = lPath
+            tPathFull = tPath            
+            cmd = "("
+        #
+        if (self.__stepNo > 1):
+            pPath = self.__updateInputPath()
+            if (os.access(pPath,os.F_OK)):
+                cmd += "; cp " + pPath + " "  + iPath
+        #
+        pisaSession  = self.__inputParamDict['pisa_session_name']
+        cmd += " ; PISA_TOP="         + os.path.abspath(pisaTopPath)     + " ; export PISA_TOP "
+        cmd += " ; PISA_SESSIONS="    + os.path.abspath(self.__wrkPath)         + " ; export PISA_SESSIONS "
+        cmd += " ; PISA_CONF_FILE="   + os.path.abspath(os.path.join(pisaTopPath,"configure","pisa-standalone.cfg")) + " ; export PISA_CONF_FILE "
+        if (op == "pisa-analysis"):
+            cmdPath   = os.path.join(pisaTopPath,"bin","pisa")
+            cmd += " ; "   + cmdPath + " " + pisaSession + " -analyse " + iPathFull   
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
+        elif (op == "pisa-assembly-report-xml"):
+            cmdPath   = os.path.join(pisaTopPath,"bin","pisa")
+            cmd += " ; "   + cmdPath + " " + pisaSession + " -xml assemblies > " + oPath
+            cmd += " 2> " + tPath + " ; cat " + tPath + " >> " + lPath
+        elif (op == "pisa-assembly-report-text"):
+            cmdPath   = os.path.join(pisaTopPath,"bin","pisa")
+            cmd += " ; "   + cmdPath + " " + pisaSession + " -list assemblies > " + oPath
+            cmd += " 2> " + tPath + " ; cat " + tPath + " >> " + lPath
+        elif  (op == "pisa-interface-report-xml"):
+            cmdPath   = os.path.join(pisaTopPath,"bin","pisa")
+            cmd += " ; "   + cmdPath + " " + pisaSession + " -xml interfaces > " + oPath
+            cmd += " 2> " + tPath + " ; cat " + tPath + " >> " + lPath
+        elif  (op == "pisa-assembly-coordinates-pdb"):
+            pisaAssemblyId  = self.__inputParamDict['pisa_assembly_id']
+            cmdPath   = os.path.join(pisaTopPath,"bin","pisa")
+            cmd += " ; "   + cmdPath + " " + pisaSession + " -download assembly " + pisaAssemblyId + "  > " + oPath
+            cmd += " 2> " + tPath + " ; cat " + tPath + " >> " + lPath
+        elif  (op == "pisa-assembly-coordinates-cif"):
+            pisaAssemblyId  = self.__inputParamDict['pisa_assembly_id']
+            cmdPath   = os.path.join(pisaTopPath,"bin","pisa")
+            cmd += " ; "   + cmdPath + " " + pisaSession + " -download assembly " + pisaAssemblyId + "  > " + oPath
+            cmd += " 2> " + tPath + " ; cat " + tPath + " >> " + lPath
+        elif (op == "pisa-assembly-merge-cif"):
+            spgFilePath  =  self.__getConfigPath('SITE_SPACE_GROUP_FILE_PATH')                    
+            assemblyTupleList = self.__inputParamDict['pisa_assembly_tuple_list']
+            assemblyFile      = self.__inputParamDict['pisa_assembly_file_path']
+            cmdPath =  os.path.join(dpToolsPath,"bin","merge-pisa-data-cif")
+            #
+            cmd   +=  " ; " + cmdPath + " -cif " + iPathFull + " -xml " + assemblyFile
+            cmd   +=  " -spacegroup " + spgFilePath + " -log " + ePath
+            cmd   +=  " -list " + assemblyTupleList
+            cmd   +=  " ; cp -f " + iPath + " " + oPath 
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
+            
+        else:
+            return -1
+        #
+        if (self.__debug):
+            self.__lfh.write("++INFO - Application string:\n%s\n" % cmd.replace(";","\n"))        
+        #
+        if (self.__verbose):            
+            cmd += " ; ls -la  > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                                    
+            
+        cmd += " ) > %s 2>&1 " % ePathFull
+
+        cmd += " ; echo '-BEGIN-PROGRAM-ERROR-LOG--------------------------\n'  >> " + lPathFull                
+        cmd += " ; cat " + ePathFull + " >> " + lPathFull
+        cmd += " ; echo '-END-PROGRAM-ERROR-LOG-------------------------\n'  >> " + lPathFull                        
+
+
+        ofh = open(lPathFull,'w')
+        lt = time.strftime("%Y %m %d %H:%M:%S", time.localtime())
+        ofh.write("\n\n-------------------------------------------------\n")
+        ofh.write("LogFile:      %s\n" % lPath)
+        ofh.write("Working path: %s\n" % self.__wrkPath)
+        ofh.write("Date:         %s\n" % lt)
+        if (self.__verbose):
+            ofh.write("\nStep command:\n%s\n-------------------------------------------------\n" % cmd.replace(";","\n"))
+        ofh.close()
+           
+        iret = os.system(cmd)
+        #
+        return iret
+
+
     def exp(self,dstPath=None):
         """Export a copy of the last result file to destination file path.
         """
@@ -568,20 +709,32 @@ class RcsbDpUtility(object):
             resultPath = rf
 
         f1 = DataFile(resultPath)
-        f1.copy(self.__dstPath)
+        if f1.srcFileExists():
+            f1.copy(self.__dstPath)
+            if f1.dstFileExists():
+                return True
+            else:
+                return False
+        else:
+            return False
 
     def getResultPathList(self):
         return(self.__resultPathList)
 
     def expList(self,dstPathList=[]):
-        """Export a copies of the list of last results to the corresponding paths
-           in teh destination file path list.
+        """Export  copies of the list of last results to the corresponding paths
+           in the destination file path list.
         """
         if (dstPathList == [] or self.__resultPathList == []): return
         #
+        ok=True
         for f,fc in map(None,self.__resultPathList,dstPathList):
             f1 = DataFile(f)
-            f1.copy(fc)
+            if f1.srcFileExists():
+                f1.copy(fc)
+            else:
+                ok=False
+        return ok
 
     def imp(self,srcPath=None):
         """ Import a local copy of the target source file - Use the working

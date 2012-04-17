@@ -8,8 +8,8 @@
 # Update:
 #  Sep 10, 2010 jdw -  Added test cases for chemical component applications.
 #                      Cleaned up error reporting .
-#
-#  Jun 23, 2011 jdw - Update examples -- verify configuration --  site_id = WWPDB_DEV tested 
+#  Jun 23, 2011 jdw -  Update examples -- verify configuration --  site_id = WWPDB_DEV tested
+#  Apr 15, 2012 jdw -  Add PISA application tasks
 ##
 """
 Test cases from 
@@ -25,13 +25,18 @@ from wwpdb.utils.rcsb.RcsbDpUtility       import RcsbDpUtility
 
 class RcsbDpUtilityTests(unittest.TestCase):
     def setUp(self):
-        self.__siteId='WWPDB_DEV'
+        self.__siteId='WWPDB_DEV_TEST'
         cI=ConfigInfo(self.__siteId)
         self.__testFilePath    =cI.get('DP_TEST_FILE_PATH')
         self.__testFileCif     =cI.get('DP_TEST_FILE_CIF')
         self.__testFileCifEps1 =cI.get('DP_TEST_FILE_CIFEPS')
         self.__testFileCifEps2 =cI.get('DP_TEST_FILE_CIFEPS_2')
-        self.__tmpPath         =cI.get('TMP_PATH')
+        #self.__tmpPath        =cI.get('TMP_PATH')
+        self.__tmpPath         = './rcsb-tmp-dir'
+        #
+        self.__testFilePdbPisa    =cI.get('DP_TEST_FILE_PDB_PISA')
+        self.__testFileCifPisa    =cI.get('DP_TEST_FILE_CIF_PISA')                
+        
         self.__lfh=sys.stderr
             
     def tearDown(self):
@@ -48,7 +53,23 @@ class RcsbDpUtilityTests(unittest.TestCase):
             dp.op("cif2pdb")
             dp.exp("myTest1.pdb.gz")
             dp.expLog("myLog1.log.gz")    
-            dp.cleanup()
+            #dp.cleanup()
+        except:
+            traceback.print_exc(file=self.__lfh)
+            self.fail()
+
+    def testCifEpsToPdb(self): 
+        """
+        """
+        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        try:
+            dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
+            cifPath=os.path.join(self.__testFilePath,self.__testFileCifEps1)
+            dp.imp(cifPath)
+            dp.op("cif2pdb")
+            dp.exp("myTest2.pdb.gz")
+            dp.expLog("myLog2.log.gz")    
+            #dp.cleanup()
         except:
             traceback.print_exc(file=self.__lfh)
             self.fail()
@@ -115,25 +136,126 @@ class RcsbDpUtilityTests(unittest.TestCase):
             self.fail()
 
 
-    def testCifEpsToPdb(self): 
+    def testPisaAnalysis(self): 
         """
         """
         self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
         try:
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
-            cifPath=os.path.join(self.__testFilePath,self.__testFileCifEps1)
-            dp.imp(cifPath)
-            dp.op("cif2pdb")
-            dp.exp("myTest2.pdb.gz")
-            dp.expLog("myLog2.log.gz")    
+            pdbPath=os.path.join(self.__testFilePath,self.__testFilePdbPisa)
+            dp.imp(pdbPath)
+            dp.addInput(name="pisa_session_name",value="session_3re3")
+            dp.op("pisa-analysis")
+            dp.expLog("pisa-anal.log.gz")
             dp.cleanup()
         except:
             traceback.print_exc(file=self.__lfh)
             self.fail()
 
-    def suite():
-        return unittest.makeSuite(RcsbDpUtilityTests,'test')
+    def testPisaAssemblyReportXml(self): 
+        """
+        """
+        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        try:
+            dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
+            pdbPath=os.path.join(self.__testFilePath,self.__testFilePdbPisa)
+            dp.imp(pdbPath)
+            dp.addInput(name="pisa_session_name",value="session_3re3")            
+            dp.op("pisa-analysis")
+            dp.expLog("pisa-anal-assembly.log.gz")                        
+            dp.op("pisa-assembly-report-xml")
+            dp.exp("pisa-assembly-report.xml")
+            dp.expLog("pisa-report-xml.log.gz")                                    
+            dp.cleanup()
+        except:
+            traceback.print_exc(file=self.__lfh)
+            self.fail()
 
+    def testPisaAssemblyDownloadModel(self): 
+        """
+        """
+        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        try:
+            dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
+            pdbPath=os.path.join(self.__testFilePath,self.__testFilePdbPisa)
+            dp.imp(pdbPath)
+            dp.addInput(name="pisa_session_name",value="session_3re3")            
+            dp.op("pisa-analysis")
+            dp.expLog("pisa-anal-assembly.log.gz")                        
+            dp.op("pisa-assembly-report-xml")
+            dp.exp("pisa-assembly-report.xml")
+            dp.expLog("pisa-report-xml.log.gz")
+            #
+            for assemId in ['1','2','3','4','5']:
+                dp.addInput(name="pisa_assembly_id",value=assemId)
+                oFileName='3rer-assembly-'+assemId+'.pdb.gz'
+                oLogName='3rer-assembly-'+assemId+'.log.gz'                
+                dp.op("pisa-assembly-coordinates-pdb")
+                dp.exp(oFileName)
+                dp.expLog(oLogName)
+            dp.cleanup()
+        except:
+            traceback.print_exc(file=self.__lfh)
+            self.fail()
+
+    def testPisaAssemblyMergeModel(self): 
+        """
+        """
+        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        try:
+            dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
+            pdbPath=os.path.join(self.__testFilePath,self.__testFilePdbPisa)
+            dp.imp(pdbPath)
+            dp.addInput(name="pisa_session_name",value="session_3re3")            
+            dp.op("pisa-analysis")
+            dp.op("pisa-assembly-report-xml")
+            dp.exp("pisa-assembly-report.xml")
+            #
+            cifPath=os.path.join(self.__testFilePath,self.__testFileCifPisa)
+            dp.imp(cifPath)
+            dp.addInput(name="pisa_assembly_tuple_list",value="0:0,1:0,1:1,2:0")
+            dp.addInput(name="pisa_assembly_file_path",value="pisa-assembly-report.xml",type="file")
+            dp.op("pisa-assembly-merge-cif")
+            dp.exp("3rer-updated.cif.gz")
+            dp.expLog("3rer-updated.log.gz")
+            #dp.cleanup()
+        except:
+            traceback.print_exc(file=self.__lfh)
+            self.fail()
+
+
+
+def suiteMaxitTests():
+    suiteSelect = unittest.TestSuite()
+    suiteSelect.addTest(RcsbDpUtilityTests("testCifEpsToPdb"))
+    suiteSelect.addTest(RcsbDpUtilityTests("testCifToPdb"))
+    return suiteSelect
+
+def suiteChemCompTests():
+    suiteSelect = unittest.TestSuite()
+    suiteSelect.addTest(RcsbDpUtilityTests("testChemCompLink"))
+    suiteSelect.addTest(RcsbDpUtilityTests("testChemCompInstanceUpdate"))
+    suiteSelect.addTest(RcsbDpUtilityTests("testChemCompAssign"))
+    return suiteSelect    
+
+def suitePisaTests():
+    suiteSelect = unittest.TestSuite()
+    #suiteSelect.addTest(RcsbDpUtilityTests("testPisaAnalysis"))
+    #suiteSelect.addTest(RcsbDpUtilityTests("testPisaAssemblyReportXml"))
+    #suiteSelect.addTest(RcsbDpUtilityTests("testPisaAssemblyDownloadModel"))
+    suiteSelect.addTest(RcsbDpUtilityTests("testPisaAssemblyMergeModel"))    
+    
+    return suiteSelect    
+    
 if __name__ == '__main__':
-    unittest.main()
-
+    # Run all tests -- 
+    # unittest.main()
+    #
+    #mySuite=suiteMaxitTests()
+    #unittest.TextTestRunner(verbosity=2).run(mySuite)
+    #
+    #mySuite=suiteChemCompTests()
+    #unittest.TextTestRunner(verbosity=2).run(mySuite)
+    #
+    mySuite=suitePisaTests()
+    unittest.TextTestRunner(verbosity=2).run(mySuite)    
