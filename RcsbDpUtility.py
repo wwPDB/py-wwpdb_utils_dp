@@ -17,6 +17,7 @@
 # 23-Jun-2011 jdw add hostname to differentiate temp/working directory -
 # 27-Jun-2011 jdw revised configuration error reporting.  Added comp_path for maxit.
 # 29-Jun-2011 jdw add additional configuration checks.
+# 14-Jun-2012 jdw add user selection option for op="chem-comp-instance-update"
 ##
 """
 Wrapper class for data processing and chemical component utilities.
