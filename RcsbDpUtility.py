@@ -552,7 +552,8 @@ class RcsbDpUtility(object):
             cmdPath =os.path.join(self.__ccAppsPath,"bin","updateInstance")
             thisCmd  = " ; " + cmdPath                        
             assignPath = self.__inputParamDict['cc_assign_file_path']
-            cmd += thisCmd + " -i " + iPath + " -o " + oPath + " -assign " + assignPath +  " -ifmt pdbx " 
+            selectPath = self.__inputParamDict['cc_select_file_path']            
+            cmd += thisCmd + " -i " + iPath + " -o " + oPath + " -assign " + assignPath + " -select " + selectPath +  " -ifmt pdbx " 
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
         else:
             return -1
