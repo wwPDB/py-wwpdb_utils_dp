@@ -18,14 +18,17 @@ Test cases from
 
 import sys, unittest, os, os.path, traceback
 
-from wwpdb.api.facade.ConfigInfo          import ConfigInfo
+from wwpdb.api.facade.ConfigInfo          import ConfigInfo,getSiteId
 from wwpdb.utils.rcsb.DataFile            import DataFile
 from wwpdb.utils.rcsb.RcsbDpUtility       import RcsbDpUtility
 
 
 class RcsbDpUtilityTests(unittest.TestCase):
     def setUp(self):
-        self.__siteId='WWPDB_DEV_TEST'
+        # Pick up site information from the environment or failover to the development site id.
+        self.__siteId=getSiteId(defaultSiteId='WWPDB_DEV_TEST')
+        self.__lfh.write("\nTesting with site environment for:  %s\n" % self.__siteId)
+        #
         cI=ConfigInfo(self.__siteId)
         self.__testFilePath    =cI.get('DP_TEST_FILE_PATH')
         self.__testFileCif     =cI.get('DP_TEST_FILE_CIF')
