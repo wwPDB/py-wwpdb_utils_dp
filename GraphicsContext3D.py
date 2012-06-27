@@ -3,6 +3,7 @@
 # Date: 24-June-2012
 #
 # Updates:
+# 27-June-2012 jdw Change magnification on zoomto and quoting policy on labels.
 #
 ##
 """
@@ -238,7 +239,7 @@ class GraphicsContext3D(object):
             rL.append(tS)
             lS=self.__assignLabelStyle(categoryName=categoryName)
             rL.append(lS)            
-            rL.append('zoomto (selected) 200; ')
+            rL.append('zoomto (selected) 350; ')
         #
         return "".join(rL)
 
@@ -465,13 +466,13 @@ class GraphicsContext3D(object):
     
     def __assignLabelStyle(self,categoryName=None):
         if categoryName in self.__atomContextCategoryList:
-            return 'label "%c:%n:%r:%a" ; '
+            return "label '%c:%n:%r:%a' ; "
         elif categoryName in self.__componentContextCategoryList:
-            return 'label "%c:%n:%r ; '
+            return "label '%c:%n:%r' ; "
         elif categoryName in self.__polymerContextCategoryList:            
-            return 'label "%c ; '
+            return "label '%c' ; "
         else:
-            return 'label "%c:%n:%r ; '            
+            return "label '%c:%n:%r' ; "
     
     def __extractValues(self,attribDict,rowDict):
         """  Return a value dictionary 
