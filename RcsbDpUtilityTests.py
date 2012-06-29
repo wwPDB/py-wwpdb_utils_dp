@@ -25,6 +25,7 @@ from wwpdb.utils.rcsb.RcsbDpUtility       import RcsbDpUtility
 
 class RcsbDpUtilityTests(unittest.TestCase):
     def setUp(self):
+        self.__lfh=sys.stderr        
         # Pick up site information from the environment or failover to the development site id.
         self.__siteId=getSiteId(defaultSiteId='WWPDB_DEV_TEST')
         self.__lfh.write("\nTesting with site environment for:  %s\n" % self.__siteId)
@@ -40,7 +41,7 @@ class RcsbDpUtilityTests(unittest.TestCase):
         self.__testFilePdbPisa    =cI.get('DP_TEST_FILE_PDB_PISA')
         self.__testFileCifPisa    =cI.get('DP_TEST_FILE_CIF_PISA')                
         
-        self.__lfh=sys.stderr
+
             
     def tearDown(self):
         pass

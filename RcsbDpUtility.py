@@ -18,6 +18,7 @@
 # 27-Jun-2011 jdw revised configuration error reporting.  Added comp_path for maxit.
 # 29-Jun-2011 jdw add additional configuration checks.
 # 14-Jun-2012 jdw add user selection option for op="chem-comp-instance-update"
+# 25-Jun-2012 jdw add new annotation methods from annotation-pack
 ##
 """
 Wrapper class for data processing and chemical component utilities.
@@ -40,7 +41,7 @@ class RcsbDpUtility(object):
         self.__debug    = True
         self.__lfh      = log
         #
-        # tmpPath is used to place working directories if these are not explicitly set.
+        # tmpPath is used (if it exists) to place working directories if these are not explicitly set.
         # This path is not used otherwise.
         #
         self.__tmpPath  = tmpPath
@@ -65,8 +66,12 @@ class RcsbDpUtility(object):
                            "initial-version","poly-link-dist","chem-comp-link", "chem-comp-assign",
                            "chem-comp-assign-validation", "chem-comp-instance-update"]
         self.__pisaOps = ["pisa-analysis","pisa-assembly-report-xml","pisa-assembly-report-text",
-                          "pisa-interface-report-xml","pisa-assembly-coordinates-pdb",
+                          "pisa-interface-report-xml","pisa-assembly-coordinates-pdb","pisa-assembly-coordinates-cif",
                           "pisa-assembly-coordinates-cif","pisa-assembly-merge-cif"]
+        self.__annotationOps = ["annot-secondary-structure", "annot-link-ssbond", "annot-distant-solvent",
+                                "annot-merge-struct-site","annot-reposition-solvent","annot-base-pair-info",
+                                "annot-validation","annot-site"]
+
         #
         # Source, destination and logfile path details
         #
@@ -98,7 +103,9 @@ class RcsbDpUtility(object):
         """
         #
         self.__rcsbAppsPath  = None
-        self.__localAppsPath = None        
+        self.__localAppsPath = None
+        self.__annotAppsPath = None
+        self.__toolsPath = None        
         #
         
     def setRcsbAppsPath(self,fPath):
@@ -180,6 +187,10 @@ class RcsbDpUtility(object):
             self.__stepNo += 1            
             self.__pisaStep(op)
 
+        elif op in self.__annotationOps:
+            self.__stepNo += 1            
+            self.__annotationStep(op)            
+
         else:
             self.__lfh.write("++ERROR - Unknown operation %s\n" % op)
         
@@ -229,7 +240,187 @@ class RcsbDpUtility(object):
                 self.__stepNoSaved = None
             else:
                 return(self.__getResultWrkFile(self.__stepNo - 1))
+
+
+    def __annotationStep(self, op):
+        """ Internal method that performs a single annotation application operation.
+        """
+        #
+        # Set application specific path details here -
+        #
+        self.__annotAppsPath  =  self.__getConfigPath('SITE_ANNOT_TOOLS_PATH')
+        self.__toolsPath      =  self.__getConfigPath('SITE_TOOLS_PATH')        
+
+        if self.__rcsbAppsPath is None:        
+            self.__rcsbAppsPath  =  self.__getConfigPath('SITE_RCSB_APPS_PATH')        
+        #
+        # These may not be needed -- 
+        self.__pdbxDictPath  =  self.__getConfigPath('SITE_PDBX_DICT_PATH')
+        self.__pathDdlSdb      = os.path.join(self.__pdbxDictPath,"mmcif_ddl.sdb")
+        self.__pathPdbxDictSdb = os.path.join(self.__pdbxDictPath,"mmcif_pdbx.sdb")
+        self.__pathPdbxDictOdb = os.path.join(self.__pdbxDictPath,"mmcif_pdbx.odb")
+        #
+        #
+        iPath=     self.__getSourceWrkFile(self.__stepNo)
+        iPathList= self.__getSourceWrkFileList(self.__stepNo)
+        oPath=     self.__getResultWrkFile(self.__stepNo)
+        lPath=     self.__getLogWrkFile(self.__stepNo)
+        ePath=     self.__getErrWrkFile(self.__stepNo)
+        tPath=     self.__getTmpWrkFile(self.__stepNo)        
+        #
+        if (self.__wrkPath != None):
+            ePathFull=os.path.join(self.__wrkPath, ePath)
+            lPathFull=os.path.join(self.__wrkPath, lPath)
+            tPathFull=os.path.join(self.__wrkPath, tPath)                                    
+            cmd = "(cd " + self.__wrkPath
+        else:
+            ePathFull = ePath
+            lPathFull = lPath
+            tPathFull = tPath            
+            cmd = "("
+        #
+        if (self.__stepNo > 1):
+            pPath = self.__updateInputPath()
+            if (os.access(pPath,os.F_OK)):            
+                cmd += "; cp " + pPath + " "  + iPath
+        #
+        if (op == "annot-secondary-structure"):
+            cmdPath =os.path.join(self.__annotAppsPath,"bin","GetSecondStruct")
+            thisCmd  = " ; " + cmdPath                        
+            cmd += " ; RCSBROOT=" + self.__rcsbAppsPath + " ; export RCSBROOT "            
+            cmd += thisCmd + " -input " + iPath + " -output " + oPath + " -log annot-step.log " 
+            #
+            if  self.__inputParamDict.has_key('ss_topology_file_path'):
+                topFilePath=self.__inputParamDict['ss_topology_file_path']                                
+                cmd += " -support " + topFilePath
+            #
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
+            cmd += " ; cat annot-step.log " + " >> " + lPath
             
+        elif (op == "annot-link-ssbond"):
+            cmdPath =os.path.join(self.__annotAppsPath,"bin","GetLinkAndSSBond")
+            thisCmd  = " ; " + cmdPath                        
+            cmd += " ; RCSBROOT=" + self.__rcsbAppsPath + " ; export RCSBROOT "            
+            cmd += thisCmd + " -input " + iPath + " -output " + oPath + " -log annot-step.log  -link -ssbond " 
+            #
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
+            cmd += " ; cat annot-step.log " + " >> " + lPath
+
+        elif (op == "annot-distant-solvent"):
+            cmdPath =os.path.join(self.__annotAppsPath,"bin","CalculateDistantWater")
+            thisCmd  = " ; " + cmdPath                        
+            cmd += " ; RCSBROOT=" + self.__rcsbAppsPath + " ; export RCSBROOT "            
+            cmd += thisCmd + " -input " + iPath + " -output " + oPath + " -log annot-step.log " 
+            #
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
+            cmd += " ; cat annot-step.log " + " >> " + lPath
+
+        elif (op == "annot-base-pair-info"):
+            cmdPath =os.path.join(self.__annotAppsPath,"bin","GetBasePairInfo")
+            thisCmd  = " ; " + cmdPath                        
+            cmd += " ; RCSBROOT=" + self.__rcsbAppsPath + " ; export RCSBROOT "            
+            cmd += thisCmd + " -input " + iPath + " -output " + oPath + " -log annot-step.log " 
+            #
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
+            cmd += " ; cat annot-step.log " + " >> " + lPath
+        elif (op == "annot-merge-struct-site"):
+            cmdPath =os.path.join(self.__annotAppsPath,"bin","MergeSiteData")
+            thisCmd  = " ; " + cmdPath                        
+            cmd += " ; RCSBROOT=" + self.__rcsbAppsPath + " ; export RCSBROOT "            
+            cmd += thisCmd + " -input " + iPath + " -output " + oPath + " -log annot-step.log "
+            if  self.__inputParamDict.has_key('site_info_file_path'):
+                topFilePath=self.__inputParamDict['site_info_file_path']                                
+                cmd += " -site " + topFilePath            
+            #
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
+            cmd += " ; cat annot-step.log " + " >> " + lPath
+
+        elif (op == "annot-reposition-solvent"):
+            cmdPath =os.path.join(self.__annotAppsPath,"bin","MovingWater")
+            thisCmd  = " ; " + cmdPath                        
+            cmd += " ; RCSBROOT=" + self.__rcsbAppsPath + " ; export RCSBROOT "            
+            cmd += thisCmd + " -input " + iPath + " -output " + oPath + " -log annot-step.log " 
+            #
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
+            cmd += " ; cat annot-step.log " + " >> " + lPath
+            
+        elif (op == "annot-validation"):
+            cmdPath =os.path.join(self.__annotAppsPath,"bin","valdation_with_cif_output")
+            thisCmd  = " ; " + cmdPath                        
+            cmd += " ; RCSBROOT=" + self.__rcsbAppsPath + " ; export RCSBROOT "            
+            cmd += thisCmd + " -cif " + iPath + " -output " + oPath + " -log annot-step.log " 
+            #
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
+            cmd += " ; cat annot-step.log " + " >> " + lPath
+
+
+        elif (op == "annot-site"):
+            cmd += " ; TOOLS_PATH="    + self.__toolsPath    + " ; export TOOLS_PATH "
+            cmd += " ; CCP4="    + os.path.join(self.__toolsPath,"ccp4")  + " ; export CCP4 "            
+            cmd += " ; SYMINFO="    + os.path.join(self.__toolsPath,"getsite-cif","data","syminfo.lib") + " ; export SYMINFO "
+            cmd += " ; MMCIFDIC="    + os.path.join(self.__toolsPath,"getsite-cif","data","cif_mmdic.lib")  + " ; export MMCIFDIC "         
+            cmd += " ; STANDATA="    + os.path.join(self.__toolsPath,"getsite-cif","data","standard_geometry.cif")  + " ; export STANDATA "
+            # setenv DYLD_LIBRARY_PATH  "$CCP4/lib/ccif:$CCP4/lib"
+            cmd += " ; DYLD_LIBRARY_PATH=" + os.path.join(self.__toolsPath,"ccp4","lib","ccif") + ":" + \
+                   os.path.join(self.__toolsPath,"ccp4","lib") + " ; export DYLD_LIBRARY_PATH "            
+
+            # setenv CIFIN 1abc.cif
+            cmd += " ; CIFIN=" + iPath+ " ; export CIFIN "
+            #cmd += " ; env "
+
+            if  self.__inputParamDict.has_key('block_id'):
+                blockId=self.__inputParamDict['block_id']                                
+            else:
+                blockId="UNK"
+
+                
+            # ../getsite_cif 1abc
+
+
+            cmdPath =os.path.join(self.__toolsPath,"getsite-cif","bin","getsite_cif")
+            thisCmd  = " ; " + cmdPath                        
+
+            cmd += thisCmd + " " + blockId + " "
+            
+            if  self.__inputParamDict.has_key('site_arguments'):
+                cmdArgs=self.__inputParamDict['site_arguments']                                
+                cmd += cmdArgs            
+            #
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
+            cmd += " ; mv -f " + blockId + "_site.cif " + oPath                         
+        else:
+            return -1
+        #
+        
+        if (self.__debug):
+            self.__lfh.write("++INFO - Application string:\n%s\n" % cmd.replace(";","\n"))        
+        #
+        if (self.__verbose):            
+            cmd += " ; ls -la  > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                                    
+            
+        cmd += " ) > %s 2>&1 " % ePathFull
+
+        cmd += " ; echo '-BEGIN-PROGRAM-ERROR-LOG--------------------------\n'  >> " + lPathFull                
+        cmd += " ; cat " + ePathFull + " >> " + lPathFull
+        cmd += " ; echo '-END-PROGRAM-ERROR-LOG-------------------------\n'  >> " + lPathFull                        
+
+
+        ofh = open(lPathFull,'w')
+        lt = time.strftime("%Y %m %d %H:%M:%S", time.localtime())
+        ofh.write("\n\n-------------------------------------------------\n")
+        ofh.write("LogFile:      %s\n" % lPath)
+        ofh.write("Working path: %s\n" % self.__wrkPath)
+        ofh.write("Date:         %s\n" % lt)
+        if (self.__verbose):
+            ofh.write("\nStep command:\n%s\n-------------------------------------------------\n" % cmd.replace(";","\n"))
+        ofh.close()
+           
+        iret = os.system(cmd)
+        
+        self.__resultPathList = [os.path.join(self.__wrkPath,oPath)]
+        
+        return iret
+    
         
     def __maxitStep(self, op, progName="maxit"):
         """ Internal method that performs a single maxit operation.
@@ -599,7 +790,9 @@ class RcsbDpUtility(object):
         """
         #
         pisaTopPath       =  self.__getConfigPath('SITE_PISA_TOP_PATH')
-        dpToolsPath       =  self.__getConfigPath('SITE_DP_TOOLS_PATH')        
+        annotToolsPath    =  self.__getConfigPath('SITE_ANNOT_TOOLS_PATH')
+        
+        
         #
         iPath=     self.__getSourceWrkFile(self.__stepNo)
         iPathList= self.__getSourceWrkFileList(self.__stepNo)
@@ -654,18 +847,21 @@ class RcsbDpUtility(object):
         elif  (op == "pisa-assembly-coordinates-cif"):
             pisaAssemblyId  = self.__inputParamDict['pisa_assembly_id']
             cmdPath   = os.path.join(pisaTopPath,"bin","pisa")
-            cmd += " ; "   + cmdPath + " " + pisaSession + " -download assembly " + pisaAssemblyId + "  > " + oPath
+            cmd += " ; "   + cmdPath + " " + pisaSession + " -cif assembly " + pisaAssemblyId + "  > " + oPath
             cmd += " 2> " + tPath + " ; cat " + tPath + " >> " + lPath
         elif (op == "pisa-assembly-merge-cif"):
+            # MergePisaData -input input_ciffile -output output_ciffile -xml xmlfile_from_PISA_output
+            #                -log logfile -spacegroup spacegroup_file -list idlist 
             spgFilePath  =  self.__getConfigPath('SITE_SPACE_GROUP_FILE_PATH')                    
             assemblyTupleList = self.__inputParamDict['pisa_assembly_tuple_list']
             assemblyFile      = self.__inputParamDict['pisa_assembly_file_path']
-            cmdPath =  os.path.join(dpToolsPath,"bin","merge-pisa-data-cif")
+            cmdPath =  os.path.join(annotToolsPath,"bin","MergePisaData")
             #
-            cmd   +=  " ; " + cmdPath + " -cif " + iPathFull + " -xml " + assemblyFile
-            cmd   +=  " -spacegroup " + spgFilePath + " -log " + ePath
+            cmd   +=  " ; " + cmdPath + " -input " + iPathFull + " -xml " + assemblyFile
+            cmd   +=  " -spacegroup " + spgFilePath + " -log " + ePath 
             cmd   +=  " -list " + assemblyTupleList
-            cmd   +=  " ; cp -f " + iPath + " " + oPath 
+            cmd   +=  " -output " + oPath
+            #cmd   +=  " ; cp -f " + iPath + " " + oPath 
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
             
         else:
@@ -697,6 +893,8 @@ class RcsbDpUtility(object):
         iret = os.system(cmd)
         #
         return iret
+
+
 
 
     def exp(self,dstPath=None):
