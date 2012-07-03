@@ -19,6 +19,8 @@
 # 29-Jun-2011 jdw add additional configuration checks.
 # 14-Jun-2012 jdw add user selection option for op="chem-comp-instance-update"
 # 25-Jun-2012 jdw add new annotation methods from annotation-pack
+#  3-Jul-2012 jdw add new sequence merge data application
+#                         update command arguments for "chem-comp-instance-update"
 ##
 """
 Wrapper class for data processing and chemical component utilities.
@@ -388,7 +390,18 @@ class RcsbDpUtility(object):
             #
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
             cmd += " ; mv -f " + blockId + "_site.cif " + oPath                         
+
+        elif (op == "annot-merge-sequence-data"):
+            cmdPath =os.path.join(self.__annotAppsPath,"bin","MergeSeqModuleData")
+            thisCmd  = " ; " + cmdPath                        
+            cmd += " ; RCSBROOT=" + self.__rcsbAppsPath + " ; export RCSBROOT "            
+            cmd += thisCmd + " -input " + iPath + " -output " + oPath + " -log annot-step.log "
+            #
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
+            cmd += " ; cat annot-step.log " + " >> " + lPath
+
         else:
+            
             return -1
         #
         
@@ -744,8 +757,8 @@ class RcsbDpUtility(object):
             cmdPath =os.path.join(self.__ccAppsPath,"bin","updateInstance")
             thisCmd  = " ; " + cmdPath                        
             assignPath = self.__inputParamDict['cc_assign_file_path']
-            selectPath = self.__inputParamDict['cc_select_file_path']            
-            cmd += thisCmd + " -i " + iPath + " -o " + oPath + " -assign " + assignPath + " -select " + selectPath +  " -ifmt pdbx " 
+            #selectPath = self.__inputParamDict['cc_select_file_path']            
+            cmd += thisCmd + " -i " + iPath + " -o " + oPath + " -assign " + assignPath + " -ifmt pdbx " 
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
         else:
             return -1
