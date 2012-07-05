@@ -21,6 +21,7 @@
 # 25-Jun-2012 jdw add new annotation methods from annotation-pack
 #  3-Jul-2012 jdw add new sequence merge data application
 #                         update command arguments for "chem-comp-instance-update"
+#  4-Jul-2012 jdw add optional assembly analysis arguments 
 ##
 """
 Wrapper class for data processing and chemical component utilities.
@@ -832,13 +833,19 @@ class RcsbDpUtility(object):
             if (os.access(pPath,os.F_OK)):
                 cmd += "; cp " + pPath + " "  + iPath
         #
-        pisaSession  = self.__inputParamDict['pisa_session_name']
+        if self.__inputParamDict.has_key('pisa_session_name'):
+            pisaSession  = self.__inputParamDict['pisa_session_name']
+        else:
+            pisaSession = None
         cmd += " ; PISA_TOP="         + os.path.abspath(pisaTopPath)     + " ; export PISA_TOP "
         cmd += " ; PISA_SESSIONS="    + os.path.abspath(self.__wrkPath)         + " ; export PISA_SESSIONS "
         cmd += " ; PISA_CONF_FILE="   + os.path.abspath(os.path.join(pisaTopPath,"configure","pisa-standalone.cfg")) + " ; export PISA_CONF_FILE "
         if (op == "pisa-analysis"):
             cmdPath   = os.path.join(pisaTopPath,"bin","pisa")
-            cmd += " ; "   + cmdPath + " " + pisaSession + " -analyse " + iPathFull   
+            cmd += " ; "   + cmdPath + " " + pisaSession + " -analyse " + iPathFull
+            if self.__inputParamDict.has_key('pisa_assembly_arguments'):
+                assemblyArgs  = self.__inputParamDict['pisa_assembly_arguments']            
+                cmd += " " + assemblyArgs 
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
         elif (op == "pisa-assembly-report-xml"):
             cmdPath   = os.path.join(pisaTopPath,"bin","pisa")
