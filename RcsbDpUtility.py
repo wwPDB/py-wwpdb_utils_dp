@@ -358,14 +358,20 @@ class RcsbDpUtility(object):
 
 
         elif (op == "annot-site"):
-            cmd += " ; TOOLS_PATH="    + self.__toolsPath    + " ; export TOOLS_PATH "
-            cmd += " ; CCP4="    + os.path.join(self.__toolsPath,"ccp4")  + " ; export CCP4 "            
-            cmd += " ; SYMINFO="    + os.path.join(self.__toolsPath,"getsite-cif","data","syminfo.lib") + " ; export SYMINFO "
+            cmd += " ; TOOLS_PATH="  + self.__toolsPath    + " ; export TOOLS_PATH "
+            cmd += " ; CCP4="        + os.path.join(self.__toolsPath,"ccp4")  + " ; export CCP4 "            
+            cmd += " ; SYMINFO="     + os.path.join(self.__toolsPath,"getsite-cif","data","syminfo.lib") + " ; export SYMINFO "
             cmd += " ; MMCIFDIC="    + os.path.join(self.__toolsPath,"getsite-cif","data","cif_mmdic.lib")  + " ; export MMCIFDIC "         
             cmd += " ; STANDATA="    + os.path.join(self.__toolsPath,"getsite-cif","data","standard_geometry.cif")  + " ; export STANDATA "
+            cmd += " ; STANDATA="    + os.path.join(self.__toolsPath,"getsite-cif","data","standard_geometry.cif")  + " ; export STANDATA "
+            cmd += " ; CCIF_NOITEMIP=off ; export CCIF_NOITEMIP "
             # setenv DYLD_LIBRARY_PATH  "$CCP4/lib/ccif:$CCP4/lib"
+
             cmd += " ; DYLD_LIBRARY_PATH=" + os.path.join(self.__toolsPath,"ccp4","lib","ccif") + ":" + \
-                   os.path.join(self.__toolsPath,"ccp4","lib") + " ; export DYLD_LIBRARY_PATH "            
+                   os.path.join(self.__toolsPath,"ccp4","lib") + " ; export DYLD_LIBRARY_PATH "
+
+            cmd += " ; LD_LIBRARY_PATH=" + os.path.join(self.__toolsPath,"ccp4","lib","ccif") + ":" + \
+                   os.path.join(self.__toolsPath,"ccp4","lib") + " ; export LD_LIBRARY_PATH "                        
 
             # setenv CIFIN 1abc.cif
             cmd += " ; CIFIN=" + iPath+ " ; export CIFIN "
