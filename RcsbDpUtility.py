@@ -363,7 +363,6 @@ class RcsbDpUtility(object):
             cmd += " ; SYMINFO="     + os.path.join(self.__toolsPath,"getsite-cif","data","syminfo.lib") + " ; export SYMINFO "
             cmd += " ; MMCIFDIC="    + os.path.join(self.__toolsPath,"getsite-cif","data","cif_mmdic.lib")  + " ; export MMCIFDIC "         
             cmd += " ; STANDATA="    + os.path.join(self.__toolsPath,"getsite-cif","data","standard_geometry.cif")  + " ; export STANDATA "
-            cmd += " ; STANDATA="    + os.path.join(self.__toolsPath,"getsite-cif","data","standard_geometry.cif")  + " ; export STANDATA "
             cmd += " ; CCIF_NOITEMIP=off ; export CCIF_NOITEMIP "
             # setenv DYLD_LIBRARY_PATH  "$CCP4/lib/ccif:$CCP4/lib"
 
