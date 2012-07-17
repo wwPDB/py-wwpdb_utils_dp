@@ -21,7 +21,8 @@
 # 25-Jun-2012 jdw add new annotation methods from annotation-pack
 #  3-Jul-2012 jdw add new sequence merge data application
 #                         update command arguments for "chem-comp-instance-update"
-#  4-Jul-2012 jdw add optional assembly analysis arguments 
+#  4-Jul-2012 jdw add optional assembly analysis arguments
+# 16-Jul-2012 jdw add new PDBx CIF dialect converion.
 ##
 """
 Wrapper class for data processing and chemical component utilities.
@@ -73,7 +74,7 @@ class RcsbDpUtility(object):
                           "pisa-assembly-coordinates-cif","pisa-assembly-merge-cif"]
         self.__annotationOps = ["annot-secondary-structure", "annot-link-ssbond", "annot-distant-solvent",
                                 "annot-merge-struct-site","annot-reposition-solvent","annot-base-pair-info",
-                                "annot-validation","annot-site"]
+                                "annot-validation","annot-site","annot-rcsb2pdbx"]
 
         #
         # Source, destination and logfile path details
@@ -399,6 +400,16 @@ class RcsbDpUtility(object):
 
         elif (op == "annot-merge-sequence-data"):
             cmdPath =os.path.join(self.__annotAppsPath,"bin","MergeSeqModuleData")
+            thisCmd  = " ; " + cmdPath                        
+            cmd += " ; RCSBROOT=" + self.__rcsbAppsPath + " ; export RCSBROOT "            
+            cmd += thisCmd + " -input " + iPath + " -output " + oPath + " -log annot-step.log "
+            #
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
+            cmd += " ; cat annot-step.log " + " >> " + lPath
+
+        elif (op == "annot-rcsb2pdbx"):
+            # New minimal RCSB internal cif to PDBx cif converter -
+            cmdPath =os.path.join(self.__annotAppsPath,"bin","PdbxConverter")
             thisCmd  = " ; " + cmdPath                        
             cmd += " ; RCSBROOT=" + self.__rcsbAppsPath + " ; export RCSBROOT "            
             cmd += thisCmd + " -input " + iPath + " -output " + oPath + " -log annot-step.log "

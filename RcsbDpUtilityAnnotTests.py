@@ -6,6 +6,8 @@
 # Version: 0.001
 #
 # Update:
+#   July 16, 2012 jdw added test for new PDBx file format conversions.
+#
 ##
 """
 Test cases from 
@@ -38,7 +40,10 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
         self.__testFileAnnotValidate  = '3rij.cif'        
         self.__testFileAnnotNA        = '1o3q.cif'                
         self.__testFileAnnotSite      = '3rij.cif'
-        self.__testIdAnnotSite        = '3rij'                        
+        self.__testIdAnnotSite        = '3rij'
+        #
+        self.__testFileAnnotRcsb      = 'rcsb033781.cif'
+        self.__testFileAnnotRcsbEps   = 'rcsb013067.cifeps'
         #
         self.__testFilePdbPisa    =cI.get('DP_TEST_FILE_PDB_PISA')
         self.__testFileCifPisa    =cI.get('DP_TEST_FILE_CIF_PISA')                
@@ -215,6 +220,41 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             traceback.print_exc(file=self.__lfh)
             self.fail()
 
+    def testAnnotRcsb2Pdbx(self): 
+        """  RCSB CIF -> PDBx conversion  (Using the smaller application in the annotation package)
+        """
+        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        try:
+            of="annot-rcsb2pdbx-"+self.__testFileAnnotRcsb  +".gz"
+            dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
+            inpPath=os.path.join(self.__testFilePath,self.__testFileAnnotRcsb)
+            dp.imp(inpPath)
+            dp.op("annot-rcsb2pdbx")
+            dp.expLog("annot-rcsb2pdbx.log")
+            dp.exp(of)            
+            dp.cleanup()
+        except:
+            traceback.print_exc(file=self.__lfh)
+            self.fail()
+
+
+    def testAnnotRcsbEps2Pdbx(self): 
+        """  RCSB CIFEPS -> PDBx conversion (This still requires using the full maxit application)
+        """
+        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        try:
+            of="annot-rcsbeps2pdbx-"+self.__testFileAnnotRcsbEps  +".gz"
+            dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
+            inpPath=os.path.join(self.__testFilePath,self.__testFileAnnotRcsbEps)
+            dp.imp(inpPath)
+            dp.op("cif2cif")
+            dp.expLog("annot-rcsbeps2pdbx.log")
+            dp.exp(of)            
+            #dp.cleanup()
+        except:
+            traceback.print_exc(file=self.__lfh)
+            self.fail()
+
 
 
 def suiteAnnotTests():
@@ -234,6 +274,13 @@ def suiteAnnotSiteTests():
     suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotSiteAndMerge"))    
     return suiteSelect        
 
+
+def suiteAnnotFormatConvertTests():
+    suiteSelect = unittest.TestSuite()
+    suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotRcsb2Pdbx"))
+    suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotRcsbEps2Pdbx"))    
+    return suiteSelect        
+
     
 if __name__ == '__main__':
     # Run all tests -- 
@@ -242,5 +289,9 @@ if __name__ == '__main__':
     #mySuite=suiteAnnotTests()
     #unittest.TextTestRunner(verbosity=2).run(mySuite)    
     #
-    mySuite=suiteAnnotSiteTests()
-    unittest.TextTestRunner(verbosity=2).run(mySuite)    
+    #mySuite=suiteAnnotSiteTests()
+    #unittest.TextTestRunner(verbosity=2).run(mySuite)
+    #
+    mySuite=suiteAnnotFormatConvertTests()
+    unittest.TextTestRunner(verbosity=2).run(mySuite)
+    #
