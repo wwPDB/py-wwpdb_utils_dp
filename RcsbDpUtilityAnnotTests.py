@@ -35,12 +35,13 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
         self.__testFileAnnotSS    = 'rcsb070236.cif'
         self.__testFileAnnotSSTop = 'topology.dat'
         #
-        self.__testFileAnnotLink      = '3rij.cif'
-        self.__testFileAnnotSolvent   = '3rij.cif'
-        self.__testFileAnnotValidate  = '3rij.cif'        
-        self.__testFileAnnotNA        = '1o3q.cif'                
-        self.__testFileAnnotSite      = '3rij.cif'
-        self.__testIdAnnotSite        = '3rij'
+        self.__testFileAnnotLink       = '3rij.cif'
+        self.__testFileAnnotCisPeptide = '5hoh.cif'        
+        self.__testFileAnnotSolvent    = '3rij.cif'
+        self.__testFileAnnotValidate   = '3rij.cif'        
+        self.__testFileAnnotNA         = '1o3q.cif'                
+        self.__testFileAnnotSite       = '3rij.cif'
+        self.__testIdAnnotSite         = '3rij'
         #
         self.__testFileAnnotRcsb      = 'rcsb033781.cif'
         self.__testFileAnnotRcsbEps   = 'rcsb013067.cifeps'
@@ -152,6 +153,24 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             traceback.print_exc(file=self.__lfh)
             self.fail()
 
+    def testAnnotCisPeptide(self): 
+        """  Calculate cis-peptide linkages -
+        """
+        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        try:
+            of="annot-link-"+self.__testFileAnnotCisPeptide +".gz"
+            dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
+            inpPath=os.path.join(self.__testFilePath,self.__testFileAnnotCisPeptide)
+            dp.imp(inpPath)
+            dp.op("annot-cis-peptide")
+            dp.expLog("annot-cis-peptide.log")
+            dp.exp(of)            
+            dp.cleanup()
+        except:
+            traceback.print_exc(file=self.__lfh)
+            self.fail()
+
+
     def testAnnotDistantSolvent(self): 
         """  Calculate distant solvent
         """
@@ -256,12 +275,12 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             self.fail()
 
 
-
 def suiteAnnotTests():
     suiteSelect = unittest.TestSuite()
     suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotSecondaryStructure"))
     suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotSecondaryStructureWithTopology"))
     suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotLinkSSBond"))
+    suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotCisPeptide"))    
     suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotDistantSolvent"))
     suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotRepositionSolvent"))
     suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotBasePair"))
@@ -286,11 +305,11 @@ if __name__ == '__main__':
     # Run all tests -- 
     # unittest.main()
     #
-    #mySuite=suiteAnnotTests()
-    #unittest.TextTestRunner(verbosity=2).run(mySuite)    
+    mySuite=suiteAnnotTests()
+    unittest.TextTestRunner(verbosity=2).run(mySuite)    
     #
-    #mySuite=suiteAnnotSiteTests()
-    #unittest.TextTestRunner(verbosity=2).run(mySuite)
+    mySuite=suiteAnnotSiteTests()
+    unittest.TextTestRunner(verbosity=2).run(mySuite)
     #
     mySuite=suiteAnnotFormatConvertTests()
     unittest.TextTestRunner(verbosity=2).run(mySuite)

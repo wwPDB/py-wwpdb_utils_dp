@@ -72,7 +72,7 @@ class RcsbDpUtility(object):
         self.__pisaOps = ["pisa-analysis","pisa-assembly-report-xml","pisa-assembly-report-text",
                           "pisa-interface-report-xml","pisa-assembly-coordinates-pdb","pisa-assembly-coordinates-cif",
                           "pisa-assembly-coordinates-cif","pisa-assembly-merge-cif"]
-        self.__annotationOps = ["annot-secondary-structure", "annot-link-ssbond", "annot-distant-solvent",
+        self.__annotationOps = ["annot-secondary-structure", "annot-link-ssbond", "annot-cis-peptide","annot-distant-solvent",
                                 "annot-merge-struct-site","annot-reposition-solvent","annot-base-pair-info",
                                 "annot-validation","annot-site","annot-rcsb2pdbx"]
 
@@ -306,6 +306,15 @@ class RcsbDpUtility(object):
             thisCmd  = " ; " + cmdPath                        
             cmd += " ; RCSBROOT=" + self.__rcsbAppsPath + " ; export RCSBROOT "            
             cmd += thisCmd + " -input " + iPath + " -output " + oPath + " -log annot-step.log  -link -ssbond " 
+            #
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
+            cmd += " ; cat annot-step.log " + " >> " + lPath
+
+        elif (op == "annot-cis-peptide"):
+            cmdPath =os.path.join(self.__annotAppsPath,"bin","GetCisPeptide")
+            thisCmd  = " ; " + cmdPath                        
+            cmd += " ; RCSBROOT=" + self.__rcsbAppsPath + " ; export RCSBROOT "            
+            cmd += thisCmd + " -input " + iPath + " -output " + oPath + " -log annot-step.log " 
             #
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
             cmd += " ; cat annot-step.log " + " >> " + lPath
