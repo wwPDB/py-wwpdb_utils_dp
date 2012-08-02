@@ -7,6 +7,7 @@
 #
 # Update:
 #   July 16, 2012 jdw added test for new PDBx file format conversions.
+#    Aug  2, 2012 jdw add cis peptide example
 #
 ##
 """

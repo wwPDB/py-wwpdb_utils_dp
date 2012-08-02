@@ -23,6 +23,7 @@
 #                         update command arguments for "chem-comp-instance-update"
 #  4-Jul-2012 jdw add optional assembly analysis arguments
 # 16-Jul-2012 jdw add new PDBx CIF dialect converion.
+#  2-Aug-2012 jdw add new cis peptide annotation
 ##
 """
 Wrapper class for data processing and chemical component utilities.
