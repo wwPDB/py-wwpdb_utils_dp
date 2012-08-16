@@ -24,6 +24,7 @@
 #  4-Jul-2012 jdw add optional assembly analysis arguments
 # 16-Jul-2012 jdw add new PDBx CIF dialect converion.
 #  2-Aug-2012 jdw add new cis peptide annotation
+# 15-Aug-2012 jdw add cif check application
 ##
 """
 Wrapper class for data processing and chemical component utilities.
@@ -69,7 +70,7 @@ class RcsbDpUtility(object):
                            "cif2pdb-assembly","pdbx2pdb-assembly","pdbx2deriv"]
         self.__rcsbOps = [ "rename-atoms", "cif2pdbx", "pdbx2xml", "pdb2dssp", "pdb2stride",
                            "initial-version","poly-link-dist","chem-comp-link", "chem-comp-assign",
-                           "chem-comp-assign-validation", "chem-comp-instance-update"]
+                           "chem-comp-assign-validation", "chem-comp-instance-update","check-cif"]
         self.__pisaOps = ["pisa-analysis","pisa-assembly-report-xml","pisa-assembly-report-text",
                           "pisa-interface-report-xml","pisa-assembly-coordinates-pdb","pisa-assembly-coordinates-cif",
                           "pisa-assembly-coordinates-cif","pisa-assembly-merge-cif"]
@@ -615,6 +616,7 @@ class RcsbDpUtility(object):
         self.__ccDictPathIdx = os.path.join(self.__ccDictPath,"Components-all-v3-r4.idx")        
         #
         self.__pathDdlSdb      = os.path.join(self.__pdbxDictPath,"mmcif_ddl.sdb")
+        self.__pathDdl         = os.path.join(self.__pdbxDictPath,"mmcif_ddl.dic")        
         self.__pathPdbxDictSdb = os.path.join(self.__pdbxDictPath,"mmcif_pdbx.sdb")
         self.__pathPdbxDictOdb = os.path.join(self.__pdbxDictPath,"mmcif_pdbx.odb")
         #
@@ -663,6 +665,14 @@ class RcsbDpUtility(object):
             cmd += thisCmd + " -newfile " + iPath
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
             cmd += " ; mv -f " + iPath + ".cif " + oPath
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
+        elif (op == "check-cif"):
+            cmdPath   = os.path.join(self.__localAppsPath,"bin","CifCheck")
+            thisCmd    = " ; "   + cmdPath 
+            cmd += thisCmd + " -f " + iPath
+            cmd += " -dictSdb " + self.__pathPdbxDictSdb 
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
+            cmd += " ; mv -f " + iPath + "-diag.log " + oPath
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
         elif (op == "cif2pdbx"):
             #   need to have an input file list.

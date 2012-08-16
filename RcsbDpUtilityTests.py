@@ -10,6 +10,7 @@
 #                      Cleaned up error reporting .
 #  Jun 23, 2011 jdw -  Update examples -- verify configuration --  site_id = WWPDB_DEV tested
 #  Apr 15, 2012 jdw -  Add PISA application tasks
+#               jdw -  add cif check application
 ##
 """
 Test cases from 
@@ -61,6 +62,24 @@ class RcsbDpUtilityTests(unittest.TestCase):
         except:
             traceback.print_exc(file=self.__lfh)
             self.fail()
+
+    def testCifCheck(self): 
+        """
+        """
+        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        try:
+            dp = RcsbDpUtility(tmpPath=self.__tmpPath,siteId=self.__siteId,verbose=True)
+            cifPath=os.path.join(self.__testFilePath,self.__testFileCif)
+            dp.imp(cifPath)
+            dp.op("check-cif")
+            dp.exp("check-cif-diags.txt")
+            dp.expLog("check-cif.log")    
+            #dp.cleanup()
+        except:
+            traceback.print_exc(file=self.__lfh)
+            self.fail()
+
+
 
     def testCifEpsToPdb(self): 
         """
@@ -248,18 +267,27 @@ def suitePisaTests():
     #suiteSelect.addTest(RcsbDpUtilityTests("testPisaAssemblyReportXml"))
     #suiteSelect.addTest(RcsbDpUtilityTests("testPisaAssemblyDownloadModel"))
     suiteSelect.addTest(RcsbDpUtilityTests("testPisaAssemblyMergeModel"))    
-    
-    return suiteSelect    
+    return suiteSelect
+
+def suiteMiscTests():
+    suiteSelect = unittest.TestSuite()
+    suiteSelect.addTest(RcsbDpUtilityTests("testCifCheck"))
+    return suiteSelect
+  
+
     
 if __name__ == '__main__':
     # Run all tests -- 
     # unittest.main()
     #
-    #mySuite=suiteMaxitTests()
-    #unittest.TextTestRunner(verbosity=2).run(mySuite)
+    mySuite=suiteMaxitTests()
+    unittest.TextTestRunner(verbosity=2).run(mySuite)
     #
-    #mySuite=suiteChemCompTests()
-    #unittest.TextTestRunner(verbosity=2).run(mySuite)
+    mySuite=suiteChemCompTests()
+    unittest.TextTestRunner(verbosity=2).run(mySuite)
     #
     mySuite=suitePisaTests()
-    unittest.TextTestRunner(verbosity=2).run(mySuite)    
+    unittest.TextTestRunner(verbosity=2).run(mySuite)
+    #
+    mySuite=suiteMiscTests()
+    unittest.TextTestRunner(verbosity=2).run(mySuite)        
