@@ -672,7 +672,10 @@ class RcsbDpUtility(object):
             cmd += thisCmd + " -f " + iPath
             cmd += " -dictSdb " + self.__pathPdbxDictSdb 
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
-            cmd += " ; mv -f " + iPath + "-diag.log " + oPath
+            cmd += " ; touch " + iPath + "-diag.log "
+            cmd += " ; touch " + iPath + "-parser.log "             
+            cmd += " ; cat " + iPath + "-parser.log >" + oPath
+            cmd += " ; cat " + iPath + "-diag.log >>" + oPath            
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
         elif (op == "cif2pdbx"):
             #   need to have an input file list.
