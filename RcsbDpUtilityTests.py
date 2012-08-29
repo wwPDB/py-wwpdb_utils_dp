@@ -11,6 +11,7 @@
 #  Jun 23, 2011 jdw -  Update examples -- verify configuration --  site_id = WWPDB_DEV tested
 #  Apr 15, 2012 jdw -  Add PISA application tasks
 #               jdw -  add cif check application
+#  Aug 29, 2012 jdw -  check dependencies installed for site_id WWPDB_DEPLOY_TEST
 ##
 """
 Test cases from 

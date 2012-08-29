@@ -6,9 +6,10 @@
 # Version: 0.001
 #
 # Update:
+#   28-Aug-2012  jdw   test with latest tools deployment using site_id WWPDB_DEPLOY_TEST
 ##
 """
-Test cases from 
+Test cases for assembly calculation using both PDBx/mmCIF and PDB form input data files - 
 
 """
 
@@ -37,8 +38,10 @@ class RcsbDpUtilityTests(unittest.TestCase):
         self.__tmpPath         = './rcsb-tmp-dir'
         #
         self.__testFilePdbPisa    =cI.get('DP_TEST_FILE_PDB_PISA')
-        self.__testFileCifPisa    =cI.get('DP_TEST_FILE_CIF_PISA')                
-        
+        self.__testFileCifPisa    =cI.get('DP_TEST_FILE_CIF_PISA')
+        #
+        self.__lfh.write("\nTest file path %s\n" % (self.__testFilePath))
+        self.__lfh.write("\nCIF  file path %s\n" % (self.__testFileCifPisa))
             
     def tearDown(self):
         pass
@@ -184,7 +187,7 @@ class RcsbDpUtilityTests(unittest.TestCase):
             #
             cifPath=os.path.join(self.__testFilePath,self.__testFileCifPisa)
             dp.imp(cifPath)
-            dp.addInput(name="pisa_assembly_tuple_list",value="0:0,1:0,1:1,2:0")
+            dp.addInput(name="pisa_assembly_tuple_list",value="1,2,3")
             dp.addInput(name="pisa_assembly_file_path",value="pisa-assembly-report-cif.xml",type="file")
             dp.op("pisa-assembly-merge-cif")
             dp.exp("3rer-updated.cif.gz")
@@ -197,17 +200,16 @@ class RcsbDpUtilityTests(unittest.TestCase):
 
 def suitePisaTestsCif():
     suiteSelect = unittest.TestSuite()
-    #    suiteSelect.addTest(RcsbDpUtilityTests("testPisaAnalysisCif"))
-    #suiteSelect.addTest(RcsbDpUtilityTests("testPisaAssemblyReportXmlCif"))
+    suiteSelect.addTest(RcsbDpUtilityTests("testPisaAnalysisCif"))
+    suiteSelect.addTest(RcsbDpUtilityTests("testPisaAssemblyReportXmlCif"))
     suiteSelect.addTest(RcsbDpUtilityTests("testPisaAssemblyDownloadModelCif"))
     suiteSelect.addTest(RcsbDpUtilityTests("testPisaAssemblyMergeModelCif"))    
-    
     return suiteSelect    
 
 def suitePisaTestsPdb():
     suiteSelect = unittest.TestSuite()
-    #suiteSelect.addTest(RcsbDpUtilityTests("testPisaAnalysisPdb"))
-    #suiteSelect.addTest(RcsbDpUtilityTests("testPisaAssemblyReportXmlPdb"))
+    suiteSelect.addTest(RcsbDpUtilityTests("testPisaAnalysisPdb"))
+    suiteSelect.addTest(RcsbDpUtilityTests("testPisaAssemblyReportXmlPdb"))
     suiteSelect.addTest(RcsbDpUtilityTests("testPisaAssemblyDownloadModelPdb"))
     
     return suiteSelect    
