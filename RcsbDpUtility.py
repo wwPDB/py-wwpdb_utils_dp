@@ -69,7 +69,7 @@ class RcsbDpUtility(object):
                            "cif-seqed2cif-pdbx", "cif2pdb","pdb2cif","pdb2cif-ebi","switch-dna",
                            "cif2pdb-assembly","pdbx2pdb-assembly","pdbx2deriv"]
         self.__rcsbOps = [ "rename-atoms", "cif2pdbx", "pdbx2xml", "pdb2dssp", "pdb2stride",
-                           "initial-version","poly-link-dist","chem-comp-link", "chem-comp-assign",
+                           "initial-version","poly-link-dist","chem-comp-link", "chem-comp-assign", "chem-comp-assign-skip",
                            "chem-comp-assign-validation", "chem-comp-instance-update","check-cif"]
         self.__pisaOps = ["pisa-analysis","pisa-assembly-report-xml","pisa-assembly-report-text",
                           "pisa-interface-report-xml","pisa-assembly-coordinates-pdb","pisa-assembly-coordinates-cif",
@@ -722,9 +722,13 @@ class RcsbDpUtility(object):
                 cmd += " -link_radii " + link_radii
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
             cmd += " ; cat bond_dist.err" + " >> " + lPath                        
-        elif (op == "chem-comp-assign"):
+        elif ( (op == "chem-comp-assign")  or (op == "chem-comp-assign-skip") ):
             # set up
             #
+            skipOp=" "            
+            if ( op == "chem-comp-assign-skip" ):
+                skipOp=" -skip_search "
+                
             cmd += " ; RCSBROOT="      + self.__rcsbAppsPath     + " ; export RCSBROOT "
             cmd += " ; OE_DIR="        + self.__oeDirPath        + " ; export OE_DIR "
             cmd += " ; OE_LICENSE="    + self.__oeLicensePath    + " ; export OE_LICENSE "
@@ -741,7 +745,7 @@ class RcsbDpUtility(object):
             #    link_file=self.__inputParamDict['link_file_path']                
             #    cmd += " ;  cp " + link_file + " " + self.__wrkPath
             #
-            cmd += thisCmd + " -i " + iPath + " -of " + oPath + " -o " + self.__wrkPath  +  " -ifmt pdbx " + " -id " + entryId
+            cmd += thisCmd + skipOp + " -i " + iPath + " -of " + oPath + " -o " + self.__wrkPath  +  " -ifmt pdbx " + " -id " + entryId
             cmd += " -libsdb " + self.__ccDictPathSdb + " -idxFile " +  self.__ccDictPathIdx
             #
             if  self.__inputParamDict.has_key('cc_link_file_path'):
