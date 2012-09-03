@@ -25,6 +25,8 @@
 # 16-Jul-2012 jdw add new PDBx CIF dialect converion.
 #  2-Aug-2012 jdw add new cis peptide annotation
 # 15-Aug-2012 jdw add cif check application
+#  2-Sep-2012 jdw add consolidated annotatio operation 
+#  2-Sep-2012 jdw add entry point  "annot-validate-1" for validation calculations
 ##
 """
 Wrapper class for data processing and chemical component utilities.
@@ -76,7 +78,7 @@ class RcsbDpUtility(object):
                           "pisa-assembly-coordinates-cif","pisa-assembly-merge-cif"]
         self.__annotationOps = ["annot-secondary-structure", "annot-link-ssbond", "annot-cis-peptide","annot-distant-solvent",
                                 "annot-merge-struct-site","annot-reposition-solvent","annot-base-pair-info",
-                                "annot-validation","annot-site","annot-rcsb2pdbx"]
+                                "annot-validation","annot-site","annot-rcsb2pdbx","annot-consolidated-tasks","annot-validate-1"]
 
         #
         # Source, destination and logfile path details
@@ -302,6 +304,20 @@ class RcsbDpUtility(object):
             #
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
             cmd += " ; cat annot-step.log " + " >> " + lPath
+
+        elif (op == "annot-consolidated-tasks"):
+            
+            cmdPath =os.path.join(self.__annotAppsPath,"bin","GetAddAnnotation")
+            thisCmd  = " ; " + cmdPath                        
+            cmd += " ; RCSBROOT=" + self.__rcsbAppsPath + " ; export RCSBROOT "            
+            cmd += thisCmd + " -input " + iPath + " -output " + oPath + " -log annot-step.log " 
+            #
+            if  self.__inputParamDict.has_key('ss_topology_file_path'):
+                topFilePath=self.__inputParamDict['ss_topology_file_path']                                
+                cmd += " -support " + topFilePath
+            #
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
+            cmd += " ; cat annot-step.log " + " >> " + lPath
             
         elif (op == "annot-link-ssbond"):
             cmdPath =os.path.join(self.__annotAppsPath,"bin","GetLinkAndSSBond")
@@ -427,6 +443,45 @@ class RcsbDpUtility(object):
             #
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
             cmd += " ; cat annot-step.log " + " >> " + lPath
+        elif (op == "annot-validate-1"):
+            cmd += " ; TOOLS_PATH="  + self.__toolsPath    + " ; export TOOLS_PATH "
+            cmd += " ; CCP4="        + os.path.join(self.__toolsPath,"ccp4")  + " ; export CCP4 "            
+            cmd += " ; SYMINFO="     + os.path.join(self.__toolsPath,"getsite-cif","data","syminfo.lib") + " ; export SYMINFO "
+            cmd += " ; MMCIFDIC="    + os.path.join(self.__toolsPath,"getsite-cif","data","cif_mmdic.lib")  + " ; export MMCIFDIC "         
+            cmd += " ; STANDATA="    + os.path.join(self.__toolsPath,"getsite-cif","data","standard_geometry.cif")  + " ; export STANDATA "
+            cmd += " ; CCIF_NOITEMIP=off ; export CCIF_NOITEMIP "
+            # setenv DYLD_LIBRARY_PATH  "$CCP4/lib/ccif:$CCP4/lib"
+
+            cmd += " ; DYLD_LIBRARY_PATH=" + os.path.join(self.__toolsPath,"ccp4","lib","ccif") + ":" + \
+                   os.path.join(self.__toolsPath,"ccp4","lib") + " ; export DYLD_LIBRARY_PATH "
+
+            cmd += " ; LD_LIBRARY_PATH=" + os.path.join(self.__toolsPath,"ccp4","lib","ccif") + ":" + \
+                   os.path.join(self.__toolsPath,"ccp4","lib") + " ; export LD_LIBRARY_PATH "                        
+
+            # setenv CIFIN 1abc.cif
+            cmd += " ; CIFIN=" + iPath+ " ; export CIFIN "
+            #cmd += " ; env "
+
+            if  self.__inputParamDict.has_key('block_id'):
+                blockId=self.__inputParamDict['block_id']                                
+            else:
+                blockId="UNK"
+
+                
+            # ../getsite_cif 1abc
+
+
+            cmdPath =os.path.join(self.__toolsPath,"getsite-cif","bin","getsite_cif")
+            thisCmd  = " ; " + cmdPath                        
+
+            cmd += thisCmd + " " + blockId + " "
+            
+            if  self.__inputParamDict.has_key('site_arguments'):
+                cmdArgs=self.__inputParamDict['site_arguments']                                
+                cmd += cmdArgs            
+            #
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
+            cmd += " ; mv -f " + blockId + "_site.cif " + oPath                         
 
         else:
             
