@@ -9,6 +9,9 @@
 #   July 16, 2012 jdw added test for new PDBx file format conversions.
 #    Aug  2, 2012 jdw add cis peptide example
 #    Aug 29, 2012 jdw -  check dependencies installed for site_id WWPDB_DEPLOY_TEST
+#    Sep  2, 2012 jdw -  add example for chemical shift nomenclature checks
+#    Sep  5, 2012 jdw -  add example for wwPDB validation package
+#    Sep  6, 2012 jdw -  add example for consolidated annotation steps
 #
 ##
 """
@@ -35,7 +38,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
         
         self.__testFilePath       = './data'
         self.__testFileAnnotSS    = 'rcsb070236.cif'
-        self.__testFileAnnotSSTop = 'topology.dat'
+        self.__testFileAnnotSSTop = 'topology.txt'
         #
         self.__testFileAnnotLink       = '3rij.cif'
         self.__testFileAnnotCisPeptide = '5hoh.cif'        
@@ -49,8 +52,13 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
         self.__testFileAnnotRcsbEps   = 'rcsb013067.cifeps'
         #
         self.__testFilePdbPisa    =cI.get('DP_TEST_FILE_PDB_PISA')
-        self.__testFileCifPisa    =cI.get('DP_TEST_FILE_CIF_PISA')                
-        
+        self.__testFileCifPisa    =cI.get('DP_TEST_FILE_CIF_PISA')
+        #
+        self.__testFileStarCs       = "star_16703_test_2.str"
+        self.__testFileCsRelatedCif = "cor_16703_test.cif"
+        #
+        self.__testFileValidateXyz = "1cbs.cif"
+        self.__testFileValidateSf  = "1cbs-sf.cif"        
             
     def tearDown(self):
         pass
@@ -276,6 +284,85 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             traceback.print_exc(file=self.__lfh)
             self.fail()
 
+    def testAnnotCSCheck(self): 
+        """  Test CS file check
+        """
+        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        try:
+            of="cs-file-check.html"
+            dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
+            inpPath=os.path.join(self.__testFilePath,self.__testFileStarCs)
+            dp.imp(inpPath)
+            dp.op("annot-chem-shift-check")
+            dp.expLog("annot-cs-file-check.log")
+            dp.exp(of)            
+            #dp.cleanup()
+        except:
+            traceback.print_exc(file=self.__lfh)
+            self.fail()
+
+
+    def testAnnotCSCoordCheck(self): 
+        """  Test CS + Coordindate file check
+        """
+        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        try:
+            of="cs-coord-file-check.html"
+            dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
+            inpPath=os.path.join(self.__testFilePath,self.__testFileStarCs)
+            xyzPath=os.path.abspath(os.path.join(self.__testFilePath,self.__testFileCsRelatedCif))
+            dp.imp(inpPath)
+            dp.addInput(name="coordinate_file_path",value=xyzPath)            
+            dp.op("annot-chem-shift-coord-check")
+            dp.expLog("annot-cs-coord-file-check.log")
+            dp.exp(of)            
+            #dp.cleanup()
+        except:
+            traceback.print_exc(file=self.__lfh)
+            self.fail()
+
+
+    def testAnnotValidate1(self): 
+        """  Test create validation report
+        """
+        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        try:
+            ofpdf="1cbs-valrpt.pdf"
+            ofxml="1cbs-valdata.xml"
+            dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
+            xyzPath=os.path.join(self.__testFilePath,self.__testFileValidateXyz)
+            sfPath=os.path.join(self.__testFilePath,self.__testFileValidateSf)            
+            dp.imp(xyzPath)
+            dp.addInput(name="sf_file_path",value=sfPath)            
+            dp.op("annot-wwpdb-validate-1")
+            dp.expLog("annot-validate-1.log")
+            #dp.exp(ofpdf)
+            dp.expList(dstPathList=[ofpdf,ofxml])
+            dp.cleanup()
+        except:
+            traceback.print_exc(file=self.__lfh)
+            self.fail()
+
+    def testAnnotConsolidatedTasksWithTopology(self): 
+        """  Calculate annotation tasks in a single step including supporting topology data.
+        """
+        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        try:
+            of="annot-consolidated-top-"+self.__testFileAnnotSS +".gz"            
+            dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
+            inpPath=os.path.join(self.__testFilePath,self.__testFileAnnotSS)
+            dp.imp(inpPath)
+            topPath=os.path.abspath(os.path.join(self.__testFilePath,self.__testFileAnnotSSTop))
+            dp.addInput(name="ss_topology_file_path",value=topPath)
+            dp.op("annot-consolidated-tasks")
+            dp.expLog("annot-consolidated-w-top.log")
+            dp.exp(of)            
+            dp.cleanup()
+        except:
+            traceback.print_exc(file=self.__lfh)
+            self.fail()
+
+
 
 def suiteAnnotTests():
     suiteSelect = unittest.TestSuite()
@@ -302,17 +389,53 @@ def suiteAnnotFormatConvertTests():
     suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotRcsbEps2Pdbx"))    
     return suiteSelect        
 
+
+def suiteAnnotNMRTests():
+    suiteSelect = unittest.TestSuite()
+    suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotCSCheck"))
+    suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotCSCoordCheck"))
+    return suiteSelect        
+
+def suiteAnnotValidationTests():
+    suiteSelect = unittest.TestSuite()
+    suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotValidate1"))
+    return suiteSelect        
+
+def suiteAnnotConsolidatedTests():
+    suiteSelect = unittest.TestSuite()
+    suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotConsolidatedTasksWithTopology"))
+    return suiteSelect        
+
+
+
     
 if __name__ == '__main__':
     # Run all tests -- 
     # unittest.main()
     #
-    mySuite=suiteAnnotTests()
-    unittest.TextTestRunner(verbosity=2).run(mySuite)    
+    doAll=True
+    if (doAll):
+        mySuite=suiteAnnotTests()
+        unittest.TextTestRunner(verbosity=2).run(mySuite)    
+        #
+        mySuite=suiteAnnotSiteTests()
+        unittest.TextTestRunner(verbosity=2).run(mySuite)
+        #
+        mySuite=suiteAnnotFormatConvertTests()
+        unittest.TextTestRunner(verbosity=2).run(mySuite)
+        #
+        mySuite=suiteAnnotNMRTests()
+        unittest.TextTestRunner(verbosity=2).run(mySuite)    
+
+        mySuite=suiteAnnotValidationTests()
+        unittest.TextTestRunner(verbosity=2).run(mySuite)
+
+        mySuite=suiteAnnotConsolidatedTests()
+        unittest.TextTestRunner(verbosity=2).run(mySuite)                    
+    else:
+        pass
+
     #
-    mySuite=suiteAnnotSiteTests()
-    unittest.TextTestRunner(verbosity=2).run(mySuite)
     #
-    mySuite=suiteAnnotFormatConvertTests()
-    unittest.TextTestRunner(verbosity=2).run(mySuite)
-    #
+
+

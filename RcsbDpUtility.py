@@ -25,8 +25,9 @@
 # 16-Jul-2012 jdw add new PDBx CIF dialect converion.
 #  2-Aug-2012 jdw add new cis peptide annotation
 # 15-Aug-2012 jdw add cif check application
-#  2-Sep-2012 jdw add consolidated annotatio operation 
-#  2-Sep-2012 jdw add entry point  "annot-validate-1" for validation calculations
+#  2-Sep-2012 jdw add consolidated annotation operation 
+#  2-Sep-2012 jdw add entry point  "annot-wwpdb-validate-1" for validation calculations
+#  5-Sep-2012 jdw working validation report operation 
 ##
 """
 Wrapper class for data processing and chemical component utilities.
@@ -78,7 +79,8 @@ class RcsbDpUtility(object):
                           "pisa-assembly-coordinates-cif","pisa-assembly-merge-cif"]
         self.__annotationOps = ["annot-secondary-structure", "annot-link-ssbond", "annot-cis-peptide","annot-distant-solvent",
                                 "annot-merge-struct-site","annot-reposition-solvent","annot-base-pair-info",
-                                "annot-validation","annot-site","annot-rcsb2pdbx","annot-consolidated-tasks","annot-validate-1"]
+                                "annot-validation","annot-site","annot-rcsb2pdbx","annot-consolidated-tasks","annot-wwpdb-validate-1",
+                                "annot-chem-shift-check","annot-chem-shift-coord-check","annot-nmrsta2pdbx","annot-pdbx2nmrstar"]
 
         #
         # Source, destination and logfile path details
@@ -257,7 +259,9 @@ class RcsbDpUtility(object):
         # Set application specific path details here -
         #
         self.__annotAppsPath  =  self.__getConfigPath('SITE_ANNOT_TOOLS_PATH')
-        self.__toolsPath      =  self.__getConfigPath('SITE_TOOLS_PATH')        
+        self.__packagePath      =  self.__getConfigPath('SITE_TOOLS_PATH')
+        self.__deployPath      =  self.__getConfigPath('SITE_DEPLOY_PATH')        
+        self.__ccDictPath    =  self.__getConfigPath('SITE_CC_DICT_PATH')        
 
         if self.__rcsbAppsPath is None:        
             self.__rcsbAppsPath  =  self.__getConfigPath('SITE_RCSB_APPS_PATH')        
@@ -386,19 +390,19 @@ class RcsbDpUtility(object):
 
 
         elif (op == "annot-site"):
-            cmd += " ; TOOLS_PATH="  + self.__toolsPath    + " ; export TOOLS_PATH "
-            cmd += " ; CCP4="        + os.path.join(self.__toolsPath,"ccp4")  + " ; export CCP4 "            
-            cmd += " ; SYMINFO="     + os.path.join(self.__toolsPath,"getsite-cif","data","syminfo.lib") + " ; export SYMINFO "
-            cmd += " ; MMCIFDIC="    + os.path.join(self.__toolsPath,"getsite-cif","data","cif_mmdic.lib")  + " ; export MMCIFDIC "         
-            cmd += " ; STANDATA="    + os.path.join(self.__toolsPath,"getsite-cif","data","standard_geometry.cif")  + " ; export STANDATA "
+            cmd += " ; TOOLS_PATH="  + self.__packagePath    + " ; export TOOLS_PATH "
+            cmd += " ; CCP4="        + os.path.join(self.__packagePath,"ccp4")  + " ; export CCP4 "            
+            cmd += " ; SYMINFO="     + os.path.join(self.__packagePath,"getsite-cif","data","syminfo.lib") + " ; export SYMINFO "
+            cmd += " ; MMCIFDIC="    + os.path.join(self.__packagePath,"getsite-cif","data","cif_mmdic.lib")  + " ; export MMCIFDIC "         
+            cmd += " ; STANDATA="    + os.path.join(self.__packagePath,"getsite-cif","data","standard_geometry.cif")  + " ; export STANDATA "
             cmd += " ; CCIF_NOITEMIP=off ; export CCIF_NOITEMIP "
             # setenv DYLD_LIBRARY_PATH  "$CCP4/lib/ccif:$CCP4/lib"
 
-            cmd += " ; DYLD_LIBRARY_PATH=" + os.path.join(self.__toolsPath,"ccp4","lib","ccif") + ":" + \
-                   os.path.join(self.__toolsPath,"ccp4","lib") + " ; export DYLD_LIBRARY_PATH "
+            cmd += " ; DYLD_LIBRARY_PATH=" + os.path.join(self.__packagePath,"ccp4","lib","ccif") + ":" + \
+                   os.path.join(self.__packagePath,"ccp4","lib") + " ; export DYLD_LIBRARY_PATH "
 
-            cmd += " ; LD_LIBRARY_PATH=" + os.path.join(self.__toolsPath,"ccp4","lib","ccif") + ":" + \
-                   os.path.join(self.__toolsPath,"ccp4","lib") + " ; export LD_LIBRARY_PATH "                        
+            cmd += " ; LD_LIBRARY_PATH=" + os.path.join(self.__packagePath,"ccp4","lib","ccif") + ":" + \
+                   os.path.join(self.__packagePath,"ccp4","lib") + " ; export LD_LIBRARY_PATH "                        
 
             # setenv CIFIN 1abc.cif
             cmd += " ; CIFIN=" + iPath+ " ; export CIFIN "
@@ -413,7 +417,7 @@ class RcsbDpUtility(object):
             # ../getsite_cif 1abc
 
 
-            cmdPath =os.path.join(self.__toolsPath,"getsite-cif","bin","getsite_cif")
+            cmdPath =os.path.join(self.__packagePath,"getsite-cif","bin","getsite_cif")
             thisCmd  = " ; " + cmdPath                        
 
             cmd += thisCmd + " " + blockId + " "
@@ -443,46 +447,91 @@ class RcsbDpUtility(object):
             #
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
             cmd += " ; cat annot-step.log " + " >> " + lPath
-        elif (op == "annot-validate-1"):
-            cmd += " ; TOOLS_PATH="  + self.__toolsPath    + " ; export TOOLS_PATH "
-            cmd += " ; CCP4="        + os.path.join(self.__toolsPath,"ccp4")  + " ; export CCP4 "            
-            cmd += " ; SYMINFO="     + os.path.join(self.__toolsPath,"getsite-cif","data","syminfo.lib") + " ; export SYMINFO "
-            cmd += " ; MMCIFDIC="    + os.path.join(self.__toolsPath,"getsite-cif","data","cif_mmdic.lib")  + " ; export MMCIFDIC "         
-            cmd += " ; STANDATA="    + os.path.join(self.__toolsPath,"getsite-cif","data","standard_geometry.cif")  + " ; export STANDATA "
-            cmd += " ; CCIF_NOITEMIP=off ; export CCIF_NOITEMIP "
-            # setenv DYLD_LIBRARY_PATH  "$CCP4/lib/ccif:$CCP4/lib"
+        elif (op == "annot-chem-shift-check"):
 
-            cmd += " ; DYLD_LIBRARY_PATH=" + os.path.join(self.__toolsPath,"ccp4","lib","ccif") + ":" + \
-                   os.path.join(self.__toolsPath,"ccp4","lib") + " ; export DYLD_LIBRARY_PATH "
-
-            cmd += " ; LD_LIBRARY_PATH=" + os.path.join(self.__toolsPath,"ccp4","lib","ccif") + ":" + \
-                   os.path.join(self.__toolsPath,"ccp4","lib") + " ; export LD_LIBRARY_PATH "                        
-
-            # setenv CIFIN 1abc.cif
-            cmd += " ; CIFIN=" + iPath+ " ; export CIFIN "
-            #cmd += " ; env "
-
-            if  self.__inputParamDict.has_key('block_id'):
-                blockId=self.__inputParamDict['block_id']                                
+            cmd += " ; TOOLS_PATH="  + self.__packagePath    + " ; export TOOLS_PATH "
+            cmd += " ; ADIT_NMR="    + os.path.join(self.__packagePath,"aditnmr_req_shifts")  + " ; export ADIT_NMR "
+            cmd += " ; LIGAND_DIR="  + self.__ccDictPath   + " ; export LIGAND_DIR "
+            cmd += " ; NOMENCLATURE_MAP_FILE="    + os.path.join(self.__packagePath,"aditnmr_req_shifts","adit","config","bmrb-adit","pseudomap.csv")  + " ; export NOMENCLATURE_MAP_FILE "            
+            #
+            # set output option -  html or star
+            if  self.__inputParamDict.has_key('output_format'):
+                outFmt=self.__inputParamDict['output_format']                                
             else:
-                blockId="UNK"
+                outFmt="html"
 
-                
-            # ../getsite_cif 1abc
-
-
-            cmdPath =os.path.join(self.__toolsPath,"getsite-cif","bin","getsite_cif")
+            cmdPath =os.path.join(self.__packagePath,"aditnmr_req_shifts","cgi-bin","bmrb-adit","upload_shifts_check")
             thisCmd  = " ; " + cmdPath                        
 
-            cmd += thisCmd + " " + blockId + " "
-            
-            if  self.__inputParamDict.has_key('site_arguments'):
-                cmdArgs=self.__inputParamDict['site_arguments']                                
-                cmd += cmdArgs            
-            #
-            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
-            cmd += " ; mv -f " + blockId + "_site.cif " + oPath                         
+            cmd += thisCmd + " " + "--html --nomenclature-mapper ${NOMENCLATURE_MAP_FILE} --chem-comp-root-path ${LIGAND_DIR} "
+            cmd += " --preserve-output tmp_chkd.str " + iPath 
 
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
+            if (outFmt == "html"):
+                cmd += " ; mv -f " + tPath + " " + oPath
+            else:
+                cmd += " ; mv -f  tmp_chkd.str " + oPath                
+
+        elif (op == "annot-chem-shift-coord-check"):
+
+            cmd += " ; TOOLS_PATH="  + self.__packagePath    + " ; export TOOLS_PATH "
+            cmd += " ; ADIT_NMR="    + os.path.join(self.__packagePath,"aditnmr_req_shifts")  + " ; export ADIT_NMR "
+            cmd += " ; NOMENCLATURE_MAP_FILE="    + os.path.join(self.__packagePath,"aditnmr_req_shifts","adit","config","bmrb-adit","pseudomap.csv")  + " ; export NOMENCLATURE_MAP_FILE "
+            cmd += " ; LIGAND_DIR="  + self.__ccDictPath   + " ; export LIGAND_DIR "
+
+            #
+            # set input coordinate file path
+            if  self.__inputParamDict.has_key('coordinate_file_path'):
+                coordFilePath=self.__inputParamDict['coordinate_file_path']                                
+            else:
+                coordFilepath=""
+
+            #
+            # set output option -  html or star
+            if  self.__inputParamDict.has_key('output_format'):
+                outFmt=self.__inputParamDict['output_format']                                
+            else:
+                outFmt="html"
+
+            cmdPath =os.path.join(self.__packagePath,"aditnmr_req_shifts","cgi-bin","bmrb-adit","shift_coord_check")
+            thisCmd  = " ; " + cmdPath                        
+
+            cmd += thisCmd + " " + "--html --coordfile " + coordFilePath + " --shiftfile " + iPath 
+
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
+            if (outFmt == "html"):
+                cmd += " ; mv -f " + tPath + " " + oPath
+            else:
+                cmd += " ; cp -f  " + iPath + " " + oPath                
+
+        elif (op == "annot-wwpdb-validate-1"):
+            #
+            # The validation package is currently set to self configure in a wrapper
+            # shell script.  No environment settings are required here at this point.
+            #
+            cmd += " ; WWPDB_SITE_ID="  + self.__siteId  + " ; export WWPDB_SITE_ID "
+            cmd += " ; DEPLOY_DIR="  + self.__deployPath  + " ; export DEPLOY_DIR "
+            cmdPath =os.path.join(self.__packagePath,"Vpack","scripts","vpack-run.sh")
+            thisCmd  = " ; " + cmdPath                        
+            
+            if  self.__inputParamDict.has_key('sf_file_path'):
+                sfPath=self.__inputParamDict['sf_file_path']
+            else:
+                sfPath="none"
+            
+            #
+            xmlPath=os.path.join(self.__wrkPath, "out.xml")
+            pdfPath=os.path.join(self.__wrkPath, "out.pdf")
+            if (not self.__verbose):
+                cleanOpt="cleanup"
+            else:
+                cleanOpt="none"
+            #
+            cmd += thisCmd + " 1abc " + iPath + " " + sfPath + " " + pdfPath +  " " + xmlPath + " " + cleanOpt 
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
+            cmd += " ; cp  -f " + pdfPath + " " + oPath
+            #
+            #
         else:
             
             return -1
@@ -512,8 +561,26 @@ class RcsbDpUtility(object):
         ofh.close()
            
         iret = os.system(cmd)
-        
-        self.__resultPathList = [os.path.join(self.__wrkPath,oPath)]
+
+        #
+        # After execution processing --
+        #
+        if (op == "annot-wwpdb-validate-1"):
+            self.__resultPathList=[]
+            #
+            # Push the output pdf and xml files onto the resultPathList.
+            #
+            if os.access(pdfPath,os.F_OK):
+                self.__resultPathList.append(pdfPath)
+            else:
+                self.__resultPathList.append("missing")                
+            #
+            if os.access(xmlPath,os.F_OK):
+                self.__resultPathList.append(xmlPath)
+            else:
+                self.__resultPathList.append("missing")
+        else:
+            self.__resultPathList = [os.path.join(self.__wrkPath,oPath)]
         
         return iret
     
@@ -1013,8 +1080,6 @@ class RcsbDpUtility(object):
         return iret
 
 
-
-
     def exp(self,dstPath=None):
         """Export a copy of the last result file to destination file path.
         """
@@ -1045,8 +1110,15 @@ class RcsbDpUtility(object):
         """
         if (dstPathList == [] or self.__resultPathList == []): return
         #
+        if (self.__verbose):
+            self.__lfh.write("+RcsbUtility.expList dstPathList    %r\n" % dstPathList)
+            self.__lfh.write("+RcsbUtility.expList resultPathList %r\n" % self.__resultPathList)            
+        #
+        
         ok=True
         for f,fc in map(None,self.__resultPathList,dstPathList):
+            if (self.__verbose):
+                self.__lfh.write("+RcsbUtility.expList exporting %s to %s\n" % (f,fc))
             f1 = DataFile(f)
             if f1.srcFileExists():
                 f1.copy(fc)
