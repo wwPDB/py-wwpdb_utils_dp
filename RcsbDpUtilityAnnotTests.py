@@ -45,8 +45,8 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
         self.__testFileAnnotSolvent    = '3rij.cif'
         self.__testFileAnnotValidate   = '3rij.cif'        
         self.__testFileAnnotNA         = '1o3q.cif'                
-        self.__testFileAnnotSite       = '3rij.cif'
-        self.__testIdAnnotSite         = '3rij'
+        self.__testFileAnnotSite       = '1xbb.cif'
+        self.__testIdAnnotSite         = '1xbb'
         #
         self.__testFileAnnotRcsb      = 'rcsb033781.cif'
         self.__testFileAnnotRcsbEps   = 'rcsb013067.cifeps'
@@ -413,7 +413,7 @@ if __name__ == '__main__':
     # Run all tests -- 
     # unittest.main()
     #
-    doAll=True
+    doAll=False
     if (doAll):
         mySuite=suiteAnnotTests()
         unittest.TextTestRunner(verbosity=2).run(mySuite)    
@@ -438,4 +438,6 @@ if __name__ == '__main__':
     #
     #
 
-
+    mySuite=suiteAnnotSiteTests()
+    unittest.TextTestRunner(verbosity=2).run(mySuite)
+    

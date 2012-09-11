@@ -259,9 +259,9 @@ class RcsbDpUtility(object):
         # Set application specific path details here -
         #
         self.__annotAppsPath  =  self.__getConfigPath('SITE_ANNOT_TOOLS_PATH')
-        self.__packagePath      =  self.__getConfigPath('SITE_TOOLS_PATH')
-        self.__deployPath      =  self.__getConfigPath('SITE_DEPLOY_PATH')        
-        self.__ccDictPath    =  self.__getConfigPath('SITE_CC_DICT_PATH')        
+        self.__packagePath    =  self.__getConfigPath('SITE_TOOLS_PATH')
+        self.__deployPath     =  self.__getConfigPath('SITE_DEPLOY_PATH')        
+        self.__ccDictPath     =  self.__getConfigPath('SITE_CC_DICT_PATH')        
 
         if self.__rcsbAppsPath is None:        
             self.__rcsbAppsPath  =  self.__getConfigPath('SITE_RCSB_APPS_PATH')        
@@ -727,6 +727,8 @@ class RcsbDpUtility(object):
         if self.__localAppsPath is None:                            
             self.__localAppsPath =  self.__getConfigPath('SITE_LOCAL_APPS_PATH')
 
+        self.__packagePath    =  self.__getConfigPath('SITE_TOOLS_PATH')            
+
         #
         self.__ccAppsPath    =  self.__getConfigPath('SITE_CC_APPS_PATH')
         self.__pdbxDictPath  =  self.__getConfigPath('SITE_PDBX_DICT_PATH')
@@ -857,6 +859,9 @@ class RcsbDpUtility(object):
             cmd += " ; BABEL_DIR="     + self.__babelDirPath     + " ; export BABEL_DIR "
             cmd += " ; BABEL_DATADIR=" + self.__babelDataDirPath + " ; export BABEL_DATADIR "
             cmd += " ; CACTVS_DIR="    + self.__cactvsDirPath    + " ; export CACTVS_DIR "
+            cmd += " ; LD_LIBRARY_PATH=" + os.path.join(self.__localAppsPath,"lib") + ":" + \
+                   os.path.join(self.__packagePath,"ccp4","lib") + " ; export LD_LIBRARY_PATH "                        
+            
             cmd += " ; env "
             cmdPath =os.path.join(self.__ccAppsPath,"bin","ChemCompAssign_main")
             thisCmd  = " ; " + cmdPath                        
@@ -888,6 +893,8 @@ class RcsbDpUtility(object):
             cmd += " ; BABEL_DIR="     + self.__babelDirPath     + " ; export BABEL_DIR "
             cmd += " ; BABEL_DATADIR=" + self.__babelDataDirPath + " ; export BABEL_DATADIR "
             cmd += " ; CACTVS_DIR="    + self.__cactvsDirPath    + " ; export CACTVS_DIR "
+            cmd += " ; LD_LIBRARY_PATH=" + os.path.join(self.__localAppsPath,"lib") + ":" + \
+                   os.path.join(self.__packagePath,"ccp4","lib") + " ; export LD_LIBRARY_PATH "                                    
             cmd += " ; env "
             cmdPath =os.path.join(self.__ccAppsPath,"bin","ChemCompAssign_main")
             thisCmd  = " ; " + cmdPath                        
