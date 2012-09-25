@@ -58,7 +58,8 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
         self.__testFileCsRelatedCif = "cor_16703_test.cif"
         #
         self.__testFileValidateXyz = "1cbs.cif"
-        self.__testFileValidateSf  = "1cbs-sf.cif"        
+        self.__testFileValidateSf  = "1cbs-sf.cif"
+        self.__testValidateIdList  = ["1cbs","3of4","3oqp"]
             
     def tearDown(self):
         pass
@@ -343,6 +344,31 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             traceback.print_exc(file=self.__lfh)
             self.fail()
 
+
+    def testAnnotValidateList(self): 
+        """  Test create validation report for the test list of example PDB ids
+        """
+        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        try:
+            for pdbId in self.__testValidateIdList:
+                ofpdf=pdbId+"-valrpt.pdf"
+                ofxml=pdbId+"-valdata.xml"
+                testFileValidateXyz=pdbId+".cif"
+                testFileValidateSf=pdbId+"-sf.cif"
+                dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
+                xyzPath=os.path.join(self.__testFilePath,testFileValidateXyz)
+                sfPath=os.path.join(self.__testFilePath,testFileValidateSf)            
+                dp.imp(xyzPath)
+                dp.addInput(name="sf_file_path",value=sfPath)            
+                dp.op("annot-wwpdb-validate-1")
+                dp.expLog(pdbId+"-annot-validate.log")
+                dp.expList(dstPathList=[ofpdf,ofxml])
+                dp.cleanup()
+        except:
+            traceback.print_exc(file=self.__lfh)
+            self.fail()
+
+
     def testAnnotConsolidatedTasksWithTopology(self): 
         """  Calculate annotation tasks in a single step including supporting topology data.
         """
@@ -398,7 +424,8 @@ def suiteAnnotNMRTests():
 
 def suiteAnnotValidationTests():
     suiteSelect = unittest.TestSuite()
-    suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotValidate1"))
+    #suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotValidate1"))
+    suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotValidateList"))    
     return suiteSelect        
 
 def suiteAnnotConsolidatedTests():

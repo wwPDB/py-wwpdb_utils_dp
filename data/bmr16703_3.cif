@@ -1,0 +1,328 @@
+data_9Z99
+# 
+loop_
+_audit_author.address 
+_audit_author.name 
+_audit_author.pdbx_ordinal 
+? 'Lenarcic, M.'        ? 
+? 'Kludkiewicz, B.'     ? 
+? 'Nowicka, U.'         ? 
+? 'Grzelak, K.'         ? 
+? 'Zagorski-Ostoja, W.' ? 
+? 'Zhukov, I.'          ? 
+# 
+_citation.abstract                  ? 
+_citation.abstract_id_CAS           ? 
+_citation.book_id_ISBN              ? 
+_citation.book_publisher            ? 
+_citation.book_publisher_city       ? 
+_citation.book_title                ? 
+_citation.coordinate_linkage        ? 
+_citation.country                   ? 
+_citation.database_id_CSD           ? 
+_citation.database_id_Medline       ? 
+_citation.details                   ? 
+_citation.id                        primary 
+_citation.journal_abbrev            'To be Published' 
+_citation.journal_full              ? 
+_citation.journal_id_ASTM           ? 
+_citation.journal_id_CSD            ? 
+_citation.journal_id_ISSN           ? 
+_citation.journal_issue             ? 
+_citation.journal_volume            ? 
+_citation.language                  ? 
+_citation.page_first                ? 
+_citation.page_last                 ? 
+_citation.pdbx_database_id_DOI      ? 
+_citation.pdbx_database_id_PubMed   ? 
+_citation.title                     
+;
+High-resolution structure of atypical serine proteinase inhibitors by means of NMR spectroscopy
+;
+_citation.unpublished_flag          ? 
+_citation.year                      ? 
+# 
+loop_
+_citation_author.citation_id 
+_citation_author.name 
+_citation_author.ordinal 
+primary 'Lenarcic, M.'        1 
+primary 'Grzelak, K.'         2 
+primary 'Zhukov, I.'          3 
+primary 'Zagorski-Ostoja, W.' 4 
+primary 'Nowicka, U.'         5 
+# 
+loop_
+_database_2.database_code 
+_database_2.database_id 
+.     RCSB 
+.     PDB  
+16703 BMRB 
+# 
+_entity.details                            ? 
+_entity.formula_weight                     5033.501 
+_entity.id                                 1 
+_entity.pdbx_description                   spi2 
+_entity.pdbx_ec                            ? 
+_entity.pdbx_formula_weight_exptl          ? 
+_entity.pdbx_formula_weight_exptl_method   ? 
+_entity.pdbx_fragment                      '22-58 fragment of silk protease inhibitor 2' 
+_entity.pdbx_modification                  ? 
+_entity.pdbx_mutation                      ? 
+_entity.pdbx_number_of_molecules           ? 
+_entity.pdbx_parent_entity_id              ? 
+_entity.pdbx_target_id                     ? 
+_entity.src_method                         man 
+_entity.type                               polymer 
+# 
+_entity_poly.entity_id                      1 
+_entity_poly.nstd_chirality                 no 
+_entity_poly.nstd_linkage                   no 
+_entity_poly.nstd_monomer                   no 
+_entity_poly.number_of_monomers             45 
+_entity_poly.pdbx_seq_one_letter_code       
+;
+EAAVCTTEWDPVCGKDGKTY
+SNLCWLNEAGVGLDHEGECH
+HHHHH
+;
+_entity_poly.pdbx_seq_one_letter_code_can   ? 
+_entity_poly.pdbx_strand_id                 A 
+_entity_poly.pdbx_target_identifier         ? 
+_entity_poly.type                           polypeptide(L) 
+_entity_poly.type_details                   ? 
+# 
+_entity_poly_seq.entity_id   ? 
+_entity_poly_seq.hetero      ? 
+_entity_poly_seq.mon_id      ? 
+_entity_poly_seq.num         ? 
+# 
+_entity_src_gen.entity_id                          1 
+_entity_src_gen.expression_system_id               ? 
+_entity_src_gen.gene_src_common_name               'greater wax moth' 
+_entity_src_gen.gene_src_details                   ? 
+_entity_src_gen.gene_src_dev_stage                 ? 
+_entity_src_gen.gene_src_genus                     ? 
+_entity_src_gen.gene_src_species                   ? 
+_entity_src_gen.gene_src_strain                    ? 
+_entity_src_gen.gene_src_tissue                    ? 
+_entity_src_gen.gene_src_tissue_fraction           ? 
+_entity_src_gen.host_org_common_name               ? 
+_entity_src_gen.host_org_details                   ? 
+_entity_src_gen.host_org_genus                     ? 
+_entity_src_gen.host_org_species                   ? 
+_entity_src_gen.host_org_strain                    ? 
+_entity_src_gen.pdbx_description                   ? 
+_entity_src_gen.pdbx_gene_src_atcc                 ? 
+_entity_src_gen.pdbx_gene_src_cell                 ? 
+_entity_src_gen.pdbx_gene_src_cell_line            ? 
+_entity_src_gen.pdbx_gene_src_cellular_location    ? 
+_entity_src_gen.pdbx_gene_src_fragment             ? 
+_entity_src_gen.pdbx_gene_src_gene                 ? 
+_entity_src_gen.pdbx_gene_src_ncbi_taxonomy_id     ? 
+_entity_src_gen.pdbx_gene_src_organ                ? 
+_entity_src_gen.pdbx_gene_src_organelle            ? 
+_entity_src_gen.pdbx_gene_src_plasmid              ? 
+_entity_src_gen.pdbx_gene_src_plasmid_name         ? 
+_entity_src_gen.pdbx_gene_src_scientific_name      'Galleria Mellonella' 
+_entity_src_gen.pdbx_gene_src_variant              ? 
+_entity_src_gen.pdbx_host_org_atcc                 ? 
+_entity_src_gen.pdbx_host_org_cell                 ? 
+_entity_src_gen.pdbx_host_org_cell_line            ? 
+_entity_src_gen.pdbx_host_org_cellular_location    ? 
+_entity_src_gen.pdbx_host_org_culture_collection   ? 
+_entity_src_gen.pdbx_host_org_gene                 ? 
+_entity_src_gen.pdbx_host_org_ncbi_taxonomy_id     ? 
+_entity_src_gen.pdbx_host_org_organ                ? 
+_entity_src_gen.pdbx_host_org_organelle            ? 
+_entity_src_gen.pdbx_host_org_scientific_name      'Pichia pastoris' 
+_entity_src_gen.pdbx_host_org_strain               ? 
+_entity_src_gen.pdbx_host_org_tissue               ? 
+_entity_src_gen.pdbx_host_org_tissue_fraction      ? 
+_entity_src_gen.pdbx_host_org_variant              ? 
+_entity_src_gen.pdbx_host_org_vector               pPICZalfaB 
+_entity_src_gen.pdbx_host_org_vector_type          ? 
+_entity_src_gen.plasmid_details                    ? 
+_entity_src_gen.plasmid_name                       ? 
+_entity_src_gen.start_construct_id                 ? 
+# 
+_entry.id         16703 
+_entry.pdbx_DOI   ? 
+# 
+_exptl.absorpt_coefficient_mu     ? 
+_exptl.absorpt_correction_T_max   ? 
+_exptl.absorpt_correction_T_min   ? 
+_exptl.absorpt_correction_type    ? 
+_exptl.absorpt_process_details    ? 
+_exptl.crystals_number            ? 
+_exptl.details                    
+;
+Structure of atypical Kazal-type serine proteinase inhibitor solved by NMR spectroscopy
+;
+_exptl.entry_id                   9Z99 
+_exptl.method                     'SOLUTION NMR' 
+_exptl.method_details             ? 
+# 
+loop_
+_pdbx_contact_author.address_1 
+_pdbx_contact_author.address_2 
+_pdbx_contact_author.address_3 
+_pdbx_contact_author.city 
+_pdbx_contact_author.continent 
+_pdbx_contact_author.country 
+_pdbx_contact_author.email 
+_pdbx_contact_author.fax 
+_pdbx_contact_author.id 
+_pdbx_contact_author.name_first 
+_pdbx_contact_author.name_last 
+_pdbx_contact_author.name_mi 
+_pdbx_contact_author.name_salutation 
+_pdbx_contact_author.organization_type 
+_pdbx_contact_author.phone 
+_pdbx_contact_author.postal_code 
+_pdbx_contact_author.role 
+_pdbx_contact_author.state_province 
+'National Institute of Chemistry'          'ul Hajdrihova 19'   ? Ljubljana ? Slovenia igor.zhukov@ki.si '(+386-1) 476-0300' 1 Igor     
+Zhukov  ? Dr. academic '(+386-1) 476-0311' 1001   'principal investigator' Ljubljana 
+'Institute of Biochemistry and Biophysics' 'ul. Pawinskiego 5a' ? Warsaw    ? Poland   kg@ibb.waw.pl     '(+48-22) 592-2190' 2 Krystina 
+Grzelak ? Dr. academic '(+48-22) 592-2423' 02-106 'responsible scientist'  Warsaw    
+# 
+loop_
+_pdbx_database_related.content_type 
+_pdbx_database_related.db_id 
+_pdbx_database_related.db_name 
+_pdbx_database_related.details 
+? 16704 BMRB SPI2(T7Y) 
+? 16705 BMRB SPI2(T7A) 
+# 
+_pdbx_database_status.author_approval_type               ? 
+_pdbx_database_status.author_release_status_code         ? 
+_pdbx_database_status.date_author_approval               ? 
+_pdbx_database_status.date_coordinates                   ? 
+_pdbx_database_status.date_deposition_form               ? 
+_pdbx_database_status.date_hold_coordinates              ? 
+_pdbx_database_status.date_hold_nmr_constraints          ? 
+_pdbx_database_status.date_hold_struct_fact              ? 
+_pdbx_database_status.date_hold_chemical_shifts          ? 
+_pdbx_database_status.date_manuscript                    ? 
+_pdbx_database_status.date_nmr_constraints               ? 
+_pdbx_database_status.date_chemical_shifts               ? 
+_pdbx_database_status.date_of_mr_release                 ? 
+_pdbx_database_status.date_of_cs_release                 ? 
+_pdbx_database_status.date_of_PDB_release                ? 
+_pdbx_database_status.date_of_sf_release                 ? 
+_pdbx_database_status.date_struct_fact                   ? 
+_pdbx_database_status.date_submitted                     ? 
+_pdbx_database_status.dep_release_code_chemical_shifts   ? 
+_pdbx_database_status.dep_release_code_coordinates       'HOLD FOR PUBLICATION' 
+_pdbx_database_status.dep_release_code_nmr_constraints   'HOLD FOR PUBLICATION' 
+_pdbx_database_status.dep_release_code_sequence          'HOLD FOR RELEASE' 
+_pdbx_database_status.dep_release_code_struct_fact       ? 
+_pdbx_database_status.deposit_site                       BMRB 
+_pdbx_database_status.entry_id                           9Z99 
+_pdbx_database_status.hold_for_publication               ? 
+_pdbx_database_status.name_depositor                     ? 
+_pdbx_database_status.pdb_date_of_author_approval        ? 
+_pdbx_database_status.process_site                       RCSB 
+_pdbx_database_status.rcsb_annotator                     UNASSIGNED 
+_pdbx_database_status.recvd_author_approval              ? 
+_pdbx_database_status.recvd_coordinates                  N 
+_pdbx_database_status.recvd_deposit_form                 ? 
+_pdbx_database_status.recvd_initial_deposition_date      ? 
+_pdbx_database_status.recvd_internal_approval            ? 
+_pdbx_database_status.recvd_manuscript                   ? 
+_pdbx_database_status.recvd_nmr_constraints              N 
+_pdbx_database_status.recvd_struct_fact                  ? 
+_pdbx_database_status.recvd_chemical_shifts              ? 
+_pdbx_database_status.SG_entry                           ? 
+_pdbx_database_status.status_code                        PROC 
+_pdbx_database_status.status_code_mr                     ? 
+_pdbx_database_status.status_code_sf                     ? 
+_pdbx_database_status.status_code_cs                     ? 
+# 
+_pdbx_entity_nonpoly.comp_id     spi2 
+_pdbx_entity_nonpoly.entity_id   1 
+_pdbx_entity_nonpoly.name        spi2 
+# 
+loop_
+_pdbx_nmr_exptl.conditions_id 
+_pdbx_nmr_exptl.experiment_id 
+_pdbx_nmr_exptl.solution_id 
+_pdbx_nmr_exptl.type 
+1 1 1 '2D 1H-15N HSQC' 
+1 2 1 '2D 1H-13C HSQC' 
+1 3 1 '2D 1H-1H TOCSY' 
+1 4 1 '2D 1H-1H NOESY' 
+# 
+loop_
+_pdbx_nmr_exptl_sample.component 
+_pdbx_nmr_exptl_sample.concentration 
+_pdbx_nmr_exptl_sample.concentration_range 
+_pdbx_nmr_exptl_sample.concentration_units 
+_pdbx_nmr_exptl_sample.isotopic_labeling 
+_pdbx_nmr_exptl_sample.solution_id 
+spi2-1 1.2 ? mM 'natural abundance' 1 
+H2O-2  90  ? %  'natural abundance' 1 
+D2O-3  10  ? %  'natural abundance' 1 
+NaCl-4 50  ? mM 'natural abundance' 1 
+# 
+_pdbx_nmr_exptl_sample_conditions.conditions_id    1 
+_pdbx_nmr_exptl_sample_conditions.ionic_strength   50 
+_pdbx_nmr_exptl_sample_conditions.pH               3.5 
+_pdbx_nmr_exptl_sample_conditions.pressure         ambient 
+_pdbx_nmr_exptl_sample_conditions.pressure_units   atm 
+_pdbx_nmr_exptl_sample_conditions.temperature      298 
+# 
+_pdbx_nmr_sample_details.contents         ? 
+_pdbx_nmr_sample_details.solution_id      1 
+_pdbx_nmr_sample_details.solvent_system   '90% H2O/10% D2O' 
+# 
+loop_
+_pdbx_nmr_spectrometer.field_strength 
+_pdbx_nmr_spectrometer.manufacturer 
+_pdbx_nmr_spectrometer.model 
+_pdbx_nmr_spectrometer.spectrometer_id 
+_pdbx_nmr_spectrometer.type 
+800 Varian 'Uniform NMR System' 1 'Varian Uniform NMR System' 
+500 Varian UnityPlus            2 'Varian UnityPlus'          
+800 Varian 'Uniform NMR System' 1 'Varian Uniform NMR System' 
+500 Varian UnityPlus            2 'Varian UnityPlus'          
+# 
+_struct_asym.details                       ? 
+_struct_asym.entity_id                     ? 
+_struct_asym.id                            A 
+_struct_asym.pdbx_blank_PDB_chainid_flag   ? 
+_struct_asym.pdbx_modified                 ? 
+# 
+loop_
+_struct_keywords.entry_id 
+_struct_keywords.pdbx_keywords 
+_struct_keywords.text 
+9Z99 ? 'serine proteinase inhibitor'   
+9Z99 ? 'silk proteinase inhibitor 2'   
+9Z99 ? 'atypical Kazal-type inhibitor' 
+9Z99 ? 'NMR spectroscopy'              
+# 
+loop_
+_pdbx_nmr_software.authors 
+_pdbx_nmr_software.classification 
+_pdbx_nmr_software.name 
+_pdbx_nmr_software.ordinal 
+_pdbx_nmr_software.version 
+'Delaglio, Grzesiek, Vuister, Zhu, Pfeifer and Bax' processing                  NMRPipe 1 ? 
+Goddard                                             'data analysis'             SPARKY  2 ? 
+Goddard                                             'peak picking'              SPARKY  2 ? 
+Goddard                                             'chemical shift assignment' SPARKY  2 ? 
+'Brunger, Adams, Clore, Gros, Nilges and Read'      'structure solution'        CNS     3 ? 
+'Brunger, Adams, Clore, Gros, Nilges and Read'      refinement                  CNS     3 ? 
+'Guntert, Mumenthaler and Wuthrich'                 'structure solution'        CYANA   4 ? 
+# 
+_struct.entry_id                     9Z99 
+_struct.pdbx_descriptor              ? 
+_struct.pdbx_formula_weight          ? 
+_struct.pdbx_formula_weight_method   ? 
+_struct.pdbx_model_details           ? 
+_struct.pdbx_model_type_details      ? 
+_struct.pdbx_CASP_flag               ? 
+_struct.title                        SPI2 
+# 
