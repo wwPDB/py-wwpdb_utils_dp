@@ -269,8 +269,8 @@ class RcsbDpUtility(object):
         # These may not be needed -- 
         self.__pdbxDictPath  =  self.__getConfigPath('SITE_PDBX_DICT_PATH')
         self.__pathDdlSdb      = os.path.join(self.__pdbxDictPath,"mmcif_ddl.sdb")
-        self.__pathPdbxDictSdb = os.path.join(self.__pdbxDictPath,"mmcif_pdbx.sdb")
-        self.__pathPdbxDictOdb = os.path.join(self.__pdbxDictPath,"mmcif_pdbx.odb")
+        self.__pathPdbxDictSdb = os.path.join(self.__pdbxDictPath,"mmcif_pdbx_v40.sdb")
+        self.__pathPdbxDictOdb = os.path.join(self.__pdbxDictPath,"mmcif_pdbx_v40.odb")
         #
         #
         iPath=     self.__getSourceWrkFile(self.__stepNo)
@@ -281,11 +281,13 @@ class RcsbDpUtility(object):
         tPath=     self.__getTmpWrkFile(self.__stepNo)        
         #
         if (self.__wrkPath != None):
+            iPathFull=os.path.abspath(os.path.join(self.__wrkPath, iPath))            
             ePathFull=os.path.join(self.__wrkPath, ePath)
             lPathFull=os.path.join(self.__wrkPath, lPath)
             tPathFull=os.path.join(self.__wrkPath, tPath)                                    
             cmd = "(cd " + self.__wrkPath
         else:
+            iPathFull = iPath
             ePathFull = ePath
             lPathFull = lPath
             tPathFull = tPath            
@@ -516,9 +518,11 @@ class RcsbDpUtility(object):
             
             if  self.__inputParamDict.has_key('sf_file_path'):
                 sfPath=self.__inputParamDict['sf_file_path']
+                sfPathFull = os.path.abspath(sfPath)                
             else:
                 sfPath="none"
-            
+                sfPathFull="none"                
+
             #
             xmlPath=os.path.join(self.__wrkPath, "out.xml")
             pdfPath=os.path.join(self.__wrkPath, "out.pdf")
@@ -527,7 +531,7 @@ class RcsbDpUtility(object):
             else:
                 cleanOpt="none"
             #
-            cmd += thisCmd + " 1abc " + iPath + " " + sfPath + " " + pdfPath +  " " + xmlPath + " " + cleanOpt 
+            cmd += thisCmd + " 1abc " + iPathFull + " " + sfPathFull + " " + pdfPath +  " " + xmlPath + " " + cleanOpt 
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
             cmd += " ; cp  -f " + pdfPath + " " + oPath
             #
@@ -741,8 +745,8 @@ class RcsbDpUtility(object):
         #
         self.__pathDdlSdb      = os.path.join(self.__pdbxDictPath,"mmcif_ddl.sdb")
         self.__pathDdl         = os.path.join(self.__pdbxDictPath,"mmcif_ddl.dic")        
-        self.__pathPdbxDictSdb = os.path.join(self.__pdbxDictPath,"mmcif_pdbx.sdb")
-        self.__pathPdbxDictOdb = os.path.join(self.__pdbxDictPath,"mmcif_pdbx.odb")
+        self.__pathPdbxDictSdb = os.path.join(self.__pdbxDictPath,"mmcif_pdbx_v40.sdb")
+        self.__pathPdbxDictOdb = os.path.join(self.__pdbxDictPath,"mmcif_pdbx_v40.odb")
         #
         self.__oeDirPath        = self.__getConfigPath('SITE_CC_OE_DIR')
         self.__oeLicensePath    = self.__getConfigPath('SITE_CC_OE_LICENSE')
@@ -859,8 +863,9 @@ class RcsbDpUtility(object):
             cmd += " ; BABEL_DIR="     + self.__babelDirPath     + " ; export BABEL_DIR "
             cmd += " ; BABEL_DATADIR=" + self.__babelDataDirPath + " ; export BABEL_DATADIR "
             cmd += " ; CACTVS_DIR="    + self.__cactvsDirPath    + " ; export CACTVS_DIR "
-            cmd += " ; LD_LIBRARY_PATH=" + os.path.join(self.__localAppsPath,"lib") + ":" + \
-                   os.path.join(self.__packagePath,"ccp4","lib") + " ; export LD_LIBRARY_PATH "                        
+            cmd += " ; LD_LIBRARY_PATH=" + os.path.join(self.__packagePath,"openbabel-2.2.3","lib") + ":" \
+                   + os.path.join(self.__packagePath,"ccp4","lib") + ":" \
+                   + os.path.join(self.__localAppsPath,"lib") +  " ; export LD_LIBRARY_PATH "              
             
             cmd += " ; env "
             cmdPath =os.path.join(self.__ccAppsPath,"bin","ChemCompAssign_main")
@@ -893,8 +898,9 @@ class RcsbDpUtility(object):
             cmd += " ; BABEL_DIR="     + self.__babelDirPath     + " ; export BABEL_DIR "
             cmd += " ; BABEL_DATADIR=" + self.__babelDataDirPath + " ; export BABEL_DATADIR "
             cmd += " ; CACTVS_DIR="    + self.__cactvsDirPath    + " ; export CACTVS_DIR "
-            cmd += " ; LD_LIBRARY_PATH=" + os.path.join(self.__localAppsPath,"lib") + ":" + \
-                   os.path.join(self.__packagePath,"ccp4","lib") + " ; export LD_LIBRARY_PATH "                                    
+            cmd += " ; LD_LIBRARY_PATH=" + os.path.join(self.__packagePath,"openbabel-2.2.3","lib") + ":" \
+                   + os.path.join(self.__packagePath,"ccp4","lib") + ":" \
+                   + os.path.join(self.__localAppsPath,"lib") +  " ; export LD_LIBRARY_PATH "  
             cmd += " ; env "
             cmdPath =os.path.join(self.__ccAppsPath,"bin","ChemCompAssign_main")
             thisCmd  = " ; " + cmdPath                        

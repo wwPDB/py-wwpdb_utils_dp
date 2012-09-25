@@ -437,7 +437,7 @@ if __name__ == '__main__':
 
     #
     #
-
-    mySuite=suiteAnnotSiteTests()
+    mySuite=suiteAnnotValidationTests()
     unittest.TextTestRunner(verbosity=2).run(mySuite)
+
     
