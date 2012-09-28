@@ -466,5 +466,4 @@ if __name__ == '__main__':
     #
     mySuite=suiteAnnotValidationTests()
     unittest.TextTestRunner(verbosity=2).run(mySuite)
-
     

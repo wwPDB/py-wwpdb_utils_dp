@@ -795,7 +795,7 @@ class RcsbDpUtility(object):
             cmd += " ; mv -f " + iPath + ".cif " + oPath
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
         elif (op == "check-cif"):
-            cmdPath   = os.path.join(self.__localAppsPath,"bin","CifCheck")
+            cmdPath   = os.path.join(self.__packagePath,"dict","bin","CifCheck")
             thisCmd    = " ; "   + cmdPath 
             cmd += thisCmd + " -f " + iPath
             cmd += " -dictSdb " + self.__pathPdbxDictSdb 
