@@ -4,6 +4,7 @@
 #
 # Updates:
 # 27-June-2012 jdw Change magnification on zoomto and quoting policy on labels.
+# 28-Sept-2012 jdw Adjust the Jmol setup to improve the depiction.
 #
 ##
 """
@@ -34,6 +35,8 @@ class GraphicsContext3D(object):
         self.__lfh=log
         self.__app3D=app3D
         self.__persistFilePath=None
+
+
         self.__setup()
         #
     def __setup(self):
@@ -45,6 +48,9 @@ class GraphicsContext3D(object):
          
         """
         self.__jMolDefaultSelection="select all; label off; "
+        #self.__jMolSetup=" background black; wireframe only; wireframe 0.15; labels off; slab 100; depth 40; slab on; "
+        
+        self.__jMolSetup=" background black; font label 20 monospaced bold; set fontScaling OFF; color label white; wireframe only; wireframe 0.10; labels off; slab 70; depth 25; slab on; "                
         #
         # Category types to customize context assignments -
         #
@@ -232,14 +238,15 @@ class GraphicsContext3D(object):
                 contextList.extend(cS)
 
         rL=[]
+        rL.append(self.__jMolSetup)
         rL.append(self.__jMolDefaultSelection)
         #
         if (len(contextList) > 0):
-            tS="select " + ",".join(contextList) + " ; "
+            tS="select ( " + ",".join(contextList) + " ) ; "
             rL.append(tS)
             lS=self.__assignLabelStyle(categoryName=categoryName)
             rL.append(lS)            
-            rL.append('zoomto (selected) 350; ')
+            rL.append('zoomto (selected) 900; ')
         #
         return "".join(rL)
 
