@@ -7,7 +7,8 @@
 #
 # Update:
 # 12-April-2011 jdw - revision checkout test cases.
-# 29-Nov  -2012 jdw - revised for new CvsAdmin and CvsSandBoxAdmin classes
+# 29-Nov  -2012 jdw - refactor CvsAdmin and CvsSandBoxAdmin classes
+#  2-Dec  -2012 jdw - add commit tests
 ##
 """
 Test cases for the CvsAdmin module. 
@@ -181,13 +182,23 @@ class CvsAdminTests(unittest.TestCase):
             rPath1=os.path.join(dstDir,"F1.DAT")
             rPath2=os.path.join(dstDir,"F2.DAT")            
             vc.add(self.__testProjectName,rPath1)
-            vc.add(self.__testProjectName,rPath2)            
+            text=vc.add(self.__testProjectName,rPath2)
+            self.__lfh.write("CVS add  output is:\n%s\n" % text)                        
+
+            vc.commit(self.__testProjectName,rPath1)
+            text=vc.commit(self.__testProjectName,rPath2)
+            self.__lfh.write("CVS commit output is:\n%s\n" % text)            
+            
             #
             vc.remove(self.__testProjectName,rPath2)
-            vc.remove(self.__testProjectName,rPath1)
+            text=vc.remove(self.__testProjectName,rPath1)
+            self.__lfh.write("CVS remove output is:\n%s\n" % text)
+            
             vc.remove(self.__testProjectName,dstDir)
             
-            vc.update(projectPath=self.__testProjectName,prune=True)            
+            text=vc.update(projectPath=self.__testProjectName,prune=True)
+            self.__lfh.write("CVS update output is:\n%s\n" % text)            
+            
             #
             vc.cleanup()
         except:

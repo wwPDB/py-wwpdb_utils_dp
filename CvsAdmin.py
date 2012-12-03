@@ -9,6 +9,7 @@
 # 29-Nov-2012   jdw Refactor to separate operations for maintaining a working
 #                   copy of a project (cvs sandbox) and operations 
 #                   which are independent of a working copy.
+#  3-Dec-2012   jdw Add separate commit operations.  
 ##
 """
 Wrapper class for opertations on cvs repositories.
@@ -310,7 +311,7 @@ class  CvsSandBoxAdmin(CvsWrapperBase):
 
         """
         if (self.__verbose):
-            self.__lfh.write("+CvsSandBoxAdmin(checkOut) Checking out CVS repository working path %s file path %s\n" %
+            self.__lfh.write("\n+CvsSandBoxAdmin(checkOut) Checking out CVS repository working path %s project file path %s\n" %
                              (self.__sandBoxTopPath, projectPath))
         text=''        
         if (self.__sandBoxTopPath is not None and projectPath is not None):
@@ -328,7 +329,7 @@ class  CvsSandBoxAdmin(CvsWrapperBase):
 
         """
         if (self.__verbose):
-            self.__lfh.write("+CvsSandBoxAdmin(update) Updating CVS repository working path %s project file path %s\n" %
+            self.__lfh.write("\n+CvsSandBoxAdmin(update) Updating CVS repository working path %s project file path %s\n" %
                              (self.__sandBoxTopPath, projectPath))
         targetPath=os.path.join(self.__sandBoxTopPath,projectPath)
         text=''
@@ -343,17 +344,38 @@ class  CvsSandBoxAdmin(CvsWrapperBase):
         return text
 
     def add(self,projectDir,relProjectPath):
-        """ Add to CVS sandbox working copy the input project path.   The project path must
-            correspond to an existing path in the local working copy.
+        """ Add an new definition in CVS working direcotry in the input project path.   The project path must
+            correspond to an existing file path in the local working copy.
 
         """
         if (self.__verbose):
-            self.__lfh.write("+CvsSandBoxAdmin(add) Add %s to the CVS repository working in file path %s\n" %
-                             (relProjectPath, os.path.join(self.__sandBoxTopPath,projectDir) ))
+            self.__lfh.write("\n+CvsSandBoxAdmin(add) Add %s to project %s in CVS repository working path %s\n" %
+                             (relProjectPath, projectDir, self.__sandBoxTopPath ))
         targetPath=os.path.join(self.__sandBoxTopPath,projectDir,relProjectPath)
         text=''        
         if (os.access(targetPath,os.W_OK)):
             cmd = self.__getAddCommitCmd(projectDir,relProjectPath)
+            if cmd is not None:
+                ok=self._runCvsCommand(myCommand=cmd)
+                text=self._getErrorText()
+        else:
+            self.__lfh.write("+ERROR - CvsSandBoxAdmin(add) cannot add project path %s\n" % targetPath)            
+
+        return text
+
+
+    def commit(self,projectDir,relProjectPath):
+        """ Commit changes in the input project/file path to the CVS repository. The project path must
+            correspond to an existing path in the local working copy.
+
+        """
+        if (self.__verbose):
+            self.__lfh.write("\n+CvsSandBoxAdmin(commit) Commit changes to %s in project %s in CVS repository working path %s\n" %
+                             (relProjectPath, projectDir, self.__sandBoxTopPath ))
+        targetPath=os.path.join(self.__sandBoxTopPath,projectDir,relProjectPath)
+        text=''        
+        if (os.access(targetPath,os.W_OK)):
+            cmd = self.__getCommitCmd(projectDir,relProjectPath)
             if cmd is not None:
                 ok=self._runCvsCommand(myCommand=cmd)
                 text=self._getErrorText()
@@ -369,8 +391,8 @@ class  CvsSandBoxAdmin(CvsWrapperBase):
 
         """
         if (self.__verbose):
-            self.__lfh.write("+CvsSandBoxAdmin(remove) Remove %s from the CVS repository working in file path %s\n" %
-                             (relProjectPath,os.path.join(self.__sandBoxTopPath,projectDir)))
+            self.__lfh.write("\n+CvsSandBoxAdmin(remove) Remove %s from project %s in CVS repository working path %s\n" %
+                             (relProjectPath,projectDir, self.__sandBoxTopPath))
         targetPath=os.path.join(self.__sandBoxTopPath,projectDir,relProjectPath)
         text=''        
         if (os.access(targetPath,os.W_OK)):
@@ -453,6 +475,20 @@ class  CvsSandBoxAdmin(CvsWrapperBase):
                 qm=' -m "'+message+'" '
             cmd+="cvs -d " +  self._cvsRoot  + " add " +  relProjectPath + \
                       self._getRedirect(fileNameOut=errPath,fileNameErr=errPath) + " ; "
+            cmd+="cvs -d " +  self._cvsRoot  + " commit " + qm + relProjectPath + \
+                  self._getRedirect(fileNameOut=errPath,fileNameErr=errPath,append=True) + ' ; '             
+        else:
+            cmd=None
+        return cmd
+
+    def __getCommitCmd(self, projectDir, relProjectPath, message="Automated update"):
+        if self._wrkPath is None:
+            self._makeTempWorkingDir()        
+        errPath=self._getErrorFilePath()
+        if self._setCvsRoot():
+            cmd = " cd " + os.path.join(self.__sandBoxTopPath,projectDir) + " ; "
+            if message is not None and len(message) > 0:
+                qm=' -m "'+message+'" '
             cmd+="cvs -d " +  self._cvsRoot  + " commit " + qm + relProjectPath + \
                   self._getRedirect(fileNameOut=errPath,fileNameErr=errPath,append=True) + ' ; '             
         else:
