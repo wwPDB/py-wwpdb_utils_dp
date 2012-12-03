@@ -7,6 +7,7 @@
 #
 # Update:
 # 12-April-2011 jdw - revision checkout test cases.
+# 29-Nov  -2012 jdw - revised for new CvsAdmin and CvsSandBoxAdmin classes
 ##
 """
 Test cases for the CvsAdmin module. 
