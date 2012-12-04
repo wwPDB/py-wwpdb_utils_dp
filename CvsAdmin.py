@@ -76,7 +76,7 @@ class  CvsWrapperBase(object):
     def _runCvsCommand(self,myCommand):
         retcode=-100
         try:
-            if self.__debug:
+            if self.__verbose:
                 self.__lfh.write("+CvsWrapperBase._runCvsCommand Command: %s\n" % myCommand)
             
             retcode = subprocess.call(myCommand, shell=True)
@@ -316,6 +316,8 @@ class  CvsSandBoxAdmin(CvsWrapperBase):
         text=''        
         if (self.__sandBoxTopPath is not None and projectPath is not None):
             cmd = self.__getCheckOutProjectCmd(projectPath,revId=revId)
+            if (self.__verbose):
+                self.__lfh.write("\n+CvsSandBoxAdmin(checkOut) checkout command %s\n" % cmd)
             if cmd is not None:
                 ok=self._runCvsCommand(myCommand=cmd)
                 text=self._getErrorText()
@@ -323,18 +325,18 @@ class  CvsSandBoxAdmin(CvsWrapperBase):
             pass
         return text
         
-    def update(self,projectPath,prune=False):
+    def update(self,projectDir,relProjectPath='.',prune=False):
         """ Update CVS sandbox working copy of the input project path.   The project path must
             correspond to an existing working copy of the repository.
 
         """
         if (self.__verbose):
             self.__lfh.write("\n+CvsSandBoxAdmin(update) Updating CVS repository working path %s project file path %s\n" %
-                             (self.__sandBoxTopPath, projectPath))
-        targetPath=os.path.join(self.__sandBoxTopPath,projectPath)
+                             (self.__sandBoxTopPath, projectDir))
+        targetPath=os.path.join(self.__sandBoxTopPath,projectDir)
         text=''
         if (os.access(targetPath,os.W_OK)):
-            cmd = self.__getUpdateProjectCmd(projectPath,prune=prune)
+            cmd = self.__getUpdateCmd(projectDir,relProjectPath=relProjectPath,prune=prune)
             if cmd is not None:
                 ok=self._runCvsCommand(myCommand=cmd)
                 text=self._getErrorText()

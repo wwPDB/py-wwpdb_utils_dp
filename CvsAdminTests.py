@@ -143,7 +143,7 @@ class CvsAdminTests(unittest.TestCase):
             vc.setAuthInfo(user=self.__cvsUser,password=self.__cvsPassword)
             #
             vc.setSandBoxTopPath("./CVSWORK")
-            text=vc.update(projectPath=self.__testProjectName)
+            text=vc.update(projectDir=self.__testProjectName)
             self.__lfh.write("CVS update output is:\n%s\n" % text)
             #
             vc.cleanup()
@@ -196,7 +196,7 @@ class CvsAdminTests(unittest.TestCase):
             
             vc.remove(self.__testProjectName,dstDir)
             
-            text=vc.update(projectPath=self.__testProjectName,prune=True)
+            text=vc.update(projectDir=self.__testProjectName,prune=True)
             self.__lfh.write("CVS update output is:\n%s\n" % text)            
             
             #
