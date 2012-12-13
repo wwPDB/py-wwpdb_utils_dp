@@ -12,6 +12,7 @@
 #    Sep  2, 2012 jdw -  add example for chemical shift nomenclature checks
 #    Sep  5, 2012 jdw -  add example for wwPDB validation package
 #    Sep  6, 2012 jdw -  add example for consolidated annotation steps
+#    Dec 12, 2012 jdw -  add and verify test cases for version 2 of validation module. 
 #
 ##
 """
@@ -368,6 +369,29 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             traceback.print_exc(file=self.__lfh)
             self.fail()
 
+    def testAnnotValidateListV2(self): 
+        """  Test create validation report for the test list of example PDB ids
+        """
+        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        try:
+            for pdbId in self.__testValidateIdList:
+                ofpdf=pdbId+"-valrpt.pdf"
+                ofxml=pdbId+"-valdata.xml"
+                testFileValidateXyz=pdbId+".cif"
+                testFileValidateSf=pdbId+"-sf.cif"
+                dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
+                xyzPath=os.path.join(self.__testFilePath,testFileValidateXyz)
+                sfPath=os.path.join(self.__testFilePath,testFileValidateSf)            
+                dp.imp(xyzPath)
+                dp.addInput(name="sf_file_path",value=sfPath)            
+                dp.op("annot-wwpdb-validate-2")
+                dp.expLog(pdbId+"-annot-validate-v2.log")
+                dp.expList(dstPathList=[ofpdf,ofxml])
+                dp.cleanup()
+        except:
+            traceback.print_exc(file=self.__lfh)
+            self.fail()
+
 
     def testAnnotConsolidatedTasksWithTopology(self): 
         """  Calculate annotation tasks in a single step including supporting topology data.
@@ -428,12 +452,18 @@ def suiteAnnotValidationTests():
     suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotValidateList"))    
     return suiteSelect        
 
+def suiteAnnotValidationV2Tests():
+    suiteSelect = unittest.TestSuite()
+    #suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotValidate1"))
+    suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotValidateListV2"))    
+    return suiteSelect        
+
+
+
 def suiteAnnotConsolidatedTests():
     suiteSelect = unittest.TestSuite()
     suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotConsolidatedTasksWithTopology"))
     return suiteSelect        
-
-
 
     
 if __name__ == '__main__':
@@ -457,13 +487,17 @@ if __name__ == '__main__':
         mySuite=suiteAnnotValidationTests()
         unittest.TextTestRunner(verbosity=2).run(mySuite)
 
+        mySuite=suiteAnnotValidationV2Tests()
+        unittest.TextTestRunner(verbosity=2).run(mySuite)
+        
         mySuite=suiteAnnotConsolidatedTests()
-        unittest.TextTestRunner(verbosity=2).run(mySuite)                    
+        unittest.TextTestRunner(verbosity=2).run(mySuite)
+        
     else:
         pass
 
     #
     #
-    mySuite=suiteAnnotValidationTests()
+    mySuite=suiteAnnotSiteTests()
     unittest.TextTestRunner(verbosity=2).run(mySuite)
-    
+

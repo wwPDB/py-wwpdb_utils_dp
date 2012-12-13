@@ -27,7 +27,9 @@
 # 15-Aug-2012 jdw add cif check application
 #  2-Sep-2012 jdw add consolidated annotation operation 
 #  2-Sep-2012 jdw add entry point  "annot-wwpdb-validate-1" for validation calculations
-#  5-Sep-2012 jdw working validation report operation 
+#  5-Sep-2012 jdw working validation report operation
+# 12-Dec-2012 jdw next validation module version
+#                 add babel library and remove hardwired version in loader path
 ##
 """
 Wrapper class for data processing and chemical component utilities.
@@ -79,7 +81,8 @@ class RcsbDpUtility(object):
                           "pisa-assembly-coordinates-cif","pisa-assembly-merge-cif"]
         self.__annotationOps = ["annot-secondary-structure", "annot-link-ssbond", "annot-cis-peptide","annot-distant-solvent",
                                 "annot-merge-struct-site","annot-reposition-solvent","annot-base-pair-info",
-                                "annot-validation","annot-site","annot-rcsb2pdbx","annot-consolidated-tasks","annot-wwpdb-validate-1",
+                                "annot-validation","annot-site","annot-rcsb2pdbx","annot-consolidated-tasks",
+                                "annot-wwpdb-validate-1","annot-wwpdb-validate-2",
                                 "annot-chem-shift-check","annot-chem-shift-coord-check","annot-nmrsta2pdbx","annot-pdbx2nmrstar"]
 
         #
@@ -536,6 +539,38 @@ class RcsbDpUtility(object):
             cmd += " ; cp  -f " + pdfPath + " " + oPath
             #
             #
+        elif (op == "annot-wwpdb-validate-2"):
+            # For the second version of the validation package --
+            #
+            # The validation package is currently set to self configure in a wrapper
+            # shell script.  No environment settings are required here at this point.
+            #
+            cmd += " ; WWPDB_SITE_ID="  + self.__siteId  + " ; export WWPDB_SITE_ID "
+            cmd += " ; DEPLOY_DIR="  + self.__deployPath  + " ; export DEPLOY_DIR "
+            cmdPath =os.path.join(self.__packagePath,"Vpack-v2","scripts","vpack-run.sh")
+            thisCmd  = " ; " + cmdPath                        
+            
+            if  self.__inputParamDict.has_key('sf_file_path'):
+                sfPath=self.__inputParamDict['sf_file_path']
+                sfPathFull = os.path.abspath(sfPath)                
+            else:
+                sfPath="none"
+                sfPathFull="none"                
+
+            #
+            xmlPath=os.path.join(self.__wrkPath, "out.xml")
+            pdfPath=os.path.join(self.__wrkPath, "out.pdf")
+            if (not self.__verbose):
+                cleanOpt="cleanup"
+            else:
+                cleanOpt="none"
+            #
+            cmd += thisCmd + " 1abc " + iPathFull + " " + sfPathFull + " " + pdfPath +  " " + xmlPath + " " + cleanOpt 
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
+            cmd += " ; cp  -f " + pdfPath + " " + oPath
+            #
+            #
+
         else:
             
             return -1
@@ -569,7 +604,7 @@ class RcsbDpUtility(object):
         #
         # After execution processing --
         #
-        if (op == "annot-wwpdb-validate-1"):
+        if ((op == "annot-wwpdb-validate-1") or (op == "annot-wwpdb-validate-2") ):
             self.__resultPathList=[]
             #
             # Push the output pdf and xml files onto the resultPathList.
@@ -750,6 +785,7 @@ class RcsbDpUtility(object):
         #
         self.__oeDirPath        = self.__getConfigPath('SITE_CC_OE_DIR')
         self.__oeLicensePath    = self.__getConfigPath('SITE_CC_OE_LICENSE')
+        self.__babelLibPath     = self.__getConfigPath('SITE_CC_BABEL_LIB')        
         self.__babelDirPath     = self.__getConfigPath('SITE_CC_BABEL_DIR')
         self.__babelDataDirPath = self.__getConfigPath('SITE_CC_BABEL_DATADIR')
         self.__cactvsDirPath    = self.__getConfigPath('SITE_CC_CACTVS_DIR')
@@ -863,7 +899,7 @@ class RcsbDpUtility(object):
             cmd += " ; BABEL_DIR="     + self.__babelDirPath     + " ; export BABEL_DIR "
             cmd += " ; BABEL_DATADIR=" + self.__babelDataDirPath + " ; export BABEL_DATADIR "
             cmd += " ; CACTVS_DIR="    + self.__cactvsDirPath    + " ; export CACTVS_DIR "
-            cmd += " ; LD_LIBRARY_PATH=" + os.path.join(self.__packagePath,"openbabel-2.2.3","lib") + ":" \
+            cmd += " ; LD_LIBRARY_PATH=" + self.__babelLibPath + ":" \
                    + os.path.join(self.__packagePath,"ccp4","lib") + ":" \
                    + os.path.join(self.__localAppsPath,"lib") +  " ; export LD_LIBRARY_PATH "              
             
@@ -898,7 +934,7 @@ class RcsbDpUtility(object):
             cmd += " ; BABEL_DIR="     + self.__babelDirPath     + " ; export BABEL_DIR "
             cmd += " ; BABEL_DATADIR=" + self.__babelDataDirPath + " ; export BABEL_DATADIR "
             cmd += " ; CACTVS_DIR="    + self.__cactvsDirPath    + " ; export CACTVS_DIR "
-            cmd += " ; LD_LIBRARY_PATH=" + os.path.join(self.__packagePath,"openbabel-2.2.3","lib") + ":" \
+            cmd += " ; LD_LIBRARY_PATH=" + self.__babelLibPath + ":" \
                    + os.path.join(self.__packagePath,"ccp4","lib") + ":" \
                    + os.path.join(self.__localAppsPath,"lib") +  " ; export LD_LIBRARY_PATH "  
             cmd += " ; env "
