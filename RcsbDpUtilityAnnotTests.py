@@ -26,6 +26,9 @@ from wwpdb.api.facade.ConfigInfo          import ConfigInfo,getSiteId
 from wwpdb.utils.rcsb.DataFile            import DataFile
 from wwpdb.utils.rcsb.RcsbDpUtility       import RcsbDpUtility
 
+from wwpdb.api.facade.WfDataObject  import WfDataObject
+
+
 
 class RcsbDpUtilityAnnotTests(unittest.TestCase):
     def setUp(self):
@@ -61,6 +64,8 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
         self.__testFileValidateXyz = "1cbs.cif"
         self.__testFileValidateSf  = "1cbs-sf.cif"
         self.__testValidateIdList  = ["1cbs","3of4","3oqp"]
+        self.__testArchiveIdList  = ["D_900002","D_600000"]
+        
             
     def tearDown(self):
         pass
@@ -393,6 +398,59 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             self.fail()
 
 
+    def testArchiveValidateListV2(self): 
+        """  Test create validation report for the test list of example dep dataset ids
+        """
+        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        try:
+            for depId in self.__testArchiveIdList:
+                ofpdf=depId+"-valrpt.pdf"
+                ofxml=depId+"-valdata.xml"
+
+                wfo1=WfDataObject()
+                wfo1.setDepositionDataSetId(depId)
+                wfo1.setStorageType('archive')
+                wfo1.setContentTypeAndFormat('model','pdbx')
+                wfo1.setVersionId('latest')
+                if (wfo1.isReferenceValid()):
+                    dP=wfo1.getDirPathReference()
+                    fP=wfo1.getFilePathReference()
+                    self.__lfh.write("Directory path: %s\n" % dP)
+                    self.__lfh.write("File      path: %s\n" % fP)
+                else:
+                    self.__lfh.write("Bad archival reference\n")
+                    
+                testFileValidateXyz=fP
+                
+                wfo2=WfDataObject()
+                wfo2.setDepositionDataSetId(depId)
+                wfo2.setStorageType('archive')
+                wfo2.setContentTypeAndFormat('structure-factors','pdbx')
+                wfo2.setVersionId('latest')
+                if (wfo2.isReferenceValid()):
+                    dP=wfo2.getDirPathReference()
+                    fP=wfo2.getFilePathReference()
+                    self.__lfh.write("Directory path: %s\n" % dP)
+                    self.__lfh.write("File      path: %s\n" % fP)
+                else:
+                    self.__lfh.write("Bad archival reference\n")
+                    
+                testFileValidateSf=fP
+                #
+                dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
+                xyzPath=os.path.join(self.__testFilePath,testFileValidateXyz)
+                sfPath=os.path.join(self.__testFilePath,testFileValidateSf)            
+                dp.imp(xyzPath)
+                dp.addInput(name="sf_file_path",value=sfPath)            
+                dp.op("annot-wwpdb-validate-2")
+                dp.expLog(depId+"-annot-validate-v2.log")
+                dp.expList(dstPathList=[ofpdf,ofxml])
+                dp.cleanup()
+        except:
+            traceback.print_exc(file=self.__lfh)
+            self.fail()
+
+
     def testAnnotConsolidatedTasksWithTopology(self): 
         """  Calculate annotation tasks in a single step including supporting topology data.
         """
@@ -458,6 +516,10 @@ def suiteAnnotValidationV2Tests():
     suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotValidateListV2"))    
     return suiteSelect        
 
+def suiteArchiveValidationV2Tests():
+    suiteSelect = unittest.TestSuite()
+    suiteSelect.addTest(RcsbDpUtilityAnnotTests("testArchiveValidateListV2"))    
+    return suiteSelect        
 
 
 def suiteAnnotConsolidatedTests():
@@ -465,7 +527,7 @@ def suiteAnnotConsolidatedTests():
     suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotConsolidatedTasksWithTopology"))
     return suiteSelect        
 
-    
+
 if __name__ == '__main__':
     # Run all tests -- 
     # unittest.main()
@@ -497,5 +559,6 @@ if __name__ == '__main__':
         pass
 
     #
-    mySuite=suiteAnnotValidationV2Tests()
+    mySuite=suiteArchiveValidationV2Tests()  
     unittest.TextTestRunner(verbosity=2).run(mySuite)
+    #
