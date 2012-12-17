@@ -658,7 +658,10 @@ class RcsbDpUtility(object):
                            'struct_mon_prot_cis',
                            'struct_sheet',
                            'struct_sheet_order',
-                           'struct_sheet_range']
+                           'struct_sheet_range',
+                           'struct_conn',
+                           'struct_site',
+                           'struct_site_gen']
 
             strpCt=PdbxStripCategory(verbose=self.__verbose,log=self.__lfh)
             strpCt.strip(oPath2Full,oPathFull,stripList)
