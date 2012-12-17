@@ -46,7 +46,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
         #
         self.__testFileAnnotLink       = '3rij.cif'
         self.__testFileAnnotCisPeptide = '5hoh.cif'        
-        self.__testFileAnnotSolvent    = '3rij.cif'
+        self.__testFileAnnotSolvent    = 'D_900002_model_P1.cif'
         self.__testFileAnnotValidate   = '3rij.cif'        
         self.__testFileAnnotNA         = '1o3q.cif'                
         self.__testFileAnnotSite       = '1xbb.cif'
@@ -248,7 +248,8 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
         """
         self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
         try:
-            of="annot-reposition-"+self.__testFileAnnotSolvent +".gz"
+            #of="annot-reposition-"+self.__testFileAnnotSolvent +".gz"
+            of="annot-reposition-"+self.__testFileAnnotSolvent            
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
             inpPath=os.path.join(self.__testFilePath,self.__testFileAnnotSolvent)
             dp.imp(inpPath)
@@ -508,19 +509,24 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             traceback.print_exc(file=self.__lfh)
             self.fail()
 
+    def testAnnotRepositionSolventPlusDerived(self): 
+        """  Calculate distant solvent followed by computing key derived categories -- 
+        """
+        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        try:
+            of="annot-reposition-add-derived-"+self.__testFileAnnotSolvent
+            dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
+            inpPath=os.path.join(self.__testFilePath,self.__testFileAnnotSolvent)
+            dp.imp(inpPath)
+            dp.op("annot-reposition-solvent-add-derived")
+            dp.expLog("annot-reposition-solvent-plus-derived.log")
+            dp.exp(of)            
+            dp.cleanup()
+        except:
+            traceback.print_exc(file=self.__lfh)
+            self.fail()
 
 
-def suiteAnnotTests():
-    suiteSelect = unittest.TestSuite()
-    suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotSecondaryStructure"))
-    suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotSecondaryStructureWithTopology"))
-    suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotLinkSSBond"))
-    suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotCisPeptide"))    
-    suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotDistantSolvent"))
-    suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotRepositionSolvent"))
-    suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotBasePair"))
-    suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotValidation"))            
-    return suiteSelect    
 
 def suiteAnnotSiteTests():
     suiteSelect = unittest.TestSuite()
@@ -571,6 +577,24 @@ def suiteAnnotConsolidatedTests():
     suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotConsolidatedTasksWithTopology"))
     return suiteSelect        
 
+def suiteAnnotTests():
+    suiteSelect = unittest.TestSuite()
+    suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotSecondaryStructure"))
+    suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotSecondaryStructureWithTopology"))
+    suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotLinkSSBond"))
+    suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotCisPeptide"))    
+    suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotDistantSolvent"))
+    suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotRepositionSolvent"))
+    suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotBasePair"))
+    suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotValidation"))            
+    return suiteSelect    
+
+def suiteSolventPlusDerivedTests():
+    suiteSelect = unittest.TestSuite()
+    suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotRepositionSolvent"))    
+    suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotRepositionSolventPlusDerived"))
+    return suiteSelect    
+
 
 if __name__ == '__main__':
     # Run all tests -- 
@@ -606,6 +630,6 @@ if __name__ == '__main__':
     #mySuite=suiteArchiveValidationV2Tests()  
     #unittest.TextTestRunner(verbosity=2).run(mySuite)
     #
-    mySuite=suiteArchiveSiteTests()
+    mySuite=suiteSolventPlusDerivedTests()
     unittest.TextTestRunner(verbosity=2).run(mySuite)    
     #

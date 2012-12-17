@@ -30,6 +30,7 @@
 #  5-Sep-2012 jdw working validation report operation
 # 12-Dec-2012 jdw next validation module version
 #                 add babel library and remove hardwired version in loader path
+# 17-Dec-2012 jdw add annot-reposition-solvent-add-derived 
 ##
 """
 Wrapper class for data processing and chemical component utilities.
@@ -41,8 +42,10 @@ Initial RCSB version - adapted from file utils method collections.
 import sys, os, os.path, glob, time, datetime, shutil, tempfile
 import socket
 
-from wwpdb.utils.rcsb.DataFile    import DataFile
-from wwpdb.api.facade.ConfigInfo  import ConfigInfo
+from wwpdb.utils.rcsb.DataFile          import DataFile
+from wwpdb.api.facade.ConfigInfo        import ConfigInfo
+
+from wwpdb.utils.rcsb.PdbxStripCategory import PdbxStripCategory
 
 class RcsbDpUtility(object):
     """ Wrapper class for data processing and chemical component utilities.
@@ -83,7 +86,8 @@ class RcsbDpUtility(object):
                                 "annot-merge-struct-site","annot-reposition-solvent","annot-base-pair-info",
                                 "annot-validation","annot-site","annot-rcsb2pdbx","annot-consolidated-tasks",
                                 "annot-wwpdb-validate-1","annot-wwpdb-validate-2",
-                                "annot-chem-shift-check","annot-chem-shift-coord-check","annot-nmrsta2pdbx","annot-pdbx2nmrstar"]
+                                "annot-chem-shift-check","annot-chem-shift-coord-check","annot-nmrsta2pdbx","annot-pdbx2nmrstar",
+                                "annot-reposition-solvent-add-derived"]
 
         #
         # Source, destination and logfile path details
@@ -264,7 +268,8 @@ class RcsbDpUtility(object):
         self.__annotAppsPath  =  self.__getConfigPath('SITE_ANNOT_TOOLS_PATH')
         self.__packagePath    =  self.__getConfigPath('SITE_TOOLS_PATH')
         self.__deployPath     =  self.__getConfigPath('SITE_DEPLOY_PATH')        
-        self.__ccDictPath     =  self.__getConfigPath('SITE_CC_DICT_PATH')        
+        self.__ccDictPath     =  self.__getConfigPath('SITE_CC_DICT_PATH')
+        self.__ccCvsPath      =  self.__getConfigPath('SITE_CC_CVS_PATH')                
 
         if self.__rcsbAppsPath is None:        
             self.__rcsbAppsPath  =  self.__getConfigPath('SITE_RCSB_APPS_PATH')        
@@ -383,7 +388,39 @@ class RcsbDpUtility(object):
             #
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
             cmd += " ; cat annot-step.log " + " >> " + lPath
-            
+
+        elif (op == "annot-reposition-solvent-add-derived"):
+            #
+            # oPath will point to the final result for this step
+            #
+            oPath1=oPath+"_A"
+            oPath2=oPath+"_B"            
+            cmdPath =os.path.join(self.__annotAppsPath,"bin","MovingWater")
+            thisCmd  = " ; " + cmdPath                        
+            cmd += " ; RCSBROOT=" + self.__rcsbAppsPath + " ; export RCSBROOT "            
+            cmd += thisCmd + " -input " + iPath + " -output " + oPath1 + " -log annot-step.log " 
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
+            cmd += " ; cat annot-step.log " + " >> " + lPath
+            #
+            # Adding a following step to synchronize required derived data for subsequent steps -
+            #
+            maxitPath   = os.path.join(self.__rcsbAppsPath,"bin","maxit")        
+            maxitCmd = " ; RCSBROOT=" + self.__rcsbAppsPath
+            if ((self.__ccCvsPath is not None) and (len(self.__ccCvsPath) > 0)):
+                maxitCmd += " ; COMP_PATH=" + self.__ccCvsPath
+            maxitCmd += " ; "   +  maxitPath + " -path " + self.__rcsbAppsPath
+            #
+            cmd +=  maxitCmd + " -o 8  -i " + oPath1
+            cmd += " ; mv -f " + oPath1 + ".cif " + oPath2
+            cmd += " ; cat maxit.err >> " + lPath
+            #
+            # Paths for post processing --
+            #
+            oPath2Full=os.path.join(self.__wrkPath, oPath2)
+            oPathFull=os.path.join(self.__wrkPath, oPath)                            
+            #
+            # see at the end for the post processing operations --
+            #
         elif (op == "annot-validation"):
             cmdPath =os.path.join(self.__annotAppsPath,"bin","valdation_with_cif_output")
             thisCmd  = " ; " + cmdPath                        
@@ -604,6 +641,30 @@ class RcsbDpUtility(object):
         #
         # After execution processing --
         #
+        if (op == "annot-reposition-solvent-add-derived"):
+            # remove these categories for now -- 
+            stripList=    ['pdbx_coord',
+                           # 'pdbx_entity_nonpoly',
+                           # 'pdbx_missing_residue_list',
+                           'pdbx_nonstandard_list',
+                           'pdbx_protein_info',
+                           'pdbx_solvent_info',
+                           'pdbx_struct_sheet_hbond',
+                           'pdbx_unobs_or_zero_occ_residues',
+                           'pdbx_validate_torsion',
+                           'struct_biol_gen',
+                           'struct_conf',
+                           'struct_conf_type',
+                           'struct_mon_prot_cis',
+                           'struct_sheet',
+                           'struct_sheet_order',
+                           'struct_sheet_range']
+
+            strpCt=PdbxStripCategory(verbose=self.__verbose,log=self.__lfh)
+            strpCt.strip(oPath2Full,oPathFull,stripList)
+
+
+        
         if ((op == "annot-wwpdb-validate-1") or (op == "annot-wwpdb-validate-2") ):
             self.__resultPathList=[]
             #
@@ -620,6 +681,8 @@ class RcsbDpUtility(object):
                 self.__resultPathList.append("missing")
         else:
             self.__resultPathList = [os.path.join(self.__wrkPath,oPath)]
+
+
         
         return iret
     
