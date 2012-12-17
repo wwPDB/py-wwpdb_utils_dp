@@ -64,7 +64,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
         self.__testFileValidateXyz = "1cbs.cif"
         self.__testFileValidateSf  = "1cbs-sf.cif"
         self.__testValidateIdList  = ["1cbs","3of4","3oqp"]
-        self.__testArchiveIdList  = ["D_900002","D_600000"]
+        self.__testArchiveIdList  = [("D_900002","4EC0"),("D_600000","4F3R")]
         
             
     def tearDown(self):
@@ -84,6 +84,44 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             dp.op("annot-site")
             dp.expLog("annot-site.log")
             dp.exp(of)            
+            #dp.cleanup()
+            
+        except:
+            traceback.print_exc(file=self.__lfh)
+            self.fail()
+
+
+    def testAnnotSiteArchive(self): 
+        """  Calculate site environment 
+        """
+        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        try:
+            for (depId,pdbId) in self.__testArchiveIdList:
+                ofpdf=depId+"-valrpt.pdf"
+                ofxml=depId+"-valdata.xml"
+
+                wfo1=WfDataObject()
+                wfo1.setDepositionDataSetId(depId)
+                wfo1.setStorageType('archive')
+                wfo1.setContentTypeAndFormat('model','pdbx')
+                wfo1.setVersionId('latest')
+                if (wfo1.isReferenceValid()):
+                    dP=wfo1.getDirPathReference()
+                    fP=wfo1.getFilePathReference()
+                    self.__lfh.write("Directory path: %s\n" % dP)
+                    self.__lfh.write("File      path: %s\n" % fP)
+                else:
+                    self.__lfh.write("Bad archival reference\n")
+                    
+                inpPath=fP
+            
+                of="annot-site-"+depId+".gz"
+                dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
+                dp.imp(inpPath)
+                dp.addInput(name="block_id",value=pdbId)            
+                dp.op("annot-site")
+                dp.expLog("annot-site-"+depId+".log")
+                dp.exp(of)            
             #dp.cleanup()
             
         except:
@@ -403,7 +441,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
         """
         self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
         try:
-            for depId in self.__testArchiveIdList:
+            for (depId,pdbId) in self.__testArchiveIdList:
                 ofpdf=depId+"-valrpt.pdf"
                 ofxml=depId+"-valdata.xml"
 
@@ -522,6 +560,12 @@ def suiteArchiveValidationV2Tests():
     return suiteSelect        
 
 
+def suiteArchiveSiteTests():
+    suiteSelect = unittest.TestSuite()
+    suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotSiteArchive"))    
+    return suiteSelect        
+
+
 def suiteAnnotConsolidatedTests():
     suiteSelect = unittest.TestSuite()
     suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotConsolidatedTasksWithTopology"))
@@ -559,6 +603,9 @@ if __name__ == '__main__':
         pass
 
     #
-    mySuite=suiteArchiveValidationV2Tests()  
-    unittest.TextTestRunner(verbosity=2).run(mySuite)
+    #mySuite=suiteArchiveValidationV2Tests()  
+    #unittest.TextTestRunner(verbosity=2).run(mySuite)
+    #
+    mySuite=suiteArchiveSiteTests()
+    unittest.TextTestRunner(verbosity=2).run(mySuite)    
     #
