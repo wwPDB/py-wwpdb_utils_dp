@@ -30,7 +30,8 @@
 #  5-Sep-2012 jdw working validation report operation
 # 12-Dec-2012 jdw next validation module version
 #                 add babel library and remove hardwired version in loader path
-# 17-Dec-2012 jdw add annot-reposition-solvent-add-derived 
+# 17-Dec-2012 jdw add annot-reposition-solvent-add-derived
+# 03-Jan-2013 jdw add format conversions with strip options
 ##
 """
 Wrapper class for data processing and chemical component utilities.
@@ -87,7 +88,7 @@ class RcsbDpUtility(object):
                                 "annot-validation","annot-site","annot-rcsb2pdbx","annot-consolidated-tasks",
                                 "annot-wwpdb-validate-1","annot-wwpdb-validate-2",
                                 "annot-chem-shift-check","annot-chem-shift-coord-check","annot-nmrsta2pdbx","annot-pdbx2nmrstar",
-                                "annot-reposition-solvent-add-derived"]
+                                "annot-reposition-solvent-add-derived", "annot-rcsb2pdbx-strip", "annot-rcsbeps2pdbx-strip"]
 
         #
         # Source, destination and logfile path details
@@ -481,6 +482,8 @@ class RcsbDpUtility(object):
             cmd += " ; cat annot-step.log " + " >> " + lPath
 
         elif (op == "annot-rcsb2pdbx"):
+
+            
             # New minimal RCSB internal cif to PDBx cif converter -
             cmdPath =os.path.join(self.__annotAppsPath,"bin","PdbxConverter")
             thisCmd  = " ; " + cmdPath                        
@@ -489,6 +492,48 @@ class RcsbDpUtility(object):
             #
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
             cmd += " ; cat annot-step.log " + " >> " + lPath
+
+        elif (op == "annot-rcsb2pdbx-strip"):
+
+            # New minimal RCSB internal cif to PDBx cif converter followed by removal of derived categories
+            
+            oPath2=oPath+"_A"
+            
+
+            cmdPath =os.path.join(self.__annotAppsPath,"bin","PdbxConverter")
+            thisCmd  = " ; " + cmdPath                        
+            cmd += " ; RCSBROOT=" + self.__rcsbAppsPath + " ; export RCSBROOT "            
+            cmd += thisCmd + " -input " + iPath + " -output " + oPath2 + " -log annot-step.log "
+            #
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
+            cmd += " ; cat annot-step.log " + " >> " + lPath
+
+            oPath2Full=os.path.join(self.__wrkPath, oPath2)
+            oPathFull=os.path.join(self.__wrkPath, oPath)                            
+
+        elif  (op == "annot-rcsbeps2pdbx-strip"):
+            #
+            oPath2=oPath+"_B"            
+            #
+            # Adding a following step to synchronize required derived data for subsequent steps -
+            #
+            maxitPath   = os.path.join(self.__rcsbAppsPath,"bin","maxit")        
+            maxitCmd = " ; RCSBROOT=" + self.__rcsbAppsPath
+            if ((self.__ccCvsPath is not None) and (len(self.__ccCvsPath) > 0)):
+                maxitCmd += " ; COMP_PATH=" + self.__ccCvsPath
+            maxitCmd += " ; "   +  maxitPath + " -path " + self.__rcsbAppsPath
+            #
+            cmd +=  maxitCmd + " -o 8  -i " + iPath
+            cmd += " ; mv -f " + iPath + ".cif " + oPath2
+            cmd += " ; cat maxit.err >> " + lPath
+            #
+            # Paths for post processing --
+            #
+            oPath2Full=os.path.join(self.__wrkPath, oPath2)
+            oPathFull=os.path.join(self.__wrkPath, oPath)                            
+            #
+            # see at the end for the post processing operations --
+            
         elif (op == "annot-chem-shift-check"):
 
             cmd += " ; TOOLS_PATH="  + self.__packagePath    + " ; export TOOLS_PATH "
@@ -666,7 +711,36 @@ class RcsbDpUtility(object):
             strpCt=PdbxStripCategory(verbose=self.__verbose,log=self.__lfh)
             strpCt.strip(oPath2Full,oPathFull,stripList)
 
-
+        if ((op == "annot-rcsb2pdbx-strip") or (op == "annot-rcsbeps2pdbx-strip")):
+            # remove these categories for now -- 
+            stripList=    ['pdbx_coord',
+                           'pdbx_nonstandard_list',
+                           'pdbx_protein_info',
+                           'pdbx_solvent_info',
+                           'pdbx_struct_sheet_hbond',
+                           'pdbx_unobs_or_zero_occ_residues',
+                           'pdbx_validate_torsion',
+                           'struct_biol_gen',
+                           'struct_conf',
+                           'struct_conf_type',
+                           'struct_mon_prot_cis',
+                           'struct_sheet',
+                           'struct_sheet_order',
+                           'struct_sheet_range',
+                           'struct_conn',
+                           'struct_site',
+                           'struct_site_gen',
+                           'pdbx_validate_close_contact',
+                           'pdbx_validate_symm_contact',
+                           'pdbx_validate_peptide_omega',
+                           'pdbx_struct_mod_residue',
+                           'pdbx_missing_residue_list',
+                           'pdbx_poly_seq_scheme',
+                           'pdbx_nonpoly_scheme',
+                           'struct_biol_gen',
+                           'struct_asym']
+            strpCt=PdbxStripCategory(verbose=self.__verbose,log=self.__lfh)
+            strpCt.strip(oPath2Full,oPathFull,stripList)
         
         if ((op == "annot-wwpdb-validate-1") or (op == "annot-wwpdb-validate-2") ):
             self.__resultPathList=[]
