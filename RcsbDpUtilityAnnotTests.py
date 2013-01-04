@@ -300,12 +300,12 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
         """
         self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
         try:
-            of="annot-rcsb2pdbx-"+self.__testFileAnnotRcsb  +".gz"
+            of="annot-rcsb2pdbx-"+self.__testFileAnnotRcsb
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
             inpPath=os.path.join(self.__testFilePath,self.__testFileAnnotRcsb)
             dp.imp(inpPath)
-            dp.op("annot-rcsb2pdbx")
-            dp.expLog("annot-rcsb2pdbx.log")
+            dp.op("annot-rcsb2pdbx-strip")
+            dp.expLog("annot-rcsb2pdbx-strip.log")
             dp.exp(of)            
             dp.cleanup()
         except:
@@ -318,12 +318,12 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
         """
         self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
         try:
-            of="annot-rcsbeps2pdbx-"+self.__testFileAnnotRcsbEps  +".gz"
+            of="annot-rcsbeps2pdbx-"+self.__testFileAnnotRcsbEps
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
             inpPath=os.path.join(self.__testFilePath,self.__testFileAnnotRcsbEps)
             dp.imp(inpPath)
-            dp.op("cif2cif")
-            dp.expLog("annot-rcsbeps2pdbx.log")
+            dp.op("annot-rcsbeps2pdbx-strip")
+            dp.expLog("annot-rcsbeps2pdbx-strip.log")
             dp.exp(of)            
             #dp.cleanup()
         except:
@@ -622,7 +622,9 @@ if __name__ == '__main__':
         
         mySuite=suiteAnnotConsolidatedTests()
         unittest.TextTestRunner(verbosity=2).run(mySuite)
-        
+
+        mySuite=suiteSolventPlusDerivedTests()
+        unittest.TextTestRunner(verbosity=2).run(mySuite)            
     else:
         pass
 
@@ -630,6 +632,8 @@ if __name__ == '__main__':
     #mySuite=suiteArchiveValidationV2Tests()  
     #unittest.TextTestRunner(verbosity=2).run(mySuite)
     #
-    mySuite=suiteSolventPlusDerivedTests()
-    unittest.TextTestRunner(verbosity=2).run(mySuite)    
     #
+    mySuite=suiteAnnotFormatConvertTests()
+    unittest.TextTestRunner(verbosity=2).run(mySuite)
+    #
+    
