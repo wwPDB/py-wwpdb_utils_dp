@@ -337,6 +337,8 @@ class  CvsSandBoxAdmin(CvsWrapperBase):
         text=''
         if (os.access(targetPath,os.W_OK)):
             cmd = self.__getUpdateCmd(projectDir,relProjectPath=relProjectPath,prune=prune)
+            if (self.__verbose):
+                self.__lfh.write("\n+CvsSandBoxAdmin(update) update command %s\n" % cmd)            
             if cmd is not None:
                 ok=self._runCvsCommand(myCommand=cmd)
                 text=self._getErrorText()
@@ -440,7 +442,7 @@ class  CvsSandBoxAdmin(CvsWrapperBase):
                 pF=" "
             targetPath=os.path.join(self.__sandBoxTopPath,projectDir)
             cmd = " cd " + targetPath + "; "
-            cmd+="cvs -d " +  self._cvsRoot  + " update -d " + pF + \
+            cmd+="cvs -d " +  self._cvsRoot  + " update -C -d " + pF + \
                       self._getRedirect(fileNameOut=errPath,fileNameErr=errPath) + " ; "
         else:
             cmd=None

@@ -26,7 +26,6 @@ from wwpdb.utils.rcsb.CvsAdmin          import CvsAdmin,CvsSandBoxAdmin
 
 class CvsAdminTests(unittest.TestCase):
     def setUp(self):
-        self.__siteId='DEV'
         self.__lfh=sys.stdout
         #
         self.__testFilePath="ligand-dict-v3/A/ATP/ATP.cif"
@@ -34,11 +33,13 @@ class CvsAdminTests(unittest.TestCase):
         #
         self.__cvsRepositoryPath="/cvs-ligands"
         self.__cvsRepositoryHost="rcsb-cvs-1.rutgers.edu"
-        self.__cvsUser="liganon3"
-        self.__cvsPassword="lig1234"
+
         self.__realProjectName="prd-v3"                
         self.__testProjectName="test-project-v1"
         self.__testFilePath=os.path.abspath("./data/TEST-FILE.DAT")
+
+        self.__cvsUser=os.getenv("CVS_TEST_USER")
+        self.__cvsPassword=os.getenv("CVS_TEST_PW")
             
     def tearDown(self):
         pass

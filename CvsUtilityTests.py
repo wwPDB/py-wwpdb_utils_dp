@@ -33,9 +33,9 @@ class CvsUtilityTests(unittest.TestCase):
         #
         self.__cvsRepositoryPath="/cvs-ligands"
         self.__cvsRepositoryHost="rcsb-cvs-1.rutgers.edu"
-        self.__cvsUser="liganon3"
-        self.__cvsPassword="lig1234"
-        
+
+        self.__cvsUser=os.getenv("CVS_TEST_USER")
+        self.__cvsPassword=os.getenv("CVS_TEST_PW")        
             
     def tearDown(self):
         pass
