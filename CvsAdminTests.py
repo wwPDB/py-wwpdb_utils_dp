@@ -9,6 +9,7 @@
 # 12-April-2011 jdw - revision checkout test cases.
 # 29-Nov  -2012 jdw - refactor CvsAdmin and CvsSandBoxAdmin classes
 #  2-Dec  -2012 jdw - add commit tests
+# 28-Jan  -2013 jdw - revise tests for change in return prototype.
 ##
 """
 Test cases for the CvsAdmin module. 
@@ -36,7 +37,7 @@ class CvsAdminTests(unittest.TestCase):
 
         self.__realProjectName="prd-v3"                
         self.__testProjectName="test-project-v1"
-        self.__testFilePath=os.path.abspath("./data/TEST-FILE.DAT")
+        self.__testFilePath2=os.path.abspath("./data/TEST-FILE.DAT")
 
         self.__cvsUser=os.getenv("CVS_TEST_USER")
         self.__cvsPassword=os.getenv("CVS_TEST_PW")
@@ -53,11 +54,11 @@ class CvsAdminTests(unittest.TestCase):
             vc = CvsAdmin(tmpPath="./")
             vc.setRepositoryPath(host=self.__cvsRepositoryHost,path=self.__cvsRepositoryPath)
             vc.setAuthInfo(user=self.__cvsUser,password=self.__cvsPassword)
-            text=vc.getHistory(cvsPath=self.__testFilePath)
-            self.__lfh.write("CVS history for %s is:\n%s\n" % (self.__testFilePath,text))
+            ok,text=vc.getHistory(cvsPath=self.__testFilePath)
+            self.__lfh.write("CVS history status %r for %s is:\n%s\n" % (ok,self.__testFilePath,text))
             #
-            revList=vc.getRevisionList(cvsPath=self.__testFilePath)
-            self.__lfh.write("CVS revision list for %s is:\n%r\n" % (self.__testFilePath,revList))            
+            ok,revList=vc.getRevisionList(cvsPath=self.__testFilePath)
+            self.__lfh.write("CVS revision list status %r for %s is:\n%r\n" % (ok,self.__testFilePath,revList))            
             vc.cleanup()
         except:
             self.__lfh.write("Exception in %s\n"  % self.__class__.__name__)
@@ -73,8 +74,8 @@ class CvsAdminTests(unittest.TestCase):
             vc = CvsAdmin(tmpPath="./")
             vc.setRepositoryPath(host=self.__cvsRepositoryHost,path=self.__cvsRepositoryPath)
             vc.setAuthInfo(user=self.__cvsUser,password=self.__cvsPassword)
-            text=vc.checkOutFile(cvsPath=self.__testFilePath,outPath='ATP-latest.cif')
-            self.__lfh.write("CVS checkout output %s is:\n%s\n" % (self.__testFilePath,text))
+            ok,text=vc.checkOutFile(cvsPath=self.__testFilePath,outPath='ATP-latest.cif')
+            self.__lfh.write("\nCVS checkout status %r output %s is:\n%s\n" % (ok,self.__testFilePath,text))
             #
             vc.cleanup()
         except:
@@ -93,8 +94,8 @@ class CvsAdminTests(unittest.TestCase):
             vc.setRepositoryPath(host=self.__cvsRepositoryHost,path=self.__cvsRepositoryPath)
             vc.setAuthInfo(user=self.__cvsUser,password=self.__cvsPassword)
 
-            revList=vc.getRevisionList(cvsPath=self.__testFilePath)
-            self.__lfh.write("CVS revision list for %s is:\n%r\n" % (self.__testFilePath,revList))            
+            ok,revList=vc.getRevisionList(cvsPath=self.__testFilePath)
+            self.__lfh.write("CVS revision list status %r for %s is:\n%r\n" % (ok,self.__testFilePath,revList))            
 
             (pth,fn)=os.path.split(self.__testFilePath)
             (base,ext)=os.path.splitext(fn)
@@ -102,8 +103,8 @@ class CvsAdminTests(unittest.TestCase):
             for revId in revList:
                 rId=revId[0]
                 outPath=base+"-"+rId+"."+ext
-                text=vc.checkOutFile(cvsPath=self.__testFilePath,outPath=outPath,revId=rId)
-                self.__lfh.write("CVS checkout output %s is:\n%s\n" % (self.__testFilePath,text))
+                ok,text=vc.checkOutFile(cvsPath=self.__testFilePath,outPath=outPath,revId=rId)
+                self.__lfh.write("CVS checkout status %r output %s is:\n%s\n" % (ok,self.__testFilePath,text))
             #
             vc.cleanup()
         except:
@@ -123,8 +124,8 @@ class CvsAdminTests(unittest.TestCase):
             vc.setAuthInfo(user=self.__cvsUser,password=self.__cvsPassword)
             #
             vc.setSandBoxTopPath("./CVSWORK")
-            text=vc.checkOut(projectPath=self.__testProjectName)
-            self.__lfh.write("CVS checkout output is:\n%s\n" % text)
+            ok,text=vc.checkOut(projectPath=self.__testProjectName)
+            self.__lfh.write("CVS checkout status %r output is:\n%s\n" % (ok,text))
             #
             vc.cleanup()
         except:
@@ -144,8 +145,8 @@ class CvsAdminTests(unittest.TestCase):
             vc.setAuthInfo(user=self.__cvsUser,password=self.__cvsPassword)
             #
             vc.setSandBoxTopPath("./CVSWORK")
-            text=vc.update(projectDir=self.__testProjectName)
-            self.__lfh.write("CVS update output is:\n%s\n" % text)
+            ok,text=vc.update(projectDir=self.__testProjectName)
+            self.__lfh.write("CVS update status %r output is:\n%s\n" % (ok,text))
             #
             vc.cleanup()
         except:
@@ -165,8 +166,8 @@ class CvsAdminTests(unittest.TestCase):
             vc.setAuthInfo(user=self.__cvsUser,password=self.__cvsPassword)
             #
             vc.setSandBoxTopPath("./CVSWORK")
-            text=vc.checkOut(projectPath=self.__testProjectName)
-            self.__lfh.write("CVS update output is:\n%s\n" % text)
+            ok,text=vc.checkOut(projectPath=self.__testProjectName)
+            self.__lfh.write("CVS update status %r output is:\n%s\n" % (ok,text))
             #
             projPath=os.path.join(vc.getSandBoxTopPath(),self.__testProjectName)
             dstDir="D1"
@@ -174,31 +175,31 @@ class CvsAdminTests(unittest.TestCase):
             if not os.access(dstPath,os.F_OK):
                 os.mkdir(dstPath)
             fPath1=os.path.join(dstPath,"F1.DAT")
-            shutil.copy2(self.__testFilePath,fPath1)
+            shutil.copy2(self.__testFilePath2,fPath1)
             fPath2=os.path.join(dstPath,"F2.DAT")
-            shutil.copy2(self.__testFilePath,fPath2)
+            shutil.copy2(self.__testFilePath2,fPath2)
             #
             vc.add(self.__testProjectName,dstDir)
             
             rPath1=os.path.join(dstDir,"F1.DAT")
             rPath2=os.path.join(dstDir,"F2.DAT")            
             vc.add(self.__testProjectName,rPath1)
-            text=vc.add(self.__testProjectName,rPath2)
-            self.__lfh.write("CVS add  output is:\n%s\n" % text)                        
+            ok,text=vc.add(self.__testProjectName,rPath2)
+            self.__lfh.write("CVS add status %r  output is:\n%s\n" % (ok,text))
 
             vc.commit(self.__testProjectName,rPath1)
-            text=vc.commit(self.__testProjectName,rPath2)
-            self.__lfh.write("CVS commit output is:\n%s\n" % text)            
+            ok,text=vc.commit(self.__testProjectName,rPath2)
+            self.__lfh.write("CVS commit status %r output is:\n%s\n" % (ok,text))            
             
             #
             vc.remove(self.__testProjectName,rPath2)
-            text=vc.remove(self.__testProjectName,rPath1)
-            self.__lfh.write("CVS remove output is:\n%s\n" % text)
+            ok,text=vc.remove(self.__testProjectName,rPath1)
+            self.__lfh.write("CVS remove status %r output is:\n%s\n" % (ok,text))
             
             vc.remove(self.__testProjectName,dstDir)
             
-            text=vc.update(projectDir=self.__testProjectName,prune=True)
-            self.__lfh.write("CVS update output is:\n%s\n" % text)            
+            ok,text=vc.update(projectDir=self.__testProjectName,prune=True)
+            self.__lfh.write("CVS update status %r output is:\n%s\n" % (ok,text))
             
             #
             vc.cleanup()
@@ -212,8 +213,8 @@ class CvsAdminTests(unittest.TestCase):
 def suiteCvsTests():
     suiteSelect = unittest.TestSuite()
     suiteSelect.addTest(CvsAdminTests("testCvsHistory"))
+    suiteSelect.addTest(CvsAdminTests("testCvsCheckOutFile"))            
     suiteSelect.addTest(CvsAdminTests("testCvsCheckOutRevisions"))
-    suiteSelect.addTest(CvsAdminTests("testCvsCheckOutFile"))        
     return suiteSelect
 
 def suiteCvsSandBoxTests():
@@ -225,8 +226,13 @@ def suiteCvsSandBoxTests():
 
 
 if __name__ == '__main__':
-    #mySuite=suiteCvsTests()
-    #unittest.TextTestRunner(verbosity=2).run(mySuite)
-    #
+    if (False):
+        mySuite=suiteCvsTests()
+        unittest.TextTestRunner(verbosity=2).run(mySuite)
+        #
+        mySuite=suiteCvsSandBoxTests()
+        unittest.TextTestRunner(verbosity=2).run(mySuite)
+
     mySuite=suiteCvsSandBoxTests()
-    unittest.TextTestRunner(verbosity=2).run(mySuite)
+    unittest.TextTestRunner(verbosity=2).run(mySuite)    
+
