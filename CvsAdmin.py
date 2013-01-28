@@ -156,7 +156,14 @@ class  CvsWrapperBase(object):
     def cleanup(self):
         """Cleanup any temporary files and directories created by this class.
         """
-        return shutil.rmtree(self._wrkPath)
+        if (self._wrkPath is not None and len(self._wrkPath) > 0):
+            try:
+                shutil.rmtree(self._wrkPath)
+                return True
+            except:
+                return False
+        else:
+            return True
         
 
 
@@ -505,7 +512,7 @@ class  CvsSandBoxAdmin(CvsWrapperBase):
                 pF=" "
             targetPath=os.path.join(self.__sandBoxTopPath,projectDir)
             cmd = " cd " + targetPath + "; "
-            cmd+="cvs -d " +  self._cvsRoot  + " update -d " + pF + relProjectPath + \
+            cmd+="cvs -d " +  self._cvsRoot  + " update -C -d " + pF + relProjectPath + \
                       self._getRedirect(fileNameOut=errPath,fileNameErr=errPath) + " ; "
         else:
             cmd=None
