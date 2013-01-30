@@ -978,9 +978,9 @@ class RcsbDpUtility(object):
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
             cmd += " ; touch " + iPath + "-diag.log "
             cmd += " ; touch " + iPath + "-parser.log "             
-            cmd += " ; cat " + iPath + "-parser.log >" + oPath
-            cmd += " ; cat " + iPath + "-diag.log >>" + oPath            
-            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
+            cmd += " ; cat " + iPath + "-parser.log > " + oPath
+            cmd += " ; cat " + iPath + "-diag.log  >> " + oPath            
+            #cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
         elif (op == "cif2pdbx"):
             #   need to have an input file list.
             cmdPath = os.path.join(self.__localAppsPath,"bin","cifexch-v3.2")
