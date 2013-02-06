@@ -27,7 +27,7 @@ __license__   = "Creative Commons Attribution 3.0 Unported"
 __version__   = "V0.001"
 
 
-import sys,os,subprocess
+import sys,os,subprocess,traceback
 import tempfile,shutil
 
 class  CvsWrapperBase(object):
@@ -89,11 +89,12 @@ class  CvsWrapperBase(object):
                     self.__lfh.write("+CvsWrapperBase(_runCvsCommand) Child was terminated by signal %r\n" % retcode)
                 return False
             else:
-                # if self.__verbose:
-                #    self.__lfh.write("+CvsWrapperBase(_runCvsCommand) Child was terminated by signal %r\n" % retcode)                
+                if self.__verbose:
+                    self.__lfh.write("+CvsWrapperBase(_runCvsCommand) Child was terminated by signal %r\n" % retcode)                
                 return True
         except OSError, e:
             if self.__verbose:
+                traceback.print_exc(file=self.__lfh)                                            
                 self.__lfh.write("+CvsWrapperBase(_runCvsCommand) Execution failed: %r\n" % e)
             return False
 
@@ -119,7 +120,9 @@ class  CvsWrapperBase(object):
             filePath=self.__outputFilePath
             return self.__getTextFile(filePath)            
         except:
-            pass
+            if self.__verbose:
+                traceback.print_exc(file=self.__lfh)                                            
+                self.__lfh.write("+CvsWrapperBase(_getOutputText) path %r\n" % self.__outputFilePath)                        
 
         return text
 
@@ -129,7 +132,9 @@ class  CvsWrapperBase(object):
             filePath=self.__errorFilePath
             return self.__getTextFile(filePath)
         except:
-            pass
+            if self.__verbose:
+                traceback.print_exc(file=self.__lfh)                                            
+                self.__lfh.write("+CvsWrapperBase(_getErrorText) path %r\n" % self.__errorFilePath)            
         
         return text
 

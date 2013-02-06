@@ -32,6 +32,7 @@
 #                 add babel library and remove hardwired version in loader path
 # 17-Dec-2012 jdw add annot-reposition-solvent-add-derived
 # 03-Jan-2013 jdw add format conversions with strip options
+# 06-Feb-2013 jdw migrate remaining applications from maxit-v10 to annotation-pack
 ##
 """
 Wrapper class for data processing and chemical component utilities.
@@ -88,7 +89,8 @@ class RcsbDpUtility(object):
                                 "annot-validation","annot-site","annot-rcsb2pdbx","annot-consolidated-tasks",
                                 "annot-wwpdb-validate-1","annot-wwpdb-validate-2",
                                 "annot-chem-shift-check","annot-chem-shift-coord-check","annot-nmrsta2pdbx","annot-pdbx2nmrstar",
-                                "annot-reposition-solvent-add-derived", "annot-rcsb2pdbx-strip", "annot-rcsbeps2pdbx-strip"]
+                                "annot-reposition-solvent-add-derived", "annot-rcsb2pdbx-strip", "annot-rcsbeps2pdbx-strip",
+                                "chem-comp-instance-update","annot-cif2cif","annot-cif2pdb","annot-pdb2cif"]
 
         #
         # Source, destination and logfile path details
@@ -262,6 +264,8 @@ class RcsbDpUtility(object):
 
     def __annotationStep(self, op):
         """ Internal method that performs a single annotation application operation.
+
+            Now using only 2013 annotation pack functions.
         """
         #
         # Set application specific path details here -
@@ -273,7 +277,9 @@ class RcsbDpUtility(object):
         self.__ccCvsPath      =  self.__getConfigPath('SITE_CC_CVS_PATH')                
 
         if self.__rcsbAppsPath is None:        
-            self.__rcsbAppsPath  =  self.__getConfigPath('SITE_RCSB_APPS_PATH')        
+            #            self.__rcsbAppsPath  =  self.__getConfigPath('SITE_RCSB_APPS_PATH')
+            #JDW 2013-02-06
+            self.__rcsbAppsPath  =  self.__getConfigPath('SITE_ANNOT_TOOLS_PATH')
         #
         # These may not be needed -- 
         self.__pdbxDictPath  =  self.__getConfigPath('SITE_PDBX_DICT_PATH')
@@ -306,6 +312,16 @@ class RcsbDpUtility(object):
             pPath = self.__updateInputPath()
             if (os.access(pPath,os.F_OK)):            
                 cmd += "; cp " + pPath + " "  + iPath
+
+        #
+        # Standard setup for maxit ---
+        #
+        maxitPath   = os.path.join(self.__rcsbAppsPath,"bin","maxit")        
+        maxitCmd = " ; RCSBROOT=" + self.__rcsbAppsPath
+        if ((self.__ccCvsPath is not None) and (len(self.__ccCvsPath) > 0)):
+            maxitCmd += " ; COMP_PATH=" + self.__ccCvsPath
+        maxitCmd += " ; "   +  maxitPath + " -path " + self.__rcsbAppsPath
+
         #
         if (op == "annot-secondary-structure"):
             cmdPath =os.path.join(self.__annotAppsPath,"bin","GetSecondStruct")
@@ -405,12 +421,6 @@ class RcsbDpUtility(object):
             #
             # Adding a following step to synchronize required derived data for subsequent steps -
             #
-            maxitPath   = os.path.join(self.__rcsbAppsPath,"bin","maxit")        
-            maxitCmd = " ; RCSBROOT=" + self.__rcsbAppsPath
-            if ((self.__ccCvsPath is not None) and (len(self.__ccCvsPath) > 0)):
-                maxitCmd += " ; COMP_PATH=" + self.__ccCvsPath
-            maxitCmd += " ; "   +  maxitPath + " -path " + self.__rcsbAppsPath
-            #
             cmd +=  maxitCmd + " -o 8  -i " + oPath1
             cmd += " ; mv -f " + oPath1 + ".cif " + oPath2
             cmd += " ; cat maxit.err >> " + lPath
@@ -481,6 +491,16 @@ class RcsbDpUtility(object):
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
             cmd += " ; cat annot-step.log " + " >> " + lPath
 
+        elif (op == "chem-comp-instance-update"):
+            # New version that moved from the chem-comp-pack --
+            cmdPath =os.path.join(self.__annotAppsPath,"bin","updateInstance")            
+            thisCmd  = " ; " + cmdPath                        
+            assignPath = self.__inputParamDict['cc_assign_file_path']
+            #selectPath = self.__inputParamDict['cc_select_file_path']            
+            cmd += thisCmd + " -i " + iPath + " -o " + oPath + " -assign " + assignPath + " -ifmt pdbx " 
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
+            
+
         elif (op == "annot-rcsb2pdbx"):
 
             
@@ -517,11 +537,6 @@ class RcsbDpUtility(object):
             #
             # Adding a following step to synchronize required derived data for subsequent steps -
             #
-            maxitPath   = os.path.join(self.__rcsbAppsPath,"bin","maxit")        
-            maxitCmd = " ; RCSBROOT=" + self.__rcsbAppsPath
-            if ((self.__ccCvsPath is not None) and (len(self.__ccCvsPath) > 0)):
-                maxitCmd += " ; COMP_PATH=" + self.__ccCvsPath
-            maxitCmd += " ; "   +  maxitPath + " -path " + self.__rcsbAppsPath
             #
             cmd +=  maxitCmd + " -o 8  -i " + iPath
             cmd += " ; mv -f " + iPath + ".cif " + oPath2
@@ -650,9 +665,29 @@ class RcsbDpUtility(object):
             cmd += thisCmd + " 1abc " + iPathFull + " " + sfPathFull + " " + pdfPath +  " " + xmlPath + " " + cleanOpt 
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
             cmd += " ; cp  -f " + pdfPath + " " + oPath
-            #
-            #
 
+        elif (op == "chem-comp-instance-update"):
+            cmdPath =os.path.join(self.__annotAppsPath,"bin","updateInstance")            
+            thisCmd  = " ; " + cmdPath                        
+            assignPath = self.__inputParamDict['cc_assign_file_path']
+            #selectPath = self.__inputParamDict['cc_select_file_path']            
+            cmd += thisCmd + " -i " + iPath + " -o " + oPath + " -assign " + assignPath + " -ifmt pdbx " 
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
+
+        elif ((op == "annot-cif2cif") or (op == "cif2cif")):            
+            cmd +=  maxitCmd + " -o 8  -i " + iPath
+            cmd += " ; mv -f " + iPath + ".cif " + oPath
+            cmd += " ; cat maxit.err >> " + lPath
+
+        elif ((op == "annot-pdb2cif") or (op == "pdb2cif")):
+            cmd +=  maxitCmd + " -o 1  -i " + iPath
+            cmd += " ; mv -f " + iPath + ".cif " + oPath
+            cmd += " ; cat maxit.err >> " + lPath            
+
+        elif ((op == "annot-cif2pdb") or (op == "cif2pdb")):
+            cmd +=  maxitCmd + " -o 2  -i " + iPath
+            cmd += " ; mv -f " + iPath + ".pdb " + oPath
+            cmd += " ; cat maxit.err >> " + lPath            
         else:
             
             return -1
@@ -1107,13 +1142,6 @@ class RcsbDpUtility(object):
             #
             cmd += " -log "+self.__inputParamDict['cc_validation_log_file']
             #
-            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
-        elif (op == "chem-comp-instance-update"):
-            cmdPath =os.path.join(self.__ccAppsPath,"bin","updateInstance")
-            thisCmd  = " ; " + cmdPath                        
-            assignPath = self.__inputParamDict['cc_assign_file_path']
-            #selectPath = self.__inputParamDict['cc_select_file_path']            
-            cmd += thisCmd + " -i " + iPath + " -o " + oPath + " -assign " + assignPath + " -ifmt pdbx " 
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
         else:
             return -1
