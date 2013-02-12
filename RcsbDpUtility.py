@@ -499,10 +499,8 @@ class RcsbDpUtility(object):
             #selectPath = self.__inputParamDict['cc_select_file_path']            
             cmd += thisCmd + " -i " + iPath + " -o " + oPath + " -assign " + assignPath + " -ifmt pdbx " 
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
-            
 
         elif (op == "annot-rcsb2pdbx"):
-
             
             # New minimal RCSB internal cif to PDBx cif converter -
             cmdPath =os.path.join(self.__annotAppsPath,"bin","PdbxConverter")

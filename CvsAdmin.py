@@ -441,18 +441,35 @@ class  CvsSandBoxAdmin(CvsWrapperBase):
         return (ok,text)
 
 
-    def remove(self,projectDir,relProjectPath):
+    def remove(self,projectDir,relProjectPath,saveCopy=True):
         """ Remove from the CVS sandbox working copy the input project path.   The project path must
             correspond to an existing path in the local working copy.
-
+            
+            if saveCopy=True then preserve a copy of the remove target in the reserved REMOVED path
+            of the repository.
         """
         if (self.__verbose):
             self.__lfh.write("\n+CvsSandBoxAdmin(remove) Remove %s from project %s in CVS repository working path %s\n" %
                              (relProjectPath,projectDir, self.__sandBoxTopPath))
-        targetPath=os.path.join(self.__sandBoxTopPath,projectDir,relProjectPath)
+
         text=''
-        ok=False                        
+        ok=False
+        if ((relProjectPath is None) or (len(relProjectPath) < 3)):
+            return (ok,text)
+        #
+        targetPath=os.path.join(self.__sandBoxTopPath,projectDir,relProjectPath)
+            
         if (os.access(targetPath,os.W_OK)):
+            #
+            if saveCopy:
+                (pth,fn)=os.path.split(relProjectPath)
+                savePath=os.path.join(self.__sandBoxTopPath,projectDir,'REMOVED',fn)
+                
+                relSavePath=os.path.join('REMOVED',fn)
+                shutil.copyfile(targetPath,savePath)
+                (ok1,saveText)=self.add(projectDir,relSavePath)
+                if not ok1:
+                    return (ok1,saveText)
             cmd = self.__getRemoveCommitCmd(projectDir,relProjectPath)
             if cmd is not None:
                 ok=self._runCvsCommand(myCommand=cmd)
