@@ -467,9 +467,9 @@ class  CvsSandBoxAdmin(CvsWrapperBase):
                 
                 relSavePath=os.path.join('REMOVED',fn)
                 shutil.copyfile(targetPath,savePath)
-                (ok1,saveText)=self.add(projectDir,relSavePath)
-                if not ok1:
-                    return (ok1,saveText)
+                #(ok1,saveText)=self.add(projectDir,relSavePath)
+                #if not ok1:
+                #    return (ok1,saveText)
             cmd = self.__getRemoveCommitCmd(projectDir,relProjectPath)
             if cmd is not None:
                 ok=self._runCvsCommand(myCommand=cmd)
@@ -478,6 +478,35 @@ class  CvsSandBoxAdmin(CvsWrapperBase):
                 text='Remove failed with repository command processing error'               
         else:
             text='Remove failed due with repository project path issue: %s' % targetPath                                                
+            self.__lfh.write("+ERROR - CvsSandBoxAdmin(remove) cannot remove project path %s\n" % targetPath)            
+
+        return (ok,text)
+
+    def removeDir(self,projectDir,relProjectPath):
+        """ Remove from the CVS sandbox working directory the input empty directory.
+            
+        """
+        if (self.__verbose):
+            self.__lfh.write("\n+CvsSandBoxAdmin(removeDir) Remove %s from project %s in CVS repository working path %s\n" %
+                             (relProjectPath,projectDir, self.__sandBoxTopPath))
+
+        text=''
+        ok=False
+        if ((relProjectPath is None) or (len(relProjectPath) < 3)):
+            return (ok,text)
+        #
+        targetPath=os.path.join(self.__sandBoxTopPath,projectDir,relProjectPath)
+            
+        if (os.access(targetPath,os.W_OK)):
+            #
+            cmd = self.__getRemoveDirCommitCmd(projectDir,relProjectPath)
+            if cmd is not None:
+                ok=self._runCvsCommand(myCommand=cmd)
+                text=self._getErrorText()
+            else:
+                text='Remove directory failed with repository command processing error'               
+        else:
+            text='Remove directory failed due with repository project path issue: %s' % targetPath                                                
             self.__lfh.write("+ERROR - CvsSandBoxAdmin(remove) cannot remove project path %s\n" % targetPath)            
 
         return (ok,text)
@@ -584,6 +613,23 @@ class  CvsSandBoxAdmin(CvsWrapperBase):
                       self._getRedirect(fileNameOut=errPath,fileNameErr=errPath) + " ; "
             cmd+="cvs -d " +  self._cvsRoot  + " commit " + qm + relProjectPath + \
                   self._getRedirect(fileNameOut=errPath,fileNameErr=errPath,append=True) + ' ; '             
+        else:
+            cmd=None
+        return cmd
+
+    def __getRemoveDirCommitCmd(self, projectDir, relProjectPath, message="Directory removed"):
+        if self._wrkPath is None:
+            self._makeTempWorkingDir()        
+        errPath=self._getErrorFilePath()
+        if self._setCvsRoot():
+            cmd = " cd " + os.path.join(self.__sandBoxTopPath,projectDir) + " ; "            
+            if message is not None and len(message) > 0:
+                qm=' -m "'+message+'" '
+            cmd+="cvs -d " +  self._cvsRoot  + " remove " +  relProjectPath + \
+                      self._getRedirect(fileNameOut=errPath,fileNameErr=errPath) + " ; "
+            cmd+="cvs -d " +  self._cvsRoot  + " commit " + qm + relProjectPath + \
+                  self._getRedirect(fileNameOut=errPath,fileNameErr=errPath,append=True) + ' ; '
+            cmd+=" rm -rf " + relProjectPath + self._getRedirect(fileNameOut=errPath,fileNameErr=errPath,append=True) + ' ; '
         else:
             cmd=None
         return cmd
