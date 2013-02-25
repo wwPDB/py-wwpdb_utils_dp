@@ -33,7 +33,8 @@
 # 17-Dec-2012 jdw add annot-reposition-solvent-add-derived
 # 03-Jan-2013 jdw add format conversions with strip options
 # 06-Feb-2013 jdw migrate remaining applications from maxit-v10 to annotation-pack
-# 16-Feb-2011 rps "chem-comp-assign-exact" added to support "exact match only" searching (i.e. for LigModule Lite)
+# 16-Feb-2013 rps "chem-comp-assign-exact" added to support "exact match only" searching (i.e. for LigModule Lite)
+# 23-Feb-2013 jdw add "annot-poly-link-dist"
 ##
 """
 Wrapper class for data processing and chemical component utilities.
@@ -91,7 +92,7 @@ class RcsbDpUtility(object):
                                 "annot-wwpdb-validate-1","annot-wwpdb-validate-2",
                                 "annot-chem-shift-check","annot-chem-shift-coord-check","annot-nmrsta2pdbx","annot-pdbx2nmrstar",
                                 "annot-reposition-solvent-add-derived", "annot-rcsb2pdbx-strip", "annot-rcsbeps2pdbx-strip",
-                                "chem-comp-instance-update","annot-cif2cif","annot-cif2pdb","annot-pdb2cif"]
+                                "chem-comp-instance-update","annot-cif2cif","annot-cif2pdb","annot-pdb2cif","annot-poly-link-dist"]
 
         #
         # Source, destination and logfile path details
@@ -672,6 +673,13 @@ class RcsbDpUtility(object):
             #selectPath = self.__inputParamDict['cc_select_file_path']            
             cmd += thisCmd + " -i " + iPath + " -o " + oPath + " -assign " + assignPath + " -ifmt pdbx " 
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
+
+        elif (op == "annot-poly-link-dist"):
+            cmdPath =os.path.join(self.__annotAppsPath,"bin","cal_polymer_linkage_distance")
+            thisCmd  = " ; " + cmdPath            
+            cmd += " ; RCSBROOT=" + self.__annotAppsPath + " ; export RCSBROOT "            
+            cmd += thisCmd + " -i " + iPath + " -o " + oPath
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
 
         elif ((op == "annot-cif2cif") or (op == "cif2cif")):            
             cmd +=  maxitCmd + " -o 8  -i " + iPath
