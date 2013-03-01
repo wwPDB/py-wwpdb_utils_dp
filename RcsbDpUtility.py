@@ -35,6 +35,7 @@
 # 06-Feb-2013 jdw migrate remaining applications from maxit-v10 to annotation-pack
 # 16-Feb-2013 rps "chem-comp-assign-exact" added to support "exact match only" searching (i.e. for LigModule Lite)
 # 23-Feb-2013 jdw add "annot-poly-link-dist"
+# 26-Feb-2013 jdw update path setting for rcsbroot for annotation tasks.
 ##
 """
 Wrapper class for data processing and chemical component utilities.
@@ -278,10 +279,10 @@ class RcsbDpUtility(object):
         self.__ccDictPath     =  self.__getConfigPath('SITE_CC_DICT_PATH')
         self.__ccCvsPath      =  self.__getConfigPath('SITE_CC_CVS_PATH')                
 
-        if self.__rcsbAppsPath is None:        
-            #            self.__rcsbAppsPath  =  self.__getConfigPath('SITE_RCSB_APPS_PATH')
-            #JDW 2013-02-06
-            self.__rcsbAppsPath  =  self.__getConfigPath('SITE_ANNOT_TOOLS_PATH')
+        # if self.__rcsbAppsPath is None:        
+        #            self.__rcsbAppsPath  =  self.__getConfigPath('SITE_RCSB_APPS_PATH')
+        # JDW 2013-02-26
+        self.__rcsbAppsPath  =  self.__getConfigPath('SITE_ANNOT_TOOLS_PATH')
         #
         # These may not be needed -- 
         self.__pdbxDictPath  =  self.__getConfigPath('SITE_PDBX_DICT_PATH')
@@ -319,10 +320,11 @@ class RcsbDpUtility(object):
         # Standard setup for maxit ---
         #
         maxitPath   = os.path.join(self.__rcsbAppsPath,"bin","maxit")        
-        maxitCmd = " ; RCSBROOT=" + self.__rcsbAppsPath
+        maxitCmd = " ; RCSBROOT=" + self.__rcsbAppsPath + " ; export RCSBROOT "
         if ((self.__ccCvsPath is not None) and (len(self.__ccCvsPath) > 0)):
-            maxitCmd += " ; COMP_PATH=" + self.__ccCvsPath
-        maxitCmd += " ; "   +  maxitPath + " -path " + self.__rcsbAppsPath
+            maxitCmd += " ; COMP_PATH=" + self.__ccCvsPath + " ; export COMP_PATH "
+        #maxitCmd += " ; "   +  maxitPath + " -path " + self.__rcsbAppsPath
+        maxitCmd += " ; "   +  maxitPath + " "
 
         #
         if (op == "annot-secondary-structure"):
