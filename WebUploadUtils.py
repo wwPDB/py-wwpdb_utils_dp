@@ -4,6 +4,7 @@
 #
 # Updates:
 #  28-Feb-2013   jdw imported common functions from WebApp(*).py  modules.
+#  
 ##
 """
 Utilities to manage  web application upload tasks.
@@ -15,7 +16,7 @@ __email__     = "jwest@rcsb.rutgers.edu"
 __license__   = "Creative Commons Attribution 3.0 Unported"
 __version__   = "V0.09"
 
-import sys, os, traceback
+import sys, os, types, string, traceback
 
 
 class WebUploadUtils(object):
@@ -95,7 +96,7 @@ class WebUploadUtils(object):
                 sessionInputFileName=sessionInputFileName[:-3]
 
             if (self.__verbose):
-                self.__lfh.write("+WebUploadUtils.copyToSession() Uploaded file %s\n" % str(fName) )
+                self.__lfh.write("+WebUploadUtils.copyToSession() Uploaded file %s\n" % str(sessionInputFileName) )
             #
             return sessionInputFileName
         except:
@@ -107,8 +108,10 @@ class WebUploadUtils(object):
     def perceiveIdentifier(self,fileName):
         #
         #
+        fId=None
+        fType=None
         if fileName is None or len(fileName) < 1:
-            return None,None
+            return fId,fType
 
         (head,tail)=os.path.splitext(fileName.lower())
 
@@ -123,11 +126,11 @@ class WebUploadUtils(object):
             fId=head
             fType="WF_INSTANCE"
         else:
-            fId=h
+            fId=head
             fType="UNKNOWN"
 
         if (self.__verbose):
-            self.__lfh.write("+WebUploadUtils.copyToSession() using non-standard identifier %s for %s\n" % (h,str(fName) ) )
+            self.__lfh.write("+WebUploadUtils.copyToSession() using non-standard identifier %s for %s\n" % (head,str(fileName) ) )
         return fId,fType
 
 
