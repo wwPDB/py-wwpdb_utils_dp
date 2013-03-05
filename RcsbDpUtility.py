@@ -36,6 +36,8 @@
 # 16-Feb-2013 rps "chem-comp-assign-exact" added to support "exact match only" searching (i.e. for LigModule Lite)
 # 23-Feb-2013 jdw add "annot-poly-link-dist"
 # 26-Feb-2013 jdw update path setting for rcsbroot for annotation tasks.
+# 05-Mar-2013 zf  added operation "chem-comp-assign-comp" to support for assignment using chemical compoent file
+#                 updated RCSBROOT & COMP_PATH environmental variable setting for annotation module package
 ##
 """
 Wrapper class for data processing and chemical component utilities.
@@ -81,9 +83,9 @@ class RcsbDpUtility(object):
         self.__maxitOps = ["cif2cif","cif2cif-remove","cif2cif-ebi","cif2cif-pdbx","cif2cif-pdbx-skip-process","cif-rcsb2cif-pdbx",
                            "cif-seqed2cif-pdbx", "cif2pdb","pdb2cif","pdb2cif-ebi","switch-dna",
                            "cif2pdb-assembly","pdbx2pdb-assembly","pdbx2deriv"]
-        self.__rcsbOps = [ "rename-atoms", "cif2pdbx", "pdbx2xml", "pdb2dssp", "pdb2stride",
-                           "initial-version","poly-link-dist","chem-comp-link", "chem-comp-assign", "chem-comp-assign-skip",
-                           "chem-comp-assign-exact","chem-comp-assign-validation", "chem-comp-instance-update","check-cif"]
+        self.__rcsbOps = [ "rename-atoms", "cif2pdbx", "pdbx2xml", "pdb2dssp", "pdb2stride", "initial-version","poly-link-dist",
+                           "chem-comp-link", "chem-comp-assign", "chem-comp-assign-comp", "chem-comp-assign-skip",
+                           "chem-comp-assign-exact","chem-comp-assign-validation","check-cif"]
         self.__pisaOps = ["pisa-analysis","pisa-assembly-report-xml","pisa-assembly-report-text",
                           "pisa-interface-report-xml","pisa-assembly-coordinates-pdb","pisa-assembly-coordinates-cif",
                           "pisa-assembly-coordinates-cif","pisa-assembly-merge-cif"]
@@ -93,7 +95,7 @@ class RcsbDpUtility(object):
                                 "annot-wwpdb-validate-1","annot-wwpdb-validate-2",
                                 "annot-chem-shift-check","annot-chem-shift-coord-check","annot-nmrsta2pdbx","annot-pdbx2nmrstar",
                                 "annot-reposition-solvent-add-derived", "annot-rcsb2pdbx-strip", "annot-rcsbeps2pdbx-strip",
-                                "chem-comp-instance-update","annot-cif2cif","annot-cif2pdb","annot-pdb2cif","annot-poly-link-dist"]
+                                "chem-comp-instance-update","annot-cif2cif","annot-cif2pdb","annot-pdb2cif"]
 
         #
         # Source, destination and logfile path details
@@ -319,18 +321,14 @@ class RcsbDpUtility(object):
         #
         # Standard setup for maxit ---
         #
-        maxitPath   = os.path.join(self.__rcsbAppsPath,"bin","maxit")        
-        maxitCmd = " ; RCSBROOT=" + self.__rcsbAppsPath + " ; export RCSBROOT "
-        if ((self.__ccCvsPath is not None) and (len(self.__ccCvsPath) > 0)):
-            maxitCmd += " ; COMP_PATH=" + self.__ccCvsPath + " ; export COMP_PATH "
-        #maxitCmd += " ; "   +  maxitPath + " -path " + self.__rcsbAppsPath
-        maxitCmd += " ; "   +  maxitPath + " "
+        cmd += " ; RCSBROOT=" + self.__rcsbAppsPath + " ; export RCSBROOT "            
+        cmd += " ; COMP_PATH=" + self.__ccCvsPath + " ; export COMP_PATH "
+        maxitCmd = os.path.join(self.__rcsbAppsPath,"bin","maxit")        
 
         #
         if (op == "annot-secondary-structure"):
             cmdPath =os.path.join(self.__annotAppsPath,"bin","GetSecondStruct")
             thisCmd  = " ; " + cmdPath                        
-            cmd += " ; RCSBROOT=" + self.__rcsbAppsPath + " ; export RCSBROOT "            
             cmd += thisCmd + " -input " + iPath + " -output " + oPath + " -log annot-step.log " 
             #
             if  self.__inputParamDict.has_key('ss_topology_file_path'):
@@ -344,7 +342,6 @@ class RcsbDpUtility(object):
             
             cmdPath =os.path.join(self.__annotAppsPath,"bin","GetAddAnnotation")
             thisCmd  = " ; " + cmdPath                        
-            cmd += " ; RCSBROOT=" + self.__rcsbAppsPath + " ; export RCSBROOT "            
             cmd += thisCmd + " -input " + iPath + " -output " + oPath + " -log annot-step.log " 
             #
             if  self.__inputParamDict.has_key('ss_topology_file_path'):
@@ -357,7 +354,6 @@ class RcsbDpUtility(object):
         elif (op == "annot-link-ssbond"):
             cmdPath =os.path.join(self.__annotAppsPath,"bin","GetLinkAndSSBond")
             thisCmd  = " ; " + cmdPath                        
-            cmd += " ; RCSBROOT=" + self.__rcsbAppsPath + " ; export RCSBROOT "            
             cmd += thisCmd + " -input " + iPath + " -output " + oPath + " -log annot-step.log  -link -ssbond " 
             #
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
@@ -366,7 +362,6 @@ class RcsbDpUtility(object):
         elif (op == "annot-cis-peptide"):
             cmdPath =os.path.join(self.__annotAppsPath,"bin","GetCisPeptide")
             thisCmd  = " ; " + cmdPath                        
-            cmd += " ; RCSBROOT=" + self.__rcsbAppsPath + " ; export RCSBROOT "            
             cmd += thisCmd + " -input " + iPath + " -output " + oPath + " -log annot-step.log " 
             #
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
@@ -375,7 +370,6 @@ class RcsbDpUtility(object):
         elif (op == "annot-distant-solvent"):
             cmdPath =os.path.join(self.__annotAppsPath,"bin","CalculateDistantWater")
             thisCmd  = " ; " + cmdPath                        
-            cmd += " ; RCSBROOT=" + self.__rcsbAppsPath + " ; export RCSBROOT "            
             cmd += thisCmd + " -input " + iPath + " -output " + oPath + " -log annot-step.log " 
             #
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
@@ -384,7 +378,6 @@ class RcsbDpUtility(object):
         elif (op == "annot-base-pair-info"):
             cmdPath =os.path.join(self.__annotAppsPath,"bin","GetBasePairInfo")
             thisCmd  = " ; " + cmdPath                        
-            cmd += " ; RCSBROOT=" + self.__rcsbAppsPath + " ; export RCSBROOT "            
             cmd += thisCmd + " -input " + iPath + " -output " + oPath + " -log annot-step.log " 
             #
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
@@ -392,7 +385,6 @@ class RcsbDpUtility(object):
         elif (op == "annot-merge-struct-site"):
             cmdPath =os.path.join(self.__annotAppsPath,"bin","MergeSiteData")
             thisCmd  = " ; " + cmdPath                        
-            cmd += " ; RCSBROOT=" + self.__rcsbAppsPath + " ; export RCSBROOT "            
             cmd += thisCmd + " -input " + iPath + " -output " + oPath + " -log annot-step.log "
             if  self.__inputParamDict.has_key('site_info_file_path'):
                 topFilePath=self.__inputParamDict['site_info_file_path']                                
@@ -404,7 +396,6 @@ class RcsbDpUtility(object):
         elif (op == "annot-reposition-solvent"):
             cmdPath =os.path.join(self.__annotAppsPath,"bin","MovingWater")
             thisCmd  = " ; " + cmdPath                        
-            cmd += " ; RCSBROOT=" + self.__rcsbAppsPath + " ; export RCSBROOT "            
             cmd += thisCmd + " -input " + iPath + " -output " + oPath + " -log annot-step.log " 
             #
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
@@ -418,7 +409,6 @@ class RcsbDpUtility(object):
             oPath2=oPath+"_B"            
             cmdPath =os.path.join(self.__annotAppsPath,"bin","MovingWater")
             thisCmd  = " ; " + cmdPath                        
-            cmd += " ; RCSBROOT=" + self.__rcsbAppsPath + " ; export RCSBROOT "            
             cmd += thisCmd + " -input " + iPath + " -output " + oPath1 + " -log annot-step.log " 
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
             cmd += " ; cat annot-step.log " + " >> " + lPath
@@ -439,7 +429,6 @@ class RcsbDpUtility(object):
         elif (op == "annot-validation"):
             cmdPath =os.path.join(self.__annotAppsPath,"bin","valdation_with_cif_output")
             thisCmd  = " ; " + cmdPath                        
-            cmd += " ; RCSBROOT=" + self.__rcsbAppsPath + " ; export RCSBROOT "            
             cmd += thisCmd + " -cif " + iPath + " -output " + oPath + " -log annot-step.log " 
             #
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
@@ -489,7 +478,6 @@ class RcsbDpUtility(object):
         elif (op == "annot-merge-sequence-data"):
             cmdPath =os.path.join(self.__annotAppsPath,"bin","MergeSeqModuleData")
             thisCmd  = " ; " + cmdPath                        
-            cmd += " ; RCSBROOT=" + self.__rcsbAppsPath + " ; export RCSBROOT "            
             cmd += thisCmd + " -input " + iPath + " -output " + oPath + " -log annot-step.log "
             #
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
@@ -501,7 +489,7 @@ class RcsbDpUtility(object):
             thisCmd  = " ; " + cmdPath                        
             assignPath = self.__inputParamDict['cc_assign_file_path']
             #selectPath = self.__inputParamDict['cc_select_file_path']            
-            cmd += thisCmd + " -i " + iPath + " -o " + oPath + " -assign " + assignPath + " -ifmt pdbx " 
+            cmd += thisCmd + " -i " + iPath + " -o " + oPath + " -assign " + assignPath
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
 
         elif (op == "annot-rcsb2pdbx"):
@@ -509,7 +497,6 @@ class RcsbDpUtility(object):
             # New minimal RCSB internal cif to PDBx cif converter -
             cmdPath =os.path.join(self.__annotAppsPath,"bin","PdbxConverter")
             thisCmd  = " ; " + cmdPath                        
-            cmd += " ; RCSBROOT=" + self.__rcsbAppsPath + " ; export RCSBROOT "            
             cmd += thisCmd + " -input " + iPath + " -output " + oPath + " -log annot-step.log "
             #
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
@@ -524,7 +511,6 @@ class RcsbDpUtility(object):
 
             cmdPath =os.path.join(self.__annotAppsPath,"bin","PdbxConverter")
             thisCmd  = " ; " + cmdPath                        
-            cmd += " ; RCSBROOT=" + self.__rcsbAppsPath + " ; export RCSBROOT "            
             cmd += thisCmd + " -input " + iPath + " -output " + oPath2 + " -log annot-step.log "
             #
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
@@ -667,21 +653,6 @@ class RcsbDpUtility(object):
             cmd += thisCmd + " 1abc " + iPathFull + " " + sfPathFull + " " + pdfPath +  " " + xmlPath + " " + cleanOpt 
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
             cmd += " ; cp  -f " + pdfPath + " " + oPath
-
-        elif (op == "chem-comp-instance-update"):
-            cmdPath =os.path.join(self.__annotAppsPath,"bin","updateInstance")            
-            thisCmd  = " ; " + cmdPath                        
-            assignPath = self.__inputParamDict['cc_assign_file_path']
-            #selectPath = self.__inputParamDict['cc_select_file_path']            
-            cmd += thisCmd + " -i " + iPath + " -o " + oPath + " -assign " + assignPath + " -ifmt pdbx " 
-            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
-
-        elif (op == "annot-poly-link-dist"):
-            cmdPath =os.path.join(self.__annotAppsPath,"bin","cal_polymer_linkage_distance")
-            thisCmd  = " ; " + cmdPath            
-            cmd += " ; RCSBROOT=" + self.__annotAppsPath + " ; export RCSBROOT "            
-            cmd += thisCmd + " -i " + iPath + " -o " + oPath
-            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
 
         elif ((op == "annot-cif2cif") or (op == "cif2cif")):            
             cmd +=  maxitCmd + " -o 8  -i " + iPath
@@ -839,12 +810,9 @@ class RcsbDpUtility(object):
             if (os.access(pPath,os.F_OK)):            
                 cmd += "; cp " + pPath + " "  + iPath
         #
-        maxitPath   = os.path.join(self.__rcsbAppsPath,"bin",progName)        
-        maxitCmd = " ; RCSBROOT=" + self.__rcsbAppsPath
-        if ((self.__ccCvsPath is not None) and (len(self.__ccCvsPath) > 0)):
-            maxitCmd += " ; COMP_PATH=" + self.__ccCvsPath
-        maxitCmd += " ; "   +  maxitPath + " -path " + self.__rcsbAppsPath
-
+        cmd += " ; RCSBROOT=" + self.__rcsbAppsPath + " ; export RCSBROOT "            
+        cmd += " ; COMP_PATH=" + self.__ccCvsPath + " ; export COMP_PATH "
+        maxitCmd = os.path.join(self.__rcsbAppsPath,"bin",progName)        
 
         if (op == "cif2cif"):
             cmd +=  maxitCmd + " -o 8  -i " + iPath
@@ -1093,7 +1061,7 @@ class RcsbDpUtility(object):
             
             cmd += " ; env "
             cmdPath =os.path.join(self.__ccAppsPath,"bin","ChemCompAssign_main")
-            thisCmd  = " ; " + cmdPath                        
+            thisCmd  = " ; rm -f " + oPath + " ; " + cmdPath
             entryId   = self.__inputParamDict['id']
             #
             #cc_link_file_path=''
@@ -1112,6 +1080,27 @@ class RcsbDpUtility(object):
             #
             if  self.__inputParamDict.has_key('cc_bond_radii'):
                 cmd += " -bond_radii " + self.__inputParamDict['cc_bond_radii']                
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
+        elif (op == "chem-comp-assign-comp"):
+            # set up
+            #
+            cmd += " ; RCSBROOT="      + self.__rcsbAppsPath     + " ; export RCSBROOT "
+            cmd += " ; OE_DIR="        + self.__oeDirPath        + " ; export OE_DIR "
+            cmd += " ; OE_LICENSE="    + self.__oeLicensePath    + " ; export OE_LICENSE "
+            cmd += " ; BABEL_DIR="     + self.__babelDirPath     + " ; export BABEL_DIR "
+            cmd += " ; BABEL_DATADIR=" + self.__babelDataDirPath + " ; export BABEL_DATADIR "
+            cmd += " ; CACTVS_DIR="    + self.__cactvsDirPath    + " ; export CACTVS_DIR "
+            cmd += " ; LD_LIBRARY_PATH=" + self.__babelLibPath + ":" \
+                   + os.path.join(self.__packagePath,"ccp4","lib") + ":" \
+                   + os.path.join(self.__localAppsPath,"lib") +  " ; export LD_LIBRARY_PATH "              
+            
+            cmd += " ; env ; rm -f " + oPath + " ; " + os.path.join(self.__ccAppsPath,"bin","ChemCompAssign_main")
+            entryId = self.__inputParamDict['id']
+            instId  = self.__inputParamDict['cc_instance_id']
+            cmd += " -i " + iPath + " -of " + oPath + " -o " + self.__wrkPath +  " -ifmt comp -id " + entryId
+            cmd += " -search_inst_id " + instId + " -libsdb " + self.__ccDictPathSdb + " -idxFile " \
+                 + self.__ccDictPathIdx
+            #
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
         elif (op == "chem-comp-assign-validation"):
             # set up
