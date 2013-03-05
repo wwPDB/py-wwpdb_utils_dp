@@ -4,6 +4,7 @@
 #
 # Updates:
 # 3-May-2011  Add file type of cifeps as an alias for eps
+# 3-Mar-2013  Add additional model formats
 ##
 """
 Utility methods for accessing data files in current data production systems.
@@ -68,7 +69,7 @@ class RcsbPath(object):
         """ 
         """
         fn=""
-        if (fileType == "cif"):
+        if (fileType in ["pdbx","model","cif","rcsb-mmcif"]):
             fn=self.__rcsbId+'.cif'
         elif (fileType == "eps"):
             fn=self.__rcsbId+'.cifeps'
@@ -83,7 +84,7 @@ class RcsbPath(object):
         
         return fn
 
-    def getFilePath(self,fileType="cif"):
+    def getFilePath(self,fileType="rcsb-mmcif"):
         fn=self.__getStructureFileName(fileType)
         src=os.path.join(self.__dirPath,fn)
         if (self.__exists(src)):

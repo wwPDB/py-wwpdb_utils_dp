@@ -124,6 +124,18 @@ class PathInfo(object):
     
 
 
+    def getcopyContentType(self,sourcePath,contentType='model',version='latest'):
+        fpattern=os.path.join(sourcePath,sourcePattern)
+        pthList=[]        
+        pthList=glob.glob(fpattern)        
+        #
+        fileList=[]
+        for pth in pthList:
+            (dirName,fileName)=os.path.split(pth)
+            fileList.append(fileName)
+            shutil.copyfile(pth,os.path.join(destPath,fileName))
+        return fileList
+
     def __getStandardPath(self,dataSetId,wfInstanceId=None,contentType=None,formatType=None,fileSource="archive",versionId="latest",partNumber='1'):
         """   Get WF conforming path/file names.
         """                

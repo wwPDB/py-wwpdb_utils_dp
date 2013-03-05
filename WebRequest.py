@@ -40,17 +40,15 @@ class WebRequest(object):
         #
         self.__dict=paramDict
         
-
     def printIt(self,ofh=sys.stdout):
         try:
-            ofh.write("\n--------------------------------------------:\n")                         
-            ofh.write("\nWebRequest.printIt() Request Dictionary Contents:\n")             
+            ofh.write("\n +WebRequest.printIt() WebRequest dictionary contents:\n")             
             for k,vL in self.__dict.items():
-                ofh.write("  Key: %s  value(s): " % k)
+                ofh.write("  - Key: %-35s  value(s): " % k)
                 for v in vL:
                     ofh.write(" %s " % v)
                 ofh.write("\n")
-            ofh.write("\n--------------------------------------------\n\n")                                         
+            ofh.write("   --------------------------------------------\n")                                         
         except:
             pass
 
@@ -60,14 +58,13 @@ class WebRequest(object):
         try:
             if (format == 'html'):
                 oL.append('<pre>\n')
-            oL.append("\n--------------------------------------------:\n")                         
-            oL.append("\nWebRequest.dump() Request Dictionary Contents:\n")             
+            oL.append("\ +nWebRequest.dump() Request Dictionary Contents:\n")             
             for k,vL in self.__dict.items():
-                oL.append("  Key: %s  value(s): " % k)
+                oL.append("  - Key: %-35s  value(s): " % k)
                 for v in vL:
                     oL.append(" %r " % v)
                 oL.append("\n")
-            oL.append("\n--------------------------------------------\n\n")
+            oL.append("   --------------------------------------------\n")
             if (format == 'html'):
                 oL.append('</pre>\n')
         except:
@@ -292,9 +289,9 @@ class ResponseContent(object):
 
     def dump(self):
         retL=[]
-        retL.append("+ResponseContent.dump() - response content object\n")
+        retL.append("\n +ResponseContent.dump() - response content object\n")
         for k,v in self._cD.items():
-            retL.append(" key = %s " % k)
+            retL.append("  - key = %-35s " % k)
             retL.append(" value(1-1024): %s\n" %   str(v)[:1024] )
         return retL
 

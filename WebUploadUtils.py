@@ -4,7 +4,7 @@
 #
 # Updates:
 #  28-Feb-2013   jdw imported common functions from WebApp(*).py  modules.
-#  
+#  03-Mar-2013   jdw catch unicode type in empty file request. 
 ##
 """
 Utilities to manage  web application upload tasks.
@@ -45,7 +45,11 @@ class WebUploadUtils(object):
         """ 
         # Gracefully exit if no file is provide in the request object - 
         fs=self.__reqObj.getRawValue(fileTag)
-        if ((fs is None) or (type(fs) == types.StringType) ):
+
+        if (self.__debug):
+            self.__lfh.write("+WebUploadUtils.isFileUpLoad() fs  %r\n" % fs)
+
+        if ((fs is None) or (type(fs) == types.StringType) or (type(fs) == types.UnicodeType) ):
             return False
         return True
 
