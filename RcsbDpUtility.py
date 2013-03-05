@@ -36,7 +36,7 @@
 # 16-Feb-2013 rps "chem-comp-assign-exact" added to support "exact match only" searching (i.e. for LigModule Lite)
 # 23-Feb-2013 jdw add "annot-poly-link-dist"
 # 26-Feb-2013 jdw update path setting for rcsbroot for annotation tasks.
-# 05-Mar-2013 zf  added operation "chem-comp-assign-comp" to support for assignment using chemical compoent file
+# 05-Mar-2013 zf  added operation "chem-comp-assign-comp" to support for assignment using chemical component file
 #                 updated RCSBROOT & COMP_PATH environmental variable setting for annotation module package
 ##
 """
