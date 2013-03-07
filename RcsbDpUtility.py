@@ -322,7 +322,7 @@ class RcsbDpUtility(object):
         # Standard setup for maxit ---
         #
         cmd += " ; RCSBROOT=" + self.__rcsbAppsPath + " ; export RCSBROOT "            
-        cmd += " ; COMP_PATH=" + self.__ccCvsPath + " ; export COMP_PATH "
+        cmd += " ; COMP_PATH=" + self.__ccCvsPath + " ; export COMP_PATH ; "
         maxitCmd = os.path.join(self.__rcsbAppsPath,"bin","maxit")        
 
         #
@@ -787,7 +787,8 @@ class RcsbDpUtility(object):
         #
         # If this has not been initialized take if from the configuration class.        
         if self.__rcsbAppsPath is None:        
-            self.__rcsbAppsPath  =  self.__getConfigPath('SITE_RCSB_APPS_PATH')
+            #self.__rcsbAppsPath  =  self.__getConfigPath('SITE_RCSB_APPS_PATH')
+            self.__rcsbAppsPath  =  self.__getConfigPath('SITE_ANNOT_TOOLS_PATH')
         self.__ccCvsPath     =  self.__getConfigPath('SITE_CC_CVS_PATH')        
         # 
         iPath=     self.__getSourceWrkFile(self.__stepNo)
@@ -811,7 +812,7 @@ class RcsbDpUtility(object):
                 cmd += "; cp " + pPath + " "  + iPath
         #
         cmd += " ; RCSBROOT=" + self.__rcsbAppsPath + " ; export RCSBROOT "            
-        cmd += " ; COMP_PATH=" + self.__ccCvsPath + " ; export COMP_PATH "
+        cmd += " ; COMP_PATH=" + self.__ccCvsPath + " ; export COMP_PATH ; "
         maxitCmd = os.path.join(self.__rcsbAppsPath,"bin",progName)        
 
         if (op == "cif2cif"):
@@ -835,7 +836,7 @@ class RcsbDpUtility(object):
             cmd += " ; mv -f " + iPath + ".cif " + oPath          
             
         elif (op == "cif2cif-pdbx-skip-process"):
-            cmd +=  maxitCmd + " -o 8 -skip_process -i " + iPath
+            cmd +=  maxitCmd + " -o 9 -i " + iPath
             cmd += " ; mv -f " + iPath + ".cif " + oPath             
 
         elif (op == "cif2cif-ebi"):
