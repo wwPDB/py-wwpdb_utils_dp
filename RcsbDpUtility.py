@@ -60,7 +60,7 @@ class RcsbDpUtility(object):
     """
     def __init__(self, tmpPath="/scratch", siteId="DEV",  verbose=False, log=sys.stderr):
         self.__verbose  = verbose
-        self.__debug    = False
+        self.__debug    = True
         self.__lfh      = log
         #
         # tmpPath is used (if it exists) to place working directories if these are not explicitly set.
@@ -322,7 +322,7 @@ class RcsbDpUtility(object):
         #
         # Standard setup for maxit ---
         #
-        cmd += " ; RCSBROOT=" + self.__rcsbAppsPath + " ; export RCSBROOT "            
+        cmd += " ; RCSBROOT=" + self.__rcsbAppsPath + " ; export RCSBROOT ; "            
         cmd += " ; COMP_PATH=" + self.__ccCvsPath + " ; export COMP_PATH ; "
         maxitCmd = os.path.join(self.__rcsbAppsPath,"bin","maxit")        
 
