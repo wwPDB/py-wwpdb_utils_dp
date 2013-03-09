@@ -5,6 +5,8 @@
 # Updates:
 #
 #  28-Feb-2013 jdw incorporate PathInfo() class
+#  05-Mar-2013 jdw fetch() should not strip version information for output files.
+#  08-Mar-2013 jdw add method to separately set path for 'session' storage.
 ##
 """
 Import and export annotation data files between session and workflow storage.
@@ -44,7 +46,7 @@ class DataExchange(object):
         self.__sessionPath = self.__sessionObj.getPath()
         self.__siteId=self.__reqObj.getValue("WWPDB_SITE_ID")
         self.__cI = ConfigInfo(self.__siteId)
-        self.__pI = PathInfo(siteId=self.__siteId, sessionPath=self.__sessionPath, verbose=self.__verbose, log=self.__lfh)
+
         
         #
         if (self.__verbose):
@@ -54,6 +56,11 @@ class DataExchange(object):
             self.__lfh.write("+DataExchange.__setup() - data set %s  instance %s file source %s\n" %
                              (self.__depDataSetId, self.__wfInstanceId,self.__fileSource))
 
+
+    def setInputSessionPath(self,inputSessionPath=None):
+        """  Override the path to files with fileSource="session"
+        """
+        self.__inputSessionPath=inputSessionPath
 
     def purgeLogs(self):
         archivePath=self.__cI.get('SITE_ARCHIVE_STORAGE_PATH')
@@ -160,7 +167,7 @@ class DataExchange(object):
 
 
     def fetch(self,contentType,formatType,version="latest",partitionNumber=1):
-        """ Copy the import content object into the current session directory (session naming semantics follow source file object)
+        """ Copy the input content object into the current session directory (session naming semantics follow source file object)
 
             Return the full path of the copied file or None
 
@@ -171,13 +178,13 @@ class DataExchange(object):
 
         try:
             if (os.access(inpFilePath,os.R_OK)):
-                (dirPath,tfileName)=os.path.split(inpFilePath)
+                (dirPath,fileName)=os.path.split(inpFilePath)
                 # trim of the trailing version - 
-                lastIdx=tfileName.rfind(".V")
-                if lastIdx > 0:
-                    fileName=tfileName[:lastIdx]
-                else:
-                    fileName=tfileName
+                #lastIdx=tfileName.rfind(".V")
+                #if lastIdx > 0:
+                #    fileName=tfileName[:lastIdx]
+                #else:
+                #    fileName=tfileName
                 outFilePath = os.path.join(self.__sessionPath,fileName)
                 if (self.__verbose):
                     self.__lfh.write("+DataExchange.fetch() destination file path %s\n" % outFilePath)
@@ -236,7 +243,7 @@ class DataExchange(object):
             
 
     def copyToSession(self,contentType,formatType,version="latest",partitionNumber=1):
-        """ Copy the import content object into the session directory using archive naming conventions less version details.
+        """ Copy the input content object into the session directory using archive naming conventions less version details.
 
             Return the full path of the session file or None
 
@@ -263,7 +270,7 @@ class DataExchange(object):
             return None
 
     def updateArchiveFromSession(self,contentType,formatType,version="next",partitionNumber=1):
-        """ Copy the import content object from the session directory stored using  archive naming conventions less version details
+        """ Copy the input content object from the session directory stored using  archive naming conventions less version details
             to archive storage.
 
             Return the full path of the archive file or None
@@ -309,8 +316,11 @@ class DataExchange(object):
         """ Return the file path for the input content object if this is valid. If the file path
             cannot be verified return None.
 
-        """                
-        fP=self.__pI.getFilePath(dataSetId=self.__depDataSetId,
+        """         
+        pI = PathInfo(siteId=self.__siteId, sessionPath=self.__sessionPath, verbose=self.__verbose, log=self.__lfh)       
+        if fileSource=='session' and self.__inputSessionPath is not None:
+            pI.setSessionPath(self.__inputSessionPath)
+        fP=pI.getFilePath(dataSetId=self.__depDataSetId,
                                  wfInstanceId=self.__wfInstanceId,
                                  contentType=contentType,
                                  formatType=formatType,
@@ -326,8 +336,11 @@ class DataExchange(object):
         """ Return the file path for the input content object if this is valid. If the file path
             cannot be verified return None.
 
-        """                
-        fP=self.__pI.getFilePath(dataSetId=self.__depDataSetId,
+        """  
+        pI = PathInfo(siteId=self.__siteId, sessionPath=self.__sessionPath, verbose=self.__verbose, log=self.__lfh)
+        if fileSource=='session' and self.__inputSessionPath is not None:
+            pI.setSessionPath(self.__inputSessionPath)              
+        fP=pI.getFilePath(dataSetId=self.__depDataSetId,
                                  wfInstanceId=self.__wfInstanceId,
                                  contentType=contentType,
                                  formatType=formatType,

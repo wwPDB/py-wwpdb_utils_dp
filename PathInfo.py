@@ -33,6 +33,10 @@ class PathInfo(object):
         self.__siteId=siteId
         self.__sessionPath = sessionPath
         #
+    def setSessionPath(self,sessionPath):
+        """  Set the top path that will be searched for files with fileSource='session'
+        """
+        self.__sessionPath=sessionPath
         
     def getModelPdbxFilePath(self,dataSetId,wfInstanceId=None,fileSource="archive",versionId="latest"):
         return self.__getStandardPath(dataSetId=dataSetId,
@@ -64,6 +68,15 @@ class PathInfo(object):
                                       fileSource=fileSource,
                                       versionId=versionId,
                                       contentType='seq-data-stats',
+                                      formatType='pic')
+
+
+    def getSequenceAlignFilePath(self,dataSetId,wfInstanceId=None,fileSource="archive",versionId="latest"):
+        return self.__getStandardPath(dataSetId=dataSetId,
+                                      wfInstanceId=wfInstanceId,
+                                      fileSource=fileSource,
+                                      versionId=versionId,
+                                      contentType='seq-align-data',
                                       formatType='pic')
 
 

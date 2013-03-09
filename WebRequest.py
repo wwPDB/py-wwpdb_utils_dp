@@ -10,6 +10,8 @@
 # 26-Feb-2012 jdw  add support location redirects in response object-
 # 20-Feb-2013 jdw  This application neutral version moved to utils/rcsb.
 #                  Make dictionary in ResponseContent inheritable.
+# 06-Mar-2013 jdw  add setDictionary() method
+# 07-Mar-2013 jdw  add optional maximum length parameter to response object dump() method.
 ##
 """
 WebRequest provides containers and accessors for managing request parameter information.
@@ -94,7 +96,12 @@ class WebRequest(object):
     def setValueList(self,myKey,valueList):
         self.__dict[myKey]=valueList        
 
-    
+
+    def setDictionary(self,myDict,overWrite=False):
+        for k,v in myDict.items():
+            if (overWrite or (not self.exists(k))):
+                self.setValue(k,v)
+
     def exists(self,myKey):
         try:
             return self.__dict.has_key(myKey)
@@ -287,12 +294,12 @@ class ResponseContent(object):
     def setHtmlContentPath(self,aPath):
         self._cD['htmlcontentpath']=aPath
 
-    def dump(self):
+    def dump(self,maxLength=130):
         retL=[]
         retL.append("\n +ResponseContent.dump() - response content object\n")
         for k,v in self._cD.items():
             retL.append("  - key = %-35s " % k)
-            retL.append(" value(1-1024): %s\n" %   str(v)[:1024] )
+            retL.append(" value(1-%d): %s\n" %   (maxLength,str(v)[:maxLength] ))
         return retL
 
     def get(self):
