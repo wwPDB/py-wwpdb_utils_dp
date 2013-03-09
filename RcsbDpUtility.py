@@ -38,6 +38,7 @@
 # 26-Feb-2013 jdw update path setting for rcsbroot for annotation tasks.
 # 05-Mar-2013 zf  added operation "chem-comp-assign-comp" to support for assignment using chemical component file
 #                 updated RCSBROOT & COMP_PATH environmental variable setting for annotation module package
+# 08-Mar-2013 jdw put back methods that were overwritten.
 ##
 """
 Wrapper class for data processing and chemical component utilities.
@@ -59,7 +60,7 @@ class RcsbDpUtility(object):
     """
     def __init__(self, tmpPath="/scratch", siteId="DEV",  verbose=False, log=sys.stderr):
         self.__verbose  = verbose
-        self.__debug    = True
+        self.__debug    = False
         self.__lfh      = log
         #
         # tmpPath is used (if it exists) to place working directories if these are not explicitly set.
@@ -95,7 +96,7 @@ class RcsbDpUtility(object):
                                 "annot-wwpdb-validate-1","annot-wwpdb-validate-2",
                                 "annot-chem-shift-check","annot-chem-shift-coord-check","annot-nmrsta2pdbx","annot-pdbx2nmrstar",
                                 "annot-reposition-solvent-add-derived", "annot-rcsb2pdbx-strip", "annot-rcsbeps2pdbx-strip",
-                                "chem-comp-instance-update","annot-cif2cif","annot-cif2pdb","annot-pdb2cif"]
+                                "chem-comp-instance-update","annot-cif2cif","annot-cif2pdb","annot-pdb2cif","annot-poly-link-dist"]
 
         #
         # Source, destination and logfile path details
@@ -116,7 +117,7 @@ class RcsbDpUtility(object):
         try:
             pth =  os.path.abspath(self.__cI.get(ky))
             if (self.__debug): 
-                self.__lfh.write("++INFO - site %s configuration for %s is %s\n" % (self.__siteId,ky,pth))            
+                self.__lfh.write("+RcsbDpUtility.()  - site %s configuration for %s is %s\n" % (self.__siteId,ky,pth))            
         except:
             if (self.__verbose): 
                 self.__lfh.write("++WARN - site %s configuration data missing for %s\n" % (self.__siteId,ky))
@@ -152,7 +153,7 @@ class RcsbDpUtility(object):
         if (stepNo > 0 and stepNo <= self.__stepNo):
             self.__stepNoSaved = stepNo
             if (self.__verbose): 
-                self.__lfh.write("++INFO - Using result from step %s\n" % self.__stepNoSaved)        
+                self.__lfh.write("+RcsbDpUtility.useResult()  - Using result from step %s\n" % self.__stepNoSaved)        
         
     def __makeTempWorkingDir(self):
         hostName=str(socket.gethostname()).split('.')[0]
@@ -654,6 +655,13 @@ class RcsbDpUtility(object):
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
             cmd += " ; cp  -f " + pdfPath + " " + oPath
 
+        elif (op == "annot-poly-link-dist"):
+            cmdPath =os.path.join(self.__annotAppsPath,"bin","cal_polymer_linkage_distance")
+            thisCmd  = " ; " + cmdPath            
+            cmd += " ; RCSBROOT=" + self.__annotAppsPath + " ; export RCSBROOT "            
+            cmd += thisCmd + " -i " + iPath + " -o " + oPath
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
+
         elif ((op == "annot-cif2cif") or (op == "cif2cif")):            
             cmd +=  maxitCmd + " -o 8  -i " + iPath
             cmd += " ; mv -f " + iPath + ".cif " + oPath
@@ -674,7 +682,7 @@ class RcsbDpUtility(object):
         #
         
         if (self.__debug):
-            self.__lfh.write("++INFO - Application string:\n%s\n" % cmd.replace(";","\n"))        
+            self.__lfh.write("+RcsbDpUtility._annotationStep()  - Application string:\n%s\n" % cmd.replace(";","\n"))        
         #
         if (self.__verbose):            
             cmd += " ; ls -la  > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                                    
@@ -884,7 +892,7 @@ class RcsbDpUtility(object):
         cmd += " ) > %s 2>&1 " % ePathFull
         
         if (self.__debug):
-            self.__lfh.write("++INFO - Command string:\n%s\n" % cmd.replace(";","\n"))
+            self.__lfh.write("+RcsbDpUtility.maxitStep()  - Command string:\n%s\n" % cmd.replace(";","\n"))
 
         ofh = open(lPathFull,'w')
         lt = time.strftime("%Y %m %d %H:%M:%S", time.localtime())
@@ -1151,7 +1159,7 @@ class RcsbDpUtility(object):
         #
         
         if (self.__debug):
-            self.__lfh.write("++INFO - Application string:\n%s\n" % cmd.replace(";","\n"))        
+            self.__lfh.write("+RcsbDpUtility._rcsbStep()  - Application string:\n%s\n" % cmd.replace(";","\n"))        
         #
         if (self.__verbose):            
             cmd += " ; ls -la  > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                                    
@@ -1273,7 +1281,7 @@ class RcsbDpUtility(object):
             return -1
         #
         if (self.__debug):
-            self.__lfh.write("++INFO - Application string:\n%s\n" % cmd.replace(";","\n"))        
+            self.__lfh.write("+RcsbDpUtility._pisaStep()  - Application string:\n%s\n" % cmd.replace(";","\n"))        
         #
         if (self.__verbose):            
             cmd += " ; ls -la  > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                                    
@@ -1420,8 +1428,14 @@ class RcsbDpUtility(object):
     def cleanup(self):
         """Cleanup temporary files and directories
         """
-        return shutil.rmtree(self.__wrkPath)
-
+        try:
+            self.__lfh.write("+RcsbDpUtility.cleanup() removing working path %s\n" % self.__wrkPath)
+            shutil.rmtree(self.__wrkPath)
+            return True
+        except:
+            self.__lfh.write("+RcsbDpUtility.cleanup() removal failed for working path %s\n" % self.__wrkPath)
+            
+        return False
     
 if __name__ == '__main__':
     rdpu=RcsbDpUtility()
