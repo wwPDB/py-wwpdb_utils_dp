@@ -60,7 +60,7 @@ class RcsbDpUtility(object):
     """
     def __init__(self, tmpPath="/scratch", siteId="DEV",  verbose=False, log=sys.stderr):
         self.__verbose  = verbose
-        self.__debug    = True
+        self.__debug    = False
         self.__lfh      = log
         #
         # tmpPath is used (if it exists) to place working directories if these are not explicitly set.
@@ -322,8 +322,8 @@ class RcsbDpUtility(object):
         #
         # Standard setup for maxit ---
         #
-        cmd += " ; RCSBROOT=" + self.__rcsbAppsPath + " ; export RCSBROOT ; "            
-        cmd += " ; COMP_PATH=" + self.__ccCvsPath + " ; export COMP_PATH ; "
+        cmd += " ; RCSBROOT=" + self.__rcsbAppsPath + " ; export RCSBROOT  "            
+        cmd += " ; COMP_PATH=" + self.__ccCvsPath + " ; export COMP_PATH  "
         maxitCmd = os.path.join(self.__rcsbAppsPath,"bin","maxit")        
 
         #
@@ -658,22 +658,21 @@ class RcsbDpUtility(object):
         elif (op == "annot-poly-link-dist"):
             cmdPath =os.path.join(self.__annotAppsPath,"bin","cal_polymer_linkage_distance")
             thisCmd  = " ; " + cmdPath            
-            cmd += " ; RCSBROOT=" + self.__annotAppsPath + " ; export RCSBROOT "            
             cmd += thisCmd + " -i " + iPath + " -o " + oPath
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
 
         elif ((op == "annot-cif2cif") or (op == "cif2cif")):            
-            cmd +=  maxitCmd + " -o 8  -i " + iPath
+            cmd +=  " ; " + maxitCmd + " -o 8  -i " + iPath
             cmd += " ; mv -f " + iPath + ".cif " + oPath
             cmd += " ; cat maxit.err >> " + lPath
 
         elif ((op == "annot-pdb2cif") or (op == "pdb2cif")):
-            cmd +=  maxitCmd + " -o 1  -i " + iPath
+            cmd +=  " ; " + maxitCmd + " -o 1  -i " + iPath
             cmd += " ; mv -f " + iPath + ".cif " + oPath
             cmd += " ; cat maxit.err >> " + lPath            
 
         elif ((op == "annot-cif2pdb") or (op == "cif2pdb")):
-            cmd +=  maxitCmd + " -o 2  -i " + iPath
+            cmd +=  " ; " + maxitCmd + " -o 2  -i " + iPath
             cmd += " ; mv -f " + iPath + ".pdb " + oPath
             cmd += " ; cat maxit.err >> " + lPath            
         else:
