@@ -114,7 +114,7 @@ class DataFileAdapter(object):
             if filePath is None or pdbxFilePath is None:
                 return ok
             #
-            if (fileType in ['pdbx-mmcif','pdbx']):
+            if (fileType in ['pdbx-mmcif','pdbx','pdbx-cif']):
                 shutil.copyfile(filePath,pdbxFilePath)
                 ok=True
             elif (fileType == "rcsb-mmcif"):
