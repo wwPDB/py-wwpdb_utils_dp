@@ -39,6 +39,7 @@
 # 05-Mar-2013 zf  added operation "chem-comp-assign-comp" to support for assignment using chemical component file
 #                 updated RCSBROOT & COMP_PATH environmental variable setting for annotation module package
 # 08-Mar-2013 jdw put back methods that were overwritten.
+# 15-Mar-2013 zf  added operation "prd-search" to support entity transformer
 ##
 """
 Wrapper class for data processing and chemical component utilities.
@@ -93,7 +94,7 @@ class RcsbDpUtility(object):
         self.__annotationOps = ["annot-secondary-structure", "annot-link-ssbond", "annot-cis-peptide","annot-distant-solvent",
                                 "annot-merge-struct-site","annot-reposition-solvent","annot-base-pair-info",
                                 "annot-validation","annot-site","annot-rcsb2pdbx","annot-consolidated-tasks",
-                                "annot-wwpdb-validate-1","annot-wwpdb-validate-2",
+                                "annot-wwpdb-validate-1","annot-wwpdb-validate-2","prd-search",
                                 "annot-chem-shift-check","annot-chem-shift-coord-check","annot-nmrsta2pdbx","annot-pdbx2nmrstar",
                                 "annot-reposition-solvent-add-derived", "annot-rcsb2pdbx-strip", "annot-rcsbeps2pdbx-strip",
                                 "chem-comp-instance-update","annot-cif2cif","annot-cif2pdb","annot-pdb2cif","annot-poly-link-dist"]
@@ -281,6 +282,8 @@ class RcsbDpUtility(object):
         self.__deployPath     =  self.__getConfigPath('SITE_DEPLOY_PATH')        
         self.__ccDictPath     =  self.__getConfigPath('SITE_CC_DICT_PATH')
         self.__ccCvsPath      =  self.__getConfigPath('SITE_CC_CVS_PATH')                
+        self.__prdccCvsPath   =  self.__getConfigPath('SITE_PRDCC_CVS_PATH')
+        self.__prdDictPath    =  os.path.join(self.__getConfigPath('SITE_REFDATA_TOP_CVS_SB_PATH'), 'prd-dict')
 
         # if self.__rcsbAppsPath is None:        
         #            self.__rcsbAppsPath  =  self.__getConfigPath('SITE_RCSB_APPS_PATH')
@@ -675,6 +678,17 @@ class RcsbDpUtility(object):
             cmd +=  " ; " + maxitCmd + " -o 2  -i " + iPath
             cmd += " ; mv -f " + iPath + ".pdb " + oPath
             cmd += " ; cat maxit.err >> " + lPath            
+        elif (op == "prd-search"):
+            cmd += " ; PRDCC_PATH="  + self.__prdccCvsPath + " ; export PRDCC_PATH "
+            cmd += " ; PRD_DICT_PATH="  + self.__prdDictPath + " ; export PRD_DICT_PATH "
+            cmdPath = os.path.join(self.__annotAppsPath,"bin","GetPrdMatch")
+            cmd += " ; " + cmdPath + " -input " + iPath + " -output " + oPath \
+                 + " -path . -index ${PRD_DICT_PATH}/prd_summary.sdb"
+            if self.__inputParamDict.has_key('logfile'):
+                cmd += " -log " + self.__inputParamDict['logfile']
+            if self.__inputParamDict.has_key('firstmodel'):
+                cmd += " -firstmodel " + self.__inputParamDict['firstmodel']
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
         else:
             
             return -1
