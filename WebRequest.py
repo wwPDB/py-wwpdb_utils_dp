@@ -12,6 +12,9 @@
 #                  Make dictionary in ResponseContent inheritable.
 # 06-Mar-2013 jdw  add setDictionary() method
 # 07-Mar-2013 jdw  add optional maximum length parameter to response object dump() method.
+# 22-Mar-2013 jdw  incorporate methods for handling binary content, jsonp, and datafile
+#                  download data in response content class.
+# 22-Mar-2013 jdw  restore method - getValueOrDefault(self,myKey,default='')
 ##
 """
 WebRequest provides containers and accessors for managing request parameter information.
@@ -26,7 +29,7 @@ __license__   = "Creative Commons Attribution 3.0 Unported"
 __version__   = "V0.07"
 
 
-import sys, os, traceback
+import sys, os, traceback, gzip, mimetypes
 from simplejson import loads, dumps
 
 from wwpdb.utils.rcsb.SessionManager import SessionManager
@@ -82,6 +85,14 @@ class WebRequest(object):
                     
     def getValue(self,myKey):
         return(self._getStringValue(myKey))
+
+    def getValueOrDefault(self,myKey,default=''):
+        if not self.exists(myKey):
+            return default
+        v=self._getStringValue(myKey)
+        if len(v) < 1:
+            return(default)
+        return v
 
     def getValueList(self,myKey):
         return(self._getStringList(myKey))
@@ -226,6 +237,11 @@ class ResponseContent(object):
         self._cD['htmlcontent']=''
         self._cD['textcontent']=''
         self._cD['location']=''
+        self._cD['datatype']=None
+        self._cD['encodingtype']=None
+        self._cD['datafilename']=None
+        self._cD['disposition']=None
+
         #
         self._cD['datacontent']=None
         self._cD['errorflag']=False
@@ -275,11 +291,81 @@ class ResponseContent(object):
 
     def setTextFileO(self,filePath):
         self._cD['textcontent']=open(filePath).read()
+
+    def getMimetypeAndEncoding(self,filename):
+        type, encoding = mimetypes.guess_type(filename)
+        # We'll ignore encoding, even though we shouldn't really
+        if type is None:
+            ret = ('application/octet-stream',None)
+        else:
+            ret = (type,encoding)
+        return ret
+
+    def setBinaryFile(self,filePath,attachmentFlag=False,serveCompressed=True):
+        try:
+            if os.path.exists(filePath):
+                dir,fn=os.path.split(filePath)                
+                if not serveCompressed and fn.endswith('.gz'):
+                    self._cD['datacontent']=gzip.open(filePath,'rb').read()
+                    self._cD['datafileName']=fn[:-3]
+                    contentType,encodingType=self.getMimetypeAndEncoding(filePath[:-3])                    
+                else:
+                    self._cD['datacontent']=open(filePath,'rb').read()
+                    self._cD['datafileName']=fn
+                    contentType,encodingType=self.getMimetypeAndEncoding(filePath)                    
+                #
+                self._cD['datatype']=contentType
+                self._cD['encodingtype']=encodingType
+                if attachmentFlag:
+                    self._cD['disposition']='attachment'
+                else:
+                    self._cD['disposition']='inline'
+                    #
+                    # strip compression file extension if disposition=inline.
+                    if fn.endswith('.gz'):
+                        self._cD['datafileName']=fn[:-3]
+                        
+                if (self.__debug):
+                    self.__lfh.write("+ResponseContent.setBinaryFile() Serving %s as %s enc %s att flag %r\n" % (filePath,contentType,encodingType,attachmentFlag) )
+        except:
+            self.__lfh.write("ResponseContent.setBinaryFile() File read failed %s\n" % filePath )        
+            traceback.print_exc(file=self.__lfh)                                        
+
+    def wrapFileAsJsonp(self,filePath,callBack=None):
+        try:
+            if os.path.exists(filePath):
+                dir,fn=os.path.split(filePath)
+                (rn,ext)=os.path.splitext(fn)
+                #
+                dd={}
+                dd['data']=open(filePath,'rb').read()
+                if ext.lower() != '.json':
+                    self._cD['datacontent']=callBack+'('+ dumps(dd) +');'
+                else:
+                    self._cD['datacontent']=callBack+'(' + dd['data'] + ');'
+                #
+                self._cD['datafileName']=fn
+                contentType="application/x-javascript"
+                encodingType=None
+                #
+                self._cD['datatype']=contentType
+                self._cD['encodingtype']=encodingType
+                self._cD['disposition']='inline'
+                #
+                if (self.__debug):
+                    self.__lfh.write("+ResponseContent.wrapFileAsJsonp() Serving %s as %s\n" % (filePath, self._cD['datacontent']) )
+        except:
+            self.__lfh.write("ResponseContent.setBinaryFile() File read failed %s\n" % filePath )        
+            traceback.print_exc(file=self.__lfh)                                        
+
         
     def setStatus(self,statusMsg='',semaphore=''):
         self._cD['errorflag']=False
         self._cD['statustext']=statusMsg
         self._cD['semaphore']=semaphore
+        
+    def isError(self):
+        return self._cD['errorflag']
         
     def setError(self,errMsg='',semaphore=''):
         self._cD['errorflag']=True
@@ -323,7 +409,11 @@ class ResponseContent(object):
         elif (self.__reqObj.getReturnFormat() == 'jsonData'):
             rD=self.__initJsonResponse(self._cD['datacontent'])
         elif (self.__reqObj.getReturnFormat() == 'location'):
-            rD=self.__initLocationResponse(self._cD['location'])                                    
+            rD=self.__initLocationResponse(self._cD['location']) 
+        elif (self.__reqObj.getReturnFormat() == 'binary'):
+            rD=self.__initBinaryResponse(self._cD)
+        elif (self.__reqObj.getReturnFormat() == 'jsonp'):
+            rD=self.__initJsonpResponse(self._cD)                                               
         else:
             pass
         #
@@ -335,10 +425,29 @@ class ResponseContent(object):
         rspDict['RETURN_STRING'] = url 
         return rspDict
 
+    def __initBinaryResponse(self,myD={}):
+        rspDict={}
+        rspDict['CONTENT_TYPE']  = myD['datatype']
+        rspDict['RETURN_STRING'] = myD['datacontent']
+        try:
+            rspDict['ENCODING']=myD['encodingtype']
+            if myD['disposition'] is not None:
+                rspDict['DISPOSITION'] = "%s; filename=%s" % (myD['disposition'],myD['datafileName'])
+        except:
+            pass
+        return rspDict
+
+
     def __initJsonResponse(self,myD={}):
         rspDict={}
         rspDict['CONTENT_TYPE']  = 'application/json'
         rspDict['RETURN_STRING'] = dumps(myD)
+        return rspDict
+
+    def __initJsonpResponse(self,myD={}):
+        rspDict={}
+        rspDict['CONTENT_TYPE']  =  myD['datatype']
+        rspDict['RETURN_STRING'] =  myD['datacontent']
         return rspDict
 
     def __initJsonResponseInTextArea(self,myD={}):
