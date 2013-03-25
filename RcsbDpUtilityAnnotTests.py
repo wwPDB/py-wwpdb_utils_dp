@@ -554,7 +554,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
         """
         self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
         try:
-            for pdbId in ['3of4']:
+            for pdbId in ['1cbs']:
                 ofpdf=pdbId+"-valrpt.pdf"
                 ofxml=pdbId+"-valdata.xml"
 
