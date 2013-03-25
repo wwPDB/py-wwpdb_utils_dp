@@ -40,6 +40,7 @@
 #                 updated RCSBROOT & COMP_PATH environmental variable setting for annotation module package
 # 08-Mar-2013 jdw put back methods that were overwritten.
 # 15-Mar-2013 zf  added operation "prd-search" to support entity transformer
+# 25-Mar-2013 jdw add new methods  "annot-merge-sequence-data" and "annot-make-maps"
 ##
 """
 Wrapper class for data processing and chemical component utilities.
@@ -97,7 +98,8 @@ class RcsbDpUtility(object):
                                 "annot-wwpdb-validate-1","annot-wwpdb-validate-2","prd-search",
                                 "annot-chem-shift-check","annot-chem-shift-coord-check","annot-nmrsta2pdbx","annot-pdbx2nmrstar",
                                 "annot-reposition-solvent-add-derived", "annot-rcsb2pdbx-strip", "annot-rcsbeps2pdbx-strip",
-                                "chem-comp-instance-update","annot-cif2cif","annot-cif2pdb","annot-pdb2cif","annot-poly-link-dist"]
+                                "chem-comp-instance-update","annot-cif2cif","annot-cif2pdb","annot-pdb2cif","annot-poly-link-dist",
+                                "annot-merge-sequence-data","annot-make-maps"]
 
         #
         # Source, destination and logfile path details
@@ -480,9 +482,15 @@ class RcsbDpUtility(object):
             cmd += " ; mv -f " + blockId + "_site.cif " + oPath                         
 
         elif (op == "annot-merge-sequence-data"):
+            # example -
+            # MergeSeqModuleData -input RCSB056751_model_P1.cif.V1 -assign RCSB056751_seq-assign_P1.cif.V2 -output new_model.cif 
+            #
             cmdPath =os.path.join(self.__annotAppsPath,"bin","MergeSeqModuleData")
             thisCmd  = " ; " + cmdPath                        
             cmd += thisCmd + " -input " + iPath + " -output " + oPath + " -log annot-step.log "
+            if  self.__inputParamDict.has_key('seqmod_assign_file_path'):
+                assignFilePath=self.__inputParamDict['seqmod_assign_file_path']                                
+                cmd += " -assign " + assignFilePath           
             #
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
             cmd += " ; cat annot-step.log " + " >> " + lPath
@@ -657,6 +665,33 @@ class RcsbDpUtility(object):
             cmd += thisCmd + " 1abc " + iPathFull + " " + sfPathFull + " " + pdfPath +  " " + xmlPath + " " + cleanOpt 
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
             cmd += " ; cp  -f " + pdfPath + " " + oPath
+
+        elif (op == "annot-make-maps"):
+            # The sf-valid package is currently set to self configure in a wrapper
+            # shell script.  PACKAGE_DIR and TOOLS_DIR only need to be set here.
+            #
+            cmd += " ; WWPDB_SITE_ID="  + self.__siteId  + " ; export WWPDB_SITE_ID "
+            cmd += " ; DEPLOY_DIR="  + self.__deployPath  + " ; export DEPLOY_DIR "
+            cmd += " ; TOOLS_DIR="  + os.path.join(self.__deployPath,'bin')  + " ; export TOOLS_DIR "
+            cmd += " ; PACKAGE_DIR="  + self.__packagePath + " ; export PACKAGE_DIR "
+            #
+            cmdPath =os.path.join(self.__packagePath,"sf-valid","bin","dcc.sh")
+            thisCmd  = " ; " + cmdPath                        
+            
+            if  self.__inputParamDict.has_key('sf_file_path'):
+                sfPath=self.__inputParamDict['sf_file_path']
+                sfPathFull = os.path.abspath(sfPath)                
+            else:
+                sfPath="none"
+                sfPathFull="none"                
+
+            #
+            #xmlPath=os.path.join(self.__wrkPath, "out.xml")
+            #pdfPath=os.path.join(self.__wrkPath, "out.pdf")
+
+            cmd += thisCmd + " -cif " + iPathFull + " -sf " + sfPathFull + " -map  -no_xtriage -o " + oPath
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
+
 
         elif (op == "annot-poly-link-dist"):
             cmdPath =os.path.join(self.__annotAppsPath,"bin","cal_polymer_linkage_distance")
