@@ -41,6 +41,7 @@
 # 08-Mar-2013 jdw put back methods that were overwritten.
 # 15-Mar-2013 zf  added operation "prd-search" to support entity transformer
 # 25-Mar-2013 jdw add new methods  "annot-merge-sequence-data" and "annot-make-maps"
+#
 ##
 """
 Wrapper class for data processing and chemical component utilities.
@@ -280,6 +281,7 @@ class RcsbDpUtility(object):
         # Set application specific path details here -
         #
         self.__annotAppsPath  =  self.__getConfigPath('SITE_ANNOT_TOOLS_PATH')
+        self.__localAppsPath  =  self.__getConfigPath('SITE_LOAL_APPS_PATH')
         self.__packagePath    =  self.__getConfigPath('SITE_TOOLS_PATH')
         self.__deployPath     =  self.__getConfigPath('SITE_DEPLOY_PATH')        
         self.__ccDictPath     =  self.__getConfigPath('SITE_CC_DICT_PATH')
@@ -672,7 +674,7 @@ class RcsbDpUtility(object):
             #
             cmd += " ; WWPDB_SITE_ID="  + self.__siteId  + " ; export WWPDB_SITE_ID "
             cmd += " ; DEPLOY_DIR="  + self.__deployPath  + " ; export DEPLOY_DIR "
-            cmd += " ; TOOLS_DIR="  + os.path.join(self.__deployPath,'bin')  + " ; export TOOLS_DIR "
+            cmd += " ; TOOLS_DIR="  + os.path.join(self.__localAppsPath,'bin')  + " ; export TOOLS_DIR "
             cmd += " ; PACKAGE_DIR="  + self.__packagePath + " ; export PACKAGE_DIR "
             #
             cmdPath =os.path.join(self.__packagePath,"sf-valid","bin","dcc.sh")
@@ -973,7 +975,7 @@ class RcsbDpUtility(object):
         if self.__rcsbAppsPath is None:                
             self.__rcsbAppsPath  =  self.__getConfigPath('SITE_RCSB_APPS_PATH')
         if self.__localAppsPath is None:                            
-            self.__localAppsPath =  self.__getConfigPath('SITE_LOCAL_APPS_PATH')
+            self.__localAppsPath =  self.__getConfigPath('SITE_LOAL_APPS_PATH')
 
         self.__packagePath    =  self.__getConfigPath('SITE_TOOLS_PATH')            
 
