@@ -13,7 +13,7 @@
 #    Sep  5, 2012 jdw -  add example for wwPDB validation package
 #    Sep  6, 2012 jdw -  add example for consolidated annotation steps
 #    Dec 12, 2012 jdw -  add and verify test cases for version 2 of validation module. 
-#
+#    Mar 25, 2013 jdw -  add testSequenceAssignMerge()
 ##
 """
 Test cases from 
@@ -65,7 +65,10 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
         self.__testFileValidateSf  = "1cbs-sf.cif"
         self.__testValidateIdList  = ["1cbs","3of4","3oqp"]
         self.__testArchiveIdList  = [("D_900002","4EC0"),("D_600000","4F3R")]
-        
+        #
+        self.__testFileCifSeq       = "RCSB095269_model_P1.cif.V1"
+        self.__testFileSeqAssign    = "RCSB095269_seq-assign_P1.cif.V1"
+
             
     def tearDown(self):
         pass
@@ -526,6 +529,51 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             traceback.print_exc(file=self.__lfh)
             self.fail()
 
+    def testSequenceAssignMerge(self): 
+        """  test sequence assignment merge
+        """
+        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        try:
+            dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
+            inpPath=os.path.join(self.__testFilePath,self.__testFileCifSeq)
+            dp.imp(inpPath)
+            assignPath=os.path.join(self.__testFilePath,self.__testFileSeqAssign)
+            dp.addInput(name="seqmod_assign_file_path",value=assignPath,type="file")
+            dp.op("annot-merge-sequence-data")
+            dp.exp("model-with-merged-seq-assignments.cif")
+            dp.expLog("annot-seqmod-merge.log")
+
+            #dp.cleanup()
+            
+        except:
+            traceback.print_exc(file=self.__lfh)
+            self.fail()
+
+    def testAnnotMapCalc(self): 
+        """  Test create density maps --
+        """
+        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        try:
+            for pdbId in ['3of4']:
+                ofpdf=pdbId+"-valrpt.pdf"
+                ofxml=pdbId+"-valdata.xml"
+
+                testFileXyz=pdbId+".cif"
+                testFileSf=pdbId+"-sf.cif"
+                
+                dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
+                xyzPath=os.path.join(self.__testFilePath,testFileXyz)
+                sfPath=os.path.join(self.__testFilePath,testFileSf)            
+                dp.imp(xyzPath)
+                dp.addInput(name="sf_file_path",value=sfPath)            
+                dp.op("annot-make-maps")
+                dp.expLog(pdbId+"-annot-make-maps.log")
+                #dp.expList(dstPathList=[ofpdf,ofxml])
+                #dp.cleanup()
+        except:
+            traceback.print_exc(file=self.__lfh)
+            self.fail()
+
 
 
 def suiteAnnotSiteTests():
@@ -595,6 +643,18 @@ def suiteSolventPlusDerivedTests():
     suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotRepositionSolventPlusDerived"))
     return suiteSelect    
 
+def suiteMergeSeqAssignTests():
+    suiteSelect = unittest.TestSuite()
+    suiteSelect.addTest(RcsbDpUtilityAnnotTests("testSequenceAssignMerge"))
+    return suiteSelect    
+
+
+def suiteMapCalcTests():
+    suiteSelect = unittest.TestSuite()
+    suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotMapCalc"))
+    return suiteSelect    
+
+
 
 if __name__ == '__main__':
     # Run all tests -- 
@@ -625,15 +685,19 @@ if __name__ == '__main__':
 
         mySuite=suiteSolventPlusDerivedTests()
         unittest.TextTestRunner(verbosity=2).run(mySuite)            
+
+        mySuite=suiteAnnotFormatConvertTests()
+        unittest.TextTestRunner(verbosity=2).run(mySuite)
+
+        mySuite=suiteMergeSeqAssignTests()
+        unittest.TextTestRunner(verbosity=2).run(mySuite)
+        
+        #mySuite=suiteArchiveValidationV2Tests()  
+        #unittest.TextTestRunner(verbosity=2).run(mySuite)
     else:
         pass
 
     #
-    #mySuite=suiteArchiveValidationV2Tests()  
-    #unittest.TextTestRunner(verbosity=2).run(mySuite)
-    #
-    #
-    mySuite=suiteAnnotFormatConvertTests()
+    mySuite=suiteMapCalcTests()
     unittest.TextTestRunner(verbosity=2).run(mySuite)
     #
-    

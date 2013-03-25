@@ -248,6 +248,29 @@ class RcsbDpUtilityTests(unittest.TestCase):
             self.fail()
 
 
+    def testSequenceMergeAssign(self): 
+        """   Test with no links
+        """
+        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        try:
+            dp = RcsbDpUtility(tmpPath=self.__tmpPath,siteId=self.__siteId,verbose=True)
+            dp.setWorkingDir('tmp-assign')
+            cifPath=os.path.join(self.__testFilePath,self.__testFileCifEps2)
+            (head,tail) = os.path.split(cifPath)
+            (id,ext) = os.path.splitext(tail)
+            link_file_path=os.path.join(self.__testFilePath,id+"-cc-link.cif")
+            dp.addInput(name="id",value=id)
+            dp.addInput(name="cc_link_file_path",value=link_file_path,type='file')
+            dp.imp(cifPath)
+            dp.op("chem-comp-assign")
+            dp.exp("chem-comp-assign.cif.gz")
+            dp.expLog("chem-comp-assign.log.gz")
+            dp.cleanup()
+
+        except:
+            traceback.print_exc(file=self.__lfh)
+            self.fail()
+
 
 def suiteMaxitTests():
     suiteSelect = unittest.TestSuite()
