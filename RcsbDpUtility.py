@@ -281,7 +281,7 @@ class RcsbDpUtility(object):
         # Set application specific path details here -
         #
         self.__annotAppsPath  =  self.__getConfigPath('SITE_ANNOT_TOOLS_PATH')
-        self.__localAppsPath  =  self.__getConfigPath('SITE_LOAL_APPS_PATH')
+        self.__localAppsPath  =  self.__getConfigPath('SITE_LOCAL_APPS_PATH')
         self.__packagePath    =  self.__getConfigPath('SITE_TOOLS_PATH')
         self.__deployPath     =  self.__getConfigPath('SITE_DEPLOY_PATH')        
         self.__ccDictPath     =  self.__getConfigPath('SITE_CC_DICT_PATH')
