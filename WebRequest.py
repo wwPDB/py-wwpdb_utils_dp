@@ -44,6 +44,7 @@ class WebRequest(object):
         #  Single values are stored in the leading element of the list (e.g. dict[myKey][0])
         #
         self.__dict=paramDict
+        self.__debug=False
         
     def printIt(self,ofh=sys.stdout):
         try:
@@ -56,7 +57,6 @@ class WebRequest(object):
             ofh.write("   --------------------------------------------\n")                                         
         except:
             pass
-
 
     def dump(self,format='text'):
         oL=[]
