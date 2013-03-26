@@ -682,7 +682,10 @@ class RcsbDpUtility(object):
             
             if  self.__inputParamDict.has_key('sf_file_path'):
                 sfPath=self.__inputParamDict['sf_file_path']
-                sfPathFull = os.path.abspath(sfPath)                
+                sfPathFull = os.path.abspath(sfPath)       
+                (h,sfFileName)=os.path.split(sfPath)
+                sfWrkPath=os.path.join(self.__wrkPath,sfFileName)
+                shutil.copyfile(sfPathFull,sfWrkPath)
             else:
                 sfPath="none"
                 sfPathFull="none"                
@@ -691,7 +694,7 @@ class RcsbDpUtility(object):
             #xmlPath=os.path.join(self.__wrkPath, "out.xml")
             #pdfPath=os.path.join(self.__wrkPath, "out.pdf")
 
-            cmd += thisCmd + " -cif " + iPathFull + " -sf " + sfPathFull + " -map  -no_xtriage -o " + oPath
+            cmd += thisCmd + " -cif ./" + iPath + " -sf  ./" + sfFileName + " -map  -no_xtriage -o " + oPath
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
 
 
