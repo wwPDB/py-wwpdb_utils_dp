@@ -228,6 +228,7 @@ class ResponseContent(object):
         self.__reqObj=reqObj
         #
         self._cD={}
+        self.__debug=False
         self.__setup()
         
     def __setup(self):
