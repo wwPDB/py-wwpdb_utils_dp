@@ -1,4 +1,4 @@
-##
+#
 # File: RcsbDpUtility.py
 # Date: 09-Sep-2010
 #
@@ -676,6 +676,8 @@ class RcsbDpUtility(object):
             cmd += " ; DEPLOY_DIR="  + self.__deployPath  + " ; export DEPLOY_DIR "
             cmd += " ; TOOLS_DIR="  + os.path.join(self.__localAppsPath,'bin')  + " ; export TOOLS_DIR "
             cmd += " ; PACKAGE_DIR="  + self.__packagePath + " ; export PACKAGE_DIR "
+            cmd += " ; DCCPY_DIR="  + os.path.join(self.__packagePath,'sf-valid')  + " ; export DCCPY_DIR "            
+            
             #
             cmdPath =os.path.join(self.__packagePath,"sf-valid","bin","dcc.sh")
             thisCmd  = " ; " + cmdPath                        
@@ -691,8 +693,8 @@ class RcsbDpUtility(object):
                 sfPathFull="none"                
 
             #
-            #xmlPath=os.path.join(self.__wrkPath, "out.xml")
-            #pdfPath=os.path.join(self.__wrkPath, "out.pdf")
+            map2fofcPath=os.path.join(self.__wrkPath, iPath+"_2fofc.map")
+            mapfofcPath=os.path.join(self.__wrkPath, iPath+"_fofc.map")
 
             cmd += thisCmd + " -cif ./" + iPath + " -sf  ./" + sfFileName + " -map  -no_xtriage -o " + oPath
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
@@ -832,6 +834,23 @@ class RcsbDpUtility(object):
                 self.__resultPathList.append(xmlPath)
             else:
                 self.__resultPathList.append("missing")
+
+        elif (op == "annot-make-maps"):
+            #
+            self.__resultPathList=[]
+            #
+            # Push the output pdf and xml files onto the resultPathList.
+            #
+            if os.access(map2fofcPath,os.F_OK):
+                self.__resultPathList.append(map2fofcPath)
+            else:
+                self.__resultPathList.append("missing")                
+
+            if os.access(mapfofcPath,os.F_OK):
+                self.__resultPathList.append(mapfofcPath)
+            else:
+                self.__resultPathList.append("missing")                
+            
         else:
             self.__resultPathList = [os.path.join(self.__wrkPath,oPath)]
 

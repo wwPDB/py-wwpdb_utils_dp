@@ -555,8 +555,8 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
         self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
         try:
             for pdbId in ['1cbs']:
-                ofpdf=pdbId+"-valrpt.pdf"
-                ofxml=pdbId+"-valdata.xml"
+                of2fofc=pdbId+"_2fofc.map"
+                offofc=pdbId+"_fofc.map"
 
                 testFileXyz=pdbId+".cif"
                 testFileSf=pdbId+"-sf.cif"
@@ -568,8 +568,8 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
                 dp.addInput(name="sf_file_path",value=sfPath)            
                 dp.op("annot-make-maps")
                 dp.expLog(pdbId+"-annot-make-maps.log")
-                #dp.expList(dstPathList=[ofpdf,ofxml])
-                #dp.cleanup()
+                dp.expList(dstPathList=[of2fofc,offofc])
+                dp.cleanup()
         except:
             traceback.print_exc(file=self.__lfh)
             self.fail()
