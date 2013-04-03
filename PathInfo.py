@@ -6,6 +6,7 @@
 #  26-Feb-2013  jdw   implement new session storage options in DataFileReference()
 #  28-Feb-2013  jdw   move to generic path wwpdb.utils.rcsb.PathInfo()
 #  28-Feb-2013  jdw   Add wrappers for more general purpose methods -  
+#  04-Apr-2013  jdw   Add assembly assignment and map convenience methods
 ## 
 """
 Common methods for finding path information resource and data files in the wwPDB data processing
@@ -97,6 +98,14 @@ class PathInfo(object):
                                       contentType='seq-assign',
                                       formatType='pdbx')
 
+    def getAssemblyAssignmentFilePath(self,dataSetId,wfInstanceId=None,fileSource="archive",versionId="latest"):
+        return self.__getStandardPath(dataSetId=dataSetId,
+                                      wfInstanceId=wfInstanceId,
+                                      fileSource=fileSource,
+                                      versionId=versionId,
+                                      contentType='assembly-assign',
+                                      formatType='pdbx')
+
     def getBlastMatchFilePath(self,entityId,entityPart='1',wfInstanceId=None,fileSource="archive",versionId="latest"):
         return self.__getStandardPath(dataSetId=entityId,
                                       wfInstanceId=wfInstanceId,
@@ -105,6 +114,25 @@ class PathInfo(object):
                                       partNumber=entityPart,
                                       contentType='blast-match',
                                       formatType='xml')
+
+    def getMap2fofcFilePath(self,entityId,entityPart='1',wfInstanceId=None,fileSource="archive",versionId="latest"):
+        return self.__getStandardPath(dataSetId=entityId,
+                                      wfInstanceId=wfInstanceId,
+                                      fileSource=fileSource,
+                                      versionId=versionId,
+                                      partNumber=entityPart,
+                                      contentType='map-2fofc',
+                                      formatType='map')
+
+    def getMapfofcFilePath(self,entityId,entityPart='1',wfInstanceId=None,fileSource="archive",versionId="latest"):
+        return self.__getStandardPath(dataSetId=entityId,
+                                      wfInstanceId=wfInstanceId,
+                                      fileSource=fileSource,
+                                      versionId=versionId,
+                                      partNumber=entityPart,
+                                      contentType='map-fofc',
+                                      formatType='map')
+
 
     #
     def getFilePath(self,dataSetId,wfInstanceId=None,contentType=None,formatType=None,fileSource="archive",versionId="latest",partNumber='1'):
