@@ -1338,13 +1338,14 @@ class RcsbDpUtility(object):
             # MergePisaData -input input_ciffile -output output_ciffile -xml xmlfile_from_PISA_output
             #                -log logfile -spacegroup spacegroup_file -list idlist 
             spgFilePath  =  self.__getConfigPath('SITE_SPACE_GROUP_FILE_PATH')                    
-            assemblyTupleList = self.__inputParamDict['pisa_assembly_tuple_list']
+            #assemblyTupleList = self.__inputParamDict['pisa_assembly_tuple_list']
             assemblyFile      = self.__inputParamDict['pisa_assembly_file_path']
+            assignmentFile      = self.__inputParamDict['pisa_assembly_assignment_file_path']
             cmdPath =  os.path.join(annotToolsPath,"bin","MergePisaData")
             #
             cmd   +=  " ; " + cmdPath + " -input " + iPathFull + " -xml " + assemblyFile
             cmd   +=  " -spacegroup " + spgFilePath + " -log " + ePath 
-            cmd   +=  " -list " + assemblyTupleList
+            cmd   +=  " -assign " + assignmentFile
             cmd   +=  " -output " + oPath
             #cmd   +=  " ; cp -f " + iPath + " " + oPath 
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        

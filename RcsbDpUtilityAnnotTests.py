@@ -14,6 +14,7 @@
 #    Sep  6, 2012 jdw -  add example for consolidated annotation steps
 #    Dec 12, 2012 jdw -  add and verify test cases for version 2 of validation module. 
 #    Mar 25, 2013 jdw -  add testSequenceAssignMerge()
+#    Apr 30, 2013 jdw -  add map calculation examples 
 ##
 """
 Test cases from 
