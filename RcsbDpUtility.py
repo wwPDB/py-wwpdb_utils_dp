@@ -41,6 +41,7 @@
 # 08-Mar-2013 jdw put back methods that were overwritten.
 # 15-Mar-2013 zf  added operation "prd-search" to support entity transformer
 # 25-Mar-2013 jdw add new methods  "annot-merge-sequence-data" and "annot-make-maps"
+# 09-Apr-2013 jdw add new methods  "annot-make-ligand-maps"
 #
 ##
 """
@@ -100,7 +101,7 @@ class RcsbDpUtility(object):
                                 "annot-chem-shift-check","annot-chem-shift-coord-check","annot-nmrsta2pdbx","annot-pdbx2nmrstar",
                                 "annot-reposition-solvent-add-derived", "annot-rcsb2pdbx-strip", "annot-rcsbeps2pdbx-strip",
                                 "chem-comp-instance-update","annot-cif2cif","annot-cif2pdb","annot-pdb2cif","annot-poly-link-dist",
-                                "annot-merge-sequence-data","annot-make-maps"]
+                                "annot-merge-sequence-data","annot-make-maps","annot-make-ligand-maps"]
 
         #
         # Source, destination and logfile path details
@@ -668,6 +669,42 @@ class RcsbDpUtility(object):
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
             cmd += " ; cp  -f " + pdfPath + " " + oPath
 
+        elif (op == "annot-make-ligand-maps"):
+            # The sf-valid package is currently set to self configure in a wrapper
+            # shell script.  PACKAGE_DIR and TOOLS_DIR only need to be set here.
+            #
+            cmd += " ; WWPDB_SITE_ID="  + self.__siteId  + " ; export WWPDB_SITE_ID "
+            cmd += " ; DEPLOY_DIR="  + self.__deployPath  + " ; export DEPLOY_DIR "
+            cmd += " ; TOOLS_DIR="  + os.path.join(self.__localAppsPath,'bin')  + " ; export TOOLS_DIR "
+            cmd += " ; PACKAGE_DIR="  + self.__packagePath + " ; export PACKAGE_DIR "
+            cmd += " ; DCCPY_DIR="  + os.path.join(self.__packagePath,'sf-valid')  + " ; export DCCPY_DIR "            
+            
+            #
+            cmdPath =os.path.join(self.__packagePath,"sf-valid","bin","dcc.sh")
+            thisCmd  = " ; " + cmdPath                        
+            
+            if  self.__inputParamDict.has_key('sf_file_path'):
+                sfPath=self.__inputParamDict['sf_file_path']
+                sfPathFull = os.path.abspath(sfPath)       
+                (h,sfFileName)=os.path.split(sfPath)
+                sfWrkPath=os.path.join(self.__wrkPath,sfFileName)
+                shutil.copyfile(sfPathFull,sfWrkPath)
+            else:
+                sfPath="none"
+                sfPathFull="none"                
+
+            if  self.__inputParamDict.has_key('output_map_file_path'):
+                outMapPath=self.__inputParamDict['sf_file_path']
+            else:
+                outMapPath='.'
+            outMapPathFull=os.path.abspath(outMapPath)       
+            #
+            #map2fofcPath=os.path.join(self.__wrkPath, iPath+"_2fofc.map")
+            #mapfofcPath=os.path.join(self.__wrkPath, iPath+"_fofc.map")
+
+            cmd += thisCmd + " -cif ./" + iPath + " -sf  ./" + sfFileName + " -ligmap  -no_xtriage "
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
+
         elif (op == "annot-make-maps"):
             # The sf-valid package is currently set to self configure in a wrapper
             # shell script.  PACKAGE_DIR and TOOLS_DIR only need to be set here.
@@ -698,6 +735,7 @@ class RcsbDpUtility(object):
 
             cmd += thisCmd + " -cif ./" + iPath + " -sf  ./" + sfFileName + " -map  -no_xtriage -o " + oPath
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
+
 
 
         elif (op == "annot-poly-link-dist"):

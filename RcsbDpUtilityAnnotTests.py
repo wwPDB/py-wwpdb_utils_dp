@@ -575,6 +575,34 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             traceback.print_exc(file=self.__lfh)
             self.fail()
 
+    def testAnnotLigandMapCalc(self): 
+        """  Test create density maps --
+        """
+        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        try:
+            for pdbId in ['3of4']:
+                #of2fofc=pdbId+"_2fofc.map"
+                #offofc=pdbId+"_fofc.map"
+
+                testFileXyz=pdbId+".cif"
+                testFileSf=pdbId+"-sf.cif"
+                
+                dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
+                xyzPath=os.path.join(self.__testFilePath,testFileXyz)
+                sfPath=os.path.join(self.__testFilePath,testFileSf)     
+                outMapPath='.'
+                #
+                dp.imp(xyzPath)
+                dp.addInput(name="sf_file_path",value=sfPath)            
+                dp.addInput(name="output_map_file_path",value=outMapPath)            
+                dp.op("annot-make-ligand-maps")
+                dp.expLog(pdbId+"-annot-make-ligand-maps.log")
+                dp.expList(dstPathList=[of2fofc,offofc])
+                dp.cleanup()
+        except:
+            traceback.print_exc(file=self.__lfh)
+            self.fail()
+
 
 
 def suiteAnnotSiteTests():
@@ -652,7 +680,8 @@ def suiteMergeSeqAssignTests():
 
 def suiteMapCalcTests():
     suiteSelect = unittest.TestSuite()
-    suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotMapCalc"))
+    #suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotMapCalc"))
+    suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotLigandMapCalc"))
     return suiteSelect    
 
 
