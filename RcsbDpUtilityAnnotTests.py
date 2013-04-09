@@ -597,7 +597,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
                 dp.addInput(name="output_map_file_path",value=outMapPath)            
                 dp.op("annot-make-ligand-maps")
                 dp.expLog(pdbId+"-annot-make-ligand-maps.log")
-                dp.expList(dstPathList=[of2fofc,offofc])
+                #dp.expList(dstPathList=[of2fofc,offofc])
                 dp.cleanup()
         except:
             traceback.print_exc(file=self.__lfh)
