@@ -51,7 +51,7 @@ Initial RCSB version - adapted from file utils method collections.
 
 
 """
-import sys, os, os.path, glob, time, datetime, shutil, tempfile
+import sys, os, os.path, glob, time, datetime, shutil, tempfile, traceback
 import socket
 
 from wwpdb.utils.rcsb.DataFile          import DataFile
@@ -694,13 +694,13 @@ class RcsbDpUtility(object):
                 sfPathFull="none"                
 
             if  self.__inputParamDict.has_key('output_map_file_path'):
-                outMapPath=self.__inputParamDict['sf_file_path']
+                outMapPath=self.__inputParamDict['output_map_file_path']
             else:
                 outMapPath='.'
-            outMapPathFull=os.path.abspath(outMapPath)       
+                
+            outMapPathFull=os.path.abspath(outMapPath)
+            map2fofcPath=os.path.join(self.__wrkPath, iPath+"_2fofc.map")            
             #
-            #map2fofcPath=os.path.join(self.__wrkPath, iPath+"_2fofc.map")
-            #mapfofcPath=os.path.join(self.__wrkPath, iPath+"_fofc.map")
 
             cmd += thisCmd + " -cif ./" + iPath + " -sf  ./" + sfFileName + " -ligmap  -no_xtriage "
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
@@ -888,7 +888,27 @@ class RcsbDpUtility(object):
                 self.__resultPathList.append(mapfofcPath)
             else:
                 self.__resultPathList.append("missing")                
-            
+
+        elif (op == "annot-make-ligand-maps"):
+            pat = self.__wrkPath + '/*.map'
+            self.__resultPathList= glob.glob(pat)
+            if (self.__debug):
+                self.__lfh.write("+RcsbDpUtility._annotationStep()  - pat %s resultPathList %s\n" % (pat,self.__resultPathList))
+                self.__lfh.write("+RcsbDpUtility._annotationStep()  - return path %s\n" % outMapPathFull)
+
+            if os.access(outMapPathFull,os.W_OK):
+                try:
+                    for fp in self.__resultPathList:
+                        if fp.endswith('_2fofc.map'):
+                            continue
+                        (dn,fn)=os.path.split(fp)
+                        ofp=os.path.join(outMapPathFull,fn)
+                        shutil.copyfile(fp,ofp)
+                        if (self.__verbose):
+                            self.__lfh.write("+RcsbDpUtility._annotationStep()  - returning map file %s\n" % ofp)
+                except:
+                    if (self.__debug):
+                        traceback.print_exc(file=self.__lfh)                    
         else:
             self.__resultPathList = [os.path.join(self.__wrkPath,oPath)]
 

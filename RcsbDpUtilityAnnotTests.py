@@ -14,7 +14,8 @@
 #    Sep  6, 2012 jdw -  add example for consolidated annotation steps
 #    Dec 12, 2012 jdw -  add and verify test cases for version 2 of validation module. 
 #    Mar 25, 2013 jdw -  add testSequenceAssignMerge()
-#    Apr 30, 2013 jdw -  add map calculation examples 
+#    Apr 3, 2013 jdw -  add map calculation examples
+#    Apr 9, 2013 jdw -  add ligand map calculation examples 
 ##
 """
 Test cases from 
@@ -555,7 +556,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
         """
         self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
         try:
-            for pdbId in ['1cbs']:
+            for pdbId in ['2yn2']:
                 of2fofc=pdbId+"_2fofc.map"
                 offofc=pdbId+"_fofc.map"
 
@@ -580,25 +581,26 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
         """
         self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
         try:
-            for pdbId in ['3oqp']:
+            for pdbId in ['2yn2']:
                 #of2fofc=pdbId+"_2fofc.map"
                 #offofc=pdbId+"_fofc.map"
 
                 testFileXyz=pdbId+".cif"
                 testFileSf=pdbId+"-sf.cif"
                 
-                dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
+                dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True,log=self.__lfh)
                 xyzPath=os.path.join(self.__testFilePath,testFileXyz)
                 sfPath=os.path.join(self.__testFilePath,testFileSf)     
                 outMapPath='.'
+                outMapPathFull=os.path.abspath(outMapPath) 
                 #
                 dp.imp(xyzPath)
                 dp.addInput(name="sf_file_path",value=sfPath)            
-                dp.addInput(name="output_map_file_path",value=outMapPath)            
+                dp.addInput(name="output_map_file_path",value=outMapPathFull)            
                 dp.op("annot-make-ligand-maps")
                 dp.expLog(pdbId+"-annot-make-ligand-maps.log")
                 #dp.expList(dstPathList=[of2fofc,offofc])
-                dp.cleanup()
+                #dp.cleanup()
         except:
             traceback.print_exc(file=self.__lfh)
             self.fail()
