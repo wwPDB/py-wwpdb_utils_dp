@@ -29,7 +29,7 @@ class RcsbDpUtilityTests(unittest.TestCase):
     def setUp(self):
         self.__lfh=sys.stderr        
         # Pick up site information from the environment or failover to the development site id.
-        self.__siteId=getSiteId(defaultSiteId='WWPDB_DEV_TEST')
+        self.__siteId=getSiteId(defaultSiteId='WWPDB_DEPLOY_TEST')
         self.__lfh.write("\nTesting with site environment for:  %s\n" % self.__siteId)
         #
         cI=ConfigInfo(self.__siteId)

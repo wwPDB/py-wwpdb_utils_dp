@@ -1,4 +1,4 @@
-#
+##
 # File: RcsbDpUtility.py
 # Date: 09-Sep-2010
 #
@@ -42,6 +42,7 @@
 # 15-Mar-2013 zf  added operation "prd-search" to support entity transformer
 # 25-Mar-2013 jdw add new methods  "annot-merge-sequence-data" and "annot-make-maps"
 # 09-Apr-2013 jdw add new methods  "annot-make-ligand-maps"
+# 16-Apr-2013 jdw add methods for seqeunce search
 #
 ##
 """
@@ -64,7 +65,7 @@ class RcsbDpUtility(object):
     """
     def __init__(self, tmpPath="/scratch", siteId="DEV",  verbose=False, log=sys.stderr):
         self.__verbose  = verbose
-        self.__debug    = False
+        self.__debug    = True
         self.__lfh      = log
         #
         # tmpPath is used (if it exists) to place working directories if these are not explicitly set.
@@ -102,6 +103,7 @@ class RcsbDpUtility(object):
                                 "annot-reposition-solvent-add-derived", "annot-rcsb2pdbx-strip", "annot-rcsbeps2pdbx-strip",
                                 "chem-comp-instance-update","annot-cif2cif","annot-cif2pdb","annot-pdb2cif","annot-poly-link-dist",
                                 "annot-merge-sequence-data","annot-make-maps","annot-make-ligand-maps"]
+        self.__sequenceOps = ['seq-blastp','seq-blastn']
 
         #
         # Source, destination and logfile path details
@@ -200,7 +202,9 @@ class RcsbDpUtility(object):
         self.__dstLogPath = os.path.abspath(fPath)
         
     def op(self,op):
-        if (self.__srcPath == None): return
+        if (self.__srcPath == None and len(self.__inputParamDict) < 1): 
+            self.__lfh.write("+RcsbDbUtility.op() ++ Error  - no input provided for operation %s\n" % op)
+            return
 
         if (self.__wrkPath == None):
             self.__makeTempWorkingDir()
@@ -222,8 +226,11 @@ class RcsbDpUtility(object):
             self.__stepNo += 1            
             self.__annotationStep(op)            
 
+        elif op in self.__sequenceOps:
+            self.__stepNo += 1            
+            self.__sequenceStep(op)
         else:
-            self.__lfh.write("++ERROR - Unknown operation %s\n" % op)
+            self.__lfh.write("+RcsbDbUtility.op() ++ Error  - Unknown operation %s\n" % op)
         
 
     def __getSourceWrkFileList(self,stepNo):
@@ -1055,7 +1062,7 @@ class RcsbDpUtility(object):
         if self.__rcsbAppsPath is None:                
             self.__rcsbAppsPath  =  self.__getConfigPath('SITE_RCSB_APPS_PATH')
         if self.__localAppsPath is None:                            
-            self.__localAppsPath =  self.__getConfigPath('SITE_LOAL_APPS_PATH')
+            self.__localAppsPath =  self.__getConfigPath('SITE_LOCAL_APPS_PATH')
 
         self.__packagePath    =  self.__getConfigPath('SITE_TOOLS_PATH')            
 
@@ -1322,7 +1329,7 @@ class RcsbDpUtility(object):
         return iret
 
     def __pisaStep(self, op):
-        """ Internal method that performs a single tool application operation.
+        """ Internal method that performs assembly calculation and management tasks.
 
         """
         #
@@ -1437,6 +1444,115 @@ class RcsbDpUtility(object):
         iret = os.system(cmd)
         #
         return iret
+
+    def __sequenceStep(self, op):
+        """ Internal method that performs sequence search and entry selection operations.
+
+        """
+        #
+        packagePath   =  self.__getConfigPath('SITE_TOOLS_PATH')
+        seqDbPath     =  self.__getConfigPath('SITE_REFDATA_SEQUENCE_DB_PATH')
+        ncbiToolsPath =  os.path.join(packagePath,'ncbi-blast+')
+        
+        
+        #
+        iPath=     self.__getSourceWrkFile(self.__stepNo)
+        iPathList= self.__getSourceWrkFileList(self.__stepNo)
+        oPath=     self.__getResultWrkFile(self.__stepNo)
+        lPath=     self.__getLogWrkFile(self.__stepNo)
+        ePath=     self.__getErrWrkFile(self.__stepNo)
+        tPath=     self.__getTmpWrkFile(self.__stepNo)        
+        #
+        if (self.__wrkPath != None):
+            iPathFull=os.path.abspath(os.path.join(self.__wrkPath, iPath))
+            ePathFull=os.path.join(self.__wrkPath, ePath)
+            lPathFull=os.path.join(self.__wrkPath, lPath)
+            tPathFull=os.path.join(self.__wrkPath, tPath)                                    
+            cmd = "(cd " + self.__wrkPath
+        else:
+            iPathull  = iPath
+            ePathFull = ePath
+            lPathFull = lPath
+            tPathFull = tPath            
+            cmd = "("
+        #
+        if (self.__stepNo > 1):
+            pPath = self.__updateInputPath()
+            if (os.access(pPath,os.F_OK)):
+                cmd += "; cp " + pPath + " "  + iPath
+
+        if self.__inputParamDict.has_key('db_name'):
+            dbName  = str(self.__inputParamDict['db_name'])
+        else:
+            dbName = "my_uniprot_all"
+
+        if self.__inputParamDict.has_key('evalue'):
+            eValue  = str(self.__inputParamDict['evalue'])
+        else:
+            eValue = '0.001'
+
+        if self.__inputParamDict.has_key('num_threads'):
+            numThreads  = str(self.__inputParamDict['num_threads'])
+        else:
+            numThreads = '1'
+
+        if self.__inputParamDict.has_key('one_letter_code_sequence'):
+            sequence = str(self.__inputParamDict['one_letter_code_sequence'])
+            self.__writeFasta(iPathFull,sequence,comment="myQuery")
+
+        cmd += " ; BLASTDB="         + os.path.abspath(seqDbPath)     + " ; export BLASTDB "
+
+        if (op == "seq-blastp"):
+            #
+            # $NCBI_BIN/blastp -evalue 0.001 -db $SEQUENCE_DB/$1  -num_threads 4 -query $2 -outfmt 5 -out $3
+            #
+            if self.__inputParamDict.has_key('db_name'):
+                dbName  = str(self.__inputParamDict['db_name'] )
+            else:
+                dbName = "my_uniprot_all"
+
+            cmdPath   = os.path.join(ncbiToolsPath,"bin","blastp")
+            cmd += " ; "   + cmdPath + " -outfmt 5  -num_threads " + numThreads + " -evalue " + eValue + " -db " + os.path.join(seqDbPath,dbName)   + " -query " + iPathFull  + " -out " + oPath
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
+        elif (op == "seq-blastn"):
+            #
+            if self.__inputParamDict.has_key('db_name'):
+                dbName  = str(self.__inputParamDict['db_name'])
+            else:
+                dbName = "my_ncbi_nt"
+            cmdPath   = os.path.join(ncbiToolsPath,"bin","blastn")
+            cmd += " ; "   + cmdPath + " -outfmt 5  -num_threads " + numThreads + " -evalue " + eValue + " -db " + os.path.join(seqDbPath,dbName)   + " -query " + iPathFull  + " -out " + oPath
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
+        else:
+            return -1
+        #
+        if (self.__debug):
+            self.__lfh.write("+RcsbDpUtility._sequenceStep()  - Application string:\n%s\n" % cmd.replace(";","\n"))        
+        #
+        if (self.__verbose):            
+            cmd += " ; ls -la  > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                                    
+            
+        cmd += " ) > %s 2>&1 " % ePathFull
+
+        cmd += " ; echo '-BEGIN-PROGRAM-ERROR-LOG--------------------------\n'  >> " + lPathFull                
+        cmd += " ; cat " + ePathFull + " >> " + lPathFull
+        cmd += " ; echo '-END-PROGRAM-ERROR-LOG-------------------------\n'  >> " + lPathFull                        
+
+
+        ofh = open(lPathFull,'w')
+        lt = time.strftime("%Y %m %d %H:%M:%S", time.localtime())
+        ofh.write("\n\n-------------------------------------------------\n")
+        ofh.write("LogFile:      %s\n" % lPath)
+        ofh.write("Working path: %s\n" % self.__wrkPath)
+        ofh.write("Date:         %s\n" % lt)
+        if (self.__verbose):
+            ofh.write("\nStep command:\n%s\n-------------------------------------------------\n" % cmd.replace(";","\n"))
+        ofh.close()
+           
+        iret = os.system(cmd)
+        #
+        return iret
+
 
 
     def exp(self,dstPath=None):
@@ -1567,6 +1683,35 @@ class RcsbDpUtility(object):
             self.__lfh.write("+RcsbDpUtility.cleanup() removal failed for working path %s\n" % self.__wrkPath)
             
         return False
+
+    def __writeFasta(self, filePath,sequence,comment="myquery"):
+        num_per_line = 60
+        l = len(sequence) / num_per_line
+        x = len(sequence) % num_per_line
+        m = l
+        if x:
+            m = l + 1
+
+        seq = '>'+str(comment).strip()+'\n'
+        for i in range(m):
+            n = num_per_line
+            if i == l:
+                n = x
+            seq += sequence[i*num_per_line:i*num_per_line+n]
+            if i != (m - 1):
+                seq += '\n'
+        try:
+            ofh=open(filePath,'w')
+            ofh.write(seq)
+            ofh.close()
+            return True
+        except:
+            if (self.__verbose):
+                self.__lfh.write("+RcsbDpUtility.__writeFasta() failed for path %s\n" % filePath)
+                traceback.print_exc(file=self.__lfh)                    
+
+        return False
+
     
 if __name__ == '__main__':
     rdpu=RcsbDpUtility()
