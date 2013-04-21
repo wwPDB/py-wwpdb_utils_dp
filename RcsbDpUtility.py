@@ -1270,7 +1270,7 @@ class RcsbDpUtility(object):
             #    link_file=self.__inputParamDict['link_file_path']                
             #    cmd += " ;  cp " + link_file + " " + self.__wrkPath
             # 
-            cmd += thisCmd + " -i " + iPath + " -of " + oPath + " -o " + self.__wrkPath  +  " -ifmt pdbx " + " -id " + entryId
+            cmd += thisCmd + " -i " + iPath + " -of " + oPath + " -o " + self.__wrkPath  +  " -ifmt comp " + " -id " + entryId
             cmd += " -libsdb " + self.__ccDictPathSdb + " -idxFile " +  self.__ccDictPathIdx
             cmd += " -force "
             #
