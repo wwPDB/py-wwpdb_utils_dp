@@ -6,6 +6,7 @@
 # Version: 0.001
 #
 # Update:
+# 20-Apr-2013 jdw working on osx for blastp and blastn
 ##
 """
 Test cases for sequence search  and entry fetch/extract operations -- 
@@ -28,7 +29,8 @@ class RcsbDpUtilityTests(unittest.TestCase):
         cI=ConfigInfo(self.__siteId)
         self.__tmpPath         = './rcsb-tmp-dir'
         #
-        self.__testFileFastaP     = os.path.join('./data','1KIP.fasta')
+        self.__testFileFastaP     = os.path.join('./data','RCSB078488.fasta')
+        #self.__testFileFastaP     = os.path.join('./data','1KIP.fasta')
         self.__testFileFastaN     = os.path.join('./data','2WDK.fasta')
         #
         self.__lfh.write("\nTest fasta protein file path %s\n" % (self.__testFileFastaP))
@@ -46,6 +48,7 @@ class RcsbDpUtilityTests(unittest.TestCase):
             dp.imp(self.__testFileFastaP)
             dp.addInput(name="db_name",value="my_uniprot_all")
             dp.addInput(name="num_threads",value="4")
+            dp.addInput(name="evalue",value="0.001")
             dp.op("seq-blastp")
             dp.expLog("seq-blastp.log")
             dp.exp("seq-blastp.xml")
@@ -63,6 +66,7 @@ class RcsbDpUtilityTests(unittest.TestCase):
             dp.imp(self.__testFileFastaN)
             dp.addInput(name="db_name",value="my_ncbi_nt")
             dp.addInput(name="num_threads",value="4")
+            dp.addInput(name="evalue",value="0.001")
             dp.op("seq-blastn")
             dp.expLog("seq-blastn.log")
             dp.exp("seq-blastn.xml")
@@ -73,7 +77,7 @@ class RcsbDpUtilityTests(unittest.TestCase):
 
 def suiteSequenceSearchTests():
     suiteSelect = unittest.TestSuite()
-    #suiteSelect.addTest(RcsbDpUtilityTests("testProteinSequenceSearch"))
+    suiteSelect.addTest(RcsbDpUtilityTests("testProteinSequenceSearch"))
     suiteSelect.addTest(RcsbDpUtilityTests("testRnaSequenceSearch"))
     return suiteSelect    
 
