@@ -43,6 +43,7 @@
 # 25-Mar-2013 jdw add new methods  "annot-merge-sequence-data" and "annot-make-maps"
 # 09-Apr-2013 jdw add new methods  "annot-make-ligand-maps"
 # 16-Apr-2013 jdw add methods for seqeunce search
+# 22-Apr-2014 jdw add additional controls for sequence search
 #
 ##
 """
@@ -1496,6 +1497,12 @@ class RcsbDpUtility(object):
         else:
             numThreads = '1'
 
+        if self.__inputParamDict.has_key('max_hits'):
+            maxHits  = str(self.__inputParamDict['max_hits'])
+        else:
+            maxHits = '100'
+
+
         if self.__inputParamDict.has_key('one_letter_code_sequence'):
             sequence = str(self.__inputParamDict['one_letter_code_sequence'])
             self.__writeFasta(iPathFull,sequence,comment="myQuery")
@@ -1512,16 +1519,16 @@ class RcsbDpUtility(object):
                 dbName = "my_uniprot_all"
 
             cmdPath   = os.path.join(ncbiToolsPath,"bin","blastp")
-            cmd += " ; "   + cmdPath + " -outfmt 5  -num_threads " + numThreads + " -evalue " + eValue + " -db " + os.path.join(seqDbPath,dbName)   + " -query " + iPathFull  + " -out " + oPath
+            cmd += " ; "   + cmdPath + " -outfmt 5  -num_threads " + numThreads + " -num_alignments " + maxHits + " -evalue " + eValue + " -db " + os.path.join(seqDbPath,dbName)   + " -query " + iPathFull  + " -out " + oPath
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
         elif (op == "seq-blastn"):
-            #
+            # -max_target_seqs 
             if self.__inputParamDict.has_key('db_name'):
                 dbName  = str(self.__inputParamDict['db_name'])
             else:
                 dbName = "my_ncbi_nt"
             cmdPath   = os.path.join(ncbiToolsPath,"bin","blastn")
-            cmd += " ; "   + cmdPath + " -outfmt 5  -num_threads " + numThreads + " -evalue " + eValue + " -db " + os.path.join(seqDbPath,dbName)   + " -query " + iPathFull  + " -out " + oPath
+            cmd += " ; "   + cmdPath + " -outfmt 5  -num_threads " + numThreads + " -num_alignments " + maxHits + " -evalue " + eValue + " -db " + os.path.join(seqDbPath,dbName)   + " -query " + iPathFull  + " -out " + oPath
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
         else:
             return -1
