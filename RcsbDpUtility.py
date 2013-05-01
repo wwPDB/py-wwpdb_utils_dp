@@ -43,7 +43,8 @@
 # 25-Mar-2013 jdw add new methods  "annot-merge-sequence-data" and "annot-make-maps"
 # 09-Apr-2013 jdw add new methods  "annot-make-ligand-maps"
 # 16-Apr-2013 jdw add methods for seqeunce search
-# 22-Apr-2014 jdw add additional controls for sequence search
+# 22-Apr-2013 jdw add additional controls for sequence search
+#  1-May-2013 jdw provide for configuration settings of PDBx dictionary names.
 #
 ##
 """
@@ -305,9 +306,11 @@ class RcsbDpUtility(object):
         #
         # These may not be needed -- 
         self.__pdbxDictPath  =  self.__getConfigPath('SITE_PDBX_DICT_PATH')
+        self.__pdbxDictName  =  self.__getConfigPath('SITE_PDBX_DICT_NAME')
         self.__pathDdlSdb      = os.path.join(self.__pdbxDictPath,"mmcif_ddl.sdb")
-        self.__pathPdbxDictSdb = os.path.join(self.__pdbxDictPath,"mmcif_pdbx_v40.sdb")
-        self.__pathPdbxDictOdb = os.path.join(self.__pdbxDictPath,"mmcif_pdbx_v40.odb")
+        self.__pathPdbxDictSdb = os.path.join(self.__pdbxDictPath,self.__pdbxDictName+'.sdb')
+        self.__pathPdbxDictOdb = os.path.join(self.__pdbxDictPath,self.__pdbxDictName+'.odb')
+
         #
         #
         iPath=     self.__getSourceWrkFile(self.__stepNo)
@@ -1070,6 +1073,8 @@ class RcsbDpUtility(object):
         #
         self.__ccAppsPath    =  self.__getConfigPath('SITE_CC_APPS_PATH')
         self.__pdbxDictPath  =  self.__getConfigPath('SITE_PDBX_DICT_PATH')
+        self.__pdbxDictName  =  self.__getConfigPath('SITE_PDBX_DICT_NAME')
+
         self.__ccDictPath    =  self.__getConfigPath('SITE_CC_DICT_PATH')
         self.__ccCvsPath     =  self.__getConfigPath('SITE_CC_CVS_PATH')
 
@@ -1079,8 +1084,8 @@ class RcsbDpUtility(object):
         #
         self.__pathDdlSdb      = os.path.join(self.__pdbxDictPath,"mmcif_ddl.sdb")
         self.__pathDdl         = os.path.join(self.__pdbxDictPath,"mmcif_ddl.dic")        
-        self.__pathPdbxDictSdb = os.path.join(self.__pdbxDictPath,"mmcif_pdbx_v40.sdb")
-        self.__pathPdbxDictOdb = os.path.join(self.__pdbxDictPath,"mmcif_pdbx_v40.odb")
+        self.__pathPdbxDictSdb = os.path.join(self.__pdbxDictPath,self.__pdbxDictName+'.sdb')
+        self.__pathPdbxDictOdb = os.path.join(self.__pdbxDictPath,self.__pdbxDictName+'.odb')
         #
         self.__oeDirPath        = self.__getConfigPath('SITE_CC_OE_DIR')
         self.__oeLicensePath    = self.__getConfigPath('SITE_CC_OE_LICENSE')
