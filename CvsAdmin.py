@@ -459,6 +459,9 @@ class  CvsSandBoxAdmin(CvsWrapperBase):
         #
         targetPath=os.path.join(self.__sandBoxTopPath,projectDir,relProjectPath)
             
+        if (self.__verbose):
+            self.__lfh.write("\n+CvsSandBoxAdmin(remove) Remove target file path is %s\n" % targetPath)
+
         if (os.access(targetPath,os.W_OK)):
             #
             if saveCopy:
