@@ -45,6 +45,7 @@
 # 16-Apr-2013 jdw add methods for seqeunce search
 # 22-Apr-2013 jdw add additional controls for sequence search
 #  1-May-2013 jdw provide for configuration settings of PDBx dictionary names.
+#  1-May-2013 jdw repoint RCSBROOT from the old maxit path to the new annotation module 
 #
 ##
 """
@@ -1064,7 +1065,10 @@ class RcsbDpUtility(object):
         # Set application specific path details here -
         #
         if self.__rcsbAppsPath is None:                
-            self.__rcsbAppsPath  =  self.__getConfigPath('SITE_RCSB_APPS_PATH')
+            #self.__rcsbAppsPath  =  self.__getConfigPath('SITE_RCSB_APPS_PATH')
+            # 01-05-2013 -  Now point to the new annotation module
+            self.__rcsbAppsPath  =  self.__getConfigPath('SITE_ANNOT_TOOLS_PATH')
+
         if self.__localAppsPath is None:                            
             self.__localAppsPath =  self.__getConfigPath('SITE_LOCAL_APPS_PATH')
 
