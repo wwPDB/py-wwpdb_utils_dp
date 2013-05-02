@@ -426,15 +426,14 @@ class RcsbDpUtility(object):
             #
             # oPath will point to the final result for this step
             #
-            oPath1=oPath+"_A"
             oPath2=oPath+"_B"            
             cmdPath =os.path.join(self.__annotAppsPath,"bin","MovingWater")
             thisCmd  = " ; " + cmdPath                        
-            cmd += thisCmd + " -input " + iPath + " -output " + oPath_A + " -log annot-step.log " 
+            cmd += thisCmd + " -input " + iPath + " -output " + oPath2 + " -log annot-step.log " 
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
             cmd += " ; cat annot-step.log " + " >> " + lPath
 
-            oPath2Full=os.path.join(self.__wrkPath, oPath_A)                            
+            oPath2Full=os.path.join(self.__wrkPath, oPath2)                            
             oPathFull=os.path.join(self.__wrkPath, oPath)                            
             #
             # see at the end for the post processing operations --
