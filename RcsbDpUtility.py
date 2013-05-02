@@ -430,6 +430,24 @@ class RcsbDpUtility(object):
             oPath2=oPath+"_B"            
             cmdPath =os.path.join(self.__annotAppsPath,"bin","MovingWater")
             thisCmd  = " ; " + cmdPath                        
+            cmd += thisCmd + " -input " + iPath + " -output " + oPath_A + " -log annot-step.log " 
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
+            cmd += " ; cat annot-step.log " + " >> " + lPath
+
+            oPath2Full=os.path.join(self.__wrkPath, oPath_A)                            
+            oPathFull=os.path.join(self.__wrkPath, oPath)                            
+            #
+            # see at the end for the post processing operations --
+            #
+
+        elif (op == "annot-reposition-solvent-add-derived-org"):
+            #
+            # oPath will point to the final result for this step
+            #
+            oPath1=oPath+"_A"
+            oPath2=oPath+"_B"            
+            cmdPath =os.path.join(self.__annotAppsPath,"bin","MovingWater")
+            thisCmd  = " ; " + cmdPath                        
             cmd += thisCmd + " -input " + iPath + " -output " + oPath1 + " -log annot-step.log " 
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
             cmd += " ; cat annot-step.log " + " >> " + lPath
@@ -814,7 +832,7 @@ class RcsbDpUtility(object):
         #
         # After execution processing --
         #
-        if (op == "annot-reposition-solvent-add-derived"):
+        if ((op == "annot-reposition-solvent-add-derived") or (op == "annot-reposition-solvent-add-derived-org")):
             # remove these categories for now -- 
             stripList=    ['pdbx_coord',
                            # 'pdbx_entity_nonpoly',
