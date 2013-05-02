@@ -436,7 +436,7 @@ class RcsbDpUtility(object):
             #
             # Adding a following step to synchronize required derived data for subsequent steps -
             #
-            cmd +=  maxitCmd + " -o 8  -i " + oPath1
+            cmd +=  " ; " + maxitCmd + " -o 8  -i " + oPath1
             cmd += " ; mv -f " + oPath1 + ".cif " + oPath2
             cmd += " ; cat maxit.err >> " + lPath
             #
@@ -553,7 +553,7 @@ class RcsbDpUtility(object):
             # Adding a following step to synchronize required derived data for subsequent steps -
             #
             #
-            cmd +=  maxitCmd + " -o 8  -i " + iPath
+            cmd +=  " ; " + maxitCmd + " -o 8  -i " + iPath
             cmd += " ; mv -f " + iPath + ".cif " + oPath2
             cmd += " ; cat maxit.err >> " + lPath
             #
