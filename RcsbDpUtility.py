@@ -422,7 +422,7 @@ class RcsbDpUtility(object):
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
             cmd += " ; cat annot-step.log " + " >> " + lPath
 
-        elif (op == "annot-reposition-solvent-add-derived"):
+        elif (op == "annot-reposition-solvent-add-derived-new"):
             #
             # oPath will point to the final result for this step
             #
@@ -439,7 +439,7 @@ class RcsbDpUtility(object):
             # see at the end for the post processing operations --
             #
 
-        elif (op == "annot-reposition-solvent-add-derived-org"):
+        elif (op == "annot-reposition-solvent-add-derived"):
             #
             # oPath will point to the final result for this step
             #
@@ -453,9 +453,9 @@ class RcsbDpUtility(object):
             #
             # Adding a following step to synchronize required derived data for subsequent steps -
             #
-            cmd +=  " ; " + maxitCmd + " -o 8  -i " + oPath1
+            cmd +=  " ; " + maxitCmd + " -o 8  -i " + oPath1 + " -log maxit.log " 
             cmd += " ; mv -f " + oPath1 + ".cif " + oPath2
-            cmd += " ; cat maxit.err >> " + lPath
+            #cmd += " ; cat maxit.err >> " + lPath
             #
             # Paths for post processing --
             #
@@ -570,9 +570,9 @@ class RcsbDpUtility(object):
             # Adding a following step to synchronize required derived data for subsequent steps -
             #
             #
-            cmd +=  " ; " + maxitCmd + " -o 8  -i " + iPath
+            cmd +=  " ; " + maxitCmd + " -o 8  -i " + iPath + " -log maxit.log "
             cmd += " ; mv -f " + iPath + ".cif " + oPath2
-            cmd += " ; cat maxit.err >> " + lPath
+            #cmd += " ; cat maxit.err >> " + lPath
             #
             # Paths for post processing --
             #
@@ -774,19 +774,19 @@ class RcsbDpUtility(object):
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
 
         elif ((op == "annot-cif2cif") or (op == "cif2cif")):            
-            cmd +=  " ; " + maxitCmd + " -o 8  -i " + iPath
+            cmd +=  " ; " + maxitCmd + " -o 8  -i " + iPath + " -log maxit.log "
             cmd += " ; mv -f " + iPath + ".cif " + oPath
-            cmd += " ; cat maxit.err >> " + lPath
+            #cmd += " ; cat maxit.err >> " + lPath
 
         elif ((op == "annot-pdb2cif") or (op == "pdb2cif")):
-            cmd +=  " ; " + maxitCmd + " -o 1  -i " + iPath
+            cmd +=  " ; " + maxitCmd + " -o 1  -i " + iPath + " -log maxit.log "
             cmd += " ; mv -f " + iPath + ".cif " + oPath
-            cmd += " ; cat maxit.err >> " + lPath            
+            #cmd += " ; cat maxit.err >> " + lPath            
 
         elif ((op == "annot-cif2pdb") or (op == "cif2pdb")):
-            cmd +=  " ; " + maxitCmd + " -o 2  -i " + iPath
+            cmd +=  " ; " + maxitCmd + " -o 2  -i " + iPath + " -log maxit.log "
             cmd += " ; mv -f " + iPath + ".pdb " + oPath
-            cmd += " ; cat maxit.err >> " + lPath            
+            #cmd += " ; cat maxit.err >> " + lPath            
         elif (op == "prd-search"):
             cmd += " ; PRDCC_PATH="  + self.__prdccCvsPath + " ; export PRDCC_PATH "
             cmd += " ; PRD_DICT_PATH="  + self.__prdDictPath + " ; export PRD_DICT_PATH "
@@ -1043,11 +1043,11 @@ class RcsbDpUtility(object):
             cmd += " ; ls -la >> " + lPath        
         #
         cmd += " ; echo '-BEGIN-PROGRAM-ERROR-LOG--------------------------\n'  >> " + lPath        
-        cmd += " ; cat maxit.err >> " + lPath
+        #cmd += " ; cat maxit.err >> " + lPath
         cmd += " ; echo '-END-PROGRAM-ERROR-LOG--------------------------\n'  >> " + lPath        
 
             
-        cmd += " ; rm -f maxit.err >> " + lPath
+        #cmd += " ; rm -f maxit.err >> " + lPath
         cmd += " ) > %s 2>&1 " % ePathFull
         
         if (self.__debug):
