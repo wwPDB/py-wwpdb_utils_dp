@@ -46,6 +46,7 @@
 # 22-Apr-2013 jdw add additional controls for sequence search
 #  1-May-2013 jdw provide for configuration settings of PDBx dictionary names.
 #  1-May-2013 jdw repoint RCSBROOT from the old maxit path to the new annotation module 
+# 23-May-2013 jdw add annot-pdb2cif-dep annot-cif2cif-dep
 #
 ##
 """
@@ -105,7 +106,8 @@ class RcsbDpUtility(object):
                                 "annot-chem-shift-check","annot-chem-shift-coord-check","annot-nmrsta2pdbx","annot-pdbx2nmrstar",
                                 "annot-reposition-solvent-add-derived", "annot-rcsb2pdbx-strip", "annot-rcsbeps2pdbx-strip",
                                 "chem-comp-instance-update","annot-cif2cif","annot-cif2pdb","annot-pdb2cif","annot-poly-link-dist",
-                                "annot-merge-sequence-data","annot-make-maps","annot-make-ligand-maps"]
+                                "annot-merge-sequence-data","annot-make-maps","annot-make-ligand-maps",
+                                "annot-cif2cif-dep","annot-pdb2cif-dep"]
         self.__sequenceOps = ['seq-blastp','seq-blastn']
 
         #
@@ -781,7 +783,17 @@ class RcsbDpUtility(object):
             cmd += " ; mv -f " + iPath + ".cif " + oPath
             #cmd += " ; cat maxit.err >> " + lPath
 
+        elif ((op == "annot-cif2cif-dep") or (op == "cif2cif-dep")):            
+            cmd +=  " ; " + maxitCmd + " -o 8  -i " + iPath + " -log maxit.log "
+            cmd += " ; mv -f " + iPath + ".cif " + oPath
+            #cmd += " ; cat maxit.err >> " + lPath
+
         elif ((op == "annot-pdb2cif") or (op == "pdb2cif")):
+            cmd +=  " ; " + maxitCmd + " -o 1  -i " + iPath + " -log maxit.log "
+            cmd += " ; mv -f " + iPath + ".cif " + oPath
+            #cmd += " ; cat maxit.err >> " + lPath            
+
+        elif ((op == "annot-pdb2cif-dep") or (op == "pdb2cif-dep")):
             cmd +=  " ; " + maxitCmd + " -o 1  -i " + iPath + " -log maxit.log "
             cmd += " ; mv -f " + iPath + ".cif " + oPath
             #cmd += " ; cat maxit.err >> " + lPath            
@@ -1399,8 +1411,9 @@ class RcsbDpUtility(object):
             pisaSession = None
         cmd += " ; PISA_TOP="         + os.path.abspath(pisaTopPath)     + " ; export PISA_TOP "
         cmd += " ; PISA_SESSIONS="    + os.path.abspath(self.__wrkPath)         + " ; export PISA_SESSIONS "
-        #cmd += " ; PISA_CONF_FILE="   + os.path.abspath(os.path.join(pisaTopPath,"configure","pisa-standalone.cfg")) + " ; export PISA_CONF_FILE "
-        cmd += " ; PISA_CONF_FILE="   + os.path.abspath(os.path.join(pisaTopPath,"share","pisa","pisa.cfg")) + " ; export PISA_CONF_FILE "
+        cmd += " ; PISA_CONF_FILE="   + os.path.abspath(os.path.join(pisaTopPath,"configure","pisa-standalone.cfg")) + " ; export PISA_CONF_FILE "
+        #
+        #cmd += " ; PISA_CONF_FILE="   + os.path.abspath(os.path.join(pisaTopPath,"share","pisa","pisa.cfg")) + " ; export PISA_CONF_FILE "
         if (op == "pisa-analysis"):
             cmdPath   = os.path.join(pisaTopPath,"bin","pisa")
             cmd += " ; "   + cmdPath + " " + pisaSession + " -analyse " + iPathFull
