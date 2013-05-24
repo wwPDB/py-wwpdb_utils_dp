@@ -1,0 +1,14 @@
+data_assembly_assignments
+#
+#
+loop_
+_ann_tasks_assem_sw_assign.assem_id
+_ann_tasks_assem_sw_assign.provenance
+_ann_tasks_assem_sw_assign.method
+_ann_tasks_assem_sw_assign.method_version
+_ann_tasks_assem_sw_assign.method_assem_id
+1  software_defined_assembly  PISA  V1.12  1  
+2  software_defined_assembly  PISA  V1.12  2  
+3  software_defined_assembly  PISA  V1.12  3  
+4  software_defined_assembly  PISA  V1.12  6  
+##

@@ -127,7 +127,7 @@ class RcsbDpUtility(object):
         try:
             pth =  os.path.abspath(self.__cI.get(ky))
             if (self.__debug): 
-                self.__lfh.write("+RcsbDpUtility.()  - site %s configuration for %s is %s\n" % (self.__siteId,ky,pth))            
+                self.__lfh.write("+RcsbDpUtility.__getConfigPath()  - site %s configuration for %s is %s\n" % (self.__siteId,ky,pth))            
         except:
             if (self.__verbose): 
                 self.__lfh.write("++WARN - site %s configuration data missing for %s\n" % (self.__siteId,ky))
@@ -234,6 +234,9 @@ class RcsbDpUtility(object):
             self.__sequenceStep(op)
         else:
             self.__lfh.write("+RcsbDbUtility.op() ++ Error  - Unknown operation %s\n" % op)
+
+        if (self.__verbose):
+            self.__lfh.write("+RcsbDbUtility.op() setting operation %s\n" % op)
         
 
     def __getSourceWrkFileList(self,stepNo):
@@ -1396,7 +1399,8 @@ class RcsbDpUtility(object):
             pisaSession = None
         cmd += " ; PISA_TOP="         + os.path.abspath(pisaTopPath)     + " ; export PISA_TOP "
         cmd += " ; PISA_SESSIONS="    + os.path.abspath(self.__wrkPath)         + " ; export PISA_SESSIONS "
-        cmd += " ; PISA_CONF_FILE="   + os.path.abspath(os.path.join(pisaTopPath,"configure","pisa-standalone.cfg")) + " ; export PISA_CONF_FILE "
+        #cmd += " ; PISA_CONF_FILE="   + os.path.abspath(os.path.join(pisaTopPath,"configure","pisa-standalone.cfg")) + " ; export PISA_CONF_FILE "
+        cmd += " ; PISA_CONF_FILE="   + os.path.abspath(os.path.join(pisaTopPath,"share","pisa","pisa.cfg")) + " ; export PISA_CONF_FILE "
         if (op == "pisa-analysis"):
             cmdPath   = os.path.join(pisaTopPath,"bin","pisa")
             cmd += " ; "   + cmdPath + " " + pisaSession + " -analyse " + iPathFull
@@ -1429,6 +1433,7 @@ class RcsbDpUtility(object):
         elif (op == "pisa-assembly-merge-cif"):
             # MergePisaData -input input_ciffile -output output_ciffile -xml xmlfile_from_PISA_output
             #                -log logfile -spacegroup spacegroup_file -list idlist 
+            #
             spgFilePath  =  self.__getConfigPath('SITE_SPACE_GROUP_FILE_PATH')                    
             #assemblyTupleList = self.__inputParamDict['pisa_assembly_tuple_list']
             assemblyFile      = self.__inputParamDict['pisa_assembly_file_path']

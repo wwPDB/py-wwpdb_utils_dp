@@ -22,6 +22,7 @@ class RcsbDpUtilTests(unittest.TestCase):
         self.__testFileCif=cI.get('DP_TEST_FILE_CIF')
         self.__testFileCifEps=cI.get('DP_TEST_FILE_CIFEPS')        
         self.__tmpPath=cI.get('TMP_PATH')
+        #
         self.__rcsbAppsPath=cI.get('SITE_RCSB_APPS_PATH')
         self.lfh=sys.stdout
             

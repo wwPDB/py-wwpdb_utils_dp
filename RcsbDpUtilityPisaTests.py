@@ -179,6 +179,7 @@ class RcsbDpUtilityTests(unittest.TestCase):
         try:
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
             fPath=os.path.join(self.__testFilePath,self.__testFileCifPisa)
+            assignPath=os.path.join(self.__testFilePath,"3rer_assembly_assign_P1.cif")
             dp.imp(fPath)
             dp.addInput(name="pisa_session_name",value="session_3re3-cif")            
             dp.op("pisa-analysis")
@@ -187,8 +188,11 @@ class RcsbDpUtilityTests(unittest.TestCase):
             #
             cifPath=os.path.join(self.__testFilePath,self.__testFileCifPisa)
             dp.imp(cifPath)
-            dp.addInput(name="pisa_assembly_tuple_list",value="1,2,3")
+            #
+            # assignmentFile      = self.__inputParamDict['pisa_assembly_assignment_file_path']
+            #
             dp.addInput(name="pisa_assembly_file_path",value="pisa-assembly-report-cif.xml",type="file")
+            dp.addInput(name="pisa_assembly_assignment_file_path",value=assignPath,type="file")
             dp.op("pisa-assembly-merge-cif")
             dp.exp("3rer-updated.cif.gz")
             dp.expLog("3rer-updated-cif.log.gz")
@@ -216,11 +220,10 @@ def suitePisaTestsPdb():
 
     
 if __name__ == '__main__':
-    # Run all tests -- 
-    # unittest.main()
     #
-    mySuite=suitePisaTestsPdb()
-    unittest.TextTestRunner(verbosity=2).run(mySuite)    
+    if (False):
+        mySuite=suitePisaTestsPdb()
+        unittest.TextTestRunner(verbosity=2).run(mySuite)    
     #
     mySuite=suitePisaTestsCif()
     unittest.TextTestRunner(verbosity=2).run(mySuite)    
