@@ -784,7 +784,7 @@ class RcsbDpUtility(object):
             #cmd += " ; cat maxit.err >> " + lPath
 
         elif ((op == "annot-cif2cif-dep") or (op == "cif2cif-dep")):            
-            cmd +=  " ; " + maxitCmd + " -o 8  -i " + iPath + " -log maxit.log "
+            cmd +=  " ; " + maxitCmd + " -o 8  -i " + iPath + " -dep -log maxit.log "
             cmd += " ; mv -f " + iPath + ".cif " + oPath
             #cmd += " ; cat maxit.err >> " + lPath
 
@@ -794,7 +794,7 @@ class RcsbDpUtility(object):
             #cmd += " ; cat maxit.err >> " + lPath            
 
         elif ((op == "annot-pdb2cif-dep") or (op == "pdb2cif-dep")):
-            cmd +=  " ; " + maxitCmd + " -o 1  -i " + iPath + " -log maxit.log "
+            cmd +=  " ; " + maxitCmd + " -o 1  -i " + iPath + " -dep -log maxit.log "
             cmd += " ; mv -f " + iPath + ".cif " + oPath
             #cmd += " ; cat maxit.err >> " + lPath            
 
