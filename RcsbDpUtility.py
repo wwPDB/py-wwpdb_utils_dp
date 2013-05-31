@@ -47,6 +47,7 @@
 #  1-May-2013 jdw provide for configuration settings of PDBx dictionary names.
 #  1-May-2013 jdw repoint RCSBROOT from the old maxit path to the new annotation module 
 # 23-May-2013 jdw add annot-pdb2cif-dep annot-cif2cif-dep
+# 31-May-2013 rps add use of "-rel" option when "chem-comp-assign-exact" operation is performed
 #
 ##
 """
@@ -1229,13 +1230,15 @@ class RcsbDpUtility(object):
         elif ( (op == "chem-comp-assign") or (op == "chem-comp-assign-skip") or (op == "chem-comp-assign-exact") ):
             # set up
             #
-            skipOp=" "            
+            skipOp=""
+            exactOp=""
+            relOnlyOp=""
+            
             if ( op == "chem-comp-assign-skip" ):
                 skipOp=" -skip_search "
-            
-            exactOp=" "            
             if ( op == "chem-comp-assign-exact" ):
                 exactOp=" -exact "
+                relOnlyOp=" -rel " #i.e. released entries only
                 
             cmd += " ; RCSBROOT="      + self.__rcsbAppsPath     + " ; export RCSBROOT "
             cmd += " ; OE_DIR="        + self.__oeDirPath        + " ; export OE_DIR "
@@ -1257,7 +1260,7 @@ class RcsbDpUtility(object):
             #    link_file=self.__inputParamDict['link_file_path']                
             #    cmd += " ;  cp " + link_file + " " + self.__wrkPath
             #
-            cmd += thisCmd + skipOp + exactOp + " -i " + iPath + " -of " + oPath + " -o " + self.__wrkPath  +  " -ifmt pdbx " + " -id " + entryId
+            cmd += thisCmd + skipOp + exactOp + relOnlyOp + " -i " + iPath + " -of " + oPath + " -o " + self.__wrkPath  +  " -ifmt pdbx " + " -id " + entryId
             cmd += " -libsdb " + self.__ccDictPathSdb + " -idxFile " +  self.__ccDictPathIdx
             #
             if  self.__inputParamDict.has_key('cc_link_file_path'):
