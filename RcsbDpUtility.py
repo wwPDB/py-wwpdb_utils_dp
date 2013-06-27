@@ -48,7 +48,7 @@
 #  1-May-2013 jdw repoint RCSBROOT from the old maxit path to the new annotation module 
 # 23-May-2013 jdw add annot-pdb2cif-dep annot-cif2cif-dep
 # 31-May-2013 rps add use of "-rel" option when "chem-comp-assign-exact" operation is performed
-#
+# 26-Jun-2013 jdw add "annot-format-check-pdb" & "annot-format-check-pdbx"
 ##
 """
 Wrapper class for data processing and chemical component utilities.
@@ -108,7 +108,7 @@ class RcsbDpUtility(object):
                                 "annot-reposition-solvent-add-derived", "annot-rcsb2pdbx-strip", "annot-rcsbeps2pdbx-strip",
                                 "chem-comp-instance-update","annot-cif2cif","annot-cif2pdb","annot-pdb2cif","annot-poly-link-dist",
                                 "annot-merge-sequence-data","annot-make-maps","annot-make-ligand-maps",
-                                "annot-cif2cif-dep","annot-pdb2cif-dep"]
+                                "annot-cif2cif-dep","annot-pdb2cif-dep","annot-format-check-pdbx","annot-format-check-pdb"]
         self.__sequenceOps = ['seq-blastp','seq-blastn']
 
         #
@@ -470,6 +470,20 @@ class RcsbDpUtility(object):
             #
             # see at the end for the post processing operations --
             #
+        elif (op == "annot-format-check-pdbx"):
+            # CheckCoorFormat -input inputfile -format (pdb|pdbx) -output outputfile
+            cmdPath =os.path.join(self.__annotAppsPath,"bin","CheckCoorFormat")
+            thisCmd  = " ; " + cmdPath                        
+            cmd += thisCmd + " -input " + iPath + " -format pdbx  -output " + oPath 
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
+
+        elif (op == "annot-format-check-pdb"):
+            # CheckCoorFormat -input inputfile -format (pdb|pdbx) -output outputfile
+            cmdPath =os.path.join(self.__annotAppsPath,"bin","CheckCoorFormat")
+            thisCmd  = " ; " + cmdPath                        
+            cmd += thisCmd + " -input " + iPath + " -format pdb  -output " + oPath 
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
+
         elif (op == "annot-validation"):
             cmdPath =os.path.join(self.__annotAppsPath,"bin","valdation_with_cif_output")
             thisCmd  = " ; " + cmdPath                        

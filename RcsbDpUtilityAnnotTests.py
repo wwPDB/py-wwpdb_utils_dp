@@ -16,6 +16,7 @@
 #    Mar 25, 2013 jdw -  add testSequenceAssignMerge()
 #    Apr 3, 2013 jdw -  add map calculation examples
 #    Apr 9, 2013 jdw -  add ligand map calculation examples 
+#    Jun 26, 2013 jdw -  add  annot-format-check-pdbx
 ##
 """
 Test cases from 
@@ -75,6 +76,23 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
     def tearDown(self):
         pass
 
+    def testAnnotFormatCheck(self): 
+        """  Test format sanity check for pdbx
+        """
+        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        try:
+            of="annot-format-check.txt"
+            dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
+            inpPath=os.path.join(self.__testFilePath,self.__testFileAnnotSite)
+            dp.imp(inpPath)
+            dp.op("annot-format-check-pdbx")
+            dp.expLog("format-check-pdbx.log")
+            dp.exp(of)            
+            #dp.cleanup()
+            
+        except:
+            traceback.print_exc(file=self.__lfh)
+            self.fail()
 
     def testAnnotSite(self): 
         """  Calculate site environment 
@@ -686,7 +704,10 @@ def suiteMapCalcTests():
     suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotLigandMapCalc"))
     return suiteSelect    
 
-
+def suiteFormatCheckTests():
+    suiteSelect = unittest.TestSuite()
+    suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotFormatCheck"))
+    return suiteSelect    
 
 if __name__ == '__main__':
     # Run all tests -- 
@@ -723,13 +744,17 @@ if __name__ == '__main__':
 
         mySuite=suiteMergeSeqAssignTests()
         unittest.TextTestRunner(verbosity=2).run(mySuite)
-        
-        #mySuite=suiteArchiveValidationV2Tests()  
-        #unittest.TextTestRunner(verbosity=2).run(mySuite)
+
+        mySuite=suiteMapCalcTests()
+        unittest.TextTestRunner(verbosity=2).run(mySuite)        
+
+        mySuite=suiteFormatCheckTests()
+        unittest.TextTestRunner(verbosity=2).run(mySuite)
     else:
         pass
 
     #
-    mySuite=suiteMapCalcTests()
+    mySuite=suiteFormatCheckTests()
     unittest.TextTestRunner(verbosity=2).run(mySuite)
+
     #
