@@ -49,6 +49,7 @@
 # 23-May-2013 jdw add annot-pdb2cif-dep annot-cif2cif-dep
 # 31-May-2013 rps add use of "-rel" option when "chem-comp-assign-exact" operation is performed
 # 26-Jun-2013 jdw add "annot-format-check-pdb" & "annot-format-check-pdbx"
+# 27-Jun-2013 jdw add sf format conversion and sf diagnostic report - 
 ##
 """
 Wrapper class for data processing and chemical component utilities.
@@ -108,7 +109,8 @@ class RcsbDpUtility(object):
                                 "annot-reposition-solvent-add-derived", "annot-rcsb2pdbx-strip", "annot-rcsbeps2pdbx-strip",
                                 "chem-comp-instance-update","annot-cif2cif","annot-cif2pdb","annot-pdb2cif","annot-poly-link-dist",
                                 "annot-merge-sequence-data","annot-make-maps","annot-make-ligand-maps",
-                                "annot-cif2cif-dep","annot-pdb2cif-dep","annot-format-check-pdbx","annot-format-check-pdb"]
+                                "annot-cif2cif-dep","annot-pdb2cif-dep","annot-format-check-pdbx","annot-format-check-pdb",
+                                "annot-dcc-report","annot-sf-mtz2pdbx"]
         self.__sequenceOps = ['seq-blastp','seq-blastn']
 
         #
@@ -754,6 +756,69 @@ class RcsbDpUtility(object):
             cmd += thisCmd + " -cif ./" + iPath + " -sf  ./" + sfFileName + " -ligmap  -no_xtriage "
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
 
+        elif (op == "annot-dcc-report"):
+            # The sf-valid package is currently set to self configure in a wrapper
+            # shell script.  PACKAGE_DIR and TOOLS_DIR only need to be set here.
+            #
+            cmd += " ; WWPDB_SITE_ID="  + self.__siteId  + " ; export WWPDB_SITE_ID "
+            cmd += " ; DEPLOY_DIR="  + self.__deployPath  + " ; export DEPLOY_DIR "
+            cmd += " ; TOOLS_DIR="  + os.path.join(self.__localAppsPath,'bin')  + " ; export TOOLS_DIR "
+            cmd += " ; PACKAGE_DIR="  + self.__packagePath + " ; export PACKAGE_DIR "
+            cmd += " ; DCCPY_DIR="  + os.path.join(self.__packagePath,'sf-valid')  + " ; export DCCPY_DIR "            
+            
+            #
+            cmdPath =os.path.join(self.__packagePath,"sf-valid","bin","dcc.sh")
+            thisCmd  = " ; " + cmdPath                        
+            
+            if  self.__inputParamDict.has_key('sf_file_path'):
+                sfPath=self.__inputParamDict['sf_file_path']
+                sfPathFull = os.path.abspath(sfPath)       
+                (h,sfFileName)=os.path.split(sfPath)
+                sfWrkPath=os.path.join(self.__wrkPath,sfFileName)
+                shutil.copyfile(sfPathFull,sfWrkPath)
+            else:
+                sfPath="none"
+                sfPathFull="none"                
+
+            #
+            cmd += thisCmd + " -cif ./" + iPath + " -sf  ./" + sfFileName + " -o " + oPath
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
+
+        elif (op == "annot-sf-mtz2pdbx"):
+            # The sf-valid package is currently set to self configure in a wrapper
+            # shell script.  PACKAGE_DIR and TOOLS_DIR only need to be set here.
+            #
+            # sf_convert -o mmcif  -sf refine.mtz    -out test-mtz-sf.cif
+            #
+            # input  is sf file in mtz format
+            # output is sf in pdbx  format
+            sfCifPath=os.path.join(self.__wrkPath, oPath)            
+            sfDiagFileName="sf_information.txt"
+            sfDiagPath=os.path.join(self.__wrkPath,sfDiagFileName)
+            #
+            mtzFile=iPath+".mtz"            
+            mtzPath=os.path.join(self.__wrkPath, mtzFile) 
+            shutil.copyfile(iPathFull,mtzPath)
+            #
+            cmd += " ; WWPDB_SITE_ID="  + self.__siteId  + " ; export WWPDB_SITE_ID "
+            cmd += " ; DEPLOY_DIR="  + self.__deployPath  + " ; export DEPLOY_DIR "
+            cmd += " ; TOOLS_DIR="  + os.path.join(self.__localAppsPath,'bin')  + " ; export TOOLS_DIR "
+            cmd += " ; PACKAGE_DIR="  + self.__packagePath + " ; export PACKAGE_DIR "
+            cmd += " ; DCCPY_DIR="  + os.path.join(self.__packagePath,'sf-valid')  + " ; export DCCPY_DIR "
+            cmd += " ; DCCPY="  + os.path.join(self.__packagePath,'sf-valid')  + " ; export DCCPY "            
+            cmd += " ; CCP4="        + os.path.join(self.__packagePath,"ccp4")  + " ; export CCP4 "
+            cmd += " ; source $CCP4/bin/ccp4.setup.sh "
+            #
+            cmdPath =os.path.join(self.__packagePath,"sf-valid","bin","sf_convert")
+            thisCmd  = " ; " + cmdPath                        
+            #
+            cmd += thisCmd + " -o mmcif  -sf " + mtzFile + " -out " + oPath
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
+            ##
+            ##
+
+            #
+
         elif (op == "annot-make-maps"):
             # The sf-valid package is currently set to self configure in a wrapper
             # shell script.  PACKAGE_DIR and TOOLS_DIR only need to be set here.
@@ -784,6 +849,10 @@ class RcsbDpUtility(object):
 
             cmd += thisCmd + " -cif ./" + iPath + " -sf  ./" + sfFileName + " -map  -no_xtriage -o " + oPath
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
+
+
+
+
 
 
 
@@ -931,6 +1000,22 @@ class RcsbDpUtility(object):
                 self.__resultPathList.append(xmlPath)
             else:
                 self.__resultPathList.append("missing")
+
+        elif (op == "annot-sf-mtz2pdbx"):
+            self.__resultPathList=[]
+            #
+            # Push the output pdf and xml files onto the resultPathList.
+            #
+            if os.access(sfCifPath,os.F_OK):
+                self.__resultPathList.append(sfCifPath)
+            else:
+                self.__resultPathList.append("missing")                
+
+            if os.access(sfDiagPath,os.F_OK):
+                self.__resultPathList.append(sfDiagPath)
+            else:
+                self.__resultPathList.append("missing")                
+            
 
         elif (op == "annot-make-maps"):
             #

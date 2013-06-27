@@ -14,9 +14,10 @@
 #    Sep  6, 2012 jdw -  add example for consolidated annotation steps
 #    Dec 12, 2012 jdw -  add and verify test cases for version 2 of validation module. 
 #    Mar 25, 2013 jdw -  add testSequenceAssignMerge()
-#    Apr 3, 2013 jdw -  add map calculation examples
-#    Apr 9, 2013 jdw -  add ligand map calculation examples 
-#    Jun 26, 2013 jdw -  add  annot-format-check-pdbx
+#    Apr 3,  2013 jdw -  add map calculation examples
+#    Apr 9,  2013 jdw -  add ligand map calculation examples 
+#    Jun 26, 2013 jdw -  add tests for annot-format-check-pdbx
+#    Jun 27, 2013 jdw -  add tests for annot-sf-mtz2pdbx and annot-dcc-report 
 ##
 """
 Test cases from 
@@ -71,7 +72,9 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
         #
         self.__testFileCifSeq       = "RCSB095269_model_P1.cif.V1"
         self.__testFileSeqAssign    = "RCSB095269_seq-assign_P1.cif.V1"
-
+        
+        self.__testFileMtzBad  = "mtz-bad.mtz"
+        self.__testFileMtzGood = "mtz-good.mtz"        
             
     def tearDown(self):
         pass
@@ -623,7 +626,51 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             traceback.print_exc(file=self.__lfh)
             self.fail()
 
+    def testAnnotDccReport(self): 
+        """  Test create DCC report -
+        """
+        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        try:
+            ofn="dcc-report.cif"
+            dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
+            xyzPath=os.path.join(self.__testFilePath,self.__testFileValidateXyz)
+            sfPath=os.path.join(self.__testFilePath,self.__testFileValidateSf)            
+            dp.imp(xyzPath)
+            dp.addInput(name="sf_file_path",value=sfPath)            
+            dp.op("annot-dcc-report")
+            dp.expLog("dcc-report.log")
+            dp.exp(ofn)
+            #dp.expList(dstPathList=[ofpdf,ofxml])
+            dp.cleanup()
+        except:
+            traceback.print_exc(file=self.__lfh)
+            self.fail()
 
+    def testAnnotMtz2Pdbx(self): 
+        """  Test create DCC report -
+        """
+        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        try:
+            diagfn="sf-convert-diags.txt"
+            ciffn="sf-convert-datafile.cif"
+            #
+            dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
+            mtzPath=os.path.join(self.__testFilePath,self.__testFileMtzGood)
+            dp.imp(mtzPath)
+            dp.op("annot-sf-mtz2pdbx")
+            dp.expLog("sf-mtz2pdbx.log")
+            #dp.exp(sfciffn)
+            dp.expList(dstPathList=[ciffn,diagfn])
+            #dp.cleanup()
+        except:
+            traceback.print_exc(file=self.__lfh)
+            self.fail()
+
+def suiteAnnotDccTests():
+    suiteSelect = unittest.TestSuite()
+    suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotDccReport"))
+    suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotMtz2Pdbx"))
+    return suiteSelect        
 
 def suiteAnnotSiteTests():
     suiteSelect = unittest.TestSuite()
@@ -709,6 +756,12 @@ def suiteFormatCheckTests():
     suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotFormatCheck"))
     return suiteSelect    
 
+def suiteAnnotDccTests():
+    suiteSelect = unittest.TestSuite()
+    #suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotDccReport"))
+    suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotMtz2Pdbx"))
+    return suiteSelect        
+
 if __name__ == '__main__':
     # Run all tests -- 
     # unittest.main()
@@ -754,7 +807,7 @@ if __name__ == '__main__':
         pass
 
     #
-    mySuite=suiteFormatCheckTests()
+    mySuite=suiteAnnotDccTests()
     unittest.TextTestRunner(verbosity=2).run(mySuite)
-
     #
+    
