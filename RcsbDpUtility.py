@@ -814,9 +814,6 @@ class RcsbDpUtility(object):
             #
             cmd += thisCmd + " -o mmcif  -sf " + mtzFile + " -out " + oPath
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
-            ##
-            ##
-
             #
 
         elif (op == "annot-make-maps"):
