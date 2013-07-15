@@ -50,6 +50,7 @@
 # 31-May-2013 rps add use of "-rel" option when "chem-comp-assign-exact" operation is performed
 # 26-Jun-2013 jdw add "annot-format-check-pdb" & "annot-format-check-pdbx"
 # 27-Jun-2013 jdw add sf format conversion and sf diagnostic report - 
+# 15-Jul-2013 jdw correct assignment of PDBx dictionary name from configuration class.
 ##
 """
 Wrapper class for data processing and chemical component utilities.
@@ -315,7 +316,7 @@ class RcsbDpUtility(object):
         #
         # These may not be needed -- 
         self.__pdbxDictPath  =  self.__getConfigPath('SITE_PDBX_DICT_PATH')
-        self.__pdbxDictName  =  self.__getConfigPath('SITE_PDBX_DICT_NAME')
+        self.__pdbxDictName  =  self.__cI.get('SITE_PDBX_DICT_NAME')
         self.__pathDdlSdb      = os.path.join(self.__pdbxDictPath,"mmcif_ddl.sdb")
         self.__pathPdbxDictSdb = os.path.join(self.__pdbxDictPath,self.__pdbxDictName+'.sdb')
         self.__pathPdbxDictOdb = os.path.join(self.__pdbxDictPath,self.__pdbxDictName+'.odb')
@@ -1206,7 +1207,7 @@ class RcsbDpUtility(object):
         #
         self.__ccAppsPath    =  self.__getConfigPath('SITE_CC_APPS_PATH')
         self.__pdbxDictPath  =  self.__getConfigPath('SITE_PDBX_DICT_PATH')
-        self.__pdbxDictName  =  self.__getConfigPath('SITE_PDBX_DICT_NAME')
+        self.__pdbxDictName  =  self.__cI.get('SITE_PDBX_DICT_NAME')
 
         self.__ccDictPath    =  self.__getConfigPath('SITE_CC_DICT_PATH')
         self.__ccCvsPath     =  self.__getConfigPath('SITE_CC_CVS_PATH')
