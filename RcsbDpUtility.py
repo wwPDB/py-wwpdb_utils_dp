@@ -51,6 +51,7 @@
 # 26-Jun-2013 jdw add "annot-format-check-pdb" & "annot-format-check-pdbx"
 # 27-Jun-2013 jdw add sf format conversion and sf diagnostic report - 
 # 15-Jul-2013 jdw correct assignment of PDBx dictionary name from configuration class.
+# 15-Jul-2013 jdw add check-cif-v4 method
 ##
 """
 Wrapper class for data processing and chemical component utilities.
@@ -98,7 +99,7 @@ class RcsbDpUtility(object):
                            "cif2pdb-assembly","pdbx2pdb-assembly","pdbx2deriv"]
         self.__rcsbOps = [ "rename-atoms", "cif2pdbx", "pdbx2xml", "pdb2dssp", "pdb2stride", "initial-version","poly-link-dist",
                            "chem-comp-link", "chem-comp-assign", "chem-comp-assign-comp", "chem-comp-assign-skip",
-                           "chem-comp-assign-exact","chem-comp-assign-validation","check-cif"]
+                           "chem-comp-assign-exact","chem-comp-assign-validation","check-cif","check-cif-v4"]
         self.__pisaOps = ["pisa-analysis","pisa-assembly-report-xml","pisa-assembly-report-text",
                           "pisa-interface-report-xml","pisa-assembly-coordinates-pdb","pisa-assembly-coordinates-cif",
                           "pisa-assembly-coordinates-cif","pisa-assembly-merge-cif"]
@@ -1208,6 +1209,7 @@ class RcsbDpUtility(object):
         self.__ccAppsPath    =  self.__getConfigPath('SITE_CC_APPS_PATH')
         self.__pdbxDictPath  =  self.__getConfigPath('SITE_PDBX_DICT_PATH')
         self.__pdbxDictName  =  self.__cI.get('SITE_PDBX_DICT_NAME')
+        self.__pdbxV4DictName  =  self.__cI.get('SITE_PDBX_V4_DICT_NAME')
 
         self.__ccDictPath    =  self.__getConfigPath('SITE_CC_DICT_PATH')
         self.__ccCvsPath     =  self.__getConfigPath('SITE_CC_CVS_PATH')
@@ -1219,6 +1221,7 @@ class RcsbDpUtility(object):
         self.__pathDdlSdb      = os.path.join(self.__pdbxDictPath,"mmcif_ddl.sdb")
         self.__pathDdl         = os.path.join(self.__pdbxDictPath,"mmcif_ddl.dic")        
         self.__pathPdbxDictSdb = os.path.join(self.__pdbxDictPath,self.__pdbxDictName+'.sdb')
+        self.__pathPdbxV4DictSdb = os.path.join(self.__pdbxDictPath,self.__pdbxV4DictName+'.sdb')
         self.__pathPdbxDictOdb = os.path.join(self.__pdbxDictPath,self.__pdbxDictName+'.odb')
         #
         self.__oeDirPath        = self.__getConfigPath('SITE_CC_OE_DIR')
@@ -1279,6 +1282,18 @@ class RcsbDpUtility(object):
             cmd += " ; cat " + iPath + "-parser.log > " + oPath
             cmd += " ; cat " + iPath + "-diag.log  >> " + oPath            
             #cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
+        elif (op == "check-cif-v4"):
+            cmdPath   = os.path.join(self.__packagePath,"dict","bin","CifCheck")
+            thisCmd    = " ; "   + cmdPath 
+            cmd += thisCmd + " -f " + iPath
+            cmd += " -dictSdb " + self.__pathPdbxV4DictSdb 
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
+            cmd += " ; touch " + iPath + "-diag.log "
+            cmd += " ; touch " + iPath + "-parser.log "             
+            cmd += " ; cat " + iPath + "-parser.log > " + oPath
+            cmd += " ; cat " + iPath + "-diag.log  >> " + oPath            
+            #cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
+
         elif (op == "cif2pdbx"):
             #   need to have an input file list.
             cmdPath = os.path.join(self.__localAppsPath,"bin","cifexch-v3.2")

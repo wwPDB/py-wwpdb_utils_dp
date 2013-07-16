@@ -5,6 +5,7 @@
 # Updates:
 #            7-July-2012 jdw make store path depend on entryId
 #           07-Mar-2013  jdw make generic and move main project utils/rcsb
+#           12-Jul-2013  jdw add append/extend methods for assigning list values
 ##
 """
 Provide a storage interface for miscellaneous key,value data.
@@ -87,6 +88,24 @@ class UtilDataStore(object):
     def set(self,key,value):
         try:
             self.__D[key]=value
+            return True
+        except:
+            return False
+
+    def append(self,key,value):
+        try:
+            if not self.__D.has_key(key):
+                self.__D[key]=[]
+            self.__D[key].append(value)
+            return True
+        except:
+            return False
+
+    def extend(self,key,valueList):
+        try:
+            if not self.__D.has_key(key):
+                self.__D[key]=[]
+            self.__D[key].extend(valueList)
             return True
         except:
             return False
