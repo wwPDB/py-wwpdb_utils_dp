@@ -265,6 +265,9 @@ class ResponseContent(object):
     def setHtmlList(self,htmlList=[]):
         self._cD['htmlcontent']='\n'.join(htmlList)
 
+    def appendHtmlList(self,htmList=[]):
+        self._cD['htmlcontent'].extend('\n'.join(htmlList))
+
     def setHtmlText(self,htmlText=''):
         self._cD['htmlcontent']=htmlText
 

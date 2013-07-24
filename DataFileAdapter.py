@@ -49,6 +49,25 @@ class DataFileAdapter(object):
             else:
                 dp.op("annot-rcsb2pdbx")
 
+
+            logPath=os.path.join(self.__sessionPath,"annot-rcsb2pdbx.log")
+            dp.expLog(logPath)
+            dp.exp(outPath)
+            if (not self.__debug):
+                dp.cleanup()
+        except:
+            traceback.print_exc(file=self.__lfh)
+            return False
+        #
+        return True        
+
+    def rcsb2PdbxWithPdbId(self,inpPath,outPath):
+        """  RCSB CIF -> PDBx conversion  (converting to PDB ID entry/datablock id.)
+        """
+        try:
+            dp = RcsbDpUtility(tmpPath=self.__sessionPath, siteId=self.__siteId, verbose=self.__verbose,log=self.__lfh)
+            dp.imp(inpPath)
+            dp.op("annot-rcsb2pdbx-withpdbid")
             logPath=os.path.join(self.__sessionPath,"annot-rcsb2pdbx.log")
             dp.expLog(logPath)
             dp.exp(outPath)

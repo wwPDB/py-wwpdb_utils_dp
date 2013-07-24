@@ -52,6 +52,7 @@
 # 27-Jun-2013 jdw add sf format conversion and sf diagnostic report - 
 # 15-Jul-2013 jdw correct assignment of PDBx dictionary name from configuration class.
 # 15-Jul-2013 jdw add check-cif-v4 method
+# 23-Jul-2013 jdw add "annot-rcsb2pdbx-withpdbid"
 ##
 """
 Wrapper class for data processing and chemical component utilities.
@@ -112,7 +113,7 @@ class RcsbDpUtility(object):
                                 "chem-comp-instance-update","annot-cif2cif","annot-cif2pdb","annot-pdb2cif","annot-poly-link-dist",
                                 "annot-merge-sequence-data","annot-make-maps","annot-make-ligand-maps",
                                 "annot-cif2cif-dep","annot-pdb2cif-dep","annot-format-check-pdbx","annot-format-check-pdb",
-                                "annot-dcc-report","annot-sf-mtz2pdbx"]
+                                "annot-dcc-report","annot-sf-mtz2pdbx","annot-rcsb2pdbx-withpdbid"]
         self.__sequenceOps = ['seq-blastp','seq-blastn']
 
         #
@@ -566,6 +567,16 @@ class RcsbDpUtility(object):
             cmdPath =os.path.join(self.__annotAppsPath,"bin","PdbxConverter")
             thisCmd  = " ; " + cmdPath                        
             cmd += thisCmd + " -input " + iPath + " -output " + oPath + " -log annot-step.log "
+            #
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
+            cmd += " ; cat annot-step.log " + " >> " + lPath
+
+        elif (op == "annot-rcsb2pdbx-withpdbid"):
+            
+            # New minimal RCSB internal cif to PDBx cif converter with internal conversion of entry id to  pdbId -
+            cmdPath =os.path.join(self.__annotAppsPath,"bin","PdbxConverter")
+            thisCmd  = " ; " + cmdPath                        
+            cmd += thisCmd + " -pdbid -input " + iPath + " -output " + oPath + " -log annot-step.log "
             #
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
             cmd += " ; cat annot-step.log " + " >> " + lPath
