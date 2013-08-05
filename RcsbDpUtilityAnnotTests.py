@@ -330,6 +330,23 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
             inpPath=os.path.join(self.__testFilePath,self.__testFileAnnotRcsb)
             dp.imp(inpPath)
+            dp.op("annot-rcsb2pdbx")
+            dp.expLog("annot-rcsb2pdbx.log")
+            dp.exp(of)            
+            dp.cleanup()
+        except:
+            traceback.print_exc(file=self.__lfh)
+            self.fail()
+
+    def testAnnotRcsb2PdbxStrip(self): 
+        """  RCSB CIF -> PDBx conversion  (Using the smaller application in the annotation package)
+        """
+        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        try:
+            of="annot-rcsb2pdbx-strip-"+self.__testFileAnnotRcsb
+            dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
+            inpPath=os.path.join(self.__testFilePath,self.__testFileAnnotRcsb)
+            dp.imp(inpPath)
             dp.op("annot-rcsb2pdbx-strip")
             dp.expLog("annot-rcsb2pdbx-strip.log")
             dp.exp(of)            
@@ -337,6 +354,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
         except:
             traceback.print_exc(file=self.__lfh)
             self.fail()
+
 
 
     def testAnnotRcsbEps2Pdbx(self): 
@@ -349,7 +367,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             inpPath=os.path.join(self.__testFilePath,self.__testFileAnnotRcsbEps)
             dp.imp(inpPath)
             dp.op("annot-rcsbeps2pdbx-strip")
-            dp.expLog("annot-rcsbeps2pdbx-strip.log")
+            dp.expLog("annot-rcsbeps2pdbx.log")
             dp.exp(of)            
             #dp.cleanup()
         except:
@@ -682,6 +700,7 @@ def suiteAnnotSiteTests():
 def suiteAnnotFormatConvertTests():
     suiteSelect = unittest.TestSuite()
     suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotRcsb2Pdbx"))
+    suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotRcsb2PdbxStrip"))
     suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotRcsbEps2Pdbx"))    
     return suiteSelect        
 
@@ -803,11 +822,14 @@ if __name__ == '__main__':
 
         mySuite=suiteFormatCheckTests()
         unittest.TextTestRunner(verbosity=2).run(mySuite)
+
+        mySuite=suiteAnnotDccTests()
+        unittest.TextTestRunner(verbosity=2).run(mySuite)
     else:
         pass
 
     #
-    mySuite=suiteAnnotDccTests()
-    unittest.TextTestRunner(verbosity=2).run(mySuite)
     #
-    
+    mySuite=suiteAnnotFormatConvertTests()
+    unittest.TextTestRunner(verbosity=2).run(mySuite)
+
