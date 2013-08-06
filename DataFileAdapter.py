@@ -7,6 +7,7 @@
 #  4-Jan-2013 -jdw  add filters to remove derived categories after format conversion
 # 12-Feb-2013  jdw  add option flags for stipping derived categories -- 
 # 25-Feb-2013  jdw  add cif2pdb translation.
+#  6-Aug-2013  jdw  add rcsb2PdbxWithPdbIdAlt() 
 ##
 """
 Encapsulate data model format type conversions.
@@ -78,6 +79,25 @@ class DataFileAdapter(object):
             return False
         #
         return True        
+
+    def rcsb2PdbxWithPdbIdAlt(self,inpPath,outPath):
+        """  RCSB CIF -> PDBx conversion  (converting to PDB ID entry/datablock id.)
+        """
+        try:
+            dp = RcsbDpUtility(tmpPath=self.__sessionPath, siteId=self.__siteId, verbose=self.__verbose,log=self.__lfh)
+            dp.imp(inpPath)
+            dp.op("annot-rcsb2pdbx-alt")
+            logPath=os.path.join(self.__sessionPath,"annot-rcsb2pdbxalt.log")
+            dp.expLog(logPath)
+            dp.exp(outPath)
+            if (not self.__debug):
+                dp.cleanup()
+        except:
+            traceback.print_exc(file=self.__lfh)
+            return False
+        #
+        return True        
+
 
     def rcsbEps2Pdbx(self,inpPath,outPath,stripFlag=False): 
         """  RCSB CIFEPS -> PDBx conversion (This still requires using the full maxit application)
