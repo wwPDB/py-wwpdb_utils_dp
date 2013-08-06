@@ -323,15 +323,54 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
 
     def testAnnotRcsb2Pdbx(self): 
         """  RCSB CIF -> PDBx conversion  (Using the smaller application in the annotation package)
+             
+             Converting to RCSB to PDB id in _entry.id and related items.
         """
         self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
         try:
-            of="annot-rcsb2pdbx-"+self.__testFileAnnotRcsb
+            of="annot-rcsb2pdbx-withpdbid-"+self.__testFileAnnotRcsb
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
             inpPath=os.path.join(self.__testFilePath,self.__testFileAnnotRcsb)
             dp.imp(inpPath)
-            dp.op("annot-rcsb2pdbx")
+            dp.op("annot-rcsb2pdbx-withpdbid")
             dp.expLog("annot-rcsb2pdbx.log")
+            dp.exp(of)            
+            dp.cleanup()
+        except:
+            traceback.print_exc(file=self.__lfh)
+            self.fail()
+
+    def testAnnotRcsb2PdbxSQ(self): 
+        """  RCSB CIF -> PDBx conversion  (Using the smaller application in the annotation package)
+             
+             Converting to RCSB to PDB id in _entry.id and related items.
+        """
+        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        try:
+            of="annot-rcsb2pdbx-withpdbid-sq-"+self.__testFileAnnotRcsb
+            dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
+            inpPath=os.path.join(self.__testFilePath,self.__testFileAnnotRcsb)
+            dp.imp(inpPath)
+            dp.op("annot-rcsb2pdbx-withpdbid-singlequote")
+            dp.expLog("annot-rcsb2pdbx-sq.log")
+            dp.exp(of)            
+            dp.cleanup()
+        except:
+            traceback.print_exc(file=self.__lfh)
+            self.fail()
+
+    def testAnnotRcsb2PdbxSQAlt(self): 
+        """  RCSB CIF -> PDBx conversion  (Using the smaller application in the annotation package)
+             using maxit
+        """
+        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        try:
+            of="annot-rcsb2pdbx-alt-"+self.__testFileAnnotRcsb
+            dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
+            inpPath=os.path.join(self.__testFilePath,self.__testFileAnnotRcsb)
+            dp.imp(inpPath)
+            dp.op("annot-rcsb2pdbx-alt")
+            dp.expLog("annot-rcsb2pdbx-alt.log")
             dp.exp(of)            
             dp.cleanup()
         except:
@@ -697,12 +736,6 @@ def suiteAnnotSiteTests():
     return suiteSelect        
 
 
-def suiteAnnotFormatConvertTests():
-    suiteSelect = unittest.TestSuite()
-    suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotRcsb2Pdbx"))
-    suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotRcsb2PdbxStrip"))
-    suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotRcsbEps2Pdbx"))    
-    return suiteSelect        
 
 
 def suiteAnnotNMRTests():
@@ -779,6 +812,15 @@ def suiteAnnotDccTests():
     suiteSelect = unittest.TestSuite()
     #suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotDccReport"))
     suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotMtz2Pdbx"))
+    return suiteSelect        
+
+def suiteAnnotFormatConvertTests():
+    suiteSelect = unittest.TestSuite()
+    suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotRcsb2Pdbx"))
+    suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotRcsb2PdbxSQ"))
+    suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotRcsb2PdbxSQAlt"))
+    suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotRcsb2PdbxStrip"))
+    suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotRcsbEps2Pdbx"))    
     return suiteSelect        
 
 if __name__ == '__main__':

@@ -113,7 +113,8 @@ class RcsbDpUtility(object):
                                 "chem-comp-instance-update","annot-cif2cif","annot-cif2pdb","annot-pdb2cif","annot-poly-link-dist",
                                 "annot-merge-sequence-data","annot-make-maps","annot-make-ligand-maps",
                                 "annot-cif2cif-dep","annot-pdb2cif-dep","annot-format-check-pdbx","annot-format-check-pdb",
-                                "annot-dcc-report","annot-sf-mtz2pdbx","annot-rcsb2pdbx-withpdbid"]
+                                "annot-dcc-report","annot-sf-mtz2pdbx","annot-rcsb2pdbx-withpdbid",
+                                "annot-rcsb2pdbx-withpdbid-singlequote", "annot-rcsb2pdbx-alt"]
         self.__sequenceOps = ['seq-blastp','seq-blastn']
 
         #
@@ -561,6 +562,10 @@ class RcsbDpUtility(object):
             cmd += thisCmd + " -i " + iPath + " -o " + oPath + " -assign " + assignPath
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
 
+        elif (op == "annot-rcsb2pdbx-alt"): 
+            cmd +=  " ; " + maxitCmd + " -single_quotation -o 9  -i " + iPath + " -log maxit.log "
+            cmd += " ; mv -f " + iPath + ".cif " + oPath
+
         elif (op == "annot-rcsb2pdbx"):
             
             # New minimal RCSB internal cif to PDBx cif converter -
@@ -577,6 +582,16 @@ class RcsbDpUtility(object):
             cmdPath =os.path.join(self.__annotAppsPath,"bin","PdbxConverter")
             thisCmd  = " ; " + cmdPath                        
             cmd += thisCmd + " -pdbid -input " + iPath + " -output " + oPath + " -log annot-step.log "
+            #
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
+            cmd += " ; cat annot-step.log " + " >> " + lPath
+
+        elif (op == "annot-rcsb2pdbx-withpdbid-singlequote"):
+            
+            # New minimal RCSB internal cif to PDBx cif converter with internal conversion of entry id to  pdbId -
+            cmdPath =os.path.join(self.__annotAppsPath,"bin","PdbxConverter")
+            thisCmd  = " ; " + cmdPath                        
+            cmd += thisCmd + " -pdbid -single_quotation -input " + iPath + " -output " + oPath + " -log annot-step.log "
             #
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
             cmd += " ; cat annot-step.log " + " >> " + lPath
