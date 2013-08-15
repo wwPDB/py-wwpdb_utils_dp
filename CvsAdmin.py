@@ -390,7 +390,7 @@ class  CvsSandBoxAdmin(CvsWrapperBase):
             if (os.access(self.__sandBoxTopPath,os.W_OK)):
                 # try a full checkout -- 
                 #
-                ok,text=self.checkOut(self,projectPath=projectDir,revId=None)
+                ok,text=self.checkOut(projectPath=projectDir,revId=None)
             else:
                 text='Update failed with repository project path issue: %s' % targetPath            
                 self.__lfh.write("+ERROR - CvsSandBoxAdmin(update) cannot update project path %s\n" % targetPath)            
