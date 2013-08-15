@@ -18,6 +18,7 @@
 #    Apr 9,  2013 jdw -  add ligand map calculation examples 
 #    Jun 26, 2013 jdw -  add tests for annot-format-check-pdbx
 #    Jun 27, 2013 jdw -  add tests for annot-sf-mtz2pdbx and annot-dcc-report 
+#    Aug 15, 2013 jdw -  change annot-sf-mtz2pdbx to annot-sf-convert change file format of diag file to cif
 ##
 """
 Test cases from 
@@ -708,26 +709,21 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
         """
         self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
         try:
-            diagfn="sf-convert-diags.txt"
+            diagfn="sf-convert-diags.cif"
             ciffn="sf-convert-datafile.cif"
+            dmpfn="sf-convert-mtzdmp.log"
             #
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
             mtzPath=os.path.join(self.__testFilePath,self.__testFileMtzGood)
             dp.imp(mtzPath)
-            dp.op("annot-sf-mtz2pdbx")
-            dp.expLog("sf-mtz2pdbx.log")
-            #dp.exp(sfciffn)
-            dp.expList(dstPathList=[ciffn,diagfn])
+            dp.op("annot-sf-convert")
+            dp.expLog("sf-convert.log")
+            dp.expList(dstPathList=[ciffn,diagfn,dmpfn])
             #dp.cleanup()
         except:
             traceback.print_exc(file=self.__lfh)
             self.fail()
 
-def suiteAnnotDccTests():
-    suiteSelect = unittest.TestSuite()
-    suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotDccReport"))
-    suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotMtz2Pdbx"))
-    return suiteSelect        
 
 def suiteAnnotSiteTests():
     suiteSelect = unittest.TestSuite()
@@ -810,7 +806,7 @@ def suiteFormatCheckTests():
 
 def suiteAnnotDccTests():
     suiteSelect = unittest.TestSuite()
-    #suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotDccReport"))
+    suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotDccReport"))
     suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotMtz2Pdbx"))
     return suiteSelect        
 
@@ -872,6 +868,7 @@ if __name__ == '__main__':
 
     #
     #
-    mySuite=suiteAnnotFormatConvertTests()
+    mySuite=suiteAnnotDccTests()
     unittest.TextTestRunner(verbosity=2).run(mySuite)
+    
 

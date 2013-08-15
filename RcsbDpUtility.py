@@ -53,6 +53,10 @@
 # 15-Jul-2013 jdw correct assignment of PDBx dictionary name from configuration class.
 # 15-Jul-2013 jdw add check-cif-v4 method
 # 23-Jul-2013 jdw add "annot-rcsb2pdbx-withpdbid"
+# 15-Aug-2013 jdw add various new annotation package functions --                                
+#                     "annot-move-xyz-by-matrix","annot-move-xyz-by-symop","annot-extra-checks"
+#                     add annot-sf-convert
+#
 ##
 """
 Wrapper class for data processing and chemical component utilities.
@@ -113,8 +117,9 @@ class RcsbDpUtility(object):
                                 "chem-comp-instance-update","annot-cif2cif","annot-cif2pdb","annot-pdb2cif","annot-poly-link-dist",
                                 "annot-merge-sequence-data","annot-make-maps","annot-make-ligand-maps",
                                 "annot-cif2cif-dep","annot-pdb2cif-dep","annot-format-check-pdbx","annot-format-check-pdb",
-                                "annot-dcc-report","annot-sf-mtz2pdbx","annot-rcsb2pdbx-withpdbid",
-                                "annot-rcsb2pdbx-withpdbid-singlequote", "annot-rcsb2pdbx-alt"]
+                                "annot-dcc-report","annot-sf-convert","annot-rcsb2pdbx-withpdbid",
+                                "annot-rcsb2pdbx-withpdbid-singlequote", "annot-rcsb2pdbx-alt",
+                                "annot-move-xyz-by-matrix","annot-move-xyz-by-symop","annot-extra-checks"]
         self.__sequenceOps = ['seq-blastp','seq-blastn']
 
         #
@@ -748,6 +753,7 @@ class RcsbDpUtility(object):
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
             cmd += " ; cp  -f " + pdfPath + " " + oPath
 
+
         elif (op == "annot-make-ligand-maps"):
             # The sf-valid package is currently set to self configure in a wrapper
             # shell script.  PACKAGE_DIR and TOOLS_DIR only need to be set here.
@@ -812,17 +818,19 @@ class RcsbDpUtility(object):
             cmd += thisCmd + " -cif ./" + iPath + " -sf  ./" + sfFileName + " -o " + oPath
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
 
-        elif (op == "annot-sf-mtz2pdbx"):
+        elif (op == "annot-sf-convert"):
             # The sf-valid package is currently set to self configure in a wrapper
             # shell script.  PACKAGE_DIR and TOOLS_DIR only need to be set here.
             #
-            # sf_convert -o mmcif  -sf refine.mtz    -out test-mtz-sf.cif
+            # sf_convert -o mmcif  -sf refine.mtz    -out test-mtz-sf.cif  [-pdb model-xyz.cif]
             #
             # input  is sf file in mtz format
             # output is sf in pdbx  format
             sfCifPath=os.path.join(self.__wrkPath, oPath)            
-            sfDiagFileName="sf_information.txt"
+            sfDiagFileName="sf_information.cif"
             sfDiagPath=os.path.join(self.__wrkPath,sfDiagFileName)
+            mtzDmpFileName="mtzdmp.log"
+            mtzDmpPath=os.path.join(self.__wrkPath,mtzDmpFileName)
             #
             mtzFile=iPath+".mtz"            
             mtzPath=os.path.join(self.__wrkPath, mtzFile) 
@@ -841,6 +849,15 @@ class RcsbDpUtility(object):
             thisCmd  = " ; " + cmdPath                        
             #
             cmd += thisCmd + " -o mmcif  -sf " + mtzFile + " -out " + oPath
+            #
+            if  self.__inputParamDict.has_key('xyz_file_path'):
+                xyzPath=self.__inputParamDict['xyz_file_path']
+                xyzPathFull = os.path.abspath(xyzPath)       
+                (h,xyzFileName)=os.path.split(xyzPath)
+                xyzWrkPath=os.path.join(self.__wrkPath,xyzFileName)
+                shutil.copyfile(xyzPathFull,xyzWrkPath)
+                cmd += " -pdb " + xyzFileName 
+
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
             #
 
@@ -875,12 +892,6 @@ class RcsbDpUtility(object):
             cmd += thisCmd + " -cif ./" + iPath + " -sf  ./" + sfFileName + " -map  -no_xtriage -o " + oPath
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
 
-
-
-
-
-
-
         elif (op == "annot-poly-link-dist"):
             cmdPath =os.path.join(self.__annotAppsPath,"bin","cal_polymer_linkage_distance")
             thisCmd  = " ; " + cmdPath            
@@ -911,6 +922,51 @@ class RcsbDpUtility(object):
             cmd +=  " ; " + maxitCmd + " -o 2  -i " + iPath + " -log maxit.log "
             cmd += " ; mv -f " + iPath + ".pdb " + oPath
             #cmd += " ; cat maxit.err >> " + lPath            
+
+        elif (op == "annot-move-xyz-by-symop"):
+
+            # MovingCoordBySymmetry and MovingCoordByMatrix programs in annotation-pack to move coordinates. The syntax for both programs are:
+            #${program} -input input_ciffile -output output_ciffile -assign assignment_file -log logfile
+
+            #
+            cmdPath =os.path.join(self.__annotAppsPath,"bin","MovingCoordBySymmetry")
+            thisCmd  = " ; " + cmdPath                        
+            cmd += thisCmd + " -input " + iPath + " -output " + oPath + " -log annot-step.log "
+            if  self.__inputParamDict.has_key('assign_file_path'):
+                assignFilePath=self.__inputParamDict['assign_file_path']                                
+                cmd += " -assign " + assignFilePath           
+            #
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
+            cmd += " ; cat annot-step.log " + " >> " + lPath
+
+        elif (op == "annot-move-xyz-by-matrix"):
+
+            # MovingCoordBySymmetry and MovingCoordByMatrix programs in annotation-pack to move coordinates. The syntax for both programs are:
+            #${program} -input input_ciffile -output output_ciffile -assign assignment_file -log logfile
+
+            #
+            cmdPath =os.path.join(self.__annotAppsPath,"bin","MovingCoordByMatrix")
+            thisCmd  = " ; " + cmdPath                        
+            cmd += thisCmd + " -input " + iPath + " -output " + oPath + " -log annot-step.log "
+            if  self.__inputParamDict.has_key('assign_file_path'):
+                assignFilePath=self.__inputParamDict['assign_file_path']                                
+                cmd += " -assign " + assignFilePath           
+            #
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
+            cmd += " ; cat annot-step.log " + " >> " + lPath
+
+        elif (op == "annot-extra-checks"):
+            #
+            # MissChecking -input ciffile -output outputfile -log logfile
+            #
+            cmdPath =os.path.join(self.__annotAppsPath,"bin","MissChecking")
+            thisCmd  = " ; " + cmdPath                        
+            cmd += thisCmd + " -input " + iPath + " -output " + oPath + " -log annot-step.log "
+            #
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
+            cmd += " ; cat annot-step.log " + " >> " + lPath
+
+            ##
         elif (op == "prd-search"):
             cmd += " ; PRDCC_PATH="  + self.__prdccCvsPath + " ; export PRDCC_PATH "
             cmd += " ; PRD_DICT_PATH="  + self.__prdDictPath + " ; export PRD_DICT_PATH "
@@ -1026,10 +1082,10 @@ class RcsbDpUtility(object):
             else:
                 self.__resultPathList.append("missing")
 
-        elif (op == "annot-sf-mtz2pdbx"):
+        elif (op == "annot-sf-convert"):
             self.__resultPathList=[]
             #
-            # Push the output pdf and xml files onto the resultPathList.
+            # Push the output converted and diagnostic files onto the resultPathList.
             #
             if os.access(sfCifPath,os.F_OK):
                 self.__resultPathList.append(sfCifPath)
@@ -1038,6 +1094,11 @@ class RcsbDpUtility(object):
 
             if os.access(sfDiagPath,os.F_OK):
                 self.__resultPathList.append(sfDiagPath)
+            else:
+                self.__resultPathList.append("missing")                
+
+            if os.access(mtzDmpPath,os.F_OK):
+                self.__resultPathList.append(mtzDmpPath)
             else:
                 self.__resultPathList.append("missing")                
             
