@@ -458,6 +458,7 @@ class ResponseContent(object):
     def __initJsonResponseInTextArea(self,myD={}):
         rspDict={}
         rspDict['CONTENT_TYPE']  = 'text/html'
+        #rspDict['CONTENT_TYPE']  = 'text/plain'
         rspDict['RETURN_STRING'] = '<textarea>'+dumps(myD)+'</textarea>'
         return rspDict
 
