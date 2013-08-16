@@ -932,7 +932,7 @@ class RcsbDpUtility(object):
             cmdPath =os.path.join(self.__annotAppsPath,"bin","MovingCoordBySymmetry")
             thisCmd  = " ; " + cmdPath                        
             cmd += thisCmd + " -input " + iPath + " -output " + oPath + " -log annot-step.log "
-            if  self.__inputParamDict.has_key('assign_file_path'):
+            if  self.__inputParamDict.has_key('transform_file_path'):
                 assignFilePath=self.__inputParamDict['assign_file_path']                                
                 cmd += " -assign " + assignFilePath           
             #
@@ -948,7 +948,7 @@ class RcsbDpUtility(object):
             cmdPath =os.path.join(self.__annotAppsPath,"bin","MovingCoordByMatrix")
             thisCmd  = " ; " + cmdPath                        
             cmd += thisCmd + " -input " + iPath + " -output " + oPath + " -log annot-step.log "
-            if  self.__inputParamDict.has_key('assign_file_path'):
+            if  self.__inputParamDict.has_key('transform_file_path'):
                 assignFilePath=self.__inputParamDict['assign_file_path']                                
                 cmd += " -assign " + assignFilePath           
             #
@@ -957,9 +957,9 @@ class RcsbDpUtility(object):
 
         elif (op == "annot-extra-checks"):
             #
-            # MissChecking -input ciffile -output outputfile -log logfile
+            # MiscChecking -input ciffile -output outputfile -log logfile
             #
-            cmdPath =os.path.join(self.__annotAppsPath,"bin","MissChecking")
+            cmdPath =os.path.join(self.__annotAppsPath,"bin","MiscChecking")
             thisCmd  = " ; " + cmdPath                        
             cmd += thisCmd + " -input " + iPath + " -output " + oPath + " -log annot-step.log "
             #
