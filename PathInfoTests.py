@@ -3,6 +3,7 @@
 # Date:    26-Feb-2013
 #
 # Updates:
+#   27-Aug-2013  jdw verify after milestone addition to api.
 ##
 """
 Test cases for creating standard file names for sequence resources and data files.
@@ -19,7 +20,7 @@ import sys, unittest, traceback
 import time, os, os.path
 
 
-from wwpdb.apps.seqmodule.util.PathInfo import PathInfo
+from wwpdb.utils.rcsb.PathInfo import PathInfo
 
 class PathInfoTests(unittest.TestCase):
     def setUp(self):
@@ -56,6 +57,12 @@ class PathInfoTests(unittest.TestCase):
                 #
                 fp=pI.getModelPdbxFilePath(dataSetId,wfInstanceId=wfInst, fileSource=fs, versionId=vId)
                 self.__lfh.write("Model path (PDBx):   %s\n" % fp)
+
+                fp=pI.getModelPdbxFilePath(dataSetId,wfInstanceId=wfInst, fileSource=fs, versionId=vId, mileStone='deposit')
+                self.__lfh.write("Model path (deposit) (PDBx):   %s\n" % fp)
+
+                fp=pI.getModelPdbxFilePath(dataSetId,wfInstanceId=wfInst, fileSource=fs, versionId=vId, mileStone='upload')
+                self.__lfh.write("Model path (upload) (PDBx):   %s\n" % fp)
 
                 fp=pI.getModelPdbFilePath(dataSetId,wfInstanceId=wfInst,fileSource=fs, versionId=vId)
                 self.__lfh.write("Model path (PDB):    %s\n" % fp)

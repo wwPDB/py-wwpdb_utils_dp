@@ -7,6 +7,7 @@
 #  28-Feb-2013  jdw   move to generic path wwpdb.utils.rcsb.PathInfo()
 #  28-Feb-2013  jdw   Add wrappers for more general purpose methods -  
 #  04-Apr-2013  jdw   Add assembly assignment and map convenience methods
+#  27-Aug-2013  jdw   Add optional parameters for content milestone variants [upload,deposit,annotate,...] 
 ## 
 """
 Common methods for finding path information resource and data files in the wwPDB data processing
@@ -24,6 +25,12 @@ from wwpdb.api.facade.DataReference  import DataFileReference
 
 class PathInfo(object):
     """ Common methods for finding path information for sequence resources and data files.
+
+        In these methods the parameter contentType refers to a base content type. 
+
+        The mileStone parameter is used to select the milestone variant in any convenience methods
+        (e.g. model-deposit, model-upload, ... )
+
     """    
     def __init__(self, siteId="WWPDB_DEPLOY_TEST", sessionPath='.', verbose=False, log=sys.stderr):
         """ 
@@ -39,133 +46,147 @@ class PathInfo(object):
         """
         self.__sessionPath=sessionPath
         
-    def getModelPdbxFilePath(self,dataSetId,wfInstanceId=None,fileSource="archive",versionId="latest"):
+    def getModelPdbxFilePath(self,dataSetId,wfInstanceId=None,fileSource="archive",versionId="latest",mileStone=None):
         return self.__getStandardPath(dataSetId=dataSetId,
                                       wfInstanceId=wfInstanceId,
                                       fileSource=fileSource,
                                       versionId=versionId,
-                                      contentType='model',
-                                      formatType='pdbx')
+                                      contentTypeBase='model',
+                                      formatType='pdbx',
+                                      mileStone=mileStone)
     
-    def getModelPdbFilePath(self,dataSetId,wfInstanceId=None,fileSource="archive",versionId="latest"):
+    def getModelPdbFilePath(self,dataSetId,wfInstanceId=None,fileSource="archive",versionId="latest",mileStone=None):
         return self.__getStandardPath(dataSetId=dataSetId,
                                       wfInstanceId=wfInstanceId,
                                       fileSource=fileSource,
                                       versionId=versionId,
-                                      contentType='model',
-                                      formatType='pdb')
+                                      contentTypeBase='model',
+                                      formatType='pdb',
+                                      mileStone=mileStone)
     
-    def getPolyLinkFilePath(self,dataSetId,wfInstanceId=None,fileSource="archive",versionId="latest"):
+    def getPolyLinkFilePath(self,dataSetId,wfInstanceId=None,fileSource="archive",versionId="latest",mileStone=None):
         return self.__getStandardPath(dataSetId=dataSetId,
                                       wfInstanceId=wfInstanceId,
                                       fileSource=fileSource,
                                       versionId=versionId,
-                                      contentType='polymer-linkage-distances',
-                                      formatType='pdbx')
+                                      contentTypeBase='polymer-linkage-distances',
+                                      formatType='pdbx',
+                                      mileStone=mileStone)
 
-    def getSequenceStatsFilePath(self,dataSetId,wfInstanceId=None,fileSource="archive",versionId="latest"):
+    def getSequenceStatsFilePath(self,dataSetId,wfInstanceId=None,fileSource="archive",versionId="latest",mileStone=None):
         return self.__getStandardPath(dataSetId=dataSetId,
                                       wfInstanceId=wfInstanceId,
                                       fileSource=fileSource,
                                       versionId=versionId,
-                                      contentType='seq-data-stats',
-                                      formatType='pic')
+                                      contentTypeBase='seq-data-stats',
+                                      formatType='pic',
+                                      mileStone=mileStone)
 
 
-    def getSequenceAlignFilePath(self,dataSetId,wfInstanceId=None,fileSource="archive",versionId="latest"):
+    def getSequenceAlignFilePath(self,dataSetId,wfInstanceId=None,fileSource="archive",versionId="latest",mileStone=None):
         return self.__getStandardPath(dataSetId=dataSetId,
                                       wfInstanceId=wfInstanceId,
                                       fileSource=fileSource,
                                       versionId=versionId,
-                                      contentType='seq-align-data',
-                                      formatType='pic')
+                                      contentTypeBase='seq-align-data',
+                                      formatType='pic',
+                                      mileStone=mileStone)
 
 
-    def getReferenceSequenceFilePath(self,dataSetId,entityId='1',wfInstanceId=None,fileSource="archive",versionId="latest"):
+    def getReferenceSequenceFilePath(self,dataSetId,entityId='1',wfInstanceId=None,fileSource="archive",versionId="latest",mileStone=None):
         return self.__getStandardPath(dataSetId=dataSetId,
                                       wfInstanceId=wfInstanceId,
                                       fileSource=fileSource,
                                       versionId=versionId,
                                       partNumber=entityId,
-                                      contentType='seqdb-match',
-                                      formatType='pdbx')
+                                      contentTypeBase='seqdb-match',
+                                      formatType='pdbx',
+                                      mileStone=mileStone)
 
-    def getSequenceAssignmentFilePath(self,dataSetId,wfInstanceId=None,fileSource="archive",versionId="latest"):
+    def getSequenceAssignmentFilePath(self,dataSetId,wfInstanceId=None,fileSource="archive",versionId="latest",mileStone=None):
         return self.__getStandardPath(dataSetId=dataSetId,
                                       wfInstanceId=wfInstanceId,
                                       fileSource=fileSource,
                                       versionId=versionId,
-                                      contentType='seq-assign',
-                                      formatType='pdbx')
+                                      contentTypeBase='seq-assign',
+                                      formatType='pdbx',
+                                      mileStone=mileStone)
 
-    def getAssemblyAssignmentFilePath(self,dataSetId,wfInstanceId=None,fileSource="archive",versionId="latest"):
+    def getAssemblyAssignmentFilePath(self,dataSetId,wfInstanceId=None,fileSource="archive",versionId="latest",mileStone=None):
         return self.__getStandardPath(dataSetId=dataSetId,
                                       wfInstanceId=wfInstanceId,
                                       fileSource=fileSource,
                                       versionId=versionId,
-                                      contentType='assembly-assign',
-                                      formatType='pdbx')
+                                      contentTypeBase='assembly-assign',
+                                      formatType='pdbx',
+                                      mileStone=mileStone)
 
-    def getBlastMatchFilePath(self,entityId,entityPart='1',wfInstanceId=None,fileSource="archive",versionId="latest"):
+    def getBlastMatchFilePath(self,entityId,entityPart='1',wfInstanceId=None,fileSource="archive",versionId="latest",mileStone=None):
         return self.__getStandardPath(dataSetId=entityId,
                                       wfInstanceId=wfInstanceId,
                                       fileSource=fileSource,
                                       versionId=versionId,
                                       partNumber=entityPart,
-                                      contentType='blast-match',
-                                      formatType='xml')
+                                      contentTypeBase='blast-match',
+                                      formatType='xml',
+                                      mileStone=mileStone)
 
-    def getMap2fofcFilePath(self,entityId,entityPart='1',wfInstanceId=None,fileSource="archive",versionId="latest"):
+    def getMap2fofcFilePath(self,entityId,entityPart='1',wfInstanceId=None,fileSource="archive",versionId="latest",mileStone=None):
         return self.__getStandardPath(dataSetId=entityId,
                                       wfInstanceId=wfInstanceId,
                                       fileSource=fileSource,
                                       versionId=versionId,
                                       partNumber=entityPart,
-                                      contentType='map-2fofc',
-                                      formatType='map')
+                                      contentTypeBase='map-2fofc',
+                                      formatType='map',
+                                      mileStone=mileStone)
 
-    def getMapfofcFilePath(self,entityId,entityPart='1',wfInstanceId=None,fileSource="archive",versionId="latest"):
+    def getMapfofcFilePath(self,entityId,entityPart='1',wfInstanceId=None,fileSource="archive",versionId="latest",mileStone=None):
         return self.__getStandardPath(dataSetId=entityId,
                                       wfInstanceId=wfInstanceId,
                                       fileSource=fileSource,
                                       versionId=versionId,
                                       partNumber=entityPart,
-                                      contentType='map-fofc',
-                                      formatType='map')
+                                      contentTypeBase='map-fofc',
+                                      formatType='map',
+                                      mileStone=mileStone)
 
 
     #
-    def getFilePath(self,dataSetId,wfInstanceId=None,contentType=None,formatType=None,fileSource="archive",versionId="latest",partNumber='1'):
+    def getFilePath(self,dataSetId,wfInstanceId=None,contentType=None,formatType=None,fileSource="archive",versionId="latest",partNumber='1',mileStone=None):
         return self.__getStandardPath(dataSetId=dataSetId,
                                       wfInstanceId=wfInstanceId,
-                                      contentType=contentType,
+                                      contentTypeBase=contentType,
                                       formatType=formatType,
                                       fileSource=fileSource,
                                       versionId=versionId,
-                                      partNumber=partNumber)
+                                      partNumber=partNumber,
+                                      mileStone=mileStone)
 
     #
-    def getFileName(self,dataSetId,wfInstanceId=None,contentType=None,formatType=None,fileSource="archive",versionId="latest",partNumber='1'):
+    def getFileName(self,dataSetId,wfInstanceId=None,contentType=None,formatType=None,fileSource="archive",versionId="latest",partNumber='1',mileStone=None):
         return os.path.basename(self.__getStandardPath(dataSetId=dataSetId,
-                                      wfInstanceId=wfInstanceId,
-                                      contentType=contentType,
-                                      formatType=formatType,
-                                      fileSource=fileSource,
-                                      versionId=versionId,
-                                      partNumber=partNumber))
-
-    def getDirPath(self,dataSetId,wfInstanceId=None,contentType=None,formatType=None,fileSource="archive",versionId="latest",partNumber='1'):
+                                                       wfInstanceId=wfInstanceId,
+                                                       contentTypeBase=contentType,
+                                                       formatType=formatType,
+                                                       fileSource=fileSource,
+                                                       versionId=versionId,
+                                                       partNumber=partNumber,
+                                                       mileStone=mileStone))
+        
+    def getDirPath(self,dataSetId,wfInstanceId=None,contentType=None,formatType=None,fileSource="archive",versionId="latest",partNumber='1',mileStone=None):
         return os.path.dirname(self.__getStandardPath(dataSetId=dataSetId,
-                                      wfInstanceId=wfInstanceId,
-                                      contentType=contentType,
-                                      formatType=formatType,
-                                      fileSource=fileSource,
-                                      versionId=versionId,
-                                      partNumber=partNumber))
+                                                      wfInstanceId=wfInstanceId,
+                                                      contentTypeBase=contentType,
+                                                      formatType=formatType,
+                                                      fileSource=fileSource,
+                                                      versionId=versionId,
+                                                      partNumber=partNumber,
+                                                      mileStone=mileStone))
     
 
 
-    def getcopyContentType(self,sourcePath,contentType='model',version='latest'):
+    def getcopyContentType(self,sourcePath,sourcePattern,destPath):
         fpattern=os.path.join(sourcePath,sourcePattern)
         pthList=[]        
         pthList=glob.glob(fpattern)        
@@ -177,9 +198,14 @@ class PathInfo(object):
             shutil.copyfile(pth,os.path.join(destPath,fileName))
         return fileList
 
-    def __getStandardPath(self,dataSetId,wfInstanceId=None,contentType=None,formatType=None,fileSource="archive",versionId="latest",partNumber='1'):
+    def __getStandardPath(self,dataSetId,wfInstanceId=None,contentTypeBase=None,formatType=None,fileSource="archive",versionId="latest",partNumber='1',mileStone=None):
         """   Get WF conforming path/file names.
         """                
+        #
+        if mileStone is not None:
+            contentType = contentTypeBase + '-' + mileStone
+        else:
+            contentType = contentTypeBase
         #
         retPath=None
         if (fileSource in ['archive','wf-archive']):
