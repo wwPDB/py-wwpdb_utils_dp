@@ -705,7 +705,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             self.fail()
 
     def testAnnotMtz2Pdbx(self): 
-        """  Test create DCC report -
+        """  Test mtz to pdbx conversion
         """
         self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
         try:

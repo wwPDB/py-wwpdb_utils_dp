@@ -138,7 +138,40 @@ class DataFileAdapter(object):
             return False
         #
         return True        
-    
+
+    def mtz2Pdbx(self,inpPath,outPath):
+        """Perform  MTZ or other SF file  to  PDBx(cif) format conversion operation. 
+        """
+        try:
+            sfPath        =inpPath
+            xyzPath       =None
+            #
+            #
+            sfPdbxFilePath   =outPath
+            sfDiagFilePath =os.path.join(self.__sessionPath,"mtz2pdbx-diags.log")                                                
+            logPath=os.path.join(self.__sessionPath,"mtz2pdbx.log")                                                
+            dmpPath=os.path.join(self.__sessionPath,"mtzdmp.log")                                                
+
+            dp=RcsbDpUtility(tmpPath=self.__sessionPath,siteId=self.__siteId,verbose=self.__verbose,log=self.__lfh)
+            dp.imp(sfPath)
+            if ((xyzPath is not None)  and  os.path.exists(xyzPath)):
+                dp.addInput(name="xyz_file_path",value=xyzPath,type='file')
+
+            dp.op("annot-sf-convert")
+            dp.expLog(logPath)
+            dp.expList(dstPathList=[sfPdbxFilePath,sfDiagFilePath,dmpPath])
+            if (not self.__debug): 
+                dp.cleanup()            
+            if (self.__verbose):
+                self.__lfh.write("+DataFileAdapter.mtz2pdbxOp() - SF  input  file path:      %s\n" % sfPath)
+                #self.__lfh.write("+DataFileAdapter.mtz2pdbxOp() - XYZ input  file path:      %s\n" % xyzPath)
+                self.__lfh.write("+DataFileAdapter.mtz2pdbxOp() - PDBx SF output file path: %s\n" % sfPdbxFilePath)                                
+            return True
+        except:
+            self.__lfh.write("+DataFileAdapter.mtz2pdbxOp() - failing for input file path %s output file path %s\n" % (inpPath,outPath))            
+            traceback.print_exc(file=self.__lfh)            
+            return False
+        
     def modelConvertToPdbx(self,filePath=None,fileType='pdbx',pdbxFilePath=None):
         """ Convert input model file format to PDBx.   Converted file is stored in the session 
         directory using standard file naming.
