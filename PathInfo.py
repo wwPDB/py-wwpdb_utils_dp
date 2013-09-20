@@ -244,6 +244,10 @@ class PathInfo(object):
                 self.__lfh.write("+PathInfo.__getStandardPath() directory path: %s\n" % dP)
                 self.__lfh.write("+PathInfo.__getStandardPath() file path:      %s\n" % fP)
         else:
+            dP=dfRef.getDirPathReference()
+            fP=dfRef.getFilePathReference()
+            self.__lfh.write("+PathInfo.__getStandardPath() directory path: %s\n" % dP)
+            self.__lfh.write("+PathInfo.__getStandardPath() file path:      %s\n" % fP)
             self.__lfh.write("+PathInfo.__getStandardPath() invalid file path for %s for id %s wf id %s\n" % (fileSource,dataSetId,wfInstanceId))
 
         #
