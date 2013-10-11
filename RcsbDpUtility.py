@@ -57,6 +57,7 @@
 #                     "annot-move-xyz-by-matrix","annot-move-xyz-by-symop","annot-extra-checks"
 #                     add annot-sf-convert
 #
+#
 ##
 """
 Wrapper class for data processing and chemical component utilities.
@@ -114,6 +115,7 @@ class RcsbDpUtility(object):
                                 "annot-wwpdb-validate-1","annot-wwpdb-validate-2","prd-search",
                                 "annot-chem-shift-check","annot-chem-shift-coord-check","annot-nmrsta2pdbx","annot-pdbx2nmrstar",
                                 "annot-reposition-solvent-add-derived", "annot-rcsb2pdbx-strip", "annot-rcsbeps2pdbx-strip",
+                                "annot-rcsb2pdbx-strip-plus-entity", "annot-rcsbeps2pdbx-strip-plus-entity",
                                 "chem-comp-instance-update","annot-cif2cif","annot-cif2pdb","annot-pdb2cif","annot-poly-link-dist",
                                 "annot-merge-sequence-data","annot-make-maps","annot-make-ligand-maps",
                                 "annot-cif2cif-dep","annot-pdb2cif-dep","annot-format-check-pdbx","annot-format-check-pdb",
@@ -635,6 +637,41 @@ class RcsbDpUtility(object):
             oPathFull=os.path.join(self.__wrkPath, oPath)                            
             #
             # see at the end for the post processing operations --
+
+        elif (op == "annot-rcsb2pdbx-strip-plus-entity"):
+
+            # New minimal RCSB internal cif to PDBx cif converter followed by removal of derived categories
+            
+            oPath2=oPath+"_A"
+            
+
+            cmdPath =os.path.join(self.__annotAppsPath,"bin","PdbxConverter")
+            thisCmd  = " ; " + cmdPath                        
+            cmd += thisCmd + " -input " + iPath + " -output " + oPath2 + " -log annot-step.log "
+            #
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
+            cmd += " ; cat annot-step.log " + " >> " + lPath
+
+            oPath2Full=os.path.join(self.__wrkPath, oPath2)
+            oPathFull=os.path.join(self.__wrkPath, oPath)                            
+
+        elif  (op == "annot-rcsbeps2pdbx-strip-plus-entity"):
+            #
+            oPath2=oPath+"_B"            
+            #
+            # Adding a following step to synchronize required derived data for subsequent steps -
+            #
+            #
+            cmd +=  " ; " + maxitCmd + " -o 8  -i " + iPath + " -log maxit.log "
+            cmd += " ; mv -f " + iPath + ".cif " + oPath2
+            #cmd += " ; cat maxit.err >> " + lPath
+            #
+            # Paths for post processing --
+            #
+            oPath2Full=os.path.join(self.__wrkPath, oPath2)
+            oPathFull=os.path.join(self.__wrkPath, oPath)                            
+            #
+            # see at the end for the post processing operations --
             
         elif (op == "annot-chem-shift-check"):
 
@@ -1037,7 +1074,7 @@ class RcsbDpUtility(object):
             strpCt.strip(oPath2Full,oPathFull,stripList)
 
         if ((op == "annot-rcsb2pdbx-strip") or (op == "annot-rcsbeps2pdbx-strip")):
-            # remove these categories for now -- 
+            # remove these derived categories for now -- 
             stripList=    ['pdbx_coord',
                            'pdbx_nonstandard_list',
                            'pdbx_protein_info',
@@ -1064,6 +1101,39 @@ class RcsbDpUtility(object):
                            'pdbx_nonpoly_scheme',
                            'struct_biol_gen',
                            'struct_asym']
+            strpCt=PdbxStripCategory(verbose=self.__verbose,log=self.__lfh)
+            strpCt.strip(oPath2Full,oPathFull,stripList)
+
+        if ((op == "annot-rcsb2pdbx-strip-plus-entity") or (op == "annot-rcsbeps2pdbx-strip-plus-entity")):
+            # remove derived categories plus selected entity-level categories -- 
+            stripList=    [
+                'entity_poly_seq',
+                'pdbx_coord',
+                'pdbx_nonstandard_list',
+                'pdbx_protein_info',
+                'pdbx_solvent_info',
+                'pdbx_struct_sheet_hbond',
+                'pdbx_unobs_or_zero_occ_residues',
+                'pdbx_validate_torsion',
+                'struct_biol_gen',
+                'struct_conf',
+                'struct_conf_type',
+                'struct_mon_prot_cis',
+                'struct_sheet',
+                'struct_sheet_order',
+                'struct_sheet_range',
+                'struct_conn',
+                'struct_site',
+                'struct_site_gen',
+                'pdbx_validate_close_contact',
+                'pdbx_validate_symm_contact',
+                'pdbx_validate_peptide_omega',
+                'pdbx_struct_mod_residue',
+                'pdbx_missing_residue_list',
+                'pdbx_poly_seq_scheme',
+                'pdbx_nonpoly_scheme',
+                'struct_asym'
+            ]
             strpCt=PdbxStripCategory(verbose=self.__verbose,log=self.__lfh)
             strpCt.strip(oPath2Full,oPathFull,stripList)
         
