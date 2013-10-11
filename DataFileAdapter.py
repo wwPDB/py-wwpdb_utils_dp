@@ -8,6 +8,7 @@
 # 12-Feb-2013  jdw  add option flags for stipping derived categories -- 
 # 25-Feb-2013  jdw  add cif2pdb translation.
 #  6-Aug-2013  jdw  add rcsb2PdbxWithPdbIdAlt() 
+# 11-Oct-2013  jdw  add option to strip  additional entity categories --
 ##
 """
 Encapsulate data model format type conversions.
@@ -39,14 +40,18 @@ class DataFileAdapter(object):
         self.__sessionId=self.__sObj.getId()
         self.__sessionPath=self.__sObj.getPath()
 
-    def rcsb2Pdbx(self,inpPath,outPath,stripFlag=False): 
+    def rcsb2Pdbx(self,inpPath,outPath,stripFlag=False,stripEntityFlag=False): 
         """  RCSB CIF -> PDBx conversion  (Using the smaller application in the annotation package)
         """
         try:
             dp = RcsbDpUtility(tmpPath=self.__sessionPath, siteId=self.__siteId, verbose=self.__verbose,log=self.__lfh)
             dp.imp(inpPath)
+
             if stripFlag:
-                dp.op("annot-rcsb2pdbx-strip")
+                if stripEntityFlag:
+                    dp.op("annot-rcsb2pdbx-strip-plus-entity")
+                else:
+                    dp.op("annot-rcsb2pdbx-strip")
             else:
                 dp.op("annot-rcsb2pdbx")
 
@@ -99,14 +104,17 @@ class DataFileAdapter(object):
         return True        
 
 
-    def rcsbEps2Pdbx(self,inpPath,outPath,stripFlag=False): 
+    def rcsbEps2Pdbx(self,inpPath,outPath,stripFlag=False,stripEntityFlag=False): 
         """  RCSB CIFEPS -> PDBx conversion (This still requires using the full maxit application)
         """
         try:
             dp = RcsbDpUtility(tmpPath=self.__sessionPath, siteId=self.__siteId, verbose=self.__verbose,log=self.__lfh)
             dp.imp(inpPath)
             if stripFlag:
-                dp.op("annot-rcsbeps2pdbx-strip")
+                if stripEntityFlag:
+                    dp.op("annot-rcsbeps2pdbx-strip-plus-entity")
+                else:
+                    dp.op("annot-rcsbeps2pdbx-strip")
             else:
                 dp.op("annot-cif2cif")                
 
