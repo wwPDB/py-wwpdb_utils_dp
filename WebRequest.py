@@ -15,6 +15,7 @@
 # 22-Mar-2013 jdw  incorporate methods for handling binary content, jsonp, and datafile
 #                  download data in response content class.
 # 22-Mar-2013 jdw  restore method - getValueOrDefault(self,myKey,default='')
+# 11-Oct-2013 zf   add getDictionary() method
 ##
 """
 WebRequest provides containers and accessors for managing request parameter information.
@@ -100,6 +101,8 @@ class WebRequest(object):
     def getRawValue(self,myKey):
         return(self._getRawValue(myKey))
     
+    def getDictionary(self):
+        return self.__dict
     #
     def setValue(self,myKey,aValue):
         self.__dict[myKey]=[aValue]
