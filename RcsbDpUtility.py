@@ -56,7 +56,7 @@
 # 15-Aug-2013 jdw add various new annotation package functions --                                
 #                "annot-move-xyz-by-matrix","annot-move-xyz-by-symop","annot-extra-checks","annot-sf-convert"
 # 18-Oct-2013 jdw add miscellaneous tools in DCC package -  "annot-dcc-refine-report",
-#                "annot-dcc-special-position", and "annot-dcc-reassign-alt-id"
+#                "annot-dcc-special-position", and "annot-dcc-reassign-alt-ids"
 #
 #
 ##
@@ -121,7 +121,7 @@ class RcsbDpUtility(object):
                                 "annot-merge-sequence-data","annot-make-maps","annot-make-ligand-maps",
                                 "annot-cif2cif-dep","annot-pdb2cif-dep","annot-format-check-pdbx","annot-format-check-pdb",
                                 "annot-dcc-report","annot-sf-convert","annot-dcc-refine-report","annot-dcc-biso-full",
-                                "annot-dcc-special-position","annot-dcc-reassign-alt-id",
+                                "annot-dcc-special-position","annot-dcc-reassign-alt-ids",
                                 "annot-rcsb2pdbx-withpdbid",
                                 "annot-rcsb2pdbx-withpdbid-singlequote", "annot-rcsb2pdbx-alt",
                                 "annot-move-xyz-by-matrix","annot-move-xyz-by-symop","annot-extra-checks"]
@@ -922,7 +922,7 @@ class RcsbDpUtility(object):
             cmd += thisCmd + " -occ ./" + iPath + " -o " + oPath
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
 
-        elif (op == "annot-dcc-reassign-alt-id"):
+        elif (op == "annot-dcc-reassign-alt-ids"):
             # The sf-valid package is currently set to self configure in a wrapper
             # shell script.  PACKAGE_DIR and TOOLS_DIR only need to be set here.
             #
