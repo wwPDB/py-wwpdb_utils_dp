@@ -54,8 +54,9 @@
 # 15-Jul-2013 jdw add check-cif-v4 method
 # 23-Jul-2013 jdw add "annot-rcsb2pdbx-withpdbid"
 # 15-Aug-2013 jdw add various new annotation package functions --                                
-#                     "annot-move-xyz-by-matrix","annot-move-xyz-by-symop","annot-extra-checks"
-#                     add annot-sf-convert
+#                "annot-move-xyz-by-matrix","annot-move-xyz-by-symop","annot-extra-checks","annot-sf-convert"
+# 18-Oct-2013 jdw add miscellaneous tools in DCC package -  "annot-dcc-refine-report",
+#                "annot-dcc-special-position", and "annot-dcc-reassign-alt-id"
 #
 #
 ##
@@ -119,7 +120,9 @@ class RcsbDpUtility(object):
                                 "chem-comp-instance-update","annot-cif2cif","annot-cif2pdb","annot-pdb2cif","annot-poly-link-dist",
                                 "annot-merge-sequence-data","annot-make-maps","annot-make-ligand-maps",
                                 "annot-cif2cif-dep","annot-pdb2cif-dep","annot-format-check-pdbx","annot-format-check-pdb",
-                                "annot-dcc-report","annot-sf-convert","annot-rcsb2pdbx-withpdbid",
+                                "annot-dcc-report","annot-sf-convert","annot-dcc-refine-report","annot-dcc-biso-full",
+                                "annot-dcc-special-position","annot-dcc-reassign-alt-id",
+                                "annot-rcsb2pdbx-withpdbid",
                                 "annot-rcsb2pdbx-withpdbid-singlequote", "annot-rcsb2pdbx-alt",
                                 "annot-move-xyz-by-matrix","annot-move-xyz-by-symop","annot-extra-checks"]
         self.__sequenceOps = ['seq-blastp','seq-blastn']
@@ -854,6 +857,90 @@ class RcsbDpUtility(object):
             #
             cmd += thisCmd + " -cif ./" + iPath + " -sf  ./" + sfFileName + " -o " + oPath
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
+
+        elif (op == "annot-dcc-refine-report"):
+            # The sf-valid package is currently set to self configure in a wrapper
+            # shell script.  PACKAGE_DIR and TOOLS_DIR only need to be set here.
+            #
+            cmd += " ; WWPDB_SITE_ID="  + self.__siteId  + " ; export WWPDB_SITE_ID "
+            cmd += " ; DEPLOY_DIR="  + self.__deployPath  + " ; export DEPLOY_DIR "
+            cmd += " ; TOOLS_DIR="  + os.path.join(self.__localAppsPath,'bin')  + " ; export TOOLS_DIR "
+            cmd += " ; PACKAGE_DIR="  + self.__packagePath + " ; export PACKAGE_DIR "
+            cmd += " ; DCCPY_DIR="  + os.path.join(self.__packagePath,'sf-valid')  + " ; export DCCPY_DIR "            
+            
+            #
+            cmdPath =os.path.join(self.__packagePath,"sf-valid","bin","dcc.sh")
+            thisCmd  = " ; " + cmdPath                        
+            
+            if  self.__inputParamDict.has_key('sf_file_path'):
+                sfPath=self.__inputParamDict['sf_file_path']
+                sfPathFull = os.path.abspath(sfPath)       
+                (h,sfFileName)=os.path.split(sfPath)
+                sfWrkPath=os.path.join(self.__wrkPath,sfFileName)
+                shutil.copyfile(sfPathFull,sfWrkPath)
+            else:
+                sfPath="none"
+                sfPathFull="none"                
+
+            #
+            cmd += thisCmd + " -refine -cif ./" + iPath + " -sf  ./" + sfFileName + " -o " + oPath
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
+
+        elif (op == "annot-dcc-biso-full"):
+            # The sf-valid package is currently set to self configure in a wrapper
+            # shell script.  PACKAGE_DIR and TOOLS_DIR only need to be set here.
+            #
+            cmd += " ; WWPDB_SITE_ID="  + self.__siteId  + " ; export WWPDB_SITE_ID "
+            cmd += " ; DEPLOY_DIR="  + self.__deployPath  + " ; export DEPLOY_DIR "
+            cmd += " ; TOOLS_DIR="  + os.path.join(self.__localAppsPath,'bin')  + " ; export TOOLS_DIR "
+            cmd += " ; PACKAGE_DIR="  + self.__packagePath + " ; export PACKAGE_DIR "
+            cmd += " ; DCCPY_DIR="  + os.path.join(self.__packagePath,'sf-valid')  + " ; export DCCPY_DIR "            
+            
+            #
+            cmdPath =os.path.join(self.__packagePath,"sf-valid","bin","dcc.sh")
+            thisCmd  = " ; " + cmdPath                        
+            
+            #
+            cmd += thisCmd + " -bfull ./" + iPath + " -o " + oPath
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
+
+        elif (op == "annot-dcc-special-position"):
+            # The sf-valid package is currently set to self configure in a wrapper
+            # shell script.  PACKAGE_DIR and TOOLS_DIR only need to be set here.
+            #
+            cmd += " ; WWPDB_SITE_ID="  + self.__siteId  + " ; export WWPDB_SITE_ID "
+            cmd += " ; DEPLOY_DIR="  + self.__deployPath  + " ; export DEPLOY_DIR "
+            cmd += " ; TOOLS_DIR="  + os.path.join(self.__localAppsPath,'bin')  + " ; export TOOLS_DIR "
+            cmd += " ; PACKAGE_DIR="  + self.__packagePath + " ; export PACKAGE_DIR "
+            cmd += " ; DCCPY_DIR="  + os.path.join(self.__packagePath,'sf-valid')  + " ; export DCCPY_DIR "            
+            
+            #
+            cmdPath =os.path.join(self.__packagePath,"sf-valid","bin","tool.sh")
+            thisCmd  = " ; " + cmdPath                        
+            
+            #
+            cmd += thisCmd + " -occ ./" + iPath + " -o " + oPath
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
+
+        elif (op == "annot-dcc-reassign-alt-id"):
+            # The sf-valid package is currently set to self configure in a wrapper
+            # shell script.  PACKAGE_DIR and TOOLS_DIR only need to be set here.
+            #
+            cmd += " ; WWPDB_SITE_ID="  + self.__siteId  + " ; export WWPDB_SITE_ID "
+            cmd += " ; DEPLOY_DIR="  + self.__deployPath  + " ; export DEPLOY_DIR "
+            cmd += " ; TOOLS_DIR="  + os.path.join(self.__localAppsPath,'bin')  + " ; export TOOLS_DIR "
+            cmd += " ; PACKAGE_DIR="  + self.__packagePath + " ; export PACKAGE_DIR "
+            cmd += " ; DCCPY_DIR="  + os.path.join(self.__packagePath,'sf-valid')  + " ; export DCCPY_DIR "            
+            
+            #
+            cmdPath =os.path.join(self.__packagePath,"sf-valid","bin","tool.sh")
+            thisCmd  = " ; " + cmdPath                        
+            
+            #
+            cmd += thisCmd + " -alt  ./" + iPath + " -o " + oPath
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
+
+
 
         elif (op == "annot-sf-convert"):
             # The sf-valid package is currently set to self configure in a wrapper
