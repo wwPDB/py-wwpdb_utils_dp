@@ -320,7 +320,7 @@ class RcsbDpUtility(object):
         self.__ccDictPath     =  self.__getConfigPath('SITE_CC_DICT_PATH')
         self.__ccCvsPath      =  self.__getConfigPath('SITE_CC_CVS_PATH')                
         self.__prdccCvsPath   =  self.__getConfigPath('SITE_PRDCC_CVS_PATH')
-        self.__prdDictPath    =  os.path.join(self.__getConfigPath('SITE_REFDATA_TOP_CVS_SB_PATH'), 'prd-dict')
+        self.__prdDictPath    =  os.path.join(self.__getConfigPath('SITE_DEPLOY_PATH'), 'reference', 'components', 'prd-dict')
 
         # if self.__rcsbAppsPath is None:        
         #            self.__rcsbAppsPath  =  self.__getConfigPath('SITE_RCSB_APPS_PATH')
