@@ -114,7 +114,7 @@ class RcsbDpUtility(object):
                                 "annot-merge-struct-site","annot-reposition-solvent","annot-base-pair-info",
                                 "annot-validation","annot-site","annot-rcsb2pdbx","annot-consolidated-tasks",
                                 "annot-wwpdb-validate-1","annot-wwpdb-validate-2","prd-search",
-                                "annot-chem-shift-check","annot-chem-shift-coord-check","annot-nmrsta2pdbx","annot-pdbx2nmrstar",
+                                "annot-chem-shift-check","annot-chem-shift-coord-check","annot-nmrstar2pdbx","annot-pdbx2nmrstar",
                                 "annot-reposition-solvent-add-derived", "annot-rcsb2pdbx-strip", "annot-rcsbeps2pdbx-strip",
                                 "annot-rcsb2pdbx-strip-plus-entity", "annot-rcsbeps2pdbx-strip-plus-entity",
                                 "chem-comp-instance-update","annot-cif2cif","annot-cif2pdb","annot-pdb2cif","annot-poly-link-dist",
@@ -499,6 +499,32 @@ class RcsbDpUtility(object):
             thisCmd  = " ; " + cmdPath                        
             cmd += thisCmd + " -input " + iPath + " -format pdb  -output " + oPath 
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
+
+        elif (op == "annot-nmrstar2pdbx"):
+            # self.__packagePath
+            if  self.__inputParamDict.has_key('data_set_id'):
+                dId=self.__inputParamDict['data_set_id']                                
+            else:
+                dId="UNASSIGNED"
+            #
+            cmdPath =os.path.join(self.__packagePath,"aditnmr-util","pdbx_to_nmrstar.sh")
+            thisCmd  = " ; " + cmdPath                        
+            cmd += " ; PACKAGE_DIR="  + self.__packagePath    + " ; export PACKAGE_DIR "
+            cmd += thisCmd + "  " + iPath + " " + dId + " " + oPath 
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
+        elif (op == "annot-pdbx2nmrstar"):
+            # self.__packagePath
+            if  self.__inputParamDict.has_key('data_set_id'):
+                dId=self.__inputParamDict['data_set_id']                                
+            else:
+                dId="UNASSIGNED"
+            #
+            cmdPath =os.path.join(self.__packagePath,"aditnmr-util","nmrstar_to_pdbx.sh")
+            thisCmd  = " ; " + cmdPath                        
+            cmd += " ; PACKAGE_DIR="  + self.__packagePath    + " ; export PACKAGE_DIR "
+            cmd += thisCmd + "  " + iPath + " " + dId + " " + oPath 
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
+
 
         elif (op == "annot-validation"):
             cmdPath =os.path.join(self.__annotAppsPath,"bin","valdation_with_cif_output")
