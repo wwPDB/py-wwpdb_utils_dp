@@ -512,6 +512,7 @@ class RcsbDpUtility(object):
             cmd += " ; PACKAGE_DIR="  + self.__packagePath    + " ; export PACKAGE_DIR "
             cmd += thisCmd + "  " + iPath + " " + dId + " " + oPath 
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
+
         elif (op == "annot-pdbx2nmrstar"):
             # self.__packagePath
             if  self.__inputParamDict.has_key('data_set_id'):
