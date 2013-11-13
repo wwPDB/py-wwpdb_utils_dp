@@ -1037,8 +1037,8 @@ class RcsbDpUtility(object):
                 sfPathFull="none"                
 
             #
-            map2fofcPath=os.path.join(self.__wrkPath, iPath+"_2fofc.map")
-            mapfofcPath=os.path.join(self.__wrkPath, iPath+"_fofc.map")
+            map2fofcPath=os.path.join(self.__wrkPath, iPath+".cif_2fofc.map")
+            mapfofcPath=os.path.join(self.__wrkPath, iPath+".cif_fofc.map")
 
             cmd += thisCmd + " -cif ./" + iPath + " -sf  ./" + sfFileName + " -map  -no_xtriage -o " + oPath
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath

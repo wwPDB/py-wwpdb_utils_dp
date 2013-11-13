@@ -416,6 +416,8 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
 
     def testAnnotCSCheck(self): 
         """  Test CS file check
+                             'nmr-cs-check-report'         :  (['html'], 'nmr-cs-check-report'),
+                             'nmr-cs-xyz-check-report'     :  (['html'], 'nmr-cs-xyz-check-report'),
         """
         self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
         try:
@@ -635,7 +637,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
         """
         self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
         try:
-            for pdbId in ['2yn2']:
+            for pdbId in ['1cbs','3of4','3oqp']:
                 of2fofc=pdbId+"_2fofc.map"
                 offofc=pdbId+"_fofc.map"
 
@@ -650,7 +652,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
                 dp.op("annot-make-maps")
                 dp.expLog(pdbId+"-annot-make-maps.log")
                 dp.expList(dstPathList=[of2fofc,offofc])
-                dp.cleanup()
+                #dp.cleanup()
         except:
             traceback.print_exc(file=self.__lfh)
             self.fail()
@@ -795,8 +797,8 @@ def suiteMergeSeqAssignTests():
 
 def suiteMapCalcTests():
     suiteSelect = unittest.TestSuite()
-    #suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotMapCalc"))
-    suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotLigandMapCalc"))
+    suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotMapCalc"))
+    #suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotLigandMapCalc"))
     return suiteSelect    
 
 def suiteFormatCheckTests():
@@ -868,7 +870,7 @@ if __name__ == '__main__':
 
     #
     #
-    mySuite=suiteAnnotDccTests()
+    mySuite=suiteMapCalcTests()
     unittest.TextTestRunner(verbosity=2).run(mySuite)
     
 
