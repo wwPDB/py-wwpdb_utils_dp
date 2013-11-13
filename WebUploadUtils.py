@@ -65,7 +65,8 @@ class WebUploadUtils(object):
         #
         try:
             fs=self.__reqObj.getRawValue(fileTag)
-            formRequestFileName = str(fs.filename).strip().lower()
+            #formRequestFileName = str(fs.filename).strip().lower()
+            formRequestFileName = str(fs.filename).strip()
 
             #
             if (formRequestFileName.find('\\') != -1) :
@@ -117,24 +118,32 @@ class WebUploadUtils(object):
         if fileName is None or len(fileName) < 1:
             return fId,fType
 
-        (head,tail)=os.path.splitext(fileName.lower())
-
-        if head.startswith('rcsb'):
+        (head,tail)=os.path.splitext(str(fileName))
+        headLC=head.lower()
+        if headLC.startswith('rcsb'):
             fId = head
             fType='RCSB'
-            
-        elif head.startswith('d_'):
+        elif headLC.startswith('d_'):
             fId = head
             fType="WF_ARCHIVE"
-        elif head.startswith('w_'):
+            # 
+            # Look for
+            #
+            fields=head.split('_')
+            if len(fields) > 1:
+                fId='_'.join(fields[:2])
+        elif headLC.startswith('w_'):
             fId=head
             fType="WF_INSTANCE"
         else:
             fId=head
             fType="UNKNOWN"
+            if (self.__verbose):
+                self.__lfh.write("+WebUploadUtils.copyToSession() using non-standard identifier %r for %r\n" % (head,str(fileName) ) )
 
         if (self.__verbose):
-            self.__lfh.write("+WebUploadUtils.copyToSession() using non-standard identifier %s for %s\n" % (head,str(fileName) ) )
+            self.__lfh.write("+WebUploadUtils.copyToSession() using identifier fId %r and fType %r \n" % (fId,fType ) )
+
         return fId,fType
 
 
