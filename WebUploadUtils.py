@@ -65,6 +65,9 @@ class WebUploadUtils(object):
         #
         try:
             fs=self.__reqObj.getRawValue(fileTag)
+            if (self.__verbose):
+                self.__lfh.write("+WebUploadUtils.copyToSession() - upload file descriptor fs =     %r\n" % fs)
+                self.__lfh.write("+WebUploadUtils.copyToSession() - upload file descriptor fs =     %s\n" % fs)
             #formRequestFileName = str(fs.filename).strip().lower()
             formRequestFileName = str(fs.filename).strip()
 
