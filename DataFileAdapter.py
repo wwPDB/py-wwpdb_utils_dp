@@ -9,6 +9,7 @@
 # 25-Feb-2013  jdw  add cif2pdb translation.
 #  6-Aug-2013  jdw  add rcsb2PdbxWithPdbIdAlt() 
 # 11-Oct-2013  jdw  add option to strip  additional entity categories --
+#  4-Dec-2013  jdw  check for duplicate source and destination paths.
 ##
 """
 Encapsulate data model format type conversions.
@@ -195,7 +196,8 @@ class DataFileAdapter(object):
                 return ok
             #
             if (fileType in ['pdbx-mmcif','pdbx','pdbx-cif']):
-                shutil.copyfile(filePath,pdbxFilePath)
+                if (filePath != pdbxFilePath):
+                    shutil.copyfile(filePath,pdbxFilePath)
                 ok=True
             elif (fileType == "rcsb-mmcif"):
                 ok=self.rcsb2Pdbx(filePath,pdbxFilePath,stripFlag=False)
