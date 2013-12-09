@@ -46,6 +46,23 @@ class WebRequest(object):
         #
         self.__dict=paramDict
         self.__debug=False
+
+    def __str__(self):
+        try:
+            sL=[]
+            sL.append("\n+WebRequest.printIt() WebRequest dictionary contents:\n")
+            for k,vL in self.__dict.items():
+                sL.append("  - Key: %-35s  value(s): " % k)
+                for v in vL:
+                    sL.append("   %s " % v)
+                sL.append("\n")
+            sL.append("   --------------------------------------------\n")
+            return ''.join(sL)
+        except:
+            return ''
+
+    def __repr__(self):
+        return self.__str__()
         
     def printIt(self,ofh=sys.stdout):
         try:

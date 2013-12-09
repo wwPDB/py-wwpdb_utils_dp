@@ -44,6 +44,12 @@ class SessionManager(object):
         self.__topSessionPath = topPath
         self.__uid=None
 
+    def __str__(self):
+        return "\n+SessionManager() Session top path: %s\nUnique identifier: %s\nSession path: %s\n" % (self.__topSessionPath,self.__uid,self.getPath())
+
+    def __repr__(self):
+        return self.__str__()
+
     def setId(self,uid):
         self.__uid=uid
 
