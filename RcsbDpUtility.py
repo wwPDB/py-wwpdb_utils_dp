@@ -57,6 +57,7 @@
 #                "annot-move-xyz-by-matrix","annot-move-xyz-by-symop","annot-extra-checks","annot-sf-convert"
 # 18-Oct-2013 jdw add miscellaneous tools in DCC package -  "annot-dcc-refine-report",
 #                "annot-dcc-special-position", and "annot-dcc-reassign-alt-ids"
+# 12-Dec-2013 jdw add wrapper for  "annot-update-terminal-atoms" and "annot-merge-xyz"
 #
 #
 ##
@@ -124,7 +125,8 @@ class RcsbDpUtility(object):
                                 "annot-dcc-special-position","annot-dcc-reassign-alt-ids",
                                 "annot-rcsb2pdbx-withpdbid",
                                 "annot-rcsb2pdbx-withpdbid-singlequote", "annot-rcsb2pdbx-alt",
-                                "annot-move-xyz-by-matrix","annot-move-xyz-by-symop","annot-extra-checks"]
+                                "annot-move-xyz-by-matrix","annot-move-xyz-by-symop","annot-extra-checks",
+                                "annot-update-terminal-atoms","annot-merge-xyz"]
         self.__sequenceOps = ['seq-blastp','seq-blastn']
 
         #
@@ -1118,6 +1120,50 @@ class RcsbDpUtility(object):
             cmd += " ; cat annot-step.log " + " >> " + lPath
 
             ##
+        elif (op == "annot-merge-xyz"):
+            #   MergeCoordinates -input input_ciffile -output output_ciffile -newcoord new_coordinate_file -format pdb|cif [-log logfile]
+            #
+            #        option "-format pdb":   new_coordinates_file is PDB format file
+            #        option "-format cif":   new_coordinates_file is cif format file
+            #
+            ##
+            cmdPath =os.path.join(self.__annotAppsPath,"bin","MergeCoordinates")
+            thisCmd  = " ; " + cmdPath                        
+            cmd += thisCmd + " -input " + iPath + " -output " + oPath + " -log annot-step.log " 
+            #
+            if  self.__inputParamDict.has_key('new_coordinate_file_path'):
+                xyzFilePath=self.__inputParamDict['new_coordinate_file_path']
+                cmd += " -newcoord " + topFilePath
+
+            if  self.__inputParamDict.has_key('new_coordinate_format'):
+                xyzFormat=self.__inputParamDict['new_coordinate_format']
+                cmd += " -format " + xyzFormat
+            else:
+                cmd += " -format cif "
+            #
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
+            cmd += " ; cat annot-step.log " + " >> " + lPath
+
+        elif (op == "annot-update-terminal-atoms"):
+            # UpdateTerminalAtom -input input_ciffile -output output_ciffile -option delete|rename [-log logfile]
+            #
+            #   If option "delete" is selected, "OXT" atom will be deleted. If option "rename" is selected, 
+            #     the "OXT" will be renamed to "N" in next residue.
+            #
+            ##
+            cmdPath =os.path.join(self.__annotAppsPath,"bin","UpdateTerminalAtom")
+            thisCmd  = " ; " + cmdPath                        
+            cmd += thisCmd + " -input " + iPath + " -output " + oPath + " -log annot-step.log " 
+            #
+            if  self.__inputParamDict.has_key('option'):
+                option=self.__inputParamDict['option']
+                cmd += " -option " + option
+            else:
+                cmd += " -option delete "
+            #
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
+            cmd += " ; cat annot-step.log " + " >> " + lPath
+
         elif (op == "prd-search"):
             cmd += " ; PRDCC_PATH="  + self.__prdccCvsPath + " ; export PRDCC_PATH "
             cmd += " ; PRD_DICT_PATH="  + self.__prdDictPath + " ; export PRD_DICT_PATH "
