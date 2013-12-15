@@ -1133,7 +1133,7 @@ class RcsbDpUtility(object):
             #
             if  self.__inputParamDict.has_key('new_coordinate_file_path'):
                 xyzFilePath=self.__inputParamDict['new_coordinate_file_path']
-                cmd += " -newcoord " + topFilePath
+                cmd += " -newcoord " + xyzFilePath
 
             if  self.__inputParamDict.has_key('new_coordinate_format'):
                 xyzFormat=self.__inputParamDict['new_coordinate_format']
