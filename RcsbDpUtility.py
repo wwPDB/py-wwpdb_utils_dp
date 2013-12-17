@@ -1086,7 +1086,7 @@ class RcsbDpUtility(object):
             thisCmd  = " ; " + cmdPath                        
             cmd += thisCmd + " -input " + iPath + " -output " + oPath + " -log annot-step.log "
             if  self.__inputParamDict.has_key('transform_file_path'):
-                assignFilePath=self.__inputParamDict['assign_file_path']                                
+                assignFilePath=self.__inputParamDict['transform_file_path']                                
                 cmd += " -assign " + assignFilePath           
             #
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
@@ -1102,7 +1102,7 @@ class RcsbDpUtility(object):
             thisCmd  = " ; " + cmdPath                        
             cmd += thisCmd + " -input " + iPath + " -output " + oPath + " -log annot-step.log "
             if  self.__inputParamDict.has_key('transform_file_path'):
-                assignFilePath=self.__inputParamDict['assign_file_path']                                
+                assignFilePath=self.__inputParamDict['transform_file_path']                                
                 cmd += " -assign " + assignFilePath           
             #
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
