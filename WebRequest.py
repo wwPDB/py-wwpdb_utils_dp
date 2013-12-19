@@ -67,7 +67,9 @@ class WebRequest(object):
     def printIt(self,ofh=sys.stdout):
         try:
             ofh.write("\n +WebRequest.printIt() WebRequest dictionary contents:\n")             
-            for k,vL in self.__dict.items():
+            
+            for k in sorted(self.__dict.keys()):
+                vL=self.__dict[k]
                 ofh.write("  - Key: %-35s  value(s): " % k)
                 for v in vL:
                     ofh.write(" %s " % v)
