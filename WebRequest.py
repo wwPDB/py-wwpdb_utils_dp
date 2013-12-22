@@ -16,6 +16,7 @@
 #                  download data in response content class.
 # 22-Mar-2013 jdw  restore method - getValueOrDefault(self,myKey,default='')
 # 11-Oct-2013 zf   add getDictionary() method
+# 22-Dec-2013 jdw  Add HTML template processing method - setHtmlFromTemplate()
 ##
 """
 WebRequest provides containers and accessors for managing request parameter information.
@@ -293,6 +294,10 @@ class ResponseContent(object):
     def setHtmlText(self,htmlText=''):
         self._cD['htmlcontent']=htmlText
 
+    def setHtmlTextFromTemplate(self,templateFilePath,webIncludePath,parameterDict=None):
+        pD=parameterDict if parameterDict is not None else {}
+        self._cD['htmlcontent']=self.__processTemplate(templateFilePath=templateFilePath, webIncludePath=webIncludePath,parameterDict=pD)
+
     def setHtmlLinkText(self,htmlText=''):
         self._cD['htmllinkcontent']=htmlText        
 
@@ -495,6 +500,41 @@ class ResponseContent(object):
         rspDict['CONTENT_TYPE']  = 'text/plain'
         rspDict['RETURN_STRING'] = myText
         return rspDict
+
+    def __processTemplate(self,templateFilePath="./alignment_template.html", webIncludePath='.',parameterDict={}):
+        """ Read the input HTML template data file and perform the key/value substitutions in the
+            input parameter dictionary.
+
+            Template HTML file path -  (e.g. /../../htdocs/<appName>/template.html)
+            webTopPath = file system path for web includes files  (eg. /../../htdocs) which will 
+                         be prepended to embedded include path in the HTML template document
+        """
+        try:
+            ifh=open(templateFilePath,'r')
+            sL=[]
+            for line in ifh.readlines():
+                if str(line).strip().startswith("<!--#include"):
+                    fields=str(line).split('"')
+                    tpth = os.path.join(webIncludePath,fields[1][1:])
+                    try:
+                        tfh=open(tpth,'r')
+                        sL.append(tfh.read())
+                        tfh.close()
+                    except:
+                        if (self.__verbose):
+                            self.__lfh.write("+WebRequest.__processTemplate() failed to include %s\n" % tpth)
+                else:
+                    sL.append(line)
+            ifh.close()
+            sIn=''.join(sL)
+            return (  sIn % parameterDict )
+        except:
+            if (self.__verbose):
+                self.__lfh.write("+WebRequest.__processTemplate() failed for %s\n" % templateFilePath)
+                traceback.print_exc(file=self.__lfh)                                 
+
+        return ''
+
 
 if __name__ == '__main__':
     rC=ResponseContent()
