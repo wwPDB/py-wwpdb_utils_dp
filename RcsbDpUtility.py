@@ -126,7 +126,7 @@ class RcsbDpUtility(object):
                                 "annot-rcsb2pdbx-withpdbid",
                                 "annot-rcsb2pdbx-withpdbid-singlequote", "annot-rcsb2pdbx-alt",
                                 "annot-move-xyz-by-matrix","annot-move-xyz-by-symop","annot-extra-checks",
-                                "annot-update-terminal-atoms","annot-merge-xyz"]
+                                "annot-update-terminal-atoms","annot-merge-xyz","annot-gen-assem-pdbx"]
         self.__sequenceOps = ['seq-blastp','seq-blastn']
 
         #
@@ -1163,6 +1163,27 @@ class RcsbDpUtility(object):
             #
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
             cmd += " ; cat annot-step.log " + " >> " + lPath
+        elif (op == "annot-gen-assem-pdbx"):
+            #   
+            #    GenBioCIFFile -input model_ciffile -depid depositionID -index output_index_file [-log logfile]
+            #
+            ##
+            cmdPath =os.path.join(self.__annotAppsPath,"bin","GenBioCIFFile")
+            thisCmd  = " ; " + cmdPath                        
+            cmd += thisCmd + " -input " + iPath + " -log annot-step.log " 
+            #
+            if  self.__inputParamDict.has_key('deposition_data_set_id'):
+                depId=self.__inputParamDict['deposition_data_set_id']
+                cmd += " -depid " + depId
+
+            idxFilePath=oPath
+            if  self.__inputParamDict.has_key('index_file_path'):
+                idxFilePath=self.__inputParamDict['index_file_path']
+            cmd += " -index " + idxFilePath
+
+            #
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
+            cmd += " ; cat annot-step.log " + " >> " + lPath
 
         elif (op == "prd-search"):
             cmd += " ; PRDCC_PATH="  + self.__prdccCvsPath + " ; export PRDCC_PATH "
@@ -1348,6 +1369,16 @@ class RcsbDpUtility(object):
                 self.__resultPathList.append(mapfofcPath)
             else:
                 self.__resultPathList.append("missing")                
+
+        elif (op == "annot-gen-assem-pdbx"):
+            #
+            self.__resultPathList=[]
+            if os.access(idxFilePath,os.R_OK):
+                ifh=open(idxFilePath,'r')
+                for line in ifh:
+                    fp=os.path.join(self.__wrkPath,line[:-1])
+                    if os.access(fp,os.R_OK):
+                        self.__resultPathList.append(fp)
 
         elif (op == "annot-make-ligand-maps"):
             pat = self.__wrkPath + '/*.map'

@@ -294,9 +294,9 @@ class ResponseContent(object):
     def setHtmlText(self,htmlText=''):
         self._cD['htmlcontent']=htmlText
 
-    def setHtmlTextFromTemplate(self,templateFilePath,webIncludePath,parameterDict=None):
+    def setHtmlTextFromTemplate(self,templateFilePath,webIncludePath,parameterDict=None,insertContext=False):
         pD=parameterDict if parameterDict is not None else {}
-        self._cD['htmlcontent']=self.__processTemplate(templateFilePath=templateFilePath, webIncludePath=webIncludePath,parameterDict=pD)
+        self._cD['htmlcontent']=self.__processTemplate(templateFilePath=templateFilePath, webIncludePath=webIncludePath,parameterDict=pD,insertContext=insertContext)
 
     def setHtmlLinkText(self,htmlText=''):
         self._cD['htmllinkcontent']=htmlText        
@@ -501,9 +501,11 @@ class ResponseContent(object):
         rspDict['RETURN_STRING'] = myText
         return rspDict
 
-    def __processTemplate(self,templateFilePath="./alignment_template.html", webIncludePath='.',parameterDict={}):
+    def __processTemplate(self,templateFilePath="./alignment_template.html", webIncludePath='.',parameterDict={},insertContext=False):
         """ Read the input HTML template data file and perform the key/value substitutions in the
             input parameter dictionary.
+
+            if insertContext is set then paramDict is injected as a json object if <!--insert application_context=""-->
 
             Template HTML file path -  (e.g. /../../htdocs/<appName>/template.html)
             webTopPath = file system path for web includes files  (eg. /../../htdocs) which will 
@@ -513,7 +515,7 @@ class ResponseContent(object):
             ifh=open(templateFilePath,'r')
             sL=[]
             for line in ifh.readlines():
-                if str(line).strip().startswith("<!--#include"):
+                if (str(line).strip().startswith("<!--#include") or (insertContext and str(line).strip().startswith("<!--#insert"))):
                     fields=str(line).split('"')
                     tpth = os.path.join(webIncludePath,fields[1][1:])
                     try:
@@ -522,7 +524,7 @@ class ResponseContent(object):
                         tfh.close()
                     except:
                         if (self.__verbose):
-                            self.__lfh.write("+WebRequest.__processTemplate() failed to include %s\n" % tpth)
+                            self.__lfh.write("+WebRequest.__processTemplate() failed to include %s fields=%r\n" % (tpth,fields))
                 else:
                     sL.append(line)
             ifh.close()
