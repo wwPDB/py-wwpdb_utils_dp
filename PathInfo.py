@@ -8,6 +8,7 @@
 #  28-Feb-2013  jdw   Add wrappers for more general purpose methods -  
 #  04-Apr-2013  jdw   Add assembly assignment and map convenience methods
 #  27-Aug-2013  jdw   Add optional parameters for content milestone variants [upload,deposit,annotate,...] 
+#  23-Dec-2013  jdw   Add support for file source 'session-download' as extension of file source session.
 ## 
 """
 Common methods for finding path information resource and data files in the wwPDB data processing
@@ -40,11 +41,13 @@ class PathInfo(object):
         self.__debug=False
         self.__siteId=siteId
         self.__sessionPath = sessionPath
+        self.__sessionDownloadPath=os.path.join(self.__sessionPath,"downloads")
         #
     def setSessionPath(self,sessionPath):
         """  Set the top path that will be searched for files with fileSource='session'
         """
         self.__sessionPath=sessionPath
+        self.__sessionDownloadPath=os.path.join(self.__sessionPath,"downloads")
         
     def getModelPdbxFilePath(self,dataSetId,wfInstanceId=None,fileSource="archive",versionId="latest",mileStone=None):
         return self.__getStandardPath(dataSetId=dataSetId,
@@ -185,6 +188,17 @@ class PathInfo(object):
                                                       mileStone=mileStone))
     
 
+    def getWebDownloadPath(self,dataSetId,wfInstanceId=None,contentType=None,formatType=None,versionId="latest",partNumber='1',mileStone=None):
+        fn=os.path.basename(self.__getStandardPath(dataSetId=dataSetId,
+                                                   wfInstanceId=wfInstanceId,
+                                                   contentTypeBase=contentType,
+                                                   formatType=formatType,
+                                                   fileSource='session-download',
+                                                   versionId=versionId,
+                                                   partNumber=partNumber,
+                                                   mileStone=mileStone))
+        (p,sId)=os.path.split(self.__sessionPath)
+        return os.path.join('/sessions',sId,'downloads',fn)
 
     def getcopyContentType(self,sourcePath,sourcePattern,destPath):
         fpattern=os.path.join(sourcePath,sourcePattern)
@@ -208,15 +222,14 @@ class PathInfo(object):
             contentType = contentTypeBase
         #
         retPath=None
+        dfRef=DataFileReference(siteId=self.__siteId,verbose=self.__verbose,log=self.__lfh)
         if (fileSource in ['archive','wf-archive']):
-            dfRef=DataFileReference(siteId=self.__siteId,verbose=self.__verbose,log=self.__lfh)
             dfRef.setDepositionDataSetId(dataSetId)
             dfRef.setStorageType('archive')
             dfRef.setContentTypeAndFormat(contentType,formatType)
             dfRef.setPartitionNumber(partNumber)
             dfRef.setVersionId(versionId)
         elif (fileSource =='wf-instance'):
-            dfRef=DataFileReference(siteId=self.__siteId,verbose=self.__verbose,log=self.__lfh)
             dfRef.setDepositionDataSetId(dataSetId)
             dfRef.setWorkflowInstanceId(wfInstanceId)
             dfRef.setStorageType('wf-instance')
@@ -224,7 +237,6 @@ class PathInfo(object):
             dfRef.setPartitionNumber(partNumber)
             dfRef.setVersionId(versionId) 
         elif (fileSource in ['session','wf-session']):
-            dfRef=DataFileReference(siteId=self.__siteId,verbose=self.__verbose,log=self.__lfh)
             dfRef.setSessionPath(self.__sessionPath)
             dfRef.setSessionDataSetId(dataSetId)
             dfRef.setStorageType('session')
@@ -232,6 +244,13 @@ class PathInfo(object):
             dfRef.setPartitionNumber(partNumber)
             dfRef.setVersionId(versionId)
 
+        elif (fileSource in ['session-download']):
+            dfRef.setSessionPath(self.__sessionDownloadPath)
+            dfRef.setSessionDataSetId(dataSetId)
+            dfRef.setStorageType('session')
+            dfRef.setContentTypeAndFormat(contentType,formatType)
+            dfRef.setPartitionNumber(partNumber)
+            dfRef.setVersionId(versionId)
         else:
             self.__lfh.write("+PathInfo.__getStandardPath() bad file source %s for id %s wf id %s\n" % (fileSource,dataSetId,wfInstanceId))
             return retPath

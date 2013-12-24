@@ -10,6 +10,8 @@
 #  6-Aug-2013  jdw  add rcsb2PdbxWithPdbIdAlt() 
 # 11-Oct-2013  jdw  add option to strip  additional entity categories --
 #  4-Dec-2013  jdw  check for duplicate source and destination paths.
+# 24-Dec-2013  jdw  add pdbx2Assemblies(idCode,inpFilePath,outPath='.',idxFilePath=None)
+# 24-Dec-2013  jdw  add cid2pdbx()
 ##
 """
 Encapsulate data model format type conversions.
@@ -21,11 +23,8 @@ __email__     = "jwest@rcsb.rutgers.edu"
 __license__   = "Creative Commons Attribution 3.0 Unported"
 __version__   = "V0.07"
 
-
 import sys, os.path, shutil, traceback
 from wwpdb.utils.rcsb.RcsbDpUtility       import RcsbDpUtility
-
-
 
 class DataFileAdapter(object):
     """  Manage data model format type conversions.
@@ -148,6 +147,25 @@ class DataFileAdapter(object):
         #
         return True        
 
+
+    def cif2Pdbx(self,inpPath,outPath): 
+        """   CIF -> PDBx conversion  (public subset with PDBid conversion)  
+        """
+        try:
+            dp = RcsbDpUtility(tmpPath=self.__sessionPath, siteId=self.__siteId, verbose=self.__verbose,log=self.__lfh)
+            dp.imp(inpPath)
+            dp.op("annot-cif2pdbx-withpdbid")
+            logPath=os.path.join(self.__sessionPath,"annot-cif2pdbx.log")
+            dp.expLog(logPath)
+            dp.exp(outPath)
+            if (not self.__debug):
+                dp.cleanup()
+        except:
+            traceback.print_exc(file=self.__lfh)
+            return False
+        #
+        return True        
+
     def mtz2Pdbx(self,inpPath,outPath):
         """Perform  MTZ or other SF file  to  PDBx(cif) format conversion operation. 
         """
@@ -213,4 +231,41 @@ class DataFileAdapter(object):
             return ok
         except:
             traceback.print_exc(file=self.__lfh)
+            return False
+
+    def pdbx2Assemblies(self,idCode,inpFilePath,outPath='.',indexFilePath=None):
+        """Create model assemby files from input PDBx model file.
+        """
+        try:
+            pdbxPath=inpFilePath
+            logPath=os.path.join(self.__sessionPath,"pdbx-assembly.log")
+            #indexFilePath=os.path.join(self.__sessionPath,"pdbx-assembly-index.txt")
+            #
+            dp=RcsbDpUtility(tmpPath=self.__sessionPath,siteId=self.__siteId,verbose=self.__verbose,log=self.__lfh)
+            dp.imp(pdbxPath)
+            if (idCode is not None):
+                dp.addInput(name="deposition_data_set_id",value=idCode,type='param')
+
+            if (indexFilePath is not None):
+                dp.addInput(name="index_file_path",value=indexFilePath,type='param')
+
+            dp.op("annot-gen-assem-pdbx")
+            dp.expLog(logPath)
+            pthList=dp.getResultPathList()
+            wrkPath=dp.getWorkingDir()
+            for pth in pthList:
+                if os.access(pth,os.R_OK):
+                    (t,fn)=os.path.split(pth)
+                    shutil.copyfile(pth,os.path.join(outPath,fn))
+
+            #if (not self.__debug): 
+            #    dp.cleanup()            
+            #
+            if (self.__verbose):
+                self.__lfh.write("+DataFileAdapter.pdbx2Assemblies() - input  model file path: %s\n" % inpFilePath)
+                self.__lfh.write("+DataFileAdapter.pdbx2Assemblies() - assembly output paths:  %r\n" % pthList)
+            return True
+        except:
+            self.__lfh.write("+DataFileAdapter.pdbx2Assemblies() - failing for input file path %s output path %s\n" % (inpFilePath,outPath))            
+            traceback.print_exc(file=self.__lfh)            
             return False

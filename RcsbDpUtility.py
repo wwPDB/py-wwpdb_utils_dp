@@ -58,6 +58,7 @@
 # 18-Oct-2013 jdw add miscellaneous tools in DCC package -  "annot-dcc-refine-report",
 #                "annot-dcc-special-position", and "annot-dcc-reassign-alt-ids"
 # 12-Dec-2013 jdw add wrapper for  "annot-update-terminal-atoms" and "annot-merge-xyz"
+# 23-Dec-2013 jdw add "annot-gen-assem-pdbx"  and tentative "annot-cif2pdbx-withpdbid"
 #
 #
 ##
@@ -126,7 +127,7 @@ class RcsbDpUtility(object):
                                 "annot-rcsb2pdbx-withpdbid",
                                 "annot-rcsb2pdbx-withpdbid-singlequote", "annot-rcsb2pdbx-alt",
                                 "annot-move-xyz-by-matrix","annot-move-xyz-by-symop","annot-extra-checks",
-                                "annot-update-terminal-atoms","annot-merge-xyz","annot-gen-assem-pdbx"]
+                                "annot-update-terminal-atoms","annot-merge-xyz","annot-gen-assem-pdbx","annot-cif2pdbx-withpdbid"]
         self.__sequenceOps = ['seq-blastp','seq-blastn']
 
         #
@@ -615,8 +616,8 @@ class RcsbDpUtility(object):
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
             cmd += " ; cat annot-step.log " + " >> " + lPath
 
-        elif (op == "annot-rcsb2pdbx-withpdbid"):
-            
+        elif ((op == "annot-rcsb2pdbx-withpdbid") or (op == "annot-cif2pdbx-withpdbid")):
+            # JDW using this to produce external PDBx files - 
             # New minimal RCSB internal cif to PDBx cif converter with internal conversion of entry id to  pdbId -
             cmdPath =os.path.join(self.__annotAppsPath,"bin","PdbxConverter")
             thisCmd  = " ; " + cmdPath                        
