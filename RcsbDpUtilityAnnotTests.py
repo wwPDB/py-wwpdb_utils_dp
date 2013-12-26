@@ -76,6 +76,9 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
         
         self.__testFileMtzBad  = "mtz-bad.mtz"
         self.__testFileMtzGood = "mtz-good.mtz"        
+
+        self.__testFileMtzRunaway  = "bad-runaway.mtz"
+        self.__testFileXyzRunaway  = "bad-runaway.cif"
             
     def tearDown(self):
         pass
@@ -706,8 +709,8 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             traceback.print_exc(file=self.__lfh)
             self.fail()
 
-    def testAnnotMtz2Pdbx(self): 
-        """  Test mtz to pdbx conversion
+    def testAnnotMtz2PdbxGood(self): 
+        """  Test mtz to pdbx conversion  (good mtz)
         """
         self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
         try:
@@ -718,6 +721,32 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
             mtzPath=os.path.join(self.__testFilePath,self.__testFileMtzGood)
             dp.imp(mtzPath)
+            dp.op("annot-sf-convert")
+            dp.expLog("sf-convert.log")
+            dp.expList(dstPathList=[ciffn,diagfn,dmpfn])
+            #dp.cleanup()
+        except:
+            traceback.print_exc(file=self.__lfh)
+            self.fail()
+
+
+    def testAnnotMtz2PdbxBad(self): 
+        """  Test mtz to pdbx conversion
+        """
+        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        try:
+            diagfn="sf-convert-diags.cif"
+            ciffn="sf-convert-datafile.cif"
+            dmpfn="sf-convert-mtzdmp.log"
+            #
+            #self.__testFileMtzRunaway  = "bad-runaway.mtz"
+            #self.__testFileXyzRunaway  = "bad-runaway.cif"
+            #
+            dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
+            mtzPath=os.path.join(self.__testFilePath,self.__testFileMtzRunaway)
+            dp.imp(mtzPath)
+            xyzPath=os.path.join(self.__testFilePath,self.__testFileXyzRunaway)
+            #dp.addInput(name="xyz_file_path",value=xyzPath)
             dp.op("annot-sf-convert")
             dp.expLog("sf-convert.log")
             dp.expList(dstPathList=[ciffn,diagfn,dmpfn])
@@ -809,7 +838,8 @@ def suiteFormatCheckTests():
 def suiteAnnotDccTests():
     suiteSelect = unittest.TestSuite()
     suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotDccReport"))
-    suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotMtz2Pdbx"))
+    suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotMtz2PdbxGood"))
+    suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotMtz2PdbxBad"))
     return suiteSelect        
 
 def suiteAnnotFormatConvertTests():
@@ -870,7 +900,8 @@ if __name__ == '__main__':
 
     #
     #
-    mySuite=suiteMapCalcTests()
+    mySuite=suiteAnnotDccTests()
     unittest.TextTestRunner(verbosity=2).run(mySuite)
+
     
 
