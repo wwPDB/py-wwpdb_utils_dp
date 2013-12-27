@@ -746,6 +746,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             mtzPath=os.path.join(self.__testFilePath,self.__testFileMtzRunaway)
             dp.imp(mtzPath)
             xyzPath=os.path.join(self.__testFilePath,self.__testFileXyzRunaway)
+            dp.setTimeout(15)
             dp.addInput(name="xyz_file_path",value=xyzPath)
             dp.op("annot-sf-convert")
             dp.expLog("sf-convert.log")

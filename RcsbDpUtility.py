@@ -59,6 +59,8 @@
 #                "annot-dcc-special-position", and "annot-dcc-reassign-alt-ids"
 # 12-Dec-2013 jdw add wrapper for  "annot-update-terminal-atoms" and "annot-merge-xyz"
 # 23-Dec-2013 jdw add "annot-gen-assem-pdbx"  and tentative "annot-cif2pdbx-withpdbid"
+# 26-Dec-2013 jdw standardize execution via Python subprocess module.   Implement an execution 
+#                 function with a timeout.
 #
 #
 ##
@@ -70,10 +72,11 @@ Initial RCSB version - adapted from file utils method collections.
 
 """
 import sys, os, os.path, glob, time, datetime, shutil, tempfile, traceback
-import socket
+import socket,shlex
 
 from wwpdb.utils.rcsb.DataFile          import DataFile
 from wwpdb.api.facade.ConfigInfo        import ConfigInfo
+from subprocess import call,Popen
 
 from wwpdb.utils.rcsb.PdbxStripCategory import PdbxStripCategory
 
@@ -141,6 +144,7 @@ class RcsbDpUtility(object):
         self.__stepOpList  = []
         self.__stepNo      = 0
         self.__stepNoSaved = None
+        self.__timeout = 0
 
         self.__cI=ConfigInfo(self.__siteId)        
         self.__initPath()
@@ -165,7 +169,10 @@ class RcsbDpUtility(object):
         self.__annotAppsPath = None
         self.__toolsPath = None        
         #
-        
+
+    def setTimeout(self,seconds):
+        self.__timeout=seconds
+
     def setRcsbAppsPath(self,fPath):
         """ Set or overwrite the configuration setting for __rcsbAppsPath.
         """ 
@@ -1004,6 +1011,7 @@ class RcsbDpUtility(object):
             #
             cmd += thisCmd + " -o mmcif  -sf " + mtzFile + " -out " + oPath
             #
+            
             if  self.__inputParamDict.has_key('xyz_file_path'):
                 xyzPath=self.__inputParamDict['xyz_file_path']
                 xyzPathFull = os.path.abspath(xyzPath)       
@@ -1225,7 +1233,14 @@ class RcsbDpUtility(object):
             ofh.write("\nStep command:\n%s\n-------------------------------------------------\n" % cmd.replace(";","\n"))
         ofh.close()
            
-        iret = os.system(cmd)
+        #iret = os.system(cmd)
+
+        if self.__timeout > 0:
+            iret=self.__runTimeout(cmd, self.__timeout,lPathFull)
+        else:
+            iret = self.__run(cmd)
+
+
 
         #
         # After execution processing --
@@ -1408,15 +1423,16 @@ class RcsbDpUtility(object):
         
         return iret
     
-        
+
+                
     def __maxitStep(self, op, progName="maxit"):
         """ Internal method that performs a single maxit operation.
-         
+                    
         """
         # Set application specific path details --
         #
         # If this has not been initialized take if from the configuration class.        
-        if self.__rcsbAppsPath is None:        
+        if self.__rcsbAppsPath is None:
             #self.__rcsbAppsPath  =  self.__getConfigPath('SITE_RCSB_APPS_PATH')
             self.__rcsbAppsPath  =  self.__getConfigPath('SITE_ANNOT_TOOLS_PATH')
         self.__ccCvsPath     =  self.__getConfigPath('SITE_CC_CVS_PATH')        
@@ -1526,7 +1542,12 @@ class RcsbDpUtility(object):
         ofh.write("\n")
         ofh.close()
 
-        iret = os.system(cmd)
+        if self.__timeout > 0:
+            iret=self.__runTimeout(cmd, self.__timeout,lPathFull)
+        else:
+            iret = self.__run(cmd)
+
+        #iret = os.system(cmd)
         #
         if ((op == "cif2pdb-assembly") or (op == "pdbx2pdb-assembly")):
             pat = self.__wrkPath + '/*.pdb[1-9]*'
@@ -1823,8 +1844,13 @@ class RcsbDpUtility(object):
         if (self.__verbose):
             ofh.write("\nStep command:\n%s\n-------------------------------------------------\n" % cmd.replace(";","\n"))
         ofh.close()
+
+        if self.__timeout > 0:
+            iret=self.__runTimeout(cmd, self.__timeout,lPathFull)
+        else:
+            iret = self.__run(cmd)
            
-        iret = os.system(cmd)
+        #iret = os.system(cmd)
         #
         if ((op == "pdbx2xml")):
             pat = self.__wrkPath + '/*.xml*'
@@ -1950,7 +1976,12 @@ class RcsbDpUtility(object):
             ofh.write("\nStep command:\n%s\n-------------------------------------------------\n" % cmd.replace(";","\n"))
         ofh.close()
            
-        iret = os.system(cmd)
+        if self.__timeout > 0:
+            iret=self.__runTimeout(cmd, self.__timeout,lPathFull)
+        else:
+            iret = self.__run(cmd)
+
+        #iret = os.system(cmd)
         #
         return iret
 
@@ -2063,8 +2094,13 @@ class RcsbDpUtility(object):
         if (self.__verbose):
             ofh.write("\nStep command:\n%s\n-------------------------------------------------\n" % cmd.replace(";","\n"))
         ofh.close()
+
+        if self.__timeout > 0:
+            iret=self.__runTimeout(cmd, self.__timeout,lPathFull)
+        else:
+            iret = self.__run(cmd)
            
-        iret = os.system(cmd)
+        #iret = os.system(cmd)
         #
         return iret
 
@@ -2227,6 +2263,67 @@ class RcsbDpUtility(object):
 
         return False
 
+    def __runTimeout(self,command, timeout, logPath=None):
+        """ Execute the input command string (sh semantics) as a subprocess with a timeout.
+
+            
+        """
+        import subprocess, datetime, os, time, signal, stat
+        start = datetime.datetime.now()
+        cmdfile=os.path.join(self.__wrkPath,'timeoutscript.sh')
+        ofh=open(cmdfile,'w')
+        ofh.write("#!/bin/sh\n")
+        ofh.write(command)
+        ofh.write("#\n")
+        ofh.close()
+        st = os.stat(cmdfile)
+        os.chmod(cmdfile, st.st_mode | stat.S_IEXEC)
+        self.__lfh.write("command to run   %r\n" % cmdfile)        
+        process = subprocess.Popen(cmdfile, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False,close_fds=True,preexec_fn=os.setsid)
+        while process.poll() is None:
+            time.sleep(0.1)
+            now = datetime.datetime.now()
+            if (now - start).seconds> timeout:
+                #os.kill(-process.pid, signal.SIGKILL)
+                os.killpg(process.pid, signal.SIGKILL)
+                os.waitpid(-1, os.WNOHANG)
+                self.__lfh.write("+ERROR RcsbDpUtility.__runTimeout() - Execution terminated by timeout %d (seconds)\n" % timeout)
+                if logPath is not None:
+                    ofh=open(logPath,'a')
+                    ofh.write("+ERROR RcsbDpUtility.__runTimeout() Execution terminated by timeout %d (seconds)\n" % timeout)
+                    ofh.close()
+                return None
+        self.__lfh.write("Execution completed with %r\n" % process.stdout.read())
+        return 0
+
+    def __run(self,command):
+        retcode=-1000
+        try:
+            retcode = call(command, shell=True)
+            if retcode < 0:
+                self.__lfh.write("Child was terminated by signal %r\n" % retcode)
+            else:
+                self.__lfh.write("Child returned %r\n" % retcode)
+        except OSError as e:
+            self.__lfh.write("Execution failed with OSError %r\n" % e)
+        except:
+            self.__lfh.write("Execution failed\n")            
+        return retcode
+
+    def __runP(self,cmd):
+        retcode=-1000
+        try:
+            p1 = Popen(cmd, shell=True)
+            retcode=p1.wait()
+            if retcode < 0:
+                self.__lfh.write("Child was terminated by signal %r\n" % retcode)
+            else:
+                self.__lfh.write("Child returned %r\n" % retcode)
+        except OSError as e:
+            self.__lfh.write("Execution failed with OSError %r\n" % e)
+        except:
+            self.__lfh.write("Execution failed\n")            
+        return retcode
     
 if __name__ == '__main__':
     rdpu=RcsbDpUtility()

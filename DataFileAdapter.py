@@ -166,38 +166,6 @@ class DataFileAdapter(object):
         #
         return True        
 
-    def mtz2Pdbx(self,inpPath,outPath):
-        """Perform  MTZ or other SF file  to  PDBx(cif) format conversion operation. 
-        """
-        try:
-            sfPath        =inpPath
-            xyzPath       =None
-            #
-            #
-            sfPdbxFilePath   =outPath
-            sfDiagFilePath =os.path.join(self.__sessionPath,"mtz2pdbx-diags.log")                                                
-            logPath=os.path.join(self.__sessionPath,"mtz2pdbx.log")                                                
-            dmpPath=os.path.join(self.__sessionPath,"mtzdmp.log")                                                
-
-            dp=RcsbDpUtility(tmpPath=self.__sessionPath,siteId=self.__siteId,verbose=self.__verbose,log=self.__lfh)
-            dp.imp(sfPath)
-            if ((xyzPath is not None)  and  os.path.exists(xyzPath)):
-                dp.addInput(name="xyz_file_path",value=xyzPath,type='file')
-
-            dp.op("annot-sf-convert")
-            dp.expLog(logPath)
-            dp.expList(dstPathList=[sfPdbxFilePath,sfDiagFilePath,dmpPath])
-            if (not self.__debug): 
-                dp.cleanup()            
-            if (self.__verbose):
-                self.__lfh.write("+DataFileAdapter.mtz2pdbxOp() - SF  input  file path:      %s\n" % sfPath)
-                #self.__lfh.write("+DataFileAdapter.mtz2pdbxOp() - XYZ input  file path:      %s\n" % xyzPath)
-                self.__lfh.write("+DataFileAdapter.mtz2pdbxOp() - PDBx SF output file path: %s\n" % sfPdbxFilePath)                                
-            return True
-        except:
-            self.__lfh.write("+DataFileAdapter.mtz2pdbxOp() - failing for input file path %s output file path %s\n" % (inpPath,outPath))            
-            traceback.print_exc(file=self.__lfh)            
-            return False
         
     def modelConvertToPdbx(self,filePath=None,fileType='pdbx',pdbxFilePath=None):
         """ Convert input model file format to PDBx.   Converted file is stored in the session 
@@ -267,5 +235,63 @@ class DataFileAdapter(object):
             return True
         except:
             self.__lfh.write("+DataFileAdapter.pdbx2Assemblies() - failing for input file path %s output path %s\n" % (inpFilePath,outPath))            
+            traceback.print_exc(file=self.__lfh)            
+            return False
+
+
+    def mtz2Pdbx(self,mtzFilePath,outSfFilePath,pdbxFilePath=None,logFilePath=None,diagsFilePath=None,dumpFilePath=None,timeout=120):
+        """ Convert input MTZ format to PDBx sf file.
+        """
+        try:
+            diagfn=logFilePath if logFilePath is not None else "sf-convert-diags.cif"
+            dmpfn=dumpFilePath if dumpFilePath is not None else "sf-convert-mtzdmp.log"
+            #
+            dp = RcsbDpUtility(tmpPath=self.__sessionPath, siteId=self.__siteId, verbose=self.__verbose,log=self.__lfh)
+            dp.imp(mtzFilePath)
+            dp.setTimeout(timeout)
+            if pdbxFilePath is not None:
+                dp.addInput(name="xyz_file_path",value=pdbxFilePath)
+            dp.op("annot-sf-convert")
+            dp.expLog(logFilePath)
+            dp.expList(dstPathList=[outSfFilePath,diagfn,dmpfn])
+
+            if (not self.__debug):
+                dp.cleanup()
+            return True
+        except:
+            self.__lfh.write("+DataFileAdapter.mtz2Pdbx() - failing for mtz file path %s output path %s\n" % (mtzFilePath,outSfFilePath))            
+            traceback.print_exc(file=self.__lfh)            
+            return False
+
+    def Xmtz2Pdbx(self,inpPath,outPath):
+        """Perform  MTZ or other SF file  to  PDBx(cif) format conversion operation. 
+        """
+        try:
+            sfPath        =inpPath
+            xyzPath       =None
+            #
+            #
+            sfPdbxFilePath   =outPath
+            sfDiagFilePath =os.path.join(self.__sessionPath,"mtz2pdbx-diags.log")                                                
+            logPath=os.path.join(self.__sessionPath,"mtz2pdbx.log")                                                
+            dmpPath=os.path.join(self.__sessionPath,"mtzdmp.log")                                                
+
+            dp=RcsbDpUtility(tmpPath=self.__sessionPath,siteId=self.__siteId,verbose=self.__verbose,log=self.__lfh)
+            dp.imp(sfPath)
+            if ((xyzPath is not None)  and  os.path.exists(xyzPath)):
+                dp.addInput(name="xyz_file_path",value=xyzPath,type='file')
+
+            dp.op("annot-sf-convert")
+            dp.expLog(logPath)
+            dp.expList(dstPathList=[sfPdbxFilePath,sfDiagFilePath,dmpPath])
+            if (not self.__debug): 
+                dp.cleanup()            
+            if (self.__verbose):
+                self.__lfh.write("+DataFileAdapter.mtz2pdbxOp() - SF  input  file path:      %s\n" % sfPath)
+                #self.__lfh.write("+DataFileAdapter.mtz2pdbxOp() - XYZ input  file path:      %s\n" % xyzPath)
+                self.__lfh.write("+DataFileAdapter.mtz2pdbxOp() - PDBx SF output file path: %s\n" % sfPdbxFilePath)                                
+            return True
+        except:
+            self.__lfh.write("+DataFileAdapter.mtz2pdbxOp() - failing for input file path %s output file path %s\n" % (inpPath,outPath))            
             traceback.print_exc(file=self.__lfh)            
             return False
