@@ -85,7 +85,7 @@ class RcsbDpUtility(object):
     """
     def __init__(self, tmpPath="/scratch", siteId="DEV",  verbose=False, log=sys.stderr):
         self.__verbose  = verbose
-        self.__debug    = True
+        self.__debug    = False
         self.__lfh      = log
         #
         # tmpPath is used (if it exists) to place working directories if these are not explicitly set.
@@ -171,6 +171,7 @@ class RcsbDpUtility(object):
         #
 
     def setTimeout(self,seconds):
+        self.__lfh.write("+INFO RcsbDpUtility.setTimeout() - Set execution time out %d (seconds)\n" % seconds)
         self.__timeout=seconds
 
     def setRcsbAppsPath(self,fPath):
@@ -2269,6 +2270,7 @@ class RcsbDpUtility(object):
             
         """
         import subprocess, datetime, os, time, signal, stat
+        self.__lfh.write("+INFO RcsbDpUtility.__runTimeout() - Execution time out %d (seconds)\n" % timeout)
         start = datetime.datetime.now()
         cmdfile=os.path.join(self.__wrkPath,'timeoutscript.sh')
         ofh=open(cmdfile,'w')
@@ -2278,7 +2280,7 @@ class RcsbDpUtility(object):
         ofh.close()
         st = os.stat(cmdfile)
         os.chmod(cmdfile, st.st_mode | stat.S_IEXEC)
-        self.__lfh.write("command to run   %r\n" % cmdfile)        
+        self.__lfh.write("+INFO RcsbDpUtility.__runTimeout() running command %r\n" % cmdfile)        
         process = subprocess.Popen(cmdfile, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False,close_fds=True,preexec_fn=os.setsid)
         while process.poll() is None:
             time.sleep(0.1)
