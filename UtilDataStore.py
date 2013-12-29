@@ -27,13 +27,14 @@ class UtilDataStore(object):
     """
     def __init__(self,reqObj,prefix=None,verbose=False,log=sys.stderr):
         self.__verbose=verbose
-        self.__debug=False
+        self.__debug=True
         self.__lfh=log
         self.__reqObj=reqObj
         if prefix is not None:
             self.__filePrefix=prefix
         else:
             self.__filePrefix="general"
+        self.__filePath=None
         self.__setup()
         
     def __setup(self):
@@ -45,15 +46,15 @@ class UtilDataStore(object):
         #
         #self.__pickleProtocol = cPickle.HIGHEST_PROTOCOL
         self.__pickleProtocol=0
-        self.__filePath = os.path.join(self.__sessionPath,self.__filePrefix+"-util-session.pic")
         try:
+            self.__filePath = os.path.join(self.__sessionPath,self.__filePrefix+"-util-session.pic")
             if (self.__verbose):
                 self.__lfh.write("+UtilDataStore.__setup() - data store path %s\n" % self.__filePath)               
             self.deserialize()
         except:
             if (self.__debug):
-                self.__lfh.write("+UtilDataStore.__setup() - Failed to open data store for session id %s data store path %s\n" %
-                                 (self.__sessionId,self.__filePath))            
+                self.__lfh.write("+UtilDataStore.__setup() - Failed to open data store for session id %s data store prefix %s path %s\n" %
+                                 (self.__sessionId,self.__filePrefix,self.__filePath))            
 
     def reset(self):
         self.__D={}
