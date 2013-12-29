@@ -130,7 +130,8 @@ class RcsbDpUtility(object):
                                 "annot-rcsb2pdbx-withpdbid",
                                 "annot-rcsb2pdbx-withpdbid-singlequote", "annot-rcsb2pdbx-alt",
                                 "annot-move-xyz-by-matrix","annot-move-xyz-by-symop","annot-extra-checks",
-                                "annot-update-terminal-atoms","annot-merge-xyz","annot-gen-assem-pdbx","annot-cif2pdbx-withpdbid"]
+                                "annot-update-terminal-atoms","annot-merge-xyz","annot-gen-assem-pdbx","annot-cif2pdbx-withpdbid",
+                                "annot-validate-geometry"]
         self.__sequenceOps = ['seq-blastp','seq-blastn']
         self.__validateOps = ['validate-geometry']
 
@@ -406,6 +407,16 @@ class RcsbDpUtility(object):
             if  self.__inputParamDict.has_key('ss_topology_file_path'):
                 topFilePath=self.__inputParamDict['ss_topology_file_path']                                
                 cmd += " -support " + topFilePath
+            #
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
+            cmd += " ; cat annot-step.log " + " >> " + lPath
+
+        elif (op == "annot-validate-geometry"):
+            # UpdateValidateCategories -input input_ciffile -output output_ciffile -log logfile 
+            #
+            cmdPath =os.path.join(self.__annotAppsPath,"bin","UpdateValidateCategories")
+            thisCmd  = " ; " + cmdPath                        
+            cmd += thisCmd + " -input " + iPath + " -output " + oPath + " -log annot-step.log " 
             #
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
             cmd += " ; cat annot-step.log " + " >> " + lPath

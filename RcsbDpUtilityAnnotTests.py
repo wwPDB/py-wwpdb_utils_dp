@@ -94,7 +94,25 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             inpPath=os.path.join(self.__testFilePath,self.__testFileAnnotSite)
             dp.imp(inpPath)
             dp.op("validate-geometry")
-            dp.expLog("validate=geometry-check-pdbx.log")
+            dp.expLog("validate-geometry-check-pdbx.log")
+            dp.exp(of)            
+            #dp.cleanup()
+            
+        except:
+            traceback.print_exc(file=self.__lfh)
+            self.fail()
+
+    def testAnnotValidateGeometryCheck(self): 
+        """  Test format sanity check for pdbx
+        """
+        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        try:
+            of="annot-validate-geometry-check.cif"
+            dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
+            inpPath=os.path.join(self.__testFilePath,self.__testFileAnnotSite)
+            dp.imp(inpPath)
+            dp.op("annot-validate-geometry")
+            dp.expLog("annot-validate-geometry-check-pdbx.log")
             dp.exp(of)            
             #dp.cleanup()
             
@@ -859,6 +877,7 @@ def suiteFormatCheckTests():
 def suiteValidateGeometryCheckTests():
     suiteSelect = unittest.TestSuite()
     suiteSelect.addTest(RcsbDpUtilityAnnotTests("testValidateGeometryCheck"))
+    suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotValidateGeometryCheck"))
     return suiteSelect    
 
 def suiteAnnotDccTests():
