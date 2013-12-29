@@ -61,7 +61,7 @@
 # 23-Dec-2013 jdw add "annot-gen-assem-pdbx"  and tentative "annot-cif2pdbx-withpdbid"
 # 26-Dec-2013 jdw standardize execution via Python subprocess module.   Implement an execution 
 #                 function with a timeout.
-#
+# 29-Dec-2013 jdw add validate-geometry -- add ignore_errors to cleanup function 
 #
 ##
 """
@@ -132,6 +132,7 @@ class RcsbDpUtility(object):
                                 "annot-move-xyz-by-matrix","annot-move-xyz-by-symop","annot-extra-checks",
                                 "annot-update-terminal-atoms","annot-merge-xyz","annot-gen-assem-pdbx","annot-cif2pdbx-withpdbid"]
         self.__sequenceOps = ['seq-blastp','seq-blastn']
+        self.__validateOps = ['validate-geometry']
 
         #
         # Source, destination and logfile path details
@@ -262,6 +263,10 @@ class RcsbDpUtility(object):
         elif op in self.__sequenceOps:
             self.__stepNo += 1            
             self.__sequenceStep(op)
+
+        elif op in self.__validateOps:
+            self.__stepNo += 1            
+            self.__validateStep(op)
         else:
             self.__lfh.write("+RcsbDbUtility.op() ++ Error  - Unknown operation %s\n" % op)
 
@@ -1425,6 +1430,107 @@ class RcsbDpUtility(object):
         return iret
     
 
+    def __validateStep(self, op):
+        """ Internal method that performs a single validation operation.
+
+            Now using only validation pack functions.
+        """
+        #
+        # Set application specific path details here -
+        #
+        self.__localAppsPath  =  self.__getConfigPath('SITE_LOCAL_APPS_PATH')
+        self.__packagePath    =  self.__getConfigPath('SITE_TOOLS_PATH')
+        self.__deployPath     =  self.__getConfigPath('SITE_DEPLOY_PATH')        
+        self.__ccDictPath     =  self.__getConfigPath('SITE_CC_DICT_PATH')
+        self.__ccCvsPath      =  self.__getConfigPath('SITE_CC_CVS_PATH')                
+        self.__prdccCvsPath   =  self.__getConfigPath('SITE_PRDCC_CVS_PATH')
+        self.__prdDictPath    =  os.path.join(self.__getConfigPath('SITE_DEPLOY_PATH'), 'reference', 'components', 'prd-dict')
+
+        self.__rcsbAppsPath  =  os.path.join(self.__packagePath,'validation-pack')
+        #
+        # These may not be needed -- 
+        self.__pdbxDictPath  =  self.__getConfigPath('SITE_PDBX_DICT_PATH')
+        self.__pdbxDictName  =  self.__cI.get('SITE_PDBX_DICT_NAME')
+        self.__pathDdlSdb      = os.path.join(self.__pdbxDictPath,"mmcif_ddl.sdb")
+        self.__pathPdbxDictSdb = os.path.join(self.__pdbxDictPath,self.__pdbxDictName+'.sdb')
+        self.__pathPdbxDictOdb = os.path.join(self.__pdbxDictPath,self.__pdbxDictName+'.odb')
+
+        #
+        #
+        iPath=     self.__getSourceWrkFile(self.__stepNo)
+        iPathList= self.__getSourceWrkFileList(self.__stepNo)
+        oPath=     self.__getResultWrkFile(self.__stepNo)
+        lPath=     self.__getLogWrkFile(self.__stepNo)
+        ePath=     self.__getErrWrkFile(self.__stepNo)
+        tPath=     self.__getTmpWrkFile(self.__stepNo)        
+        #
+        if (self.__wrkPath != None):
+            iPathFull=os.path.abspath(os.path.join(self.__wrkPath, iPath))            
+            ePathFull=os.path.join(self.__wrkPath, ePath)
+            lPathFull=os.path.join(self.__wrkPath, lPath)
+            tPathFull=os.path.join(self.__wrkPath, tPath)                                    
+            cmd = "(cd " + self.__wrkPath
+        else:
+            iPathFull = iPath
+            ePathFull = ePath
+            lPathFull = lPath
+            tPathFull = tPath            
+            cmd = "("
+        #
+        if (self.__stepNo > 1):
+            pPath = self.__updateInputPath()
+            if (os.access(pPath,os.F_OK)):            
+                cmd += "; cp " + pPath + " "  + iPath
+
+        #
+        # Standard setup for maxit ---
+        #
+        cmd += " ; RCSBROOT=" + self.__rcsbAppsPath + " ; export RCSBROOT  "            
+        cmd += " ; COMP_PATH=" + self.__ccCvsPath + " ; export COMP_PATH  "
+        valCmd = os.path.join(self.__rcsbAppsPath,"bin","validation_with_cif_output")        
+
+        #
+        if (op == "validate-geometry"):
+            thisCmd  = " ; " + valCmd                        
+            cmd += thisCmd + " -cif " + iPath + " -output " + oPath + " -log validation-step.log " 
+            #
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
+            cmd += " ; cat validation-step.log " + " >> " + lPath
+        else:
+            return -1
+        #
+        
+        if (self.__debug):
+            self.__lfh.write("+RcsbDpUtility._validationStep()  - Application string:\n%s\n" % cmd.replace(";","\n"))        
+        #
+        if (self.__verbose):            
+            cmd += " ; ls -la  > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                                    
+            
+        cmd += " ) > %s 2>&1 " % ePathFull
+
+        cmd += " ; echo '-BEGIN-PROGRAM-ERROR-LOG--------------------------\n'  >> " + lPathFull                
+        cmd += " ; cat " + ePathFull + " >> " + lPathFull
+        cmd += " ; echo '-END-PROGRAM-ERROR-LOG-------------------------\n'  >> " + lPathFull                        
+
+
+        ofh = open(lPathFull,'w')
+        lt = time.strftime("%Y %m %d %H:%M:%S", time.localtime())
+        ofh.write("\n\n-------------------------------------------------\n")
+        ofh.write("LogFile:      %s\n" % lPath)
+        ofh.write("Working path: %s\n" % self.__wrkPath)
+        ofh.write("Date:         %s\n" % lt)
+        if (self.__verbose):
+            ofh.write("\nStep command:\n%s\n-------------------------------------------------\n" % cmd.replace(";","\n"))
+        ofh.close()
+           
+        if self.__timeout > 0:
+            iret=self.__runTimeout(cmd, self.__timeout,lPathFull)
+        else:
+            iret = self.__run(cmd)
+
+        return iret
+    
+
                 
     def __maxitStep(self, op, progName="maxit"):
         """ Internal method that performs a single maxit operation.
@@ -2270,7 +2376,7 @@ class RcsbDpUtility(object):
             
         """
         import subprocess, datetime, os, time, signal, stat
-        self.__lfh.write("+INFO RcsbDpUtility.__runTimeout() - Execution time out %d (seconds)\n" % timeout)
+        self.__lfh.write("+RcsbDpUtility.__runTimeout() - Execution time out %d (seconds)\n" % timeout)
         start = datetime.datetime.now()
         cmdfile=os.path.join(self.__wrkPath,'timeoutscript.sh')
         ofh=open(cmdfile,'w')
@@ -2280,7 +2386,7 @@ class RcsbDpUtility(object):
         ofh.close()
         st = os.stat(cmdfile)
         os.chmod(cmdfile, st.st_mode | stat.S_IEXEC)
-        self.__lfh.write("+INFO RcsbDpUtility.__runTimeout() running command %r\n" % cmdfile)        
+        self.__lfh.write("+RcsbDpUtility.__runTimeout() running command %r\n" % cmdfile)        
         process = subprocess.Popen(cmdfile, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False,close_fds=True,preexec_fn=os.setsid)
         while process.poll() is None:
             time.sleep(0.1)
@@ -2295,7 +2401,7 @@ class RcsbDpUtility(object):
                     ofh.write("+ERROR RcsbDpUtility.__runTimeout() Execution terminated by timeout %d (seconds)\n" % timeout)
                     ofh.close()
                 return None
-        self.__lfh.write("Execution completed with %r\n" % process.stdout.read())
+        self.__lfh.write("+RcsbDpUtility.__runTimeout() completed with return code %r\n" % process.stdout.read())
         return 0
 
     def __run(self,command):
@@ -2303,13 +2409,13 @@ class RcsbDpUtility(object):
         try:
             retcode = call(command, shell=True)
             if retcode < 0:
-                self.__lfh.write("Child was terminated by signal %r\n" % retcode)
+                self.__lfh.write("+RcsbDpUtility.__run() completed with return code %r\n" % retcode)
             else:
-                self.__lfh.write("Child returned %r\n" % retcode)
+                self.__lfh.write("+RcsbDpUtility.__run() completed with return code %r\n" % retcode)
         except OSError as e:
-            self.__lfh.write("Execution failed with OSError %r\n" % e)
+            self.__lfh.write("+RcsbDpUtility.__run() failed  with exception %r\n" % e)
         except:
-            self.__lfh.write("Execution failed\n")            
+            self.__lfh.write("+RcsbDpUtility.__run() failed  with exception\n")
         return retcode
 
     def __runP(self,cmd):
@@ -2318,13 +2424,13 @@ class RcsbDpUtility(object):
             p1 = Popen(cmd, shell=True)
             retcode=p1.wait()
             if retcode < 0:
-                self.__lfh.write("Child was terminated by signal %r\n" % retcode)
+                self.__lfh.write("+RcsbDpUtility.__run() completed with return code %r\n" % retcode)
             else:
-                self.__lfh.write("Child returned %r\n" % retcode)
+                self.__lfh.write("+RcsbDpUtility.__run() completed with return code %r\n" % retcode)
         except OSError as e:
-            self.__lfh.write("Execution failed with OSError %r\n" % e)
+            self.__lfh.write("+RcsbDpUtility.__run() failed  with exception %r\n" % e)
         except:
-            self.__lfh.write("Execution failed\n")            
+            self.__lfh.write("+RcsbDpUtility.__run() failed  with exception\n")
         return retcode
     
 if __name__ == '__main__':
