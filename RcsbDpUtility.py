@@ -2229,7 +2229,7 @@ class RcsbDpUtility(object):
         """
         try:
             self.__lfh.write("+RcsbDpUtility.cleanup() removing working path %s\n" % self.__wrkPath)
-            shutil.rmtree(self.__wrkPath)
+            shutil.rmtree(self.__wrkPath,ignore_errors=True)
             return True
         except:
             self.__lfh.write("+RcsbDpUtility.cleanup() removal failed for working path %s\n" % self.__wrkPath)
