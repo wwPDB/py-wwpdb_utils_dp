@@ -64,6 +64,7 @@
 # 29-Dec-2013 jdw add validate-geometry -- add ignore_errors to cleanup function 
 # 31-Dec-2013 jdw add expSize() method
 #                 append parsing diagostics to extra and geometry check operations.
+#  1-Jan-2014 jdw change debugging output 
 #
 ##
 """
@@ -1147,7 +1148,7 @@ class RcsbDpUtility(object):
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
             cmd += " ; cat annot-step.log " + " >> " + lPath
             cmd += " ; touch " + iPath + "-parser.log "             
-            cmd += " ; cat " + iPath + "-parser.log > " + oPath
+            cmd += " ; cat " + iPath + "-parser.log >> " + oPath
 
             ##
         elif (op == "annot-merge-xyz"):
@@ -1234,27 +1235,24 @@ class RcsbDpUtility(object):
         if (self.__debug):
             self.__lfh.write("+RcsbDpUtility._annotationStep()  - Application string:\n%s\n" % cmd.replace(";","\n"))        
         #
-        if (self.__verbose):            
+        if (self.__debug):            
             cmd += " ; ls -la  > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                                    
             
         cmd += " ) > %s 2>&1 " % ePathFull
-
-        cmd += " ; echo '-BEGIN-PROGRAM-ERROR-LOG--------------------------\n'  >> " + lPathFull                
+        
         cmd += " ; cat " + ePathFull + " >> " + lPathFull
-        cmd += " ; echo '-END-PROGRAM-ERROR-LOG-------------------------\n'  >> " + lPathFull                        
 
-
-        ofh = open(lPathFull,'w')
-        lt = time.strftime("%Y %m %d %H:%M:%S", time.localtime())
-        ofh.write("\n\n-------------------------------------------------\n")
-        ofh.write("LogFile:      %s\n" % lPath)
-        ofh.write("Working path: %s\n" % self.__wrkPath)
-        ofh.write("Date:         %s\n" % lt)
-        if (self.__verbose):
-            ofh.write("\nStep command:\n%s\n-------------------------------------------------\n" % cmd.replace(";","\n"))
-        ofh.close()
+        if (self.__debug):
+            ofh = open(lPathFull,'w')
+            lt = time.strftime("%Y %m %d %H:%M:%S", time.localtime())
+            ofh.write("\n\n-------------------------------------------------\n")
+            ofh.write("LogFile:      %s\n" % lPath)
+            ofh.write("Working path: %s\n" % self.__wrkPath)
+            ofh.write("Date:         %s\n" % lt)
+            if (self.__verbose):
+                ofh.write("\nStep command:\n%s\n-------------------------------------------------\n" % cmd.replace(";","\n"))
+            ofh.close()
            
-        #iret = os.system(cmd)
 
         if self.__timeout > 0:
             iret=self.__runTimeout(cmd, self.__timeout,lPathFull)
@@ -1512,7 +1510,7 @@ class RcsbDpUtility(object):
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
             cmd += " ; cat validation-step.log " + " >> " + lPath
             cmd += " ; touch " + iPath + "-parser.log "             
-            cmd += " ; cat " + iPath + "-parser.log > " + oPath
+            cmd += " ; cat " + iPath + "-parser.log >> " + lPath
         else:
             return -1
         #
@@ -1520,25 +1518,23 @@ class RcsbDpUtility(object):
         if (self.__debug):
             self.__lfh.write("+RcsbDpUtility._validationStep()  - Application string:\n%s\n" % cmd.replace(";","\n"))        
         #
-        if (self.__verbose):            
+        if (self.__debug):            
             cmd += " ; ls -la  > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                                    
             
         cmd += " ) > %s 2>&1 " % ePathFull
 
-        cmd += " ; echo '-BEGIN-PROGRAM-ERROR-LOG--------------------------\n'  >> " + lPathFull                
         cmd += " ; cat " + ePathFull + " >> " + lPathFull
-        cmd += " ; echo '-END-PROGRAM-ERROR-LOG-------------------------\n'  >> " + lPathFull                        
 
-
-        ofh = open(lPathFull,'w')
-        lt = time.strftime("%Y %m %d %H:%M:%S", time.localtime())
-        ofh.write("\n\n-------------------------------------------------\n")
-        ofh.write("LogFile:      %s\n" % lPath)
-        ofh.write("Working path: %s\n" % self.__wrkPath)
-        ofh.write("Date:         %s\n" % lt)
-        if (self.__verbose):
-            ofh.write("\nStep command:\n%s\n-------------------------------------------------\n" % cmd.replace(";","\n"))
-        ofh.close()
+        if (self.__debug):
+            ofh = open(lPathFull,'w')
+            lt = time.strftime("%Y %m %d %H:%M:%S", time.localtime())
+            ofh.write("\n\n-------------------------------------------------\n")
+            ofh.write("LogFile:      %s\n" % lPath)
+            ofh.write("Working path: %s\n" % self.__wrkPath)
+            ofh.write("Date:         %s\n" % lt)
+            if (self.__verbose):
+                ofh.write("\nStep command:\n%s\n-------------------------------------------------\n" % cmd.replace(";","\n"))
+            ofh.close()
            
         if self.__timeout > 0:
             iret=self.__runTimeout(cmd, self.__timeout,lPathFull)
@@ -1642,29 +1638,25 @@ class RcsbDpUtility(object):
         else:
             return -1
         #
-        if (self.__verbose):            
+        if (self.__debug):            
             cmd += " ; ls -la >> " + lPath        
         #
-        cmd += " ; echo '-BEGIN-PROGRAM-ERROR-LOG--------------------------\n'  >> " + lPath        
-        #cmd += " ; cat maxit.err >> " + lPath
-        cmd += " ; echo '-END-PROGRAM-ERROR-LOG--------------------------\n'  >> " + lPath        
-
-            
-        #cmd += " ; rm -f maxit.err >> " + lPath
         cmd += " ) > %s 2>&1 " % ePathFull
         
         if (self.__debug):
             self.__lfh.write("+RcsbDpUtility.maxitStep()  - Command string:\n%s\n" % cmd.replace(";","\n"))
 
-        ofh = open(lPathFull,'w')
-        lt = time.strftime("%Y %m %d %H:%M:%S", time.localtime())
-        ofh.write("\n\n-------------------------------------------------\n")
-        ofh.write("LogFile:      %s\n" % lPath)
-        ofh.write("Working path: %s\n" % self.__wrkPath)
-        ofh.write("Date:         %s\n" % lt)
-        if (self.__verbose): ofh.write("\nStep command:\n%s\n-------------------------------------------------\n" % cmd.replace(";","\n"))
-        ofh.write("\n")
-        ofh.close()
+        if (self.__debug):
+            ofh = open(lPathFull,'w')
+            lt = time.strftime("%Y %m %d %H:%M:%S", time.localtime())
+            ofh.write("\n\n-------------------------------------------------\n")
+            ofh.write("LogFile:      %s\n" % lPath)
+            ofh.write("Working path: %s\n" % self.__wrkPath)
+            ofh.write("Date:         %s\n" % lt)
+            if (self.__verbose): 
+                ofh.write("\nStep command:\n%s\n-------------------------------------------------\n" % cmd.replace(";","\n"))
+                ofh.write("\n")
+            ofh.close()
 
         if self.__timeout > 0:
             iret=self.__runTimeout(cmd, self.__timeout,lPathFull)
@@ -1949,25 +1941,23 @@ class RcsbDpUtility(object):
         if (self.__debug):
             self.__lfh.write("+RcsbDpUtility._rcsbStep()  - Application string:\n%s\n" % cmd.replace(";","\n"))        
         #
-        if (self.__verbose):            
+        if (self.__debug):            
             cmd += " ; ls -la  > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                                    
             
         cmd += " ) > %s 2>&1 " % ePathFull
 
-        cmd += " ; echo '-BEGIN-PROGRAM-ERROR-LOG--------------------------\n'  >> " + lPathFull                
         cmd += " ; cat " + ePathFull + " >> " + lPathFull
-        cmd += " ; echo '-END-PROGRAM-ERROR-LOG-------------------------\n'  >> " + lPathFull                        
 
-
-        ofh = open(lPathFull,'w')
-        lt = time.strftime("%Y %m %d %H:%M:%S", time.localtime())
-        ofh.write("\n\n-------------------------------------------------\n")
-        ofh.write("LogFile:      %s\n" % lPath)
-        ofh.write("Working path: %s\n" % self.__wrkPath)
-        ofh.write("Date:         %s\n" % lt)
-        if (self.__verbose):
-            ofh.write("\nStep command:\n%s\n-------------------------------------------------\n" % cmd.replace(";","\n"))
-        ofh.close()
+        if (self.__debug):
+            ofh = open(lPathFull,'w')
+            lt = time.strftime("%Y %m %d %H:%M:%S", time.localtime())
+            ofh.write("\n\n-------------------------------------------------\n")
+            ofh.write("LogFile:      %s\n" % lPath)
+            ofh.write("Working path: %s\n" % self.__wrkPath)
+            ofh.write("Date:         %s\n" % lt)
+            if (self.__verbose):
+                ofh.write("\nStep command:\n%s\n-------------------------------------------------\n" % cmd.replace(";","\n"))
+            ofh.close()
 
         if self.__timeout > 0:
             iret=self.__runTimeout(cmd, self.__timeout,lPathFull)
@@ -2080,25 +2070,23 @@ class RcsbDpUtility(object):
         if (self.__debug):
             self.__lfh.write("+RcsbDpUtility._pisaStep()  - Application string:\n%s\n" % cmd.replace(";","\n"))        
         #
-        if (self.__verbose):            
+        if (self.__debug):            
             cmd += " ; ls -la  > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                                    
             
         cmd += " ) > %s 2>&1 " % ePathFull
 
-        cmd += " ; echo '-BEGIN-PROGRAM-ERROR-LOG--------------------------\n'  >> " + lPathFull                
         cmd += " ; cat " + ePathFull + " >> " + lPathFull
-        cmd += " ; echo '-END-PROGRAM-ERROR-LOG-------------------------\n'  >> " + lPathFull                        
 
-
-        ofh = open(lPathFull,'w')
-        lt = time.strftime("%Y %m %d %H:%M:%S", time.localtime())
-        ofh.write("\n\n-------------------------------------------------\n")
-        ofh.write("LogFile:      %s\n" % lPath)
-        ofh.write("Working path: %s\n" % self.__wrkPath)
-        ofh.write("Date:         %s\n" % lt)
-        if (self.__verbose):
-            ofh.write("\nStep command:\n%s\n-------------------------------------------------\n" % cmd.replace(";","\n"))
-        ofh.close()
+        if (self.__debug):
+            ofh = open(lPathFull,'w')
+            lt = time.strftime("%Y %m %d %H:%M:%S", time.localtime())
+            ofh.write("\n\n-------------------------------------------------\n")
+            ofh.write("LogFile:      %s\n" % lPath)
+            ofh.write("Working path: %s\n" % self.__wrkPath)
+            ofh.write("Date:         %s\n" % lt)
+            if (self.__verbose):
+                ofh.write("\nStep command:\n%s\n-------------------------------------------------\n" % cmd.replace(";","\n"))
+            ofh.close()
            
         if self.__timeout > 0:
             iret=self.__runTimeout(cmd, self.__timeout,lPathFull)
@@ -2199,25 +2187,23 @@ class RcsbDpUtility(object):
         if (self.__debug):
             self.__lfh.write("+RcsbDpUtility._sequenceStep()  - Application string:\n%s\n" % cmd.replace(";","\n"))        
         #
-        if (self.__verbose):            
+        if (self.__debug):            
             cmd += " ; ls -la  > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                                    
             
         cmd += " ) > %s 2>&1 " % ePathFull
 
-        cmd += " ; echo '-BEGIN-PROGRAM-ERROR-LOG--------------------------\n'  >> " + lPathFull                
         cmd += " ; cat " + ePathFull + " >> " + lPathFull
-        cmd += " ; echo '-END-PROGRAM-ERROR-LOG-------------------------\n'  >> " + lPathFull                        
 
-
-        ofh = open(lPathFull,'w')
-        lt = time.strftime("%Y %m %d %H:%M:%S", time.localtime())
-        ofh.write("\n\n-------------------------------------------------\n")
-        ofh.write("LogFile:      %s\n" % lPath)
-        ofh.write("Working path: %s\n" % self.__wrkPath)
-        ofh.write("Date:         %s\n" % lt)
-        if (self.__verbose):
-            ofh.write("\nStep command:\n%s\n-------------------------------------------------\n" % cmd.replace(";","\n"))
-        ofh.close()
+        if (self.__debug):
+            ofh = open(lPathFull,'w')
+            lt = time.strftime("%Y %m %d %H:%M:%S", time.localtime())
+            ofh.write("\n\n-------------------------------------------------\n")
+            ofh.write("LogFile:      %s\n" % lPath)
+            ofh.write("Working path: %s\n" % self.__wrkPath)
+            ofh.write("Date:         %s\n" % lt)
+            if (self.__verbose):
+                ofh.write("\nStep command:\n%s\n-------------------------------------------------\n" % cmd.replace(";","\n"))
+            ofh.close()
 
         if self.__timeout > 0:
             iret=self.__runTimeout(cmd, self.__timeout,lPathFull)
