@@ -62,6 +62,8 @@
 # 26-Dec-2013 jdw standardize execution via Python subprocess module.   Implement an execution 
 #                 function with a timeout.
 # 29-Dec-2013 jdw add validate-geometry -- add ignore_errors to cleanup function 
+# 31-Dec-2013 jdw add expSize() method
+#                 append parsing diagostics to extra and geometry check operations.
 #
 ##
 """
@@ -1144,6 +1146,8 @@ class RcsbDpUtility(object):
             #
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
             cmd += " ; cat annot-step.log " + " >> " + lPath
+            cmd += " ; touch " + iPath + "-parser.log "             
+            cmd += " ; cat " + iPath + "-parser.log > " + oPath
 
             ##
         elif (op == "annot-merge-xyz"):
@@ -1507,6 +1511,8 @@ class RcsbDpUtility(object):
             #
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
             cmd += " ; cat validation-step.log " + " >> " + lPath
+            cmd += " ; touch " + iPath + "-parser.log "             
+            cmd += " ; cat " + iPath + "-parser.log > " + oPath
         else:
             return -1
         #
@@ -2222,7 +2228,20 @@ class RcsbDpUtility(object):
         #
         return iret
 
+    def expSize(self):
+        """Return the size of the last result file...
+        """
+        rf=self.__getResultWrkFile(self.__stepNo)
+        if (self.__wrkPath != None):
+            resultPath = os.path.join(self.__wrkPath,rf)
+        else:
+            resultPath = rf
 
+        f1 = DataFile(resultPath)
+        if f1.srcFileExists():
+            return f1.srcFileSize()
+        else:
+            return 0
 
     def exp(self,dstPath=None):
         """Export a copy of the last result file to destination file path.
