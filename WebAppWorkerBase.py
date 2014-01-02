@@ -198,7 +198,7 @@ class WebAppWorkerBase(object):
 
             #
             if (self._verbose):
-                self._lfh.write("+%s.%s - uploaded file %s file name %s\n" % (self.__class__.__name__,sys._getframe().f_code.co_name,fName))
+                self._lfh.write("+%s.%s - uploaded completed for file tag %s file name %s\n" % (self.__class__.__name__,sys._getframe().f_code.co_name,fileTag,fName))
             #
             #  Store the file path and name in request object -
             #
@@ -207,7 +207,7 @@ class WebAppWorkerBase(object):
             return fName
         except:
             if (self._verbose):
-                self._lfh.write("+%s.%s - uploaded file %s file name %s\n" % (self.__class__.__name__,sys._getframe().f_code.co_name,fs.filename))
+                self._lfh.write("+%s.%s - Upload failed for file tag %s file name %s\n" % (self.__class__.__name__,sys._getframe().f_code.co_name,fileTag,fs.filename))
             if (self.__debug):
                 traceback.print_exc(file=self._lfh)                            
         return None

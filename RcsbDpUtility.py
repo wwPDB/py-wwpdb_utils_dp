@@ -245,7 +245,7 @@ class RcsbDpUtility(object):
             return
 
         if (self.__verbose):
-            self.__lfh.write("+RcsbDbUtility.op() setting operation %s\n" % op)
+            self.__lfh.write("\n\n+RcsbDpUtility.op() starting op %s with working path %s\n" % (op,self.__wrkPath))
 
         if (self.__wrkPath == None):
             self.__makeTempWorkingDir()
@@ -275,7 +275,7 @@ class RcsbDpUtility(object):
             self.__stepNo += 1            
             self.__validateStep(op)
         else:
-            self.__lfh.write("+RcsbDbUtility.op() ++ Error  - Unknown operation %s\n" % op)
+            self.__lfh.write("+RcsbDpUtility.op() ++ Error  - Unknown operation %s\n" % op)
 
 
     def __getSourceWrkFileList(self,stepNo):
