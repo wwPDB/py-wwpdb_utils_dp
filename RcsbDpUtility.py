@@ -244,6 +244,9 @@ class RcsbDpUtility(object):
             self.__lfh.write("+RcsbDbUtility.op() ++ Error  - no input provided for operation %s\n" % op)
             return
 
+        if (self.__verbose):
+            self.__lfh.write("+RcsbDbUtility.op() setting operation %s\n" % op)
+
         if (self.__wrkPath == None):
             self.__makeTempWorkingDir()
 
@@ -274,9 +277,6 @@ class RcsbDpUtility(object):
         else:
             self.__lfh.write("+RcsbDbUtility.op() ++ Error  - Unknown operation %s\n" % op)
 
-        if (self.__verbose):
-            self.__lfh.write("+RcsbDbUtility.op() setting operation %s\n" % op)
-        
 
     def __getSourceWrkFileList(self,stepNo):
         """Build a file containing the current list of source files.
@@ -907,13 +907,16 @@ class RcsbDpUtility(object):
                 (h,sfFileName)=os.path.split(sfPath)
                 sfWrkPath=os.path.join(self.__wrkPath,sfFileName)
                 shutil.copyfile(sfPathFull,sfWrkPath)
+                #
+                cmd += thisCmd + " -cif ./" + iPath + " -sf  ./" + sfFileName + " -o " + oPath
+
             else:
                 sfPath="none"
                 sfPathFull="none"                
-
-            #
-            cmd += thisCmd + " -cif ./" + iPath + " -sf  ./" + sfFileName + " -o " + oPath
+                cmd += ' ; echo "No structure factor file"'
+                
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
+
 
         elif (op == "annot-dcc-refine-report"):
             # The sf-valid package is currently set to self configure in a wrapper
@@ -935,12 +938,13 @@ class RcsbDpUtility(object):
                 (h,sfFileName)=os.path.split(sfPath)
                 sfWrkPath=os.path.join(self.__wrkPath,sfFileName)
                 shutil.copyfile(sfPathFull,sfWrkPath)
+                cmd += thisCmd + " -refine -cif ./" + iPath + " -sf  ./" + sfFileName + " -o " + oPath
             else:
                 sfPath="none"
                 sfPathFull="none"                
-
+                cmd += ' ; echo "No structure factor file"'
             #
-            cmd += thisCmd + " -refine -cif ./" + iPath + " -sf  ./" + sfFileName + " -o " + oPath
+
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
 
         elif (op == "annot-dcc-biso-full"):
@@ -2423,15 +2427,15 @@ class RcsbDpUtility(object):
     def __run(self,command):
         retcode=-1000
         try:
-            retcode = call(command, shell=True)
+            retcode = call(command, shell=True)        
             if retcode < 0:
-                self.__lfh.write("+RcsbDpUtility.__run() completed with return code %r\n" % retcode)
+                self.__lfh.write("+RcsbDpUtility.__run() operation %s completed with return code %r\n" % (self.__stepOpList,retcode))
             else:
-                self.__lfh.write("+RcsbDpUtility.__run() completed with return code %r\n" % retcode)
+                self.__lfh.write("+RcsbDpUtility.__run() operation %s completed with return code %r\n" % (self.__stepOpList,retcode))
         except OSError as e:
-            self.__lfh.write("+RcsbDpUtility.__run() failed  with exception %r\n" % e)
+            self.__lfh.write("+RcsbDpUtility.__run() operation %s failed  with exception %r\n" % (self.__stepOpList,e))
         except:
-            self.__lfh.write("+RcsbDpUtility.__run() failed  with exception\n")
+            self.__lfh.write("+RcsbDpUtility.__run() operation %s failed  with exception\n" % self.__stepOpList)
         return retcode
 
     def __runP(self,cmd):
