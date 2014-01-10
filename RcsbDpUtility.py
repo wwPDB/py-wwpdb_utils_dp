@@ -65,6 +65,7 @@
 # 31-Dec-2013 jdw add expSize() method
 #                 append parsing diagostics to extra and geometry check operations.
 #  1-Jan-2014 jdw change debugging output 
+#  9-Jan-2014 jdw add diag output file to dcc report -
 #
 ##
 """
@@ -908,14 +909,14 @@ class RcsbDpUtility(object):
                 sfWrkPath=os.path.join(self.__wrkPath,sfFileName)
                 shutil.copyfile(sfPathFull,sfWrkPath)
                 #
-                cmd += thisCmd + " -cif ./" + iPath + " -sf  ./" + sfFileName + " -o " + oPath
+                cmd += thisCmd + " -cif ./" + iPath + " -sf  ./" + sfFileName + " -o " + oPath + " -diags " + lPath
 
             else:
                 sfPath="none"
                 sfPathFull="none"                
                 cmd += ' ; echo "No structure factor file"'
                 
-            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
+            cmd += " > " + tPath + " 2>&1 ; "
 
 
         elif (op == "annot-dcc-refine-report"):
