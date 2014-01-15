@@ -550,8 +550,10 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
                 testFileValidateXyz=pdbId+".cif"
                 testFileValidateSf=pdbId+"-sf.cif"
                 dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
+                
                 xyzPath=os.path.join(self.__testFilePath,testFileValidateXyz)
                 sfPath=os.path.join(self.__testFilePath,testFileValidateSf)            
+                dp.addInput(name="request_annotation_context",value="no")            
                 dp.imp(xyzPath)
                 dp.addInput(name="sf_file_path",value=sfPath)            
                 dp.op("annot-wwpdb-validate-2")
@@ -949,5 +951,5 @@ if __name__ == '__main__':
 
     #
     #
-    mySuite=suiteValidateGeometryCheckTests()
+    mySuite=suiteAnnotValidationV2Tests()
     unittest.TextTestRunner(verbosity=2).run(mySuite)

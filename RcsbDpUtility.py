@@ -65,7 +65,9 @@
 # 31-Dec-2013 jdw add expSize() method
 #                 append parsing diagostics to extra and geometry check operations.
 #  1-Jan-2014 jdw change debugging output 
-#  9-Jan-2014 jdw add diag output file to dcc report -
+#  9-Jan-2014 jdw add new --diags output to  log file from  dcc report -
+# 15-Jan-2014 jdw add new --diags output to  log file from  sf conversion/"annot-sf-convert"
+# 15-Jan-2014 jdw add additional switch for REQUEST_ANNOTATION_CONTEXT "annot-wwpdb-validate-2" 
 #
 ##
 """
@@ -795,13 +797,21 @@ class RcsbDpUtility(object):
             # For the second version of the validation package --
             #
             # The validation package is currently set to self configure in a wrapper
-            # shell script.  No environment settings are required here at this point.
+            # shell script.  See the environment in this file for details --
             #
+
+            # This parameter permits overriding the 
+            #
+            if  self.__inputParamDict.has_key('request_annotation_context'):
+                annotContext=self.__inputParamDict['request_annotation_context']
+                if annotContext in ["yes","no"]:
+                    cmd += " ; REQUEST_ANNOTATION_CONTEXT="  + annotContext + " ; export REQUEST_ANNOTATION_CONTEXT "
+                
             cmd += " ; WWPDB_SITE_ID="  + self.__siteId  + " ; export WWPDB_SITE_ID "
             cmd += " ; DEPLOY_DIR="  + self.__deployPath  + " ; export DEPLOY_DIR "
             cmdPath =os.path.join(self.__packagePath,"Vpack-v2","scripts","vpack-run.sh")
             thisCmd  = " ; " + cmdPath                        
-            
+
             if  self.__inputParamDict.has_key('sf_file_path'):
                 sfPath=self.__inputParamDict['sf_file_path']
                 sfPathFull = os.path.abspath(sfPath)                
@@ -1034,7 +1044,7 @@ class RcsbDpUtility(object):
             cmdPath =os.path.join(self.__packagePath,"sf-valid","bin","sf_convert")
             thisCmd  = " ; " + cmdPath                        
             #
-            cmd += thisCmd + " -o mmcif  -sf " + mtzFile + " -out " + oPath
+            cmd += thisCmd + " -o mmcif  -sf " + mtzFile + " -out " + oPath + " -diags " + lPath
             #
             
             if  self.__inputParamDict.has_key('xyz_file_path'):
@@ -1045,7 +1055,7 @@ class RcsbDpUtility(object):
                 shutil.copyfile(xyzPathFull,xyzWrkPath)
                 cmd += " -pdb " + xyzFileName 
 
-            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
+            cmd += " > " + tPath + " 2>&1 ; "
             #
 
         elif (op == "annot-make-maps"):
