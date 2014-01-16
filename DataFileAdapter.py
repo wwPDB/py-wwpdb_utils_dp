@@ -11,7 +11,8 @@
 # 11-Oct-2013  jdw  add option to strip  additional entity categories --
 #  4-Dec-2013  jdw  check for duplicate source and destination paths.
 # 24-Dec-2013  jdw  add pdbx2Assemblies(idCode,inpFilePath,outPath='.',idxFilePath=None)
-# 24-Dec-2013  jdw  add cid2pdbx()
+# 24-Dec-2013  jdw  add cif2pdbx()
+# 16-Jan-2014  jdw  Update method for cif2pdbx()
 ##
 """
 Encapsulate data model format type conversions.
@@ -154,7 +155,7 @@ class DataFileAdapter(object):
         try:
             dp = RcsbDpUtility(tmpPath=self.__sessionPath, siteId=self.__siteId, verbose=self.__verbose,log=self.__lfh)
             dp.imp(inpPath)
-            dp.op("annot-cif2pdbx-withpdbid")
+            dp.op("annot-cif2pdbx-public")
             logPath=os.path.join(self.__sessionPath,"annot-cif2pdbx.log")
             dp.expLog(logPath)
             dp.exp(outPath)
