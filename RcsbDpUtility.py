@@ -68,7 +68,7 @@
 #  9-Jan-2014 jdw add new --diags output to  log file from  dcc report -
 # 15-Jan-2014 jdw add new --diags output to  log file from  sf conversion/"annot-sf-convert"
 # 15-Jan-2014 jdw add additional switch for REQUEST_ANNOTATION_CONTEXT "annot-wwpdb-validate-2" 
-#
+# 16-Jan-2014 jdw add "cif2pdbx-public"
 ##
 """
 Wrapper class for data processing and chemical component utilities.
@@ -117,7 +117,7 @@ class RcsbDpUtility(object):
                            "cif2pdb-assembly","pdbx2pdb-assembly","pdbx2deriv"]
         self.__rcsbOps = [ "rename-atoms", "cif2pdbx", "pdbx2xml", "pdb2dssp", "pdb2stride", "initial-version","poly-link-dist",
                            "chem-comp-link", "chem-comp-assign", "chem-comp-assign-comp", "chem-comp-assign-skip",
-                           "chem-comp-assign-exact","chem-comp-assign-validation","check-cif","check-cif-v4"]
+                           "chem-comp-assign-exact","chem-comp-assign-validation","check-cif","check-cif-v4","cif2pdbx-public"]
         self.__pisaOps = ["pisa-analysis","pisa-assembly-report-xml","pisa-assembly-report-text",
                           "pisa-interface-report-xml","pisa-assembly-coordinates-pdb","pisa-assembly-coordinates-cif",
                           "pisa-assembly-coordinates-cif","pisa-assembly-merge-cif"]
@@ -647,7 +647,6 @@ class RcsbDpUtility(object):
             cmd += " ; cat annot-step.log " + " >> " + lPath
 
         elif ((op == "annot-rcsb2pdbx-withpdbid") or (op == "annot-cif2pdbx-withpdbid")):
-            # JDW using this to produce external PDBx files - 
             # New minimal RCSB internal cif to PDBx cif converter with internal conversion of entry id to  pdbId -
             cmdPath =os.path.join(self.__annotAppsPath,"bin","PdbxConverter")
             thisCmd  = " ; " + cmdPath                        
@@ -1794,6 +1793,14 @@ class RcsbDpUtility(object):
             cmd += " ; cat " + iPath + "-parser.log > " + oPath
             cmd += " ; cat " + iPath + "-diag.log  >> " + oPath            
             #cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
+
+        elif (op == "cif2pdbx-public"):
+            # dict/bin/cifexch2 -dicSdb mmcif_pdbx_v5_next.sdb -reorder -strip -op in -pdbids -input D_1000200033_model_P1.cif -output 4ovr.cif
+            #
+            cmdPath = os.path.join(self.__packagePath,"dict","bin","cifexch2")
+            thisCmd  = " ; " + cmdPath + " -dicSdb " + self.__pathPdbxDictSdb +  " -reorder  -strip -op in  -pdbids "
+            cmd += thisCmd + " -input " + iPath  + " -output " + oPath
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath            
 
         elif (op == "cif2pdbx"):
             #   need to have an input file list.
