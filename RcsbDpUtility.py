@@ -2426,10 +2426,10 @@ class RcsbDpUtility(object):
                 #os.kill(-process.pid, signal.SIGKILL)
                 os.killpg(process.pid, signal.SIGKILL)
                 os.waitpid(-1, os.WNOHANG)
-                self.__lfh.write("+ERROR RcsbDpUtility.__runTimeout() - Execution terminated by timeout %d (seconds)\n" % timeout)
+                self.__lfh.write("+ERROR RcsbDpUtility.__runTimeout() Execution terminated by timeout %d (seconds)\n" % timeout)
                 if logPath is not None:
                     ofh=open(logPath,'a')
-                    ofh.write("+ERROR RcsbDpUtility.__runTimeout() Execution terminated by timeout %d (seconds)\n" % timeout)
+                    ofh.write("+ERROR - Execution terminated by timeout %d (seconds)\n" % timeout)
                     ofh.close()
                 return None
         self.__lfh.write("+RcsbDpUtility.__runTimeout() completed with return code %r\n" % process.stdout.read())
