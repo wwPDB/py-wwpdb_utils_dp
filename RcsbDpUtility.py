@@ -2032,7 +2032,7 @@ class RcsbDpUtility(object):
                 cmd += "; cp " + pPath + " "  + iPath
         #
         if self.__inputParamDict.has_key('pisa_session_name'):
-            pisaSession  = self.__inputParamDict['pisa_session_name']
+            pisaSession  = str(self.__inputParamDict['pisa_session_name'])
         else:
             pisaSession = None
         cmd += " ; PISA_TOP="         + os.path.abspath(pisaTopPath)     + " ; export PISA_TOP "
@@ -2067,7 +2067,7 @@ class RcsbDpUtility(object):
         elif  (op == "pisa-assembly-coordinates-cif"):
             pisaAssemblyId  = self.__inputParamDict['pisa_assembly_id']
             cmdPath   = os.path.join(pisaTopPath,"bin","pisa")
-            cmd += " ; "   + cmdPath + " " + pisaSession + " -cif assembly " + pisaAssemblyId + "  > " + oPath
+            cmd += " ; "   + cmdPath + " " + pisaSession + " -cif assembly " + str(pisaAssemblyId) + "  > " + oPath
             cmd += " 2> " + tPath + " ; cat " + tPath + " >> " + lPath
         elif (op == "pisa-assembly-merge-cif"):
             # MergePisaData -input input_ciffile -output output_ciffile -xml xmlfile_from_PISA_output
