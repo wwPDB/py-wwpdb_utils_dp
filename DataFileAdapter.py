@@ -155,7 +155,7 @@ class DataFileAdapter(object):
         try:
             dp = RcsbDpUtility(tmpPath=self.__sessionPath, siteId=self.__siteId, verbose=self.__verbose,log=self.__lfh)
             dp.imp(inpPath)
-            dp.op("annot-cif2pdbx-public")
+            dp.op("cif2pdbx-public")
             logPath=os.path.join(self.__sessionPath,"annot-cif2pdbx.log")
             dp.expLog(logPath)
             dp.exp(outPath)
