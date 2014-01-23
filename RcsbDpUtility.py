@@ -124,7 +124,7 @@ class RcsbDpUtility(object):
         self.__annotationOps = ["annot-secondary-structure", "annot-link-ssbond", "annot-cis-peptide","annot-distant-solvent",
                                 "annot-merge-struct-site","annot-reposition-solvent","annot-base-pair-info",
                                 "annot-validation","annot-site","annot-rcsb2pdbx","annot-consolidated-tasks",
-                                "annot-wwpdb-validate-test","annot-wwpdb-validate-2","prd-search",
+                                "annot-wwpdb-validate-test","annot-wwpdb-validate-2","prd-search","annot-wwpdb-validate-alt",
                                 "annot-chem-shift-check","annot-chem-shift-coord-check","annot-nmrstar2pdbx","annot-pdbx2nmrstar",
                                 "annot-reposition-solvent-add-derived", "annot-rcsb2pdbx-strip", "annot-rcsbeps2pdbx-strip",
                                 "annot-rcsb2pdbx-strip-plus-entity", "annot-rcsbeps2pdbx-strip-plus-entity",
@@ -809,6 +809,44 @@ class RcsbDpUtility(object):
             cmd += " ; WWPDB_SITE_ID="  + self.__siteId  + " ; export WWPDB_SITE_ID "
             cmd += " ; DEPLOY_DIR="  + self.__deployPath  + " ; export DEPLOY_DIR "
             cmdPath =os.path.join(self.__packagePath,"Vpack-v2","scripts","vpack-run.sh")
+            thisCmd  = " ; " + cmdPath                        
+
+            if  self.__inputParamDict.has_key('sf_file_path'):
+                sfPath=self.__inputParamDict['sf_file_path']
+                sfPathFull = os.path.abspath(sfPath)                
+            else:
+                sfPath="none"
+                sfPathFull="none"                
+
+            #
+            xmlPath=os.path.join(self.__wrkPath, "out.xml")
+            pdfPath=os.path.join(self.__wrkPath, "out.pdf")
+            if (not self.__verbose):
+                cleanOpt="cleanup"
+            else:
+                cleanOpt="none"
+            #
+            cmd += thisCmd + " 1abc " + iPathFull + " " + sfPathFull + " " + pdfPath +  " " + xmlPath + " " + cleanOpt 
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
+            cmd += " ; cp  -f " + pdfPath + " " + oPath
+
+        elif (op == "annot-wwpdb-validate-alt"):
+            # For the second version of the validation package --
+            #
+            # The validation package is currently set to self configure in a wrapper
+            # shell script.  See the environment in this file for details --
+            #
+
+            # This parameter permits overriding the 
+            #
+            if  self.__inputParamDict.has_key('request_annotation_context'):
+                annotContext=self.__inputParamDict['request_annotation_context']
+                if annotContext in ["yes","no"]:
+                    cmd += " ; REQUEST_ANNOTATION_CONTEXT="  + annotContext + " ; export REQUEST_ANNOTATION_CONTEXT "
+                
+            cmd += " ; WWPDB_SITE_ID="  + self.__siteId  + " ; export WWPDB_SITE_ID "
+            cmd += " ; DEPLOY_DIR="  + self.__deployPath  + " ; export DEPLOY_DIR "
+            cmdPath =os.path.join(self.__packagePath,"Vpack-v2","scripts","vpack-alt-run.sh")
             thisCmd  = " ; " + cmdPath                        
 
             if  self.__inputParamDict.has_key('sf_file_path'):

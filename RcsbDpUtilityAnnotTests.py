@@ -564,6 +564,31 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             traceback.print_exc(file=self.__lfh)
             self.fail()
 
+    def testAnnotValidateListV2Alt(self): 
+        """  Test create validation report for the test list of example PDB ids
+        """
+        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        try:
+            for pdbId in self.__testValidateIdList:
+                ofpdf=pdbId+"-valrpt.pdf"
+                ofxml=pdbId+"-valdata.xml"
+                testFileValidateXyz=pdbId+".cif"
+                testFileValidateSf=pdbId+"-sf.cif"
+                dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
+                
+                xyzPath=os.path.join(self.__testFilePath,testFileValidateXyz)
+                sfPath=os.path.join(self.__testFilePath,testFileValidateSf)            
+                dp.addInput(name="request_annotation_context",value="yes")            
+                dp.imp(xyzPath)
+                dp.addInput(name="sf_file_path",value=sfPath)            
+                dp.op("annot-wwpdb-validate-alt")
+                dp.expLog(pdbId+"-annot-validate-v2.log")
+                dp.expList(dstPathList=[ofpdf,ofxml])
+                dp.cleanup()
+        except:
+            traceback.print_exc(file=self.__lfh)
+            self.fail()
+
 
     def testArchiveValidateListV2(self): 
         """  Test create validation report for the test list of example dep dataset ids
@@ -823,6 +848,11 @@ def suiteAnnotValidationV2Tests():
     suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotValidateListV2"))    
     return suiteSelect        
 
+def suiteAnnotValidationV2AltTests():
+    suiteSelect = unittest.TestSuite()
+    suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotValidateListV2Alt"))    
+    return suiteSelect        
+
 def suiteArchiveValidationV2Tests():
     suiteSelect = unittest.TestSuite()
     suiteSelect.addTest(RcsbDpUtilityAnnotTests("testArchiveValidateListV2"))    
@@ -946,10 +976,13 @@ if __name__ == '__main__':
         mySuite=suiteValidateGeometryCheckTests()
         unittest.TextTestRunner(verbosity=2).run(mySuite)
 
+        mySuite=suiteAnnotValidationV2AltTests()
+        unittest.TextTestRunner(verbosity=2).run(mySuite)
+
     else:
         pass
 
     #
     #
-    mySuite=suiteAnnotValidationV2Tests()
+    mySuite=suiteAnnotValidationV2AltTests()
     unittest.TextTestRunner(verbosity=2).run(mySuite)
