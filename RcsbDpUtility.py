@@ -859,6 +859,11 @@ class RcsbDpUtility(object):
             #
             xmlPath=os.path.join(self.__wrkPath, "out.xml")
             pdfPath=os.path.join(self.__wrkPath, "out.pdf")
+            #
+            pdfFullPath=os.path.join(self.__wrkPath, "out_full.pdf")
+            pngPath=os.path.join(self.__wrkPath, "out.png")
+            svgPath=os.path.join(self.__wrkPath, "out.svg")
+            #
             if (not self.__verbose):
                 cleanOpt="cleanup"
             else:
@@ -1405,7 +1410,7 @@ class RcsbDpUtility(object):
             strpCt=PdbxStripCategory(verbose=self.__verbose,log=self.__lfh)
             strpCt.strip(oPath2Full,oPathFull,stripList)
         
-        if ((op == "annot-wwpdb-validate-1") or (op == "annot-wwpdb-validate-2") ):
+        if ((op == "annot-wwpdb-validate-1") or (op == "annot-wwpdb-validate-2") or (op == "annot-wwpdb-validate-alt") ):
             self.__resultPathList=[]
             #
             # Push the output pdf and xml files onto the resultPathList.
@@ -1417,6 +1422,21 @@ class RcsbDpUtility(object):
             #
             if os.access(xmlPath,os.F_OK):
                 self.__resultPathList.append(xmlPath)
+            else:
+                self.__resultPathList.append("missing")
+
+            if os.access(pdfFUllPath,os.F_OK):
+                self.__resultPathList.append(pdfFullPath)
+            else:
+                self.__resultPathList.append("missing")
+
+            if os.access(pngPath,os.F_OK):
+                self.__resultPathList.append(pngPath)
+            else:
+                self.__resultPathList.append("missing")
+
+            if os.access(svgPath,os.F_OK):
+                self.__resultPathList.append(svgPath)
             else:
                 self.__resultPathList.append("missing")
 

@@ -572,6 +572,10 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             for pdbId in self.__testValidateIdList:
                 ofpdf=pdbId+"-valrpt.pdf"
                 ofxml=pdbId+"-valdata.xml"
+                offullpdf=pdbId+"-valrpt_full.pdf"
+                ofpng=pdbId+"-val-slider.png"
+                ofsvg=pdbId+"-val-slider.svg"
+                #
                 testFileValidateXyz=pdbId+".cif"
                 testFileValidateSf=pdbId+"-sf.cif"
                 dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
@@ -583,7 +587,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
                 dp.addInput(name="sf_file_path",value=sfPath)            
                 dp.op("annot-wwpdb-validate-alt")
                 dp.expLog(pdbId+"-annot-validate-v2.log")
-                dp.expList(dstPathList=[ofpdf,ofxml])
+                dp.expList(dstPathList=[ofpdf,ofxml,offullpdf,ofpng,ofsvg])
                 dp.cleanup()
         except:
             traceback.print_exc(file=self.__lfh)
