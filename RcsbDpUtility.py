@@ -1425,7 +1425,7 @@ class RcsbDpUtility(object):
             else:
                 self.__resultPathList.append("missing")
 
-            if os.access(pdfFUllPath,os.F_OK):
+            if os.access(pdfFullPath,os.F_OK):
                 self.__resultPathList.append(pdfFullPath)
             else:
                 self.__resultPathList.append("missing")
