@@ -127,6 +127,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
         try:
             of="annot-format-check.txt"
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
+            #
             inpPath=os.path.join(self.__testFilePath,self.__testFileAnnotSite)
             dp.imp(inpPath)
             dp.op("annot-format-check-pdbx")
@@ -988,5 +989,7 @@ if __name__ == '__main__':
 
     #
     #
-    mySuite=suiteAnnotValidationV2AltTests()
+    mySuite=suiteFormatCheckTests()
     unittest.TextTestRunner(verbosity=2).run(mySuite)
+    #
+
