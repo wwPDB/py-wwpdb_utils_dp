@@ -1666,7 +1666,7 @@ class RcsbDpUtility(object):
         #
         if (op == "mapfix-big"):
             jarPath=os.path.join(self.__packagePath,"mapFix","mapFixBig.jar")
-            thisCmd  = " ; " + "java -Xms256m -Xmx256m -jar " + parPath
+            thisCmd  = " ; " + "java -Xms256m -Xmx256m -jar " + jarPath
             cmd += thisCmd + " -in " + iPath + " -out " + oPath + " -all " 
             #
             if  self.__inputParamDict.has_key('options'):

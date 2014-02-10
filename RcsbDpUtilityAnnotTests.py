@@ -79,7 +79,9 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
 
         self.__testFileMtzRunaway  = "bad-runaway.mtz"
         self.__testFileXyzRunaway  = "bad-runaway.cif"
-            
+
+        self.__testMapNormal = "normal.map"
+
     def tearDown(self):
         pass
 
@@ -825,6 +827,30 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             traceback.print_exc(file=self.__lfh)
             self.fail()
 
+    def testMapFix(self): 
+        """  Test mapfix utility
+        """
+        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        try:
+
+            dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
+            #
+            inpPath=os.path.join(self.__testFilePath,self.__testMapNormal)
+            of=self.__testMapNormal+"-fix.map"
+            dp.imp(inpPath)
+            dp.op("mapfix-big")
+            dp.expLog("mapfix-big.log")
+            dp.exp(of)            
+            #dp.cleanup()
+        except:
+            traceback.print_exc(file=self.__lfh)
+            self.fail()
+
+
+def suiteAnnotEmTests():
+    suiteSelect = unittest.TestSuite()
+    suiteSelect.addTest(RcsbDpUtilityAnnotTests("testMapFix"))    
+    return suiteSelect        
 
 def suiteAnnotSiteTests():
     suiteSelect = unittest.TestSuite()
@@ -933,6 +959,7 @@ def suiteAnnotFormatConvertTests():
     suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotRcsbEps2Pdbx"))    
     return suiteSelect        
 
+
 if __name__ == '__main__':
     # Run all tests -- 
     # unittest.main()
@@ -984,12 +1011,15 @@ if __name__ == '__main__':
         mySuite=suiteAnnotValidationV2AltTests()
         unittest.TextTestRunner(verbosity=2).run(mySuite)
 
+        mySuite=suiteAnnotEmTests()
+        unittest.TextTestRunner(verbosity=2).run(mySuite)
     else:
         pass
 
     #
     #
-    mySuite=suiteFormatCheckTests()
+    #
+    mySuite=suiteAnnotEmTests()
     unittest.TextTestRunner(verbosity=2).run(mySuite)
     #
 
