@@ -140,6 +140,7 @@ class RcsbDpUtility(object):
                                 "annot-validate-geometry"]
         self.__sequenceOps = ['seq-blastp','seq-blastn']
         self.__validateOps = ['validate-geometry']
+        self.__emOps = ['mapfix-big']
 
         #
         # Source, destination and logfile path details
@@ -277,6 +278,11 @@ class RcsbDpUtility(object):
         elif op in self.__validateOps:
             self.__stepNo += 1            
             self.__validateStep(op)
+
+        elif op in self.__emOps:
+            self.__stepNo += 1            
+            self.__emStep(op)
+
         else:
             self.__lfh.write("+RcsbDpUtility.op() ++ Error  - Unknown operation %s\n" % op)
 
@@ -1589,6 +1595,85 @@ class RcsbDpUtility(object):
             cmd += " ; cat validation-step.log " + " >> " + lPath
             cmd += " ; touch " + iPath + "-parser.log "             
             cmd += " ; cat " + iPath + "-parser.log >> " + lPath
+        else:
+            return -1
+        #
+        
+        if (self.__debug):
+            self.__lfh.write("+RcsbDpUtility._validationStep()  - Application string:\n%s\n" % cmd.replace(";","\n"))        
+        #
+        if (self.__debug):            
+            cmd += " ; ls -la  > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                                    
+            
+        cmd += " ) > %s 2>&1 " % ePathFull
+
+        cmd += " ; cat " + ePathFull + " >> " + lPathFull
+
+        if (self.__debug):
+            ofh = open(lPathFull,'w')
+            lt = time.strftime("%Y %m %d %H:%M:%S", time.localtime())
+            ofh.write("\n\n-------------------------------------------------\n")
+            ofh.write("LogFile:      %s\n" % lPath)
+            ofh.write("Working path: %s\n" % self.__wrkPath)
+            ofh.write("Date:         %s\n" % lt)
+            if (self.__verbose):
+                ofh.write("\nStep command:\n%s\n-------------------------------------------------\n" % cmd.replace(";","\n"))
+            ofh.close()
+           
+        if self.__timeout > 0:
+            iret=self.__runTimeout(cmd, self.__timeout,lPathFull)
+        else:
+            iret = self.__run(cmd)
+
+        return iret
+
+    def __emStep(self, op):
+        """ Internal method that performs a single em operation.
+
+        """
+        #
+        # Set application specific path details here -
+        #
+        self.__packagePath    =  self.__getConfigPath('SITE_TOOLS_PATH')
+        self.__deployPath     =  self.__getConfigPath('SITE_DEPLOY_PATH')        
+        #
+        #
+        iPath=     self.__getSourceWrkFile(self.__stepNo)
+        iPathList= self.__getSourceWrkFileList(self.__stepNo)
+        oPath=     self.__getResultWrkFile(self.__stepNo)
+        lPath=     self.__getLogWrkFile(self.__stepNo)
+        ePath=     self.__getErrWrkFile(self.__stepNo)
+        tPath=     self.__getTmpWrkFile(self.__stepNo)        
+        #
+        if (self.__wrkPath != None):
+            iPathFull=os.path.abspath(os.path.join(self.__wrkPath, iPath))            
+            ePathFull=os.path.join(self.__wrkPath, ePath)
+            lPathFull=os.path.join(self.__wrkPath, lPath)
+            tPathFull=os.path.join(self.__wrkPath, tPath)                                    
+            cmd = "(cd " + self.__wrkPath
+        else:
+            iPathFull = iPath
+            ePathFull = ePath
+            lPathFull = lPath
+            tPathFull = tPath            
+            cmd = "("
+        #
+        if (self.__stepNo > 1):
+            pPath = self.__updateInputPath()
+            if (os.access(pPath,os.F_OK)):            
+                cmd += "; cp " + pPath + " "  + iPath
+
+        #
+        if (op == "mapfix-big"):
+            jarPath=os.path.join(self.__packagePath,"mapFix","mapFixBig.jar")
+            thisCmd  = " ; " + "java -Xms256m -Xmx256m -jar " + parPath
+            cmd += thisCmd + " -in " + iPath + " -out " + oPath + " -all " 
+            #
+            if  self.__inputParamDict.has_key('options'):
+                options=self.__inputParamDict['options']
+                cmd += " " + options 
+            #
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
         else:
             return -1
         #
