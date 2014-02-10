@@ -69,6 +69,7 @@
 # 15-Jan-2014 jdw add new --diags output to  log file from  sf conversion/"annot-sf-convert"
 # 15-Jan-2014 jdw add additional switch for REQUEST_ANNOTATION_CONTEXT "annot-wwpdb-validate-2" 
 # 16-Jan-2014 jdw add "cif2pdbx-public"
+# 10-Feb-2014 jdw add __emStep and mapfix operation -- 
 ##
 """
 Wrapper class for data processing and chemical component utilities.

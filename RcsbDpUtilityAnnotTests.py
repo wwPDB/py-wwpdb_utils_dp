@@ -19,6 +19,7 @@
 #    Jun 26, 2013 jdw -  add tests for annot-format-check-pdbx
 #    Jun 27, 2013 jdw -  add tests for annot-sf-mtz2pdbx and annot-dcc-report 
 #    Aug 15, 2013 jdw -  change annot-sf-mtz2pdbx to annot-sf-convert change file format of diag file to cif
+#    Feb 10, 2014 jdw    add em test cases
 ##
 """
 Test cases from 
