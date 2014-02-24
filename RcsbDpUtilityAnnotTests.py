@@ -857,7 +857,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
             #
             inpPath=os.path.join(self.__testFilePath,self.__testMapSpider)
-            of=self.__testMapNormal+"-cnv.map"
+            of=self.__testMapSpider+"-spider-cnv.map"
             dp.imp(inpPath)
             pixelSize=2.54
             dp.addInput(name="pixel-spacing-x",value=pixelSize)
