@@ -70,6 +70,7 @@
 # 15-Jan-2014 jdw add additional switch for REQUEST_ANNOTATION_CONTEXT "annot-wwpdb-validate-2" 
 # 16-Jan-2014 jdw add "cif2pdbx-public"
 # 10-Feb-2014 jdw add __emStep and mapfix operation -- 
+# 24-Feb-2014 jdw add em2em
 ##
 """
 Wrapper class for data processing and chemical component utilities.
@@ -141,7 +142,7 @@ class RcsbDpUtility(object):
                                 "annot-validate-geometry"]
         self.__sequenceOps = ['seq-blastp','seq-blastn']
         self.__validateOps = ['validate-geometry']
-        self.__emOps = ['mapfix-big']
+        self.__emOps = ['mapfix-big','em2em-spider']
 
         #
         # Source, destination and logfile path details
@@ -1677,6 +1678,42 @@ class RcsbDpUtility(object):
                 cmd += " " + options 
             #
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
+
+        elif (op == "em2em-spider"):
+            # /packages/imsc_em2em_fsc/classes/system/linux64/stand/em2em.e
+            # binPath=os.path.join(self.__packagePath,"imsc_em2em","classes","system","linux64","stand","em2em.e")
+            # setenv IMAGIC_ROOT /net/emdep/wwwdev/em-joint/EmDepDist/extPackages/em2em
+            #
+            imagicPath=os.path.join(self.__packagePath,"em2em_c5")
+            cmd += " ; IMAGIC_ROOT=" + imagicPath + " ; export IMAGIC_ROOT "            
+            binPath=os.path.join(self.__packagePath,"em2em_c5","em2em.e")
+            thisCmd  = " ; " + binPath 
+            #
+            pixelSpacingX=1.0
+            pixelSpacingY=1.0
+            pixelSpacingZ=1.0
+            #
+            if  self.__inputParamDict.has_key('pixel-spacing-x'):
+                pixelSpacingX  =self.__inputParamDict['pixel-spacing-x']
+            if  self.__inputParamDict.has_key('pixel-spacing-y'):
+                pixelSpacingY  =self.__inputParamDict['pixel-spacing-y']
+            if  self.__inputParamDict.has_key('pixel-spacing-z'):
+                pixelSpacingZ  =self.__inputParamDict['pixel-spacing-z']
+            #
+            cFile=os.path.join(self.__wrkPath,"COMMANDS.txt")
+            ofh=open(cFile,'w')
+            ofh.write("SPIDER\n")
+            ofh.write("SINGLE_FILE\n")
+            ofh.write("CCP4\n")
+            ofh.write("3D\n")
+            ofh.write("%s\n" % iPath)
+            ofh.write("%s\n" % oPath)
+            ofh.write("%5.2f, %5.2f, %5.2f\n" % (pixelSpacingX,pixelSpacingY,pixelSpacingZ))
+            ofh.write("NO\n")
+            ofh.close()
+            cmd += thisCmd + " < " + cFile 
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
+
         else:
             return -1
         #

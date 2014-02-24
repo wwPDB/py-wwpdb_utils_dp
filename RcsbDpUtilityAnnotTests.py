@@ -82,6 +82,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
         self.__testFileXyzRunaway  = "bad-runaway.cif"
 
         self.__testMapNormal = "normal.map"
+        self.__testMapSpider = "testmap.spi"
 
     def tearDown(self):
         pass
@@ -847,10 +848,36 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             traceback.print_exc(file=self.__lfh)
             self.fail()
 
+    def testEm2EmSpider(self): 
+        """  Test mapfix utility
+        """
+        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        try:
+
+            dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
+            #
+            inpPath=os.path.join(self.__testFilePath,self.__testMapSpider)
+            of=self.__testMapNormal+"-cnv.map"
+            dp.imp(inpPath)
+            pixelSize=2.54
+            dp.addInput(name="pixel-size-x",value=pixelSize)
+            dp.addInput(name="pixel-size-y",value=pixelSize)
+            dp.addInput(name="pixel-size-z",value=pixelSize)
+            dp.op("em2em-spider")
+            dp.expLog("em2em-spider.log")
+            dp.exp(of)            
+            #dp.cleanup()
+        except:
+            traceback.print_exc(file=self.__lfh)
+            self.fail()
+
+
+
 
 def suiteAnnotEmTests():
     suiteSelect = unittest.TestSuite()
     suiteSelect.addTest(RcsbDpUtilityAnnotTests("testMapFix"))    
+    suiteSelect.addTest(RcsbDpUtilityAnnotTests("testEm2EmSpider"))    
     return suiteSelect        
 
 def suiteAnnotSiteTests():
