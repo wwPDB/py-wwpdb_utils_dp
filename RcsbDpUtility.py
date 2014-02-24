@@ -1685,9 +1685,9 @@ class RcsbDpUtility(object):
             # setenv IMAGIC_ROOT /net/emdep/wwwdev/em-joint/EmDepDist/extPackages/em2em
             #
             imagicPath=os.path.join(self.__packagePath,"em2em_c5")
-            cmd += " ; IMAGIC_ROOT=" + imagicPath + " ; export IMAGIC_ROOT "            
+            #cmd += " ; IMAGIC_ROOT=" + imagicPath + " ; export IMAGIC_ROOT "            
             binPath=os.path.join(self.__packagePath,"em2em_c5","em2em.e")
-            thisCmd  = " ; " + binPath 
+            #thisCmd  = " ; " + binPath 
             #
             pixelSpacingX=1.0
             pixelSpacingY=1.0
@@ -1700,8 +1700,10 @@ class RcsbDpUtility(object):
             if  self.__inputParamDict.has_key('pixel-spacing-z'):
                 pixelSpacingZ  =self.__inputParamDict['pixel-spacing-z']
             #
-            cFile=os.path.join(self.__wrkPath,"COMMANDS.txt")
-            ofh=open(cFile,'w')
+            cFile=os.path.join(self.__wrkPath,"COMMANDS.sh")
+            ofh=open(cFile,'wx')
+            ofh.write("export IMAGIC_ROOT=%s\n" % imagicPath)
+            ofh.write("%s << eof\n" % binPath) 
             ofh.write("SPIDER\n")
             ofh.write("SINGLE_FILE\n")
             ofh.write("CCP4\n")
@@ -1710,11 +1712,12 @@ class RcsbDpUtility(object):
             ofh.write("%s\n" % oPath)
             ofh.write("%5.2f, %5.2f, %5.2f\n" % (pixelSpacingX,pixelSpacingY,pixelSpacingZ))
             ofh.write("NO\n")
+            ofh.write("eof\n")
             ofh.close()
             #
-            cmd += thisCmd + " < " + cFile 
-            #cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
-            cmd += " > " + tPath + " ; cat " + tPath + " >> " + lPath                        
+            cmd += " ; " + cFile 
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
+            #cmd += " > " + tPath + " ; cat " + tPath + " >> " + lPath                        
 
         else:
             return -1
