@@ -860,9 +860,9 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             of=self.__testMapNormal+"-cnv.map"
             dp.imp(inpPath)
             pixelSize=2.54
-            dp.addInput(name="pixel-size-x",value=pixelSize)
-            dp.addInput(name="pixel-size-y",value=pixelSize)
-            dp.addInput(name="pixel-size-z",value=pixelSize)
+            dp.addInput(name="pixel-spacing-x",value=pixelSize)
+            dp.addInput(name="pixel-spacing-y",value=pixelSize)
+            dp.addInput(name="pixel-spacing-z",value=pixelSize)
             dp.op("em2em-spider")
             dp.expLog("em2em-spider.log")
             dp.exp(of)            
