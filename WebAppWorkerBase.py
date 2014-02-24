@@ -45,6 +45,7 @@ class WebAppWorkerBase(object):
         self._sObj=None
         self._sessionId=None
         self._sessionPath=None
+        self._rltvSessionPath=None
         #
         self._siteId=self._reqObj.getValue("WWPDB_SITE_ID")
         self._cI=ConfigInfo(self._siteId)
@@ -143,7 +144,7 @@ class WebAppWorkerBase(object):
         return rC
         
 
-    def _getSession(self,forceNew=False):
+    def _getSession(self,forceNew=False,useContext=False):
         """ Join existing session or create new session as required.
         """
         #
@@ -154,6 +155,14 @@ class WebAppWorkerBase(object):
         self._sessionId=self._sObj.getId()
         self._sessionPath=self._sObj.getPath()
         self._rltvSessionPath=self._sObj.getRelativePath()
+
+        if (useContext):
+            uds=UtilDataStore(reqObj=self._reqObj,verbose=self._verbose,log=self._lfh)
+            dd=uds.getDictionary()
+            if (self._verbose):
+                self._lfh.write("+%s.%s -  importing persisted general session parameters: %r\n" % (self.__class__.__name__,sys._getframe().f_code.co_name,dd.items()))
+            self._reqObj.setDictionary(dd,overWrite=True)
+
         if (self._verbose):
             self._lfh.write("\n--------------------------------------------------------------------------------------\n")
             self._lfh.write("+%s.%s - session   id  %s\n" % (self.__class__.__name__,sys._getframe().f_code.co_name,self._sessionId))
