@@ -1704,6 +1704,8 @@ class RcsbDpUtility(object):
             cFile=os.path.join(self.__wrkPath,"COMMANDS.sh")
             ofh=open(cFile,'w')
             ofh.write("#!/bin/sh\n")
+            ofh.write("unset DISPLAY\n")
+            ofh.write("unset TERM\n")
             ofh.write("export IMAGIC_ROOT=%s\n" % imagicPath)
             ofh.write("%s << eof\n" % binPath) 
             ofh.write("SPIDER\n")
