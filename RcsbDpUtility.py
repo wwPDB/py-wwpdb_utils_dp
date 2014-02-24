@@ -1714,6 +1714,8 @@ class RcsbDpUtility(object):
             ofh.write("NO\n")
             ofh.write("eof\n")
             ofh.close()
+            st = os.stat(cFile)
+            os.chmod(cFile, st.st_mode | stat.S_IEXEC)
             #
             cmd += " ; " + cFile 
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
