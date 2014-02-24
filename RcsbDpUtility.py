@@ -1711,6 +1711,7 @@ class RcsbDpUtility(object):
             ofh.write("%5.2f, %5.2f, %5.2f\n" % (pixelSpacingX,pixelSpacingY,pixelSpacingZ))
             ofh.write("NO\n")
             ofh.close()
+            #
             cmd += thisCmd + " < " + cFile 
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
 
@@ -1718,8 +1719,8 @@ class RcsbDpUtility(object):
             return -1
         #
         
-        if (self.__debug):
-            self.__lfh.write("+RcsbDpUtility._validationStep()  - Application string:\n%s\n" % cmd.replace(";","\n"))        
+        if (self.__verbose):
+            self.__lfh.write("+RcsbDpUtility._emStep()  - Application string:\n%s\n" % cmd.replace(";","\n"))        
         #
         if (self.__debug):            
             cmd += " ; ls -la  > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                                    
