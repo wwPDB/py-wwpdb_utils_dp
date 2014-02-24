@@ -1713,7 +1713,8 @@ class RcsbDpUtility(object):
             ofh.close()
             #
             cmd += thisCmd + " < " + cFile 
-            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
+            #cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
+            cmd += " > " + tPath + " ; cat " + tPath + " >> " + lPath                        
 
         else:
             return -1
