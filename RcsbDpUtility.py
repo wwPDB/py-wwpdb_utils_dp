@@ -80,7 +80,7 @@ Initial RCSB version - adapted from file utils method collections.
 
 """
 import sys, os, os.path, glob, time, datetime, shutil, tempfile, traceback
-import socket,shlex
+import socket,shlex,stat
 
 from wwpdb.utils.rcsb.DataFile          import DataFile
 from wwpdb.api.facade.ConfigInfo        import ConfigInfo
