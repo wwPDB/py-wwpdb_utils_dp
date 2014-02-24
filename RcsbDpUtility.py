@@ -1667,7 +1667,7 @@ class RcsbDpUtility(object):
         #
         if (op == "mapfix-big"):
             # /java/jdk1.7.0_21/bin
-            javaPath=os.path.join(self.__packagePath,"java","jdk1.7.0","bin","java")
+            javaPath=os.path.join(self.__packagePath,"java","jdk1.7","bin","java")
             jarPath=os.path.join(self.__packagePath,"mapFix","mapFixBig.jar")
             thisCmd  = " ; " + javaPath + " -Xms256m -Xmx256m -jar " + jarPath
             cmd += thisCmd + " -in " + iPath + " -out " + oPath + " -all " 
