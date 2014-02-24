@@ -1680,6 +1680,7 @@ class RcsbDpUtility(object):
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
 
         elif (op == "em2em-spider"):
+            self.__timeout=40
             # /packages/imsc_em2em_fsc/classes/system/linux64/stand/em2em.e
             # binPath=os.path.join(self.__packagePath,"imsc_em2em","classes","system","linux64","stand","em2em.e")
             # setenv IMAGIC_ROOT /net/emdep/wwwdev/em-joint/EmDepDist/extPackages/em2em
@@ -1701,7 +1702,8 @@ class RcsbDpUtility(object):
                 pixelSpacingZ  =self.__inputParamDict['pixel-spacing-z']
             #
             cFile=os.path.join(self.__wrkPath,"COMMANDS.sh")
-            ofh=open(cFile,'wx')
+            ofh=open(cFile,'w')
+            ofh.write("#!/bin/sh\n")
             ofh.write("export IMAGIC_ROOT=%s\n" % imagicPath)
             ofh.write("%s << eof\n" % binPath) 
             ofh.write("SPIDER\n")
