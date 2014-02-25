@@ -71,6 +71,7 @@
 # 16-Jan-2014 jdw add "cif2pdbx-public"
 # 10-Feb-2014 jdw add __emStep and mapfix operation -- 
 # 24-Feb-2014 jdw add em2em
+# 25-Feb-2014 jdw make MovingWater an atomic process  called by "annot-reposition-solvent"  or "annot-reposition-solvent-add-derived"
 ##
 """
 Wrapper class for data processing and chemical component utilities.
@@ -477,7 +478,7 @@ class RcsbDpUtility(object):
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
             cmd += " ; cat annot-step.log " + " >> " + lPath
 
-        elif (op == "annot-reposition-solvent"):
+        elif ( (op == "annot-reposition-solvent") or (op == "annot-reposition-solvent-add-derived") ):
             cmdPath =os.path.join(self.__annotAppsPath,"bin","MovingWater")
             thisCmd  = " ; " + cmdPath                        
             cmd += thisCmd + " -input " + iPath + " -output " + oPath + " -log annot-step.log " 
@@ -485,7 +486,7 @@ class RcsbDpUtility(object):
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
             cmd += " ; cat annot-step.log " + " >> " + lPath
 
-        elif (op == "annot-reposition-solvent-add-derived-new"):
+        elif (op == "annot-reposition-solvent-add-derived-void"):
             #
             # oPath will point to the final result for this step
             #
@@ -502,7 +503,7 @@ class RcsbDpUtility(object):
             # see at the end for the post processing operations --
             #
 
-        elif (op == "annot-reposition-solvent-add-derived"):
+        elif (op == "annot-reposition-solvent-add-derived-prev"):
             #
             # oPath will point to the final result for this step
             #
@@ -1335,7 +1336,8 @@ class RcsbDpUtility(object):
         #
         # After execution processing --
         #
-        if ((op == "annot-reposition-solvent-add-derived") or (op == "annot-reposition-solvent-add-derived-org")):
+        if (op == "annot-reposition-solvent-add-derived-prev"):
+            #  Feb 25, 2014 No longer used  ----
             # remove these categories for now -- 
             stripList=    ['pdbx_coord',
                            # 'pdbx_entity_nonpoly',

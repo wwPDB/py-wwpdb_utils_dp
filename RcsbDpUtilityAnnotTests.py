@@ -1045,9 +1045,7 @@ if __name__ == '__main__':
         pass
 
     #
-    #
-    #
-    mySuite=suiteAnnotEmTests()
-    unittest.TextTestRunner(verbosity=2).run(mySuite)
+    mySuite=suiteSolventPlusDerivedTests()
+    unittest.TextTestRunner(verbosity=2).run(mySuite)            
     #
 
