@@ -17,6 +17,7 @@
 # 22-Mar-2013 jdw  restore method - getValueOrDefault(self,myKey,default='')
 # 11-Oct-2013 zf   add getDictionary() method
 # 22-Dec-2013 jdw  Add HTML template processing method - setHtmlFromTemplate()
+# 27-Feb-2014 jdw  Add setReturnFormat() method -
 ##
 """
 WebRequest provides containers and accessors for managing request parameter information.
@@ -275,9 +276,13 @@ class ResponseContent(object):
         if self.__reqObj is not None:
             self._cD['sessionid']=self.__reqObj.getSessionId()
             self._cD['semaphore']=self.__reqObj.getSemaphore()
+            # Default comes from the input request object
+            self.__returnFormat=self.__reqObj.getReturnFormat()
         else:
             self._cD['sessionid']=''
             self._cD['semaphore']=''
+        #
+
 
     def setData(self,dataObj=None):
         self._cD['datacontent']=dataObj
@@ -420,31 +425,38 @@ class ResponseContent(object):
                 retL.append(" value(1-%d): %s\n" %   (maxLength,str(v)[:maxLength] ))
         return retL
 
+    def setReturnFormat(self,format):
+        if format in ['html','text','json','jsonText','jsonData','location','binary','jsonp']:
+            self.__returnFormat = format
+            return True
+        else:
+            return False
+
     def get(self):
         """Repackage the response for Apache according to the input return_format='html|json|text|...'
         """
         rD={}
-        if (self.__reqObj.getReturnFormat() == 'html'):
+        if (self.__returnFormat == 'html'):
             if (self._cD['errorflag']==False):
                 rD=self.__initHtmlResponse(self._cD['htmlcontent'])
             else:
                 rD=self.__initHtmlResponse(self._cD['statustext'])                
-        elif (self.__reqObj.getReturnFormat() == 'text'):
+        elif (self.__returnFormat == 'text'):
             if (self._cD['errorflag']==False):
                 rD=self.__initTextResponse(self._cD['textcontent'])
             else:
                 rD=self.__initHtmlResponse(self._cD['statustext'])                
-        elif (self.__reqObj.getReturnFormat() == 'json'):
+        elif (self.__returnFormat == 'json'):
             rD=self.__initJsonResponse(self._cD)
-        elif (self.__reqObj.getReturnFormat() == 'jsonText'):
+        elif (self.__returnFormat == 'jsonText'):
             rD=self.__initJsonResponseInTextArea(self._cD)
-        elif (self.__reqObj.getReturnFormat() == 'jsonData'):
+        elif (self.__returnFormat == 'jsonData'):
             rD=self.__initJsonResponse(self._cD['datacontent'])
-        elif (self.__reqObj.getReturnFormat() == 'location'):
+        elif (self.__returnFormat == 'location'):
             rD=self.__initLocationResponse(self._cD['location']) 
-        elif (self.__reqObj.getReturnFormat() == 'binary'):
+        elif (self.__returnFormat == 'binary'):
             rD=self.__initBinaryResponse(self._cD)
-        elif (self.__reqObj.getReturnFormat() == 'jsonp'):
+        elif (self.__returnFormat == 'jsonp'):
             rD=self.__initJsonpResponse(self._cD)                                               
         else:
             pass
