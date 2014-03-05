@@ -420,7 +420,12 @@ class ResponseContent(object):
         retL=[]
         retL.append("\n +ResponseContent.dump() - response content object\n")
         for k,v in self._cD.items():
-            if v is not None and len(str(v).strip()) > 0:
+            if v is None:
+                continue
+            elif type(v) is dict:
+                retL.append("  - key = %-35s " % k)
+                retL.append("  - dict : %s\n" % (v.items() ))
+            elif v is not None and len(str(v).strip()) > 0:
                 retL.append("  - key = %-35s " % k)
                 retL.append(" value(1-%d): %s\n" %   (maxLength,str(v)[:maxLength] ))
         return retL

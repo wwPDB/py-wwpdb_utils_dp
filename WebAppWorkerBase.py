@@ -51,6 +51,7 @@ class WebAppWorkerBase(object):
         self._cI=ConfigInfo(self._siteId)
         #
         self._uds=None
+        self._udsPrefix=None
         #
         # Service items include:
         # self.__class__.__name__,sys._getframe().f_code.co_name
@@ -106,8 +107,8 @@ class WebAppWorkerBase(object):
             dictionary (pvD) in the session parameter store.  
         """
         try:
-            if self._uds is None:
-                self._uds=UtilDataStore(reqObj=self._reqObj,prefix=prefix,verbose=self._verbose,log=self._lfh)                        
+            #if self._uds is None:
+            self._uds=UtilDataStore(reqObj=self._reqObj,prefix=prefix,verbose=self._verbose,log=self._lfh)                        
             if (param is not None):
                 self._uds.set(param,value)
                 self._uds.serialize()
@@ -156,17 +157,17 @@ class WebAppWorkerBase(object):
         self._sessionPath=self._sObj.getPath()
         self._rltvSessionPath=self._sObj.getRelativePath()
 
+        if (self._verbose):
+            self._lfh.write("+%s.%s - session   id  %s\n" % (self.__class__.__name__,sys._getframe().f_code.co_name,self._sessionId))
+            self._lfh.write("+%s.%s - session path  %s\n" % (self.__class__.__name__,sys._getframe().f_code.co_name,self._sessionPath))
+
         if (useContext):
-            uds=UtilDataStore(reqObj=self._reqObj,verbose=self._verbose,log=self._lfh)
+            uds=UtilDataStore(reqObj=self._reqObj,prefix=None,verbose=self._verbose,log=self._lfh)
             dd=uds.getDictionary()
             if (self._verbose):
                 self._lfh.write("+%s.%s -  importing persisted general session parameters: %r\n" % (self.__class__.__name__,sys._getframe().f_code.co_name,dd.items()))
             self._reqObj.setDictionary(dd,overWrite=True)
 
-        if (self._verbose):
-            self._lfh.write("\n--------------------------------------------------------------------------------------\n")
-            self._lfh.write("+%s.%s - session   id  %s\n" % (self.__class__.__name__,sys._getframe().f_code.co_name,self._sessionId))
-            self._lfh.write("+%s.%s - session path  %s\n" % (self.__class__.__name__,sys._getframe().f_code.co_name,self._sessionPath))
 
 
     def _isFileUpload(self,fileTag='file'):

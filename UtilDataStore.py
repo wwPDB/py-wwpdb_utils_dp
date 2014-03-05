@@ -6,6 +6,7 @@
 #            7-July-2012 jdw make store path depend on entryId
 #           07-Mar-2013  jdw make generic and move main project utils/rcsb
 #           12-Jul-2013  jdw add append/extend methods for assigning list values
+#            2-Mar-2014  jdw add  updateDict(self,key,subKey,value)
 ##
 """
 Provide a storage interface for miscellaneous key,value data.
@@ -110,6 +111,16 @@ class UtilDataStore(object):
             return True
         except:
             return False
+
+    def updateDict(self,key,subKey,value):
+        try:
+            if not self.__D.has_key(key):
+                self.__D[key]={}
+            self.__D[key][subKey]=value
+            return True
+        except:
+            return False
+
 
     def getDictionary(self):
         return self.__D

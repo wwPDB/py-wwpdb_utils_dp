@@ -5,6 +5,7 @@
 # Updates:
 #  28-Feb-2013   jdw imported common functions from WebApp(*).py  modules.
 #  03-Mar-2013   jdw catch unicode type in empty file request. 
+#  28-Feb-2104   jdw add rename and file extension methods
 ##
 """
 Utilities to manage  web application upload tasks.
@@ -16,7 +17,7 @@ __email__     = "jwest@rcsb.rutgers.edu"
 __license__   = "Creative Commons Attribution 3.0 Unported"
 __version__   = "V0.09"
 
-import sys, os, types, string, traceback
+import sys, os, types, string, traceback, shutil
 
 
 class WebUploadUtils(object):
@@ -113,7 +114,31 @@ class WebUploadUtils(object):
                 traceback.print_exc(file=self.__lfh)                            
             return None
 
+    def renameSessionFile(self,srcFileName,dstFileName):
+        try:
+            srcPath=os.path.join(self.__sessionPath,srcFileName)
+            dstPath=os.path.join(self.__sessionPath,dstFileName)
+            shutil.copyfile(srcPath,dstPath)
+            return True
+        except:
+            return False
+        
+
+    def getFileExtension(self,fileName):
+        """ Return the file extension (basename.ext).
+        """
+        fExt=None
+        if fileName is None or len(fileName) < 1:
+            return fExt
+        fL=str(fileName).split('.')
+        if len(fL)>1:
+            fExt=fL[-1]
+        return fExt
+
     def perceiveIdentifier(self,fileName):
+        """ Return the file identifier and identifier type if these can be deduced from 
+            the input file name.   Returned values are in uppercase. 
+        """
         #
         #
         fId=None
@@ -122,11 +147,11 @@ class WebUploadUtils(object):
             return fId,fType
 
         (head,tail)=os.path.splitext(str(fileName))
-        headLC=head.lower()
-        if headLC.startswith('rcsb'):
+        headLC=head.upper()
+        if headLC.startswith('RCSB'):
             fId = head
             fType='RCSB'
-        elif headLC.startswith('d_'):
+        elif headLC.startswith('D_'):
             fId = head
             fType="WF_ARCHIVE"
             # 
@@ -135,7 +160,7 @@ class WebUploadUtils(object):
             fields=head.split('_')
             if len(fields) > 1:
                 fId='_'.join(fields[:2])
-        elif headLC.startswith('w_'):
+        elif headLC.startswith('W_'):
             fId=head
             fType="WF_INSTANCE"
         else:
