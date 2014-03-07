@@ -332,7 +332,10 @@ class ResponseContent(object):
         type, encoding = mimetypes.guess_type(filename)
         # We'll ignore encoding, even though we shouldn't really
         if type is None:
-            ret = ('application/octet-stream',None)
+            if filename.find('.cif.V') > 0:
+                ret = ('text/plain', None)
+            else:
+                ret = ('application/octet-stream',None)
         else:
             ret = (type,encoding)
         return ret
@@ -361,8 +364,8 @@ class ResponseContent(object):
                     if fn.endswith('.gz'):
                         self._cD['datafileName']=fn[:-3]
                         
-                if (self.__debug):
-                    self.__lfh.write("+ResponseContent.setBinaryFile() Serving %s as %s enc %s att flag %r\n" % (filePath,contentType,encodingType,attachmentFlag) )
+                if (self.__verbose):
+                    self.__lfh.write("+ResponseContent.setBinaryFile() Serving %s as %s encoding %s att flag %r\n" % (filePath,contentType,encodingType,attachmentFlag) )
         except:
             self.__lfh.write("ResponseContent.setBinaryFile() File read failed %s\n" % filePath )        
             traceback.print_exc(file=self.__lfh)                                        
@@ -391,7 +394,7 @@ class ResponseContent(object):
                 if (self.__debug):
                     self.__lfh.write("+ResponseContent.wrapFileAsJsonp() Serving %s as %s\n" % (filePath, self._cD['datacontent']) )
         except:
-            self.__lfh.write("ResponseContent.setBinaryFile() File read failed %s\n" % filePath )        
+            self.__lfh.write("ResponseContent.wrapFileAsJsonp() File read failed %s\n" % filePath )        
             traceback.print_exc(file=self.__lfh)                                        
 
         

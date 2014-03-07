@@ -3,6 +3,7 @@
 # Date:  22-Mar-2013   J. Westbrook 
 #
 # Updates:
+#   06-Mar-2014 jdw -- explicitly set return format in the response object.
 #
 # 
 ##
@@ -121,8 +122,10 @@ class WebDownloadUtils(object):
         #
         rC=ResponseContent(reqObj=self.__reqObj, verbose=self.__verbose,log=self.__lfh)
         if filePath is not None and os.access(filePath,os.F_OK):
+            rC.setReturnFormat('binary')
             rC.setBinaryFile(filePath,attachmentFlag=attachmentFlag,serveCompressed=compressFlag)
         else:
+            rC.setReturnFormat('json')
             rC.setError(errMsg='Download failure for %s' % filePath)
             
         return rC        
