@@ -164,7 +164,7 @@ class RcsbDpUtility(object):
     def __getConfigPath(self, ky):
         try:
             pth =  os.path.abspath(self.__cI.get(ky))
-            if (self.__debug): 
+            if (self.__verbose): 
                 self.__lfh.write("+RcsbDpUtility.__getConfigPath()  - site %s configuration for %s is %s\n" % (self.__siteId,ky,pth))            
         except:
             if (self.__verbose): 
