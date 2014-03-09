@@ -92,7 +92,7 @@ from wwpdb.utils.rcsb.PdbxStripCategory import PdbxStripCategory
 class RcsbDpUtility(object):
     """ Wrapper class for data processing and chemical component utilities.
     """
-    def __init__(self, tmpPath="/scratch", siteId="DEV",  verbose=False, log=sys.stderr):
+    def __init__(self, tmpPath="/scratch", siteId='DEV',  verbose=False, log=sys.stderr):
         self.__verbose  = verbose
         self.__debug    = False
         self.__lfh      = log
