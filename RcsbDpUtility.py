@@ -2652,8 +2652,8 @@ class RcsbDpUtility(object):
                 self.__lfh.write("+RcsbDpUtility.__run() operation %s completed with return code %r\n" % (self.__stepOpList,retcode))
             else:
                 self.__lfh.write("+RcsbDpUtility.__run() operation %s completed with return code %r\n" % (self.__stepOpList,retcode))
-        except OSError as e:
-            self.__lfh.write("+RcsbDpUtility.__run() operation %s failed  with exception %r\n" % (self.__stepOpList,e))
+        except OSError, e:
+            self.__lfh.write("+RcsbDpUtility.__run() operation %s failed  with exception %r\n" % (self.__stepOpList, str(e)))
         except:
             self.__lfh.write("+RcsbDpUtility.__run() operation %s failed  with exception\n" % self.__stepOpList)
         return retcode
@@ -2667,8 +2667,8 @@ class RcsbDpUtility(object):
                 self.__lfh.write("+RcsbDpUtility.__run() completed with return code %r\n" % retcode)
             else:
                 self.__lfh.write("+RcsbDpUtility.__run() completed with return code %r\n" % retcode)
-        except OSError as e:
-            self.__lfh.write("+RcsbDpUtility.__run() failed  with exception %r\n" % e)
+        except OSError, e:
+            self.__lfh.write("+RcsbDpUtility.__run() failed  with exception %r\n" % str(e))
         except:
             self.__lfh.write("+RcsbDpUtility.__run() failed  with exception\n")
         return retcode
