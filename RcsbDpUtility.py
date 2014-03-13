@@ -549,7 +549,7 @@ class RcsbDpUtility(object):
             else:
                 dId="UNASSIGNED"
             #
-            cmdPath =os.path.join(self.__packagePath,"aditnmr-util","pdbx_to_nmrstar.sh")
+            cmdPath =os.path.join(self.__packagePath,"aditnmr-util","nmrstar_to_pdbx.sh")
             thisCmd  = " ; " + cmdPath                        
             cmd += " ; PACKAGE_DIR="  + self.__packagePath    + " ; export PACKAGE_DIR "
             cmd += thisCmd + "  " + iPath + " " + dId + " " + oPath 
