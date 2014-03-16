@@ -72,6 +72,7 @@
 # 10-Feb-2014 jdw add __emStep and mapfix operation -- 
 # 24-Feb-2014 jdw add em2em
 # 25-Feb-2014 jdw make MovingWater an atomic process  called by "annot-reposition-solvent"  or "annot-reposition-solvent-add-derived"
+# 15-Mar-2014 jdw add missing arguments parameters for dcc apps.
 ##
 """
 Wrapper class for data processing and chemical component utilities.
@@ -932,6 +933,11 @@ class RcsbDpUtility(object):
             #
             cmdPath =os.path.join(self.__packagePath,"sf-valid","bin","dcc.sh")
             thisCmd  = " ; " + cmdPath                        
+
+            dccArgs=''
+            if  self.__inputParamDict.has_key('dcc_arguments'):
+                dccArgs="  " + self.__inputParamDict['dcc_arguments'] + "  "
+
             
             if  self.__inputParamDict.has_key('sf_file_path'):
                 sfPath=self.__inputParamDict['sf_file_path']
@@ -952,7 +958,7 @@ class RcsbDpUtility(object):
             map2fofcPath=os.path.join(self.__wrkPath, iPath+"_2fofc.map")            
             #
 
-            cmd += thisCmd + " -cif ./" + iPath + " -sf  ./" + sfFileName + " -ligmap  -no_xtriage "
+            cmd += thisCmd + dccArgs  + " -cif ./" + iPath + " -sf  ./" + sfFileName + " -ligmap  -no_xtriage "
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
 
         elif (op == "annot-dcc-report"):
@@ -968,7 +974,11 @@ class RcsbDpUtility(object):
             #
             cmdPath =os.path.join(self.__packagePath,"sf-valid","bin","dcc.sh")
             thisCmd  = " ; " + cmdPath                        
-            
+
+            dccArgs=''
+            if  self.__inputParamDict.has_key('dcc_arguments'):
+                dccArgs="  " + self.__inputParamDict['dcc_arguments'] + "  "
+
             if  self.__inputParamDict.has_key('sf_file_path'):
                 sfPath=self.__inputParamDict['sf_file_path']
                 sfPathFull = os.path.abspath(sfPath)       
@@ -976,7 +986,7 @@ class RcsbDpUtility(object):
                 sfWrkPath=os.path.join(self.__wrkPath,sfFileName)
                 shutil.copyfile(sfPathFull,sfWrkPath)
                 #
-                cmd += thisCmd + " -cif ./" + iPath + " -sf  ./" + sfFileName + " -o " + oPath + " -diags " + lPath
+                cmd += thisCmd + dccArgs + " -cif ./" + iPath + " -sf  ./" + sfFileName + " -o " + oPath + " -diags " + lPath
 
             else:
                 sfPath="none"
@@ -999,6 +1009,10 @@ class RcsbDpUtility(object):
             #
             cmdPath =os.path.join(self.__packagePath,"sf-valid","bin","dcc.sh")
             thisCmd  = " ; " + cmdPath                        
+
+            dccArgs=''
+            if  self.__inputParamDict.has_key('dcc_arguments'):
+                dccArgs="  " + self.__inputParamDict['dcc_arguments'] + "  "
             
             if  self.__inputParamDict.has_key('sf_file_path'):
                 sfPath=self.__inputParamDict['sf_file_path']
@@ -1006,7 +1020,7 @@ class RcsbDpUtility(object):
                 (h,sfFileName)=os.path.split(sfPath)
                 sfWrkPath=os.path.join(self.__wrkPath,sfFileName)
                 shutil.copyfile(sfPathFull,sfWrkPath)
-                cmd += thisCmd + " -refine -cif ./" + iPath + " -sf  ./" + sfFileName + " -o " + oPath
+                cmd += thisCmd + dccArgs + " -refine -cif ./" + iPath + " -sf  ./" + sfFileName + " -o " + oPath
             else:
                 sfPath="none"
                 sfPathFull="none"                
@@ -1046,9 +1060,13 @@ class RcsbDpUtility(object):
             #
             cmdPath =os.path.join(self.__packagePath,"sf-valid","bin","tool.sh")
             thisCmd  = " ; " + cmdPath                        
+
+            dccArgs=''
+            if  self.__inputParamDict.has_key('dcc_arguments'):
+                dccArgs="  " + self.__inputParamDict['dcc_arguments'] + "  "
             
             #
-            cmd += thisCmd + " -occ ./" + iPath + " -o " + oPath
+            cmd += thisCmd + dccArgs +  " -occ ./" + iPath + " -o " + oPath
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
 
         elif (op == "annot-dcc-reassign-alt-ids"):
