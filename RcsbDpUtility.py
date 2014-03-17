@@ -82,7 +82,7 @@ Initial RCSB version - adapted from file utils method collections.
 
 """
 import sys, os, os.path, glob, time, datetime, shutil, tempfile, traceback
-import socket,shlex,stat
+import socket,shlex,stat,logging
 
 from wwpdb.utils.rcsb.DataFile          import DataFile
 from wwpdb.api.facade.ConfigInfo        import ConfigInfo
@@ -792,15 +792,18 @@ class RcsbDpUtility(object):
                 outFmt="html"
 
             cmdPath =os.path.join(self.__packagePath,"aditnmr_req_shifts","cgi-bin","bmrb-adit","shift_coord_check")
-            thisCmd  = " ; " + cmdPath                        
+            iPath2 = iPath + '-co'
+            thisCmd  = '; cp %s %s' % (coordFilePath,iPath2)
+            thisCmd  += " ; " + cmdPath                        
 
-            cmd += thisCmd + " " + "--html --coordfile " + coordFilePath + " --shiftfile " + iPath 
+            cmd += thisCmd + " " + "--html --coordfile " + iPath2 + " --shiftfile " + iPath 
 
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
             if (outFmt == "html"):
                 cmd += " ; mv -f " + tPath + " " + oPath
             else:
                 cmd += " ; cp -f  " + iPath + " " + oPath                
+
 
         elif (op == "annot-wwpdb-validate-2"):
             # For the second version of the validation package --
