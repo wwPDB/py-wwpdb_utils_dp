@@ -769,6 +769,7 @@ class RcsbDpUtility(object):
                 cmd += " ; mv -f " + tPath + " " + oPath
             else:
                 cmd += " ; mv -f  tmp_chkd.str " + oPath                
+            #logging.warning( cmd)
 
         elif (op == "annot-chem-shift-coord-check"):
 
@@ -791,18 +792,28 @@ class RcsbDpUtility(object):
             else:
                 outFmt="html"
 
-            cmdPath =os.path.join(self.__packagePath,"aditnmr_req_shifts","cgi-bin","bmrb-adit","shift_coord_check")
             iPath2 = iPath + '-co'
-            thisCmd  = '; cp %s %s' % (coordFilePath,iPath2)
-            thisCmd  += " ; " + cmdPath                        
+            cmd  += '; cp %s %s' % (coordFilePath,iPath2)
 
-            cmd += thisCmd + " " + "--html --coordfile " + iPath2 + " --shiftfile " + iPath 
+            # Needs to run normal shiftchecker first to generate a full star-file
+            cmdPath = os.path.join(self.__packagePath,"aditnmr_req_shifts","cgi-bin","bmrb-adit","upload_shifts_check")
+            cmd += " ; " + cmdPath                        
+            cmd += " --html --nomenclature-mapper ${NOMENCLATURE_MAP_FILE} --chem-comp-root-path ${LIGAND_DIR} "
+            cmd += " --preserve-output tmp_chkd.str " + iPath 
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + "_1 >> " + lPath + "_1"
+
+            # Now run  the check versus the coordinates using the output from the previous process
+            cmdPath = os.path.join(self.__packagePath,"aditnmr_req_shifts","cgi-bin","bmrb-adit","shift_coord_check")
+            cmd += "; " + cmdPath                        
+            cmd += " --html --coordfile " + iPath2 + " --shiftfile tmp_chkd.str" 
 
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
             if (outFmt == "html"):
                 cmd += " ; mv -f " + tPath + " " + oPath
             else:
                 cmd += " ; cp -f  " + iPath + " " + oPath                
+
+            #logging.warning(cmd)
 
 
         elif (op == "annot-wwpdb-validate-2"):
