@@ -20,6 +20,7 @@
 #    Jun 27, 2013 jdw -  add tests for annot-sf-mtz2pdbx and annot-dcc-report 
 #    Aug 15, 2013 jdw -  change annot-sf-mtz2pdbx to annot-sf-convert change file format of diag file to cif
 #    Feb 10, 2014 jdw    add em test cases
+#    Mar 20  2014 jdw    set execution of test cases for dcc & sf-convert
 ##
 """
 Test cases from 
@@ -832,21 +833,42 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
         """
         self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
         try:
-            diagfn="sf-convert-diags.cif"
-            ciffn="sf-convert-datafile.cif"
-            dmpfn="sf-convert-mtzdmp.log"
+            diagfn="sf-convert-diags-bad.cif"
+            ciffn="sf-convert-datafile-bad.cif"
+            dmpfn="sf-convert-mtzdmp-bad.log"
             #
             #self.__testFileMtzRunaway  = "bad-runaway.mtz"
             #self.__testFileXyzRunaway  = "bad-runaway.cif"
             #
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
+            mtzPath=os.path.join(self.__testFilePath,self.__testFileMtzBad)
+            dp.imp(mtzPath)
+            #xyzPath=os.path.join(self.__testFilePath,self.__testFileXyzBad)
+            #dp.setTimeout(15)
+            #dp.addInput(name="xyz_file_path",value=xyzPath)
+            dp.op("annot-sf-convert")
+            dp.expLog("sf-convert-bad.log")
+            dp.expList(dstPathList=[ciffn,diagfn,dmpfn])
+            #dp.cleanup()
+        except:
+            traceback.print_exc(file=self.__lfh)
+            self.fail()
+
+    def testAnnotMtz2PdbxBadTimeout(self): 
+        """  Test mtz to pdbx conversion
+        """
+        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        try:
+            diagfn="sf-convert-diags-bad-runaway.cif"
+            ciffn="sf-convert-datafile-bad-runaway.cif"
+            dmpfn="sf-convert-mtzdmp-bad-runaway.log"
+            #
+            dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
             mtzPath=os.path.join(self.__testFilePath,self.__testFileMtzRunaway)
             dp.imp(mtzPath)
-            xyzPath=os.path.join(self.__testFilePath,self.__testFileXyzRunaway)
             dp.setTimeout(15)
-            dp.addInput(name="xyz_file_path",value=xyzPath)
             dp.op("annot-sf-convert")
-            dp.expLog("sf-convert.log")
+            dp.expLog("sf-convert-runaway.log")
             dp.expList(dstPathList=[ciffn,diagfn,dmpfn])
             #dp.cleanup()
         except:
@@ -1076,5 +1098,5 @@ if __name__ == '__main__':
     else:
         pass
 
-    mySuite=suiteAnnotSiteAltTests()
+    mySuite=suiteAnnotDccTests()
     unittest.TextTestRunner(verbosity=2).run(mySuite)
