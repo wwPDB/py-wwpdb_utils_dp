@@ -73,6 +73,7 @@
 # 24-Feb-2014 jdw add em2em
 # 25-Feb-2014 jdw make MovingWater an atomic process  called by "annot-reposition-solvent"  or "annot-reposition-solvent-add-derived"
 # 15-Mar-2014 jdw add missing arguments parameters for dcc apps.
+# 19-Mar-2014 jdw add adjust calling protocol for getsite -
 ##
 """
 Wrapper class for data processing and chemical component utilities.
@@ -587,9 +588,8 @@ class RcsbDpUtility(object):
             cmd += " ; STANDATA="    + os.path.join(self.__packagePath,"getsite-cif","data","standard_geometry.cif")  + " ; export STANDATA "
             cmd += " ; CCIF_NOITEMIP=off ; export CCIF_NOITEMIP "
             # setenv DYLD_LIBRARY_PATH  "$CCP4/lib/ccif:$CCP4/lib"
-
-            cmd += " ; DYLD_LIBRARY_PATH=" + os.path.join(self.__packagePath,"ccp4","lib","ccif") + ":" + \
-                   os.path.join(self.__packagePath,"ccp4","lib") + " ; export DYLD_LIBRARY_PATH "
+            #cmd += " ; DYLD_LIBRARY_PATH=" + os.path.join(self.__packagePath,"ccp4","lib","ccif") + ":" + \
+            #       os.path.join(self.__packagePath,"ccp4","lib") + " ; export DYLD_LIBRARY_PATH "
 
             cmd += " ; LD_LIBRARY_PATH=" + os.path.join(self.__packagePath,"ccp4","lib","ccif") + ":" + \
                    os.path.join(self.__packagePath,"ccp4","lib") + " ; export LD_LIBRARY_PATH "                        

@@ -58,6 +58,10 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
         self.__testFileAnnotSite       = '1xbb.cif'
         self.__testIdAnnotSite         = '1xbb'
         #
+        self.__testFileAnnotSiteAlt =    'D_1000200391_model_P1.cif.V27'        
+        self.__testIdAnnotSiteAlt =      'D_1000200391'
+
+        #
         self.__testFileAnnotRcsb      = 'rcsb033781.cif'
         self.__testFileAnnotRcsbEps   = 'rcsb013067.cifeps'
         #
@@ -153,6 +157,26 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             inpPath=os.path.join(self.__testFilePath,self.__testFileAnnotSite)
             dp.imp(inpPath)
             dp.addInput(name="block_id",value=self.__testIdAnnotSite)            
+            dp.op("annot-site")
+            dp.expLog("annot-site.log")
+            dp.exp(of)            
+            #dp.cleanup()
+            
+        except:
+            traceback.print_exc(file=self.__lfh)
+            self.fail()
+
+
+    def testAnnotSiteAlt(self): 
+        """  Calculate site environment 
+        """
+        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        try:
+            of="annot-site-"+self.__testIdAnnotSiteAlt+'.cif'
+            dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
+            inpPath=os.path.join(self.__testFilePath,self.__testFileAnnotSiteAlt)
+            dp.imp(inpPath)
+            dp.addInput(name="block_id",value=self.__testIdAnnotSiteAlt)            
             dp.op("annot-site")
             dp.expLog("annot-site.log")
             dp.exp(of)            
@@ -886,6 +910,11 @@ def suiteAnnotSiteTests():
     suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotSiteAndMerge"))    
     return suiteSelect        
 
+def suiteAnnotSiteAltTests():
+    suiteSelect = unittest.TestSuite()
+    suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotSiteAlt"))
+    return suiteSelect        
+
 
 
 
@@ -1000,6 +1029,9 @@ if __name__ == '__main__':
         mySuite=suiteAnnotSiteTests()
         unittest.TextTestRunner(verbosity=2).run(mySuite)
         #
+        mySuite=suiteAnnotSiteAltTests()
+        unittest.TextTestRunner(verbosity=2).run(mySuite)
+        #
         mySuite=suiteAnnotFormatConvertTests()
         unittest.TextTestRunner(verbosity=2).run(mySuite)
         #
@@ -1044,8 +1076,5 @@ if __name__ == '__main__':
     else:
         pass
 
-    #
-    mySuite=suiteSolventPlusDerivedTests()
-    unittest.TextTestRunner(verbosity=2).run(mySuite)            
-    #
-
+    mySuite=suiteAnnotSiteAltTests()
+    unittest.TextTestRunner(verbosity=2).run(mySuite)
