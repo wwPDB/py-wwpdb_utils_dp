@@ -940,7 +940,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             traceback.print_exc(file=self.__lfh)
             self.fail()
 
-def suiteAnnotEmTests():
+def suiteAnnotPrdSearchTests():
     suiteSelect = unittest.TestSuite()
     suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotPrdSearch"))    
     return suiteSelect        
@@ -1121,8 +1121,11 @@ if __name__ == '__main__':
 
         mySuite=suiteAnnotEmTests()
         unittest.TextTestRunner(verbosity=2).run(mySuite)
+
+        mySuite=suiteAnnotPrdSearchTests()
+        unittest.TextTestRunner(verbosity=2).run(mySuite)
     else:
         pass
 
-    mySuite=suiteAnnotDccTests()
+    mySuite=suiteAnnotPrdSearchTests()
     unittest.TextTestRunner(verbosity=2).run(mySuite)
