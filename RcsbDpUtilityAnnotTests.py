@@ -89,7 +89,8 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
         self.__testMapNormal = "normal.map"
         self.__testMapSpider = "testmap.spi"
 
-        self.__testFilePrdSearch       = '3RUN.cif'
+        #self.__testFilePrdSearch       = '3RUN.cif'
+        self.__testFilePrdSearch       = 'D_1200000237_model_P1.cif.V1'
 
     def tearDown(self):
         pass
