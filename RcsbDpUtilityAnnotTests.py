@@ -925,7 +925,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
         self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
         try:
             ofn="prd-search-result.cif"
-            firstModelmPath='firstmodel.cif'
+            firstModelPath='firstmodel.cif'
             logFilePath="prd-search-log.log"
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
             inpPath=os.path.join(self.__testFilePath,self.__testFilePrdSearch)
