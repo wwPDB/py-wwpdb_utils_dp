@@ -89,6 +89,8 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
         self.__testMapNormal = "normal.map"
         self.__testMapSpider = "testmap.spi"
 
+        self.__testFilePrdSearch       = '3RUN.cif'
+
     def tearDown(self):
         pass
 
@@ -917,7 +919,31 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             traceback.print_exc(file=self.__lfh)
             self.fail()
 
+    def testAnnotPrdSearch(self): 
+        """  Test case for PRD Search -- 
+        """
+        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        try:
+            ofn="prd-search-result.cif"
+            firstModelmPath='firstmodel.cif'
+            logFilePath="prd-search-log.log"
+            dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
+            inpPath=os.path.join(self.__testFilePath,self.__testFilePrdSearch)
+            dp.imp(inpPath)
+            dp.addInput(name='firstmodel', value=firstModelPath)
+            dp.addInput(name='logfile', value=logFilePath)
+            dp.op("prd-search")
+            dp.expLog("prd-search-execution.log")
+            dp.exp(ofn)
+            #dp.cleanup()
+        except:
+            traceback.print_exc(file=self.__lfh)
+            self.fail()
 
+def suiteAnnotEmTests():
+    suiteSelect = unittest.TestSuite()
+    suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotPrdSearch"))    
+    return suiteSelect        
 
 
 def suiteAnnotEmTests():
