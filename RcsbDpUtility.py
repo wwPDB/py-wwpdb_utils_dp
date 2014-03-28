@@ -145,7 +145,7 @@ class RcsbDpUtility(object):
                                 "annot-validate-geometry"]
         self.__sequenceOps = ['seq-blastp','seq-blastn']
         self.__validateOps = ['validate-geometry']
-        self.__emOps = ['mapfix-big','em2em-spider']
+        self.__emOps = ['mapfix-big', 'em2em-spider', 'fsc_check']
 
         #
         # Source, destination and logfile path details
@@ -263,30 +263,30 @@ class RcsbDpUtility(object):
         
         if op in self.__maxitOps:
             self.__stepNo += 1            
-            self.__maxitStep(op)
+            return self.__maxitStep(op)
         elif op in self.__rcsbOps:
             self.__stepNo += 1            
-            self.__rcsbStep(op)
+            return self.__rcsbStep(op)
 
         elif op in self.__pisaOps:
             self.__stepNo += 1            
-            self.__pisaStep(op)
+            return self.__pisaStep(op)
 
         elif op in self.__annotationOps:
             self.__stepNo += 1            
-            self.__annotationStep(op)            
+            return self.__annotationStep(op)            
 
         elif op in self.__sequenceOps:
             self.__stepNo += 1            
-            self.__sequenceStep(op)
+            return self.__sequenceStep(op)
 
         elif op in self.__validateOps:
             self.__stepNo += 1            
-            self.__validateStep(op)
+            return self.__validateStep(op)
 
         elif op in self.__emOps:
             self.__stepNo += 1            
-            self.__emStep(op)
+            return self.__emStep(op)
 
         else:
             self.__lfh.write("+RcsbDpUtility.op() ++ Error  - Unknown operation %s\n" % op)
@@ -758,6 +758,11 @@ class RcsbDpUtility(object):
             else:
                 outFmt="html"
 
+            htmlPath = oPath
+            strPath = self.__getResultWrkFile(2)
+            logging.error(htmlPath)
+            logging.error(strPath)
+
             cmdPath =os.path.join(self.__packagePath,"aditnmr_req_shifts","cgi-bin","bmrb-adit","upload_shifts_check")
             thisCmd  = " ; " + cmdPath                        
 
@@ -765,11 +770,13 @@ class RcsbDpUtility(object):
             cmd += " --preserve-output tmp_chkd.str " + iPath 
 
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
-            if (outFmt == "html"):
-                cmd += " ; mv -f " + tPath + " " + oPath
-            else:
-                cmd += " ; mv -f  tmp_chkd.str " + oPath                
-            #logging.warning( cmd)
+            cmd += " ; mv -f " + 'tmp_chkd.str' + " " + strPath
+            cmd += " ; mv -f " + tPath + " " + htmlPath
+
+            self.__resultPathList.append( os.path.join(self.__wrkPath,htmlPath) )
+            self.__resultPathList.append( os.path.join(self.__wrkPath,strPath) )
+
+            logging.warning(cmd)
 
         elif (op == "annot-chem-shift-coord-check"):
 
@@ -795,25 +802,15 @@ class RcsbDpUtility(object):
             iPath2 = iPath + '-co'
             cmd  += '; cp %s %s' % (coordFilePath,iPath2)
 
-            # Needs to run normal shiftchecker first to generate a full star-file
-            cmdPath = os.path.join(self.__packagePath,"aditnmr_req_shifts","cgi-bin","bmrb-adit","upload_shifts_check")
-            cmd += " ; " + cmdPath                        
-            cmd += " --html --nomenclature-mapper ${NOMENCLATURE_MAP_FILE} --chem-comp-root-path ${LIGAND_DIR} "
-            cmd += " --preserve-output tmp_chkd.str " + iPath 
-            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + "_1 >> " + lPath + "_1"
-
             # Now run  the check versus the coordinates using the output from the previous process
             cmdPath = os.path.join(self.__packagePath,"aditnmr_req_shifts","cgi-bin","bmrb-adit","shift_coord_check")
             cmd += "; " + cmdPath                        
-            cmd += " --html --coordfile " + iPath2 + " --shiftfile tmp_chkd.str" 
+            cmd += " --html --coordfile " + iPath2 + " --shiftfile " + iPath 
 
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
-            if (outFmt == "html"):
-                cmd += " ; mv -f " + tPath + " " + oPath
-            else:
-                cmd += " ; cp -f  " + iPath + " " + oPath                
+            cmd += " ; mv -f " + tPath + " " + oPath
 
-            #logging.warning(cmd)
+            logging.warning(cmd)
 
 
         elif (op == "annot-wwpdb-validate-2"):
@@ -1555,6 +1552,9 @@ class RcsbDpUtility(object):
                 except:
                     if (self.__debug):
                         traceback.print_exc(file=self.__lfh)                    
+
+        elif (op == "annot-chem-shift-check"):
+            pass
         else:
             self.__resultPathList = [os.path.join(self.__wrkPath,oPath)]
 
@@ -1672,6 +1672,7 @@ class RcsbDpUtility(object):
         #
         self.__packagePath    =  self.__getConfigPath('SITE_TOOLS_PATH')
         self.__deployPath     =  self.__getConfigPath('SITE_DEPLOY_PATH')        
+        self.__emDictPath     =  self.__getConfigPath('SITE_EM_DICT_PATH')
         #
         #
         iPath=     self.__getSourceWrkFile(self.__stepNo)
@@ -1686,34 +1687,21 @@ class RcsbDpUtility(object):
             ePathFull=os.path.join(self.__wrkPath, ePath)
             lPathFull=os.path.join(self.__wrkPath, lPath)
             tPathFull=os.path.join(self.__wrkPath, tPath)                                    
-            cmd = "(cd " + self.__wrkPath
+            cmd = "cd " + self.__wrkPath + " && ("
         else:
             iPathFull = iPath
             ePathFull = ePath
             lPathFull = lPath
             tPathFull = tPath            
             cmd = "("
-        #
-        if (self.__stepNo > 1):
-            pPath = self.__updateInputPath()
-            if (os.access(pPath,os.F_OK)):            
-                cmd += "; cp " + pPath + " "  + iPath
+
+        #if (self.__stepNo > 1):
+        #    pPath = self.__updateInputPath()
+        #    if (os.access(pPath,os.F_OK)):            
+        #        cmd += "; cp " + pPath + " "  + iPath
 
         #
-        if (op == "mapfix-big"):
-            # /java/jdk1.7.0_21/bin
-            javaPath=os.path.join(self.__packagePath,"java","jdk1.7","bin","java")
-            jarPath=os.path.join(self.__packagePath,"mapFix","mapFixBig.jar")
-            thisCmd  = " ; " + javaPath + " -Xms256m -Xmx256m -jar " + jarPath
-            cmd += thisCmd + " -in " + iPath + " -out " + oPath + " -all " 
-            #
-            if  self.__inputParamDict.has_key('options'):
-                options=self.__inputParamDict['options']
-                cmd += " " + options 
-            #
-            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
-
-        elif (op == "em2em-spider"):
+        if (op == "em2em-spider"):
             self.__timeout=40
             # /packages/imsc_em2em_fsc/classes/system/linux64/stand/em2em.e
             # binPath=os.path.join(self.__packagePath,"imsc_em2em","classes","system","linux64","stand","em2em.e")
@@ -1759,20 +1747,48 @@ class RcsbDpUtility(object):
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
             #cmd += " > " + tPath + " ; cat " + tPath + " >> " + lPath                        
 
-        else:
+        if (op == "mapfix-big"):
+            # /java/jdk1.7.0_21/bin
+            javaPath=os.path.join(self.__packagePath,"java","jdk1.7","bin","java")
+            jarPath=os.path.join(self.__packagePath,"mapFix","mapFixDep.jar")
+            thisCmd  = javaPath + " -Xms256m -Xmx256m -jar " + jarPath
+            cmd += thisCmd + " -in " + iPath + " -out " + oPath 
+            #
+            if  self.__inputParamDict.has_key('options'):
+                options=self.__inputParamDict['options']
+                if options != 'None': # Unbelievable!
+                    cmd += " " + options 
+            
+        if (op == "fsc_check"):
+            system_path = os.path.join(self.__packagePath, "..")
+            xmllint = os.path.join(system_path, "bin", "xmllint")
+            lib_path = os.path.join(system_path, "lib")
+            schema = os.path.join(self.__emDictPath, "emdb_fsc.xsd")
+            cmd += "export LD_LIBRARY_PATH=" + lib_path+ "; " 
+            cmd += xmllint + " --noout --schema " + schema + " " + iPath 
+            #
+            if  self.__inputParamDict.has_key('options'):
+                options=self.__inputParamDict['options']
+                if options != 'None': # Unbelievable!
+                    cmd += " " + options 
+            #
+
+
+        if (op not in ("em2em-spider", "mapfix-big", "fsc_check")):
             return -1
         #
         
+
         if (self.__verbose):
+            # Attention: this command is bash dependent 
+            # PIPESTATUS[0] always return the status code of the last command executed inside the subshell ()
             self.__lfh.write("+RcsbDpUtility._emStep()  - Application string:\n%s\n" % cmd.replace(";","\n"))        
+            cmd += " ) |& tee " + tPath + " " + ePath + " " + lPath + "; exit ${PIPESTATUS[0]}"
+            logging.error(cmd)
+        else:
+            cmd += " ) |& tee " + tPath + " " + ePath + " " + lPath + " > /dev/null; exit ${PIPESTATUS[0]}"
+
         #
-        if (self.__debug):            
-            cmd += " ; ls -la  > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                                    
-            
-        cmd += " ) > %s 2>&1 " % ePathFull
-
-        cmd += " ; cat " + ePathFull + " >> " + lPathFull
-
         if (self.__debug):
             ofh = open(lPathFull,'w')
             lt = time.strftime("%Y %m %d %H:%M:%S", time.localtime())
@@ -2680,9 +2696,7 @@ class RcsbDpUtility(object):
         retcode=-1000
         try:
             retcode = call(command, shell=True)        
-            if retcode < 0:
-                self.__lfh.write("+RcsbDpUtility.__run() operation %s completed with return code %r\n" % (self.__stepOpList,retcode))
-            else:
+            if retcode != 0:
                 self.__lfh.write("+RcsbDpUtility.__run() operation %s completed with return code %r\n" % (self.__stepOpList,retcode))
         except OSError, e:
             self.__lfh.write("+RcsbDpUtility.__run() operation %s failed  with exception %r\n" % (self.__stepOpList, str(e)))
@@ -2695,9 +2709,7 @@ class RcsbDpUtility(object):
         try:
             p1 = Popen(cmd, shell=True)
             retcode=p1.wait()
-            if retcode < 0:
-                self.__lfh.write("+RcsbDpUtility.__run() completed with return code %r\n" % retcode)
-            else:
+            if retcode != 0:
                 self.__lfh.write("+RcsbDpUtility.__run() completed with return code %r\n" % retcode)
         except OSError, e:
             self.__lfh.write("+RcsbDpUtility.__run() failed  with exception %r\n" % str(e))
