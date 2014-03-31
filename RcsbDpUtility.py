@@ -1687,13 +1687,13 @@ class RcsbDpUtility(object):
             ePathFull=os.path.join(self.__wrkPath, ePath)
             lPathFull=os.path.join(self.__wrkPath, lPath)
             tPathFull=os.path.join(self.__wrkPath, tPath)                                    
-            cmd = "cd " + self.__wrkPath + " && ("
+            cmd = "cd " + self.__wrkPath + " && { "
         else:
             iPathFull = iPath
             ePathFull = ePath
             lPathFull = lPath
             tPathFull = tPath            
-            cmd = "("
+            cmd = "{ "
 
         #if (self.__stepNo > 1):
         #    pPath = self.__updateInputPath()
@@ -1758,6 +1758,8 @@ class RcsbDpUtility(object):
                 options=self.__inputParamDict['options']
                 if options != 'None': # Unbelievable!
                     cmd += " " + options 
+
+            cmd += " ; } 2> " + ePath + " 1> " + lPath 
             
         if (op == "fsc_check"):
             system_path = os.path.join(self.__packagePath, "..")
@@ -1772,21 +1774,15 @@ class RcsbDpUtility(object):
                 if options != 'None': # Unbelievable!
                     cmd += " " + options 
             #
+            cmd += " ; } 2> " + lPath 
 
 
         if (op not in ("em2em-spider", "mapfix-big", "fsc_check")):
             return -1
         #
-        
 
         if (self.__verbose):
-            # Attention: this command is bash dependent 
-            # PIPESTATUS[0] always return the status code of the last command executed inside the subshell ()
-            self.__lfh.write("+RcsbDpUtility._emStep()  - Application string:\n%s\n" % cmd.replace(";","\n"))        
-            cmd += " ) |& tee " + tPath + " " + ePath + " " + lPath + "; exit ${PIPESTATUS[0]}"
-            logging.error(cmd)
-        else:
-            cmd += " ) |& tee " + tPath + " " + ePath + " " + lPath + " > /dev/null; exit ${PIPESTATUS[0]}"
+            self.__lfh.write("+RcsbDpUtility._emStep()  - Application string:\n%s\n" % cmd)        
 
         #
         if (self.__debug):
