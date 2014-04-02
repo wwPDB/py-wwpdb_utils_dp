@@ -6,6 +6,7 @@
 #  28-Feb-2013   jdw imported common functions from WebApp(*).py  modules.
 #  03-Mar-2013   jdw catch unicode type in empty file request. 
 #  28-Feb-2104   jdw add rename and file extension methods
+#   2-Apr-2104   jdw add version flag to getFileExtension(fileName,ignoreVersion=False)
 ##
 """
 Utilities to manage  web application upload tasks.
@@ -116,23 +117,46 @@ class WebUploadUtils(object):
 
     def renameSessionFile(self,srcFileName,dstFileName):
         try:
-            srcPath=os.path.join(self.__sessionPath,srcFileName)
-            dstPath=os.path.join(self.__sessionPath,dstFileName)
-            shutil.copyfile(srcPath,dstPath)
+            if (srcFileName != dstFileName):
+                srcPath=os.path.join(self.__sessionPath,srcFileName)
+                dstPath=os.path.join(self.__sessionPath,dstFileName)
+                shutil.copyfile(srcPath,dstPath)
             return True
         except:
             return False
         
 
-    def getFileExtension(self,fileName):
-        """ Return the file extension (basename.ext).
+    def getFileExtension(self,fileName,ignoreVersion=False):
+        """ Return the file extension (basename.ext).  
+
+            If the input file contains no '.' then None is returned.
+
+            if ignoreVersion=True then any trailing version details are
+               discarded before extracting the file extension -
         """
         fExt=None
         if fileName is None or len(fileName) < 1:
             return fExt
-        fL=str(fileName).split('.')
-        if len(fL)>1:
-            fExt=fL[-1]
+
+
+
+        try:
+            fL=str(fileName).split('.')
+            if len(fL) < 2:
+                return fExt
+
+            if ignoreVersion and len(fL) > 2 :
+                tExt=fL[-1]
+                if ((tExt.startswith('V') or tExt.startswith('v')) and tExt[1:].isdigit()):
+                    fExt=fL[-2]
+                else:
+                    fExt=tExt
+            else:
+                if len(fL)>1:
+                    fExt=fL[-1]
+        except:
+            pass
+
         return fExt
 
     def perceiveIdentifier(self,fileName):
