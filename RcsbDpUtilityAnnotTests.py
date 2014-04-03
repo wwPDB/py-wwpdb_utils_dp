@@ -822,6 +822,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
             mtzPath=os.path.join(self.__testFilePath,self.__testFileMtzGood)
             dp.imp(mtzPath)
+            dp.setTimeout(15)
             dp.op("annot-sf-convert")
             dp.expLog("sf-convert.log")
             dp.expList(dstPathList=[ciffn,diagfn,dmpfn])
@@ -847,7 +848,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             mtzPath=os.path.join(self.__testFilePath,self.__testFileMtzBad)
             dp.imp(mtzPath)
             #xyzPath=os.path.join(self.__testFilePath,self.__testFileXyzBad)
-            #dp.setTimeout(15)
+            dp.setTimeout(15)
             #dp.addInput(name="xyz_file_path",value=xyzPath)
             dp.op("annot-sf-convert")
             dp.expLog("sf-convert-bad.log")
@@ -1125,8 +1126,9 @@ if __name__ == '__main__':
 
         mySuite=suiteAnnotPrdSearchTests()
         unittest.TextTestRunner(verbosity=2).run(mySuite)
+
     else:
         pass
 
-    mySuite=suiteAnnotPrdSearchTests()
+    mySuite=suiteAnnotDccTests()
     unittest.TextTestRunner(verbosity=2).run(mySuite)
