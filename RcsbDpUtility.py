@@ -145,7 +145,7 @@ class RcsbDpUtility(object):
                                 "annot-validate-geometry"]
         self.__sequenceOps = ['seq-blastp','seq-blastn']
         self.__validateOps = ['validate-geometry']
-        self.__emOps = ['mapfix-big', 'em2em-spider', 'fsc_check']
+        self.__emOps = ['mapfix-big', 'em2em-spider', 'fsc_check', 'img-convert']
 
         #
         # Source, destination and logfile path details
@@ -1695,34 +1695,23 @@ class RcsbDpUtility(object):
             tPathFull = tPath            
             cmd = "{ "
 
-        #if (self.__stepNo > 1):
-        #    pPath = self.__updateInputPath()
-        #    if (os.access(pPath,os.F_OK)):            
-        #        cmd += "; cp " + pPath + " "  + iPath
+        def mapfix_command(input):
+            javaPath=os.path.join(self.__packagePath, "java", "jdk1.7", "bin", "java")
+            jarPath=os.path.join(self.__packagePath, "mapFix", "mapFixDep.jar")
+            out = javaPath + " -Xms256m -Xmx256m -jar " + jarPath
+            out +=  " -in " + input + " -out " + oPath 
+            if  self.__inputParamDict.has_key('options'):
+                options=self.__inputParamDict['options']
+                if options != 'None': # Unbelievable!
+                    out += " " + options 
+            return out
 
-        #
         if (op == "em2em-spider"):
-            self.__timeout=40
-            # /packages/imsc_em2em_fsc/classes/system/linux64/stand/em2em.e
-            # binPath=os.path.join(self.__packagePath,"imsc_em2em","classes","system","linux64","stand","em2em.e")
-            # setenv IMAGIC_ROOT /net/emdep/wwwdev/em-joint/EmDepDist/extPackages/em2em
-            #
+
+            # First step em2em spider -> ccp4
             imagicPath=os.path.join(self.__packagePath,"em2em_c5")
-            #cmd += " ; IMAGIC_ROOT=" + imagicPath + " ; export IMAGIC_ROOT "            
             binPath=os.path.join(self.__packagePath,"em2em_c5","em2em.e")
-            #thisCmd  = " ; " + binPath 
-            #
-            pixelSpacingX=1.0
-            pixelSpacingY=1.0
-            pixelSpacingZ=1.0
-            #
-            if  self.__inputParamDict.has_key('pixel-spacing-x'):
-                pixelSpacingX  =self.__inputParamDict['pixel-spacing-x']
-            if  self.__inputParamDict.has_key('pixel-spacing-y'):
-                pixelSpacingY  =self.__inputParamDict['pixel-spacing-y']
-            if  self.__inputParamDict.has_key('pixel-spacing-z'):
-                pixelSpacingZ  =self.__inputParamDict['pixel-spacing-z']
-            #
+            
             cFile=os.path.join(self.__wrkPath,"COMMANDS.sh")
             ofh=open(cFile,'w')
             ofh.write("#!/bin/sh\n")
@@ -1735,30 +1724,22 @@ class RcsbDpUtility(object):
             ofh.write("CCP4\n")
             ofh.write("3D\n")
             ofh.write("%s\n" % iPath)
-            ofh.write("%s\n" % oPath)
-            ofh.write("%5.2f, %5.2f, %5.2f\n" % (pixelSpacingX,pixelSpacingY,pixelSpacingZ))
+            ofh.write("tmp.map\n")
+            ofh.write("1.0, 1.0, 1.0\n")
             ofh.write("NO\n")
             ofh.write("eof\n")
             ofh.close()
             st = os.stat(cFile)
             os.chmod(cFile, st.st_mode | stat.S_IEXEC)
-            #
-            cmd += " ; " + cFile 
-            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
-            #cmd += " > " + tPath + " ; cat " + tPath + " >> " + lPath                        
+
+            cmd += cFile 
+            cmd += " >& " + ePath + " && "
+            
+            cmd += mapfix_command("tmp.map")
+            cmd += " ; } 2>> " + ePath + " 1> " + lPath 
 
         if (op == "mapfix-big"):
-            # /java/jdk1.7.0_21/bin
-            javaPath=os.path.join(self.__packagePath,"java","jdk1.7","bin","java")
-            jarPath=os.path.join(self.__packagePath,"mapFix","mapFixDep.jar")
-            thisCmd  = javaPath + " -Xms256m -Xmx256m -jar " + jarPath
-            cmd += thisCmd + " -in " + iPath + " -out " + oPath 
-            #
-            if  self.__inputParamDict.has_key('options'):
-                options=self.__inputParamDict['options']
-                if options != 'None': # Unbelievable!
-                    cmd += " " + options 
-
+            cmd += mapfix_command(iPath)
             cmd += " ; } 2> " + ePath + " 1> " + lPath 
             
         if (op == "fsc_check"):
@@ -1776,8 +1757,24 @@ class RcsbDpUtility(object):
             #
             cmd += " ; } 2> " + lPath 
 
+        if (op == "img-convert"):
+            #system_path = os.path.join(self.__packagePath, "..")
+            #convert = os.path.join(system_path, "bin", "convert")
+            #lib_path = os.path.join(system_path, "lib")
+            #cmd += "export LD_LIBRARY_PATH=" + lib_path+ "; " 
+            convert = "convert"
+            cmd += convert + " -resize x400 "
+            #
+            if  self.__inputParamDict.has_key('options'):
+                options=self.__inputParamDict['options']
+                if options != 'None': # Unbelievable!
+                    cmd += " " + options 
+            #
+            cmd += iPath  + " " + oPath
+            cmd += " ; } 2> " + lPath 
 
-        if (op not in ("em2em-spider", "mapfix-big", "fsc_check")):
+
+        if (op not in ("em2em-spider", "mapfix-big", "fsc_check", "img-convert")):
             return -1
         #
 
@@ -2712,7 +2709,8 @@ class RcsbDpUtility(object):
         except:
             self.__lfh.write("+RcsbDpUtility.__run() failed  with exception\n")
         return retcode
-    
+
+
 if __name__ == '__main__':
     rdpu=RcsbDpUtility()
     
