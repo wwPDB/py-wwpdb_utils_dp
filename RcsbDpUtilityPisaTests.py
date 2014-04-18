@@ -88,10 +88,14 @@ class RcsbDpUtilityTests(unittest.TestCase):
             dp.imp(fPath)
             dp.addInput(name="pisa_session_name",value="session_3re3_cif")            
             dp.op("pisa-analysis")
-            dp.expLog("pisa-anal-assembly-cif.log.gz")                        
+            dp.expLog("pisa-anal-assembly-cif.log")                        
             dp.op("pisa-assembly-report-xml")
             dp.exp("pisa-assembly-report-cif.xml")
-            dp.expLog("pisa-report-xml-cif.log.gz")                                    
+            dp.expLog("pisa-report-xml-cif.log")
+            #
+            dp.op("pisa-interface-report-xml")
+            dp.exp("pisa-interface-report-cif.xml")
+            dp.expLog("pisa-interface-report-xml-cif.log")
             dp.cleanup()
         except:
             traceback.print_exc(file=self.__lfh)
@@ -206,8 +210,8 @@ def suitePisaTestsCif():
     suiteSelect = unittest.TestSuite()
     suiteSelect.addTest(RcsbDpUtilityTests("testPisaAnalysisCif"))
     suiteSelect.addTest(RcsbDpUtilityTests("testPisaAssemblyReportXmlCif"))
-    suiteSelect.addTest(RcsbDpUtilityTests("testPisaAssemblyDownloadModelCif"))
-    suiteSelect.addTest(RcsbDpUtilityTests("testPisaAssemblyMergeModelCif"))    
+    #suiteSelect.addTest(RcsbDpUtilityTests("testPisaAssemblyDownloadModelCif"))
+    #suiteSelect.addTest(RcsbDpUtilityTests("testPisaAssemblyMergeModelCif"))    
     return suiteSelect    
 
 def suitePisaTestsPdb():
