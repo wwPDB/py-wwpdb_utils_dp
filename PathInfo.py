@@ -9,6 +9,7 @@
 #  04-Apr-2013  jdw   Add assembly assignment and map convenience methods
 #  27-Aug-2013  jdw   Add optional parameters for content milestone variants [upload,deposit,annotate,...] 
 #  23-Dec-2013  jdw   Add support for file source 'session-download' as extension of file source session.
+#  19-Apr-2014  jdw   add getPolyLinkReportFilePath()
 ## 
 """
 Common methods for finding path information resource and data files in the wwPDB data processing
@@ -74,6 +75,15 @@ class PathInfo(object):
                                       versionId=versionId,
                                       contentTypeBase='polymer-linkage-distances',
                                       formatType='pdbx',
+                                      mileStone=mileStone)
+
+    def getPolyLinkReportFilePath(self,dataSetId,wfInstanceId=None,fileSource="archive",versionId="latest",mileStone=None):
+        return self.__getStandardPath(dataSetId=dataSetId,
+                                      wfInstanceId=wfInstanceId,
+                                      fileSource=fileSource,
+                                      versionId=versionId,
+                                      contentTypeBase='polymer-linkage-report',
+                                      formatType='html',
                                       mileStone=mileStone)
 
     def getSequenceStatsFilePath(self,dataSetId,wfInstanceId=None,fileSource="archive",versionId="latest",mileStone=None):

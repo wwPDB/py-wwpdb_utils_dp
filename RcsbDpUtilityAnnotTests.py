@@ -115,7 +115,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             self.fail()
 
     def testAnnotValidateGeometryCheck(self): 
-        """  Test format sanity check for pdbx
+        """  Test of updating geometrical validation diagnostics -
         """
         self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
         try:
@@ -1046,7 +1046,7 @@ def suiteFormatCheckTests():
 
 def suiteValidateGeometryCheckTests():
     suiteSelect = unittest.TestSuite()
-    suiteSelect.addTest(RcsbDpUtilityAnnotTests("testValidateGeometryCheck"))
+    #suiteSelect.addTest(RcsbDpUtilityAnnotTests("testValidateGeometryCheck"))
     suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotValidateGeometryCheck"))
     return suiteSelect    
 
@@ -1130,5 +1130,5 @@ if __name__ == '__main__':
     else:
         pass
 
-    mySuite=suiteAnnotDccTests()
+    mySuite=suiteValidateGeometryCheckTests()
     unittest.TextTestRunner(verbosity=2).run(mySuite)
