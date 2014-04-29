@@ -184,6 +184,8 @@ class RcsbDpUtility(object):
         self.__annotAppsPath = None
         self.__toolsPath = None        
         #
+    def setDebugMode(self):
+        self.__debug=True
 
     def setTimeout(self,seconds):
         self.__lfh.write("+INFO RcsbDpUtility.setTimeout() - Set execution time out %d (seconds)\n" % seconds)
