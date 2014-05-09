@@ -10,6 +10,7 @@
 #  27-Aug-2013  jdw   Add optional parameters for content milestone variants [upload,deposit,annotate,...] 
 #  23-Dec-2013  jdw   Add support for file source 'session-download' as extension of file source session.
 #  19-Apr-2014  jdw   add getPolyLinkReportFilePath()
+#   9-May-2014  jdw   add entity/partition argument to getSequenceAlignFilePath()
 ## 
 """
 Common methods for finding path information resource and data files in the wwPDB data processing
@@ -96,12 +97,13 @@ class PathInfo(object):
                                       mileStone=mileStone)
 
 
-    def getSequenceAlignFilePath(self,dataSetId,wfInstanceId=None,fileSource="archive",versionId="latest",mileStone=None):
+    def getSequenceAlignFilePath(self,dataSetId,entityId='1',wfInstanceId=None,fileSource="archive",versionId="latest",mileStone=None):
         return self.__getStandardPath(dataSetId=dataSetId,
                                       wfInstanceId=wfInstanceId,
                                       fileSource=fileSource,
                                       versionId=versionId,
                                       contentTypeBase='seq-align-data',
+                                      partNumber=entityId,
                                       formatType='pic',
                                       mileStone=mileStone)
 
