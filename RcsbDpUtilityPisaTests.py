@@ -38,7 +38,8 @@ class RcsbDpUtilityTests(unittest.TestCase):
         self.__tmpPath         = './rcsb-tmp-dir'
         #
         self.__testFilePdbPisa    =cI.get('DP_TEST_FILE_PDB_PISA')
-        self.__testFileCifPisa    =cI.get('DP_TEST_FILE_CIF_PISA')
+        #self.__testFileCifPisa    =cI.get('DP_TEST_FILE_CIF_PISA')
+        self.__testFileCifPisa    = '1j59.cif'
         #
         self.__lfh.write("\nTest file path %s\n" % (self.__testFilePath))
         self.__lfh.write("\nCIF  file path %s\n" % (self.__testFileCifPisa))
@@ -70,7 +71,7 @@ class RcsbDpUtilityTests(unittest.TestCase):
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
             cifPath=os.path.join(self.__testFilePath,self.__testFileCifPisa)
             dp.imp(cifPath)
-            dp.addInput(name="pisa_session_name",value="session_3re3_cif")
+            dp.addInput(name="pisa_session_name",value="session_test_cif")
             dp.op("pisa-analysis")
             dp.expLog("pisa-anal-cif.log.gz")
             dp.cleanup()
@@ -86,7 +87,7 @@ class RcsbDpUtilityTests(unittest.TestCase):
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
             fPath=os.path.join(self.__testFilePath,self.__testFileCifPisa)
             dp.imp(fPath)
-            dp.addInput(name="pisa_session_name",value="session_3re3_cif")            
+            dp.addInput(name="pisa_session_name",value="session_test_cif")            
             dp.op("pisa-analysis")
             dp.expLog("pisa-anal-assembly-cif.log")                        
             dp.op("pisa-assembly-report-xml")
