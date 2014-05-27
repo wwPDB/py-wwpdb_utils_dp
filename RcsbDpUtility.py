@@ -1173,7 +1173,7 @@ class RcsbDpUtility(object):
 
             #
             map2fofcPath=os.path.abspath(os.path.join(self.__wrkPath, iPath+"_map-2fofc.map"))
-            mapfofcPath=os.path.abspath(os.path.join(self.__wrkPath, iPath+"_map-fofc.map"))
+            mapfofcPath =os.path.abspath(os.path.join(self.__wrkPath, iPath+"_map-fofc.map"))
 
             #cmd += thisCmd + " -cif ./" + iPath + " -sf  ./" + sfFileName + " -map  -no_xtriage -o " + oPath
             #cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
