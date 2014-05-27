@@ -1172,10 +1172,15 @@ class RcsbDpUtility(object):
                 sfPathFull="none"                
 
             #
-            map2fofcPath=os.path.join(self.__wrkPath, iPath+".cif_2fofc.map")
-            mapfofcPath=os.path.join(self.__wrkPath, iPath+".cif_fofc.map")
+            map2fofcPath=os.path.abspath(os.path.join(self.__wrkPath, iPath+"_map-2fofc.map"))
+            mapfofcPath=os.path.abspath(os.path.join(self.__wrkPath, iPath+"_map-fofc.map"))
 
+            #cmd += thisCmd + " -cif ./" + iPath + " -sf  ./" + sfFileName + " -map  -no_xtriage -o " + oPath
+            #cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
+            #
             cmd += thisCmd + " -cif ./" + iPath + " -sf  ./" + sfFileName + " -map  -no_xtriage -o " + oPath
+            #cmd += " -2fofc " + map2fofcPath + " -fofc " + mapfofcPath 
+            #cmd += " -2fofc " + map2fofcPath 
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
 
         elif (op == "annot-poly-link-dist"):
