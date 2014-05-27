@@ -1179,8 +1179,7 @@ class RcsbDpUtility(object):
             #cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
             #
             cmd += thisCmd + " -cif ./" + iPath + " -sf  ./" + sfFileName + " -map  -no_xtriage -o " + oPath
-            #cmd += " -2fofc " + map2fofcPath + " -fofc " + mapfofcPath 
-            #cmd += " -2fofc " + map2fofcPath 
+            cmd += " -2fofc " + map2fofcPath + " -fofc " + mapfofcPath 
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
 
         elif (op == "annot-poly-link-dist"):
