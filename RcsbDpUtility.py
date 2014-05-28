@@ -1178,7 +1178,7 @@ class RcsbDpUtility(object):
             #cmd += thisCmd + " -cif ./" + iPath + " -sf  ./" + sfFileName + " -map  -no_xtriage -o " + oPath
             #cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
             #
-            cmd += thisCmd + " -cif ./" + iPath + " -sf  ./" + sfFileName + " -map  -no_xtriage -o " + oPath
+            cmd += thisCmd + " -cif ./" + iPath + " -sf  ./" + sfFileName + " -map  -noeds -no_xtriage -o " + oPath
             cmd += " -2fofc " + map2fofcPath + " -fofc " + mapfofcPath 
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
 
