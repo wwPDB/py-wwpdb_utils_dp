@@ -1517,7 +1517,7 @@ class RcsbDpUtility(object):
             #
             self.__resultPathList=[]
             #
-            # Push the output pdf and xml files onto the resultPathList.
+            # Push the output maps  onto the resultPathList [2fofc, fofc] .
             #
             if os.access(map2fofcPath,os.F_OK):
                 self.__resultPathList.append(map2fofcPath)
@@ -1713,6 +1713,17 @@ class RcsbDpUtility(object):
                     out += " " + options 
             return out
 
+        def maptest_command(input):
+            javaPath=os.path.join(self.__packagePath, "java", "jdk1.7", "bin", "java")
+            jarPath=os.path.join(self.__packagePath, "mapFix", "mapTest.jar")
+            out = javaPath + " -Xms256m -Xmx256m -jar " + jarPath
+            out +=  " -in " + input + " -out " + oPath 
+            if  self.__inputParamDict.has_key('options'):
+                options=self.__inputParamDict['options']
+                if options != 'None': # Unbelievable!
+                    out += " " + options 
+            return out
+
         if (op == "em2em-spider"):
 
             # First step em2em spider -> ccp4
@@ -1780,6 +1791,8 @@ class RcsbDpUtility(object):
             cmd += iPath  + " " + oPath
             cmd += " ; } 2> " + lPath 
 
+
+        
 
         if (op not in ("em2em-spider", "mapfix-big", "fsc_check", "img-convert")):
             return -1
@@ -2045,9 +2058,10 @@ class RcsbDpUtility(object):
 
         elif (op == "cif2pdbx-public"):
             # dict/bin/cifexch2 -dicSdb mmcif_pdbx_v5_next.sdb -reorder -strip -op in -pdbids -input D_1000200033_model_P1.cif -output 4ovr.cif
-            #
+            # -pdbxDicSdb /whaterver/the/path/is/used/mmcif_pdbx.sdb
             cmdPath = os.path.join(self.__packagePath,"dict","bin","cifexch2")
-            thisCmd  = " ; " + cmdPath + " -dicSdb " + self.__pathPdbxDictSdb +  " -reorder  -strip -op in  -pdbids "
+            #thisCmd  = " ; " + cmdPath + " -dicSdb " + self.__pathPdbxDictSdb +  " -reorder  -strip -op in  -pdbids "
+            thisCmd  = " ; " + cmdPath + " -dicSdb " + self.__pathPdbxDictSdb + " -pdbxDicSdb " + self.__pathPdbxV4DictSdb + " -reorder  -strip -op in  -pdbids " 
             cmd += thisCmd + " -input " + iPath  + " -output " + oPath
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath            
 
