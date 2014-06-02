@@ -1680,6 +1680,11 @@ class RcsbDpUtility(object):
         self.__packagePath    =  self.__getConfigPath('SITE_TOOLS_PATH')
         self.__deployPath     =  self.__getConfigPath('SITE_DEPLOY_PATH')        
         self.__emDictPath     =  self.__getConfigPath('SITE_EM_DICT_PATH')
+        if self.__siteId in ['WWPDB_DEPLOY_MACOSX']:
+            self.__javaPath = '/usr/bin/java'
+        else:
+            self.__javaPath=os.path.join(self.__packagePath, "java", "jdk1.7", "bin", "java")
+            
         #
         #
         iPath=     self.__getSourceWrkFile(self.__stepNo)
@@ -1703,9 +1708,9 @@ class RcsbDpUtility(object):
             cmd = "{ "
 
         def mapfix_command(input):
-            javaPath=os.path.join(self.__packagePath, "java", "jdk1.7", "bin", "java")
+            #javaPath=os.path.join(self.__packagePath, "java", "jdk1.7", "bin", "java")
             jarPath=os.path.join(self.__packagePath, "mapFix", "mapFixDep.jar")
-            out = javaPath + " -Xms256m -Xmx256m -jar " + jarPath
+            out = self.__javaPath + " -Xms256m -Xmx256m -jar " + jarPath
             out +=  " -in " + input + " -out " + oPath 
             if  self.__inputParamDict.has_key('options'):
                 options=self.__inputParamDict['options']
@@ -1714,9 +1719,8 @@ class RcsbDpUtility(object):
             return out
 
         def maptest_command(input):
-            javaPath=os.path.join(self.__packagePath, "java", "jdk1.7", "bin", "java")
             jarPath=os.path.join(self.__packagePath, "mapFix", "mapTest.jar")
-            out = javaPath + " -Xms256m -Xmx256m -jar " + jarPath
+            out = self.__javaPath + " -Xms256m -Xmx256m -jar " + jarPath
             out +=  " -in " + input + " -out " + oPath 
             if  self.__inputParamDict.has_key('options'):
                 options=self.__inputParamDict['options']
