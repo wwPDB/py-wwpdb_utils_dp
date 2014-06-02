@@ -13,11 +13,12 @@ Test cases for EM map annotation tools --
 
 """
 
-import sys, unittest, os, os.path, traceback
+import sys, unittest, os, os.path, traceback, json,math
 
 from wwpdb.api.facade.ConfigInfo          import ConfigInfo,getSiteId
 from wwpdb.utils.rcsb.RcsbDpUtility       import RcsbDpUtility
 
+import matplotlib.pyplot as plt
 
 class RcsbDpUtilityEmTests(unittest.TestCase):
     def setUp(self):
@@ -58,6 +59,53 @@ class RcsbDpUtilityEmTests(unittest.TestCase):
             traceback.print_exc(file=self.__lfh)
             self.fail()
 
+
+    def testReadMapHeader(self): 
+        """  Test read map header -- export JSON packet and plot density distribution -
+        """
+        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        try:
+            dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
+            #
+            inpPath=os.path.join(self.__testFilePath,self.__testMapNormal)
+            of=self.__testMapNormal+"_map-header-data_P1.json"
+            dp.imp(inpPath)
+            dp.op("annot-read-map-header")
+            dp.expLog("annot-read-map-header.log")
+            dp.exp(of)            
+            dp.cleanup()
+            #
+
+            mD=json.load(open(of,'r'))
+            self.__lfh.write("Map header keys: %r\n" % mD.keys())
+            self.__lfh.write("Map header: %r\n" % mD.items())
+
+            #
+            x = mD['input_histogram_categories']
+            y = mD['input_histogram_values']
+            logy=[]
+            for v in y:
+                if float(v) <= 0.0:
+                    logy.append(math.log10(.1))
+                else:
+                    logy.append(math.log10(float(v)))
+
+            #
+            width = float(x[-1] - x[0])/float(len(x))
+            #width = 2.0
+
+            plt.bar( x, y, width, color="r", log=True)
+            plt.title('Map density distribution')
+            plt.ylabel( 'Voxels (log(10))' )
+            plt.xlabel( 'Density' )
+            
+            plotFileName = "map-density-plot.svg" 
+            plt.savefig( plotFileName, format="svg" )
+
+        except:
+            traceback.print_exc(file=self.__lfh)
+            self.fail()
+
     def testEm2EmSpider(self): 
         """  Test mapfix utility
         """
@@ -83,7 +131,8 @@ class RcsbDpUtilityEmTests(unittest.TestCase):
 
 def suiteAnnotEmTests():
     suiteSelect = unittest.TestSuite()
-    suiteSelect.addTest(RcsbDpUtilityEmTests("testMapFix"))    
+    suiteSelect.addTest(RcsbDpUtilityEmTests("testReadMapHeader"))    
+    #suiteSelect.addTest(RcsbDpUtilityEmTests("testMapFix"))    
     #suiteSelect.addTest(RcsbDpUtilityEmTests("testEm2EmSpider"))    
     return suiteSelect        
 
