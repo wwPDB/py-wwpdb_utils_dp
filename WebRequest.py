@@ -55,9 +55,7 @@ class WebRequest(object):
             sL.append("\n+WebRequest.printIt() WebRequest dictionary contents:\n")
             for k,vL in self.__dict.items():
                 sL.append("  - Key: %-35s  value(s): " % k)
-                for v in vL:
-                    sL.append("   %s " % v)
-                sL.append("\n")
+                sL.append("   %r\n" % vL)
             sL.append("   --------------------------------------------\n")
             return ''.join(sL)
         except:
@@ -73,9 +71,7 @@ class WebRequest(object):
             for k in sorted(self.__dict.keys()):
                 vL=self.__dict[k]
                 ofh.write("  - Key: %-35s  value(s): " % k)
-                for v in vL:
-                    ofh.write(" %s " % v)
-                ofh.write("\n")
+                ofh.write(" %r\n" % vL)
             ofh.write("   --------------------------------------------\n")                                         
         except:
             pass
@@ -88,9 +84,7 @@ class WebRequest(object):
             oL.append("\ +nWebRequest.dump() Request Dictionary Contents:\n")             
             for k,vL in self.__dict.items():
                 oL.append("  - Key: %-35s  value(s): " % k)
-                for v in vL:
-                    oL.append(" %r " % v)
-                oL.append("\n")
+                oL.append(" %r\n " % vL)
             oL.append("   --------------------------------------------\n")
             if (format == 'html'):
                 oL.append('</pre>\n')

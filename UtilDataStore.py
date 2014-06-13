@@ -50,11 +50,11 @@ class UtilDataStore(object):
         try:
             self.__filePath = os.path.join(self.__sessionPath,self.__filePrefix+"-util-session.pic")
             if (self.__verbose):
-                self.__lfh.write("+UtilDataStore.__setup() - data store path %s\n" % self.__filePath)               
+                self.__lfh.write("\n+UtilDataStore.__setup() - data store path %s\n" % self.__filePath)               
             self.deserialize()
         except:
             if (self.__debug):
-                self.__lfh.write("+UtilDataStore.__setup() - Failed to open data store for session id %s data store prefix %s path %s\n" %
+                self.__lfh.write("\n+UtilDataStore.__setup() - Failed to open data store for session id %s data store prefix %s path %s\n" %
                                  (self.__sessionId,self.__filePrefix,self.__filePath))            
 
     def reset(self):
