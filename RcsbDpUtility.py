@@ -1792,12 +1792,23 @@ class RcsbDpUtility(object):
         # Annotation tasks ---- 
         #
         elif (op == "annot-read-map-header"):
+            #
+            # java -Xms256m -Xmx256m -jar /wwpdb_da/da_top/tools-macosx-108/packages/mapFix/mapFixDep.jar -h
+            #  -in  <filename>           : input map
+            # -out <filename>           : output map
+            # -cell <x> <y> <z>         : set x/y/z-length x/y/z
+            # -label <DepCode>          : write new label
+            # -gridsampling <x> <y> <z> : set x/y/z- grid sampling
+            # -gridstart <x> <y> <z>    : set x/y/z- grid start point
+            # -voxel <x> <y> <z>        : set x/y/z-length values to N[X/Y/Z]-length
+            #  Recommend : java -Xms256m -Xmx256m -jar mapFixDep.jar -in <filein> -out <fileout> -all
+
             # Export map header as JSON packet - 
             jarPath=os.path.join(self.__packagePath, "mapFix", "mapFixDep.jar")
             cmd  += self.__javaPath + " -Xms256m -Xmx256m -jar " + jarPath
             # -out is a temporary file place holder -- 
             cmd  +=  " -in " + iPath + " -out  dummy-out.map " 
-            # dummy arguments required for run this code -- 
+            # these dummy arguments required to run this code -- 
             cmd  += " -voxel 1.0 1.0 1.0 -label test "
             # oPath here will be the JSON  output containing may header details -- 
             cmd += " ; } 2> " + ePath + " 1> " + oPath 
@@ -1815,7 +1826,7 @@ class RcsbDpUtility(object):
             self.__lfh.write("+RcsbDpUtility._emStep()  - Application string:\n%s\n" % cmd)        
 
         #
-        if (self.__debug):
+        if (self.__verbose):
             ofh = open(lPathFull,'w')
             lt = time.strftime("%Y %m %d %H:%M:%S", time.localtime())
             ofh.write("\n\n-------------------------------------------------\n")
