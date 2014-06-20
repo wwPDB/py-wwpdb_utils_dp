@@ -1358,8 +1358,7 @@ class RcsbDpUtility(object):
             ofh.write("LogFile:      %s\n" % lPath)
             ofh.write("Working path: %s\n" % self.__wrkPath)
             ofh.write("Date:         %s\n" % lt)
-            if (self.__verbose):
-                ofh.write("\nStep command:\n%s\n-------------------------------------------------\n" % cmd.replace(";","\n"))
+            ofh.write("\nStep command:\n%s\n-------------------------------------------------\n" % cmd.replace(";","\n"))
             ofh.close()
            
 
@@ -1660,8 +1659,7 @@ class RcsbDpUtility(object):
             ofh.write("LogFile:      %s\n" % lPath)
             ofh.write("Working path: %s\n" % self.__wrkPath)
             ofh.write("Date:         %s\n" % lt)
-            if (self.__verbose):
-                ofh.write("\nStep command:\n%s\n-------------------------------------------------\n" % cmd.replace(";","\n"))
+            ofh.write("\nStep command:\n%s\n-------------------------------------------------\n" % cmd.replace(";","\n"))
             ofh.close()
            
         if self.__timeout > 0:
@@ -1822,19 +1820,18 @@ class RcsbDpUtility(object):
             return -1
         #
 
-        if (self.__verbose):
+        if (self.__debug):
             self.__lfh.write("+RcsbDpUtility._emStep()  - Application string:\n%s\n" % cmd)        
 
         #
-        if (self.__verbose):
+        if (self.__debug):
             ofh = open(lPathFull,'w')
             lt = time.strftime("%Y %m %d %H:%M:%S", time.localtime())
             ofh.write("\n\n-------------------------------------------------\n")
             ofh.write("LogFile:      %s\n" % lPath)
             ofh.write("Working path: %s\n" % self.__wrkPath)
             ofh.write("Date:         %s\n" % lt)
-            if (self.__verbose):
-                ofh.write("\nStep command:\n%s\n-------------------------------------------------\n" % cmd.replace(";","\n"))
+            ofh.write("\nStep command:\n%s\n-------------------------------------------------\n" % cmd.replace(";","\n"))
             ofh.close()
            
         if self.__timeout > 0:
@@ -1953,9 +1950,8 @@ class RcsbDpUtility(object):
             ofh.write("LogFile:      %s\n" % lPath)
             ofh.write("Working path: %s\n" % self.__wrkPath)
             ofh.write("Date:         %s\n" % lt)
-            if (self.__verbose): 
-                ofh.write("\nStep command:\n%s\n-------------------------------------------------\n" % cmd.replace(";","\n"))
-                ofh.write("\n")
+            ofh.write("\nStep command:\n%s\n-------------------------------------------------\n" % cmd.replace(";","\n"))
+            ofh.write("\n")
             ofh.close()
 
         if self.__timeout > 0:
@@ -2264,8 +2260,7 @@ class RcsbDpUtility(object):
             ofh.write("LogFile:      %s\n" % lPath)
             ofh.write("Working path: %s\n" % self.__wrkPath)
             ofh.write("Date:         %s\n" % lt)
-            if (self.__verbose):
-                ofh.write("\nStep command:\n%s\n-------------------------------------------------\n" % cmd.replace(";","\n"))
+            ofh.write("\nStep command:\n%s\n-------------------------------------------------\n" % cmd.replace(";","\n"))
             ofh.close()
 
         if self.__timeout > 0:
@@ -2393,8 +2388,7 @@ class RcsbDpUtility(object):
             ofh.write("LogFile:      %s\n" % lPath)
             ofh.write("Working path: %s\n" % self.__wrkPath)
             ofh.write("Date:         %s\n" % lt)
-            if (self.__verbose):
-                ofh.write("\nStep command:\n%s\n-------------------------------------------------\n" % cmd.replace(";","\n"))
+            ofh.write("\nStep command:\n%s\n-------------------------------------------------\n" % cmd.replace(";","\n"))
             ofh.close()
            
         if self.__timeout > 0:
@@ -2510,8 +2504,7 @@ class RcsbDpUtility(object):
             ofh.write("LogFile:      %s\n" % lPath)
             ofh.write("Working path: %s\n" % self.__wrkPath)
             ofh.write("Date:         %s\n" % lt)
-            if (self.__verbose):
-                ofh.write("\nStep command:\n%s\n-------------------------------------------------\n" % cmd.replace(";","\n"))
+            ofh.write("\nStep command:\n%s\n-------------------------------------------------\n" % cmd.replace(";","\n"))
             ofh.close()
 
         if self.__timeout > 0:
