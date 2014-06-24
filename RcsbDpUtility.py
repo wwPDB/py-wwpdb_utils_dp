@@ -2284,6 +2284,7 @@ class RcsbDpUtility(object):
         """
         #
         pisaTopPath       =  self.__getConfigPath('SITE_PISA_TOP_PATH')
+        pisaConfPath       =  self.__getConfigPath('SITE_PISA_CONF_PATH')
         annotToolsPath    =  self.__getConfigPath('SITE_ANNOT_TOOLS_PATH')
         
         
@@ -2319,7 +2320,7 @@ class RcsbDpUtility(object):
             pisaSession = None
         cmd += " ; PISA_TOP="         + os.path.abspath(pisaTopPath)     + " ; export PISA_TOP "
         cmd += " ; PISA_SESSIONS="    + os.path.abspath(self.__wrkPath)         + " ; export PISA_SESSIONS "
-        cmd += " ; PISA_CONF_FILE="   + os.path.abspath(os.path.join(pisaTopPath,"configure","pisa-standalone.cfg")) + " ; export PISA_CONF_FILE "
+        cmd += " ; PISA_CONF_FILE="   + os.path.abspath(os.path.join(pisaConfPath,"pisa-standalone.cfg")) + " ; export PISA_CONF_FILE "
         #
         #cmd += " ; PISA_CONF_FILE="   + os.path.abspath(os.path.join(pisaTopPath,"share","pisa","pisa.cfg")) + " ; export PISA_CONF_FILE "
         if (op == "pisa-analysis"):
