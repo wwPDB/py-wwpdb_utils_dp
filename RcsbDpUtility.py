@@ -2506,7 +2506,8 @@ class RcsbDpUtility(object):
         if maxHits > 0:
             hOpt = " -num_alignments " + maxHits 
         else:
-            hOpt = " "
+            # use a large cutoff
+            hOpt = " -num_alignments 10000 "
 
         if self.__inputParamDict.has_key('one_letter_code_sequence'):
             sequence = str(self.__inputParamDict['one_letter_code_sequence'])

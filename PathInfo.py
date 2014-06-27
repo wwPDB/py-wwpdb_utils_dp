@@ -11,6 +11,8 @@
 #  23-Dec-2013  jdw   Add support for file source 'session-download' as extension of file source session.
 #  19-Apr-2014  jdw   add getPolyLinkReportFilePath()
 #   9-May-2014  jdw   add entity/partition argument to getSequenceAlignFilePath()
+# 25-Jun-2014   jdw   add convenience methods getEmVolumeFilePath() getEmMaskFilePath()
+# 26-Jun-2014   jdw   correct parameter errors on blast-match and map methods, add omit-map methods
 ## 
 """
 Common methods for finding path information resource and data files in the wwPDB data processing
@@ -136,36 +138,75 @@ class PathInfo(object):
                                       formatType='pdbx',
                                       mileStone=mileStone)
 
-    def getBlastMatchFilePath(self,entityId,entityPart='1',wfInstanceId=None,fileSource="archive",versionId="latest",mileStone=None):
-        return self.__getStandardPath(dataSetId=entityId,
+    def getBlastMatchFilePath(self,dataSetId,entityId='1',wfInstanceId=None,fileSource="archive",versionId="latest",mileStone=None):
+        return self.__getStandardPath(dataSetId=dataSetId,
                                       wfInstanceId=wfInstanceId,
                                       fileSource=fileSource,
                                       versionId=versionId,
-                                      partNumber=entityPart,
+                                      partNumber=entityId,
                                       contentTypeBase='blast-match',
                                       formatType='xml',
                                       mileStone=mileStone)
 
-    def getMap2fofcFilePath(self,entityId,entityPart='1',wfInstanceId=None,fileSource="archive",versionId="latest",mileStone=None):
-        return self.__getStandardPath(dataSetId=entityId,
+    def getMap2fofcFilePath(self,dataSetId,wfInstanceId=None,fileSource="archive",versionId="latest",mileStone=None):
+        return self.__getStandardPath(dataSetId=dataSetId,
                                       wfInstanceId=wfInstanceId,
                                       fileSource=fileSource,
                                       versionId=versionId,
-                                      partNumber=entityPart,
+                                      partNumber='1',
                                       contentTypeBase='map-2fofc',
                                       formatType='map',
                                       mileStone=mileStone)
 
-    def getMapfofcFilePath(self,entityId,entityPart='1',wfInstanceId=None,fileSource="archive",versionId="latest",mileStone=None):
+    def getMapfofcFilePath(self,dataSetId,wfInstanceId=None,fileSource="archive",versionId="latest",mileStone=None):
         return self.__getStandardPath(dataSetId=entityId,
                                       wfInstanceId=wfInstanceId,
                                       fileSource=fileSource,
                                       versionId=versionId,
-                                      partNumber=entityPart,
+                                      partNumber='1',
                                       contentTypeBase='map-fofc',
                                       formatType='map',
                                       mileStone=mileStone)
 
+    def getOmitMap2fofcFilePath(self,dataSetId,wfInstanceId=None,fileSource="archive",versionId="latest",mileStone=None):
+        return self.__getStandardPath(dataSetId=dataSetId,
+                                      wfInstanceId=wfInstanceId,
+                                      fileSource=fileSource,
+                                      versionId=versionId,
+                                      partNumber='1',
+                                      contentTypeBase='omit-map-2fofc',
+                                      formatType='map',
+                                      mileStone=mileStone)
+
+    def getOmitMapfofcFilePath(self,dataSetId,wfInstanceId=None,fileSource="archive",versionId="latest",mileStone=None):
+        return self.__getStandardPath(dataSetId=entityId,
+                                      wfInstanceId=wfInstanceId,
+                                      fileSource=fileSource,
+                                      versionId=versionId,
+                                      partNumber='1',
+                                      contentTypeBase='omit-map-fofc',
+                                      formatType='map',
+                                      mileStone=mileStone)
+    #
+    def getEmVolumeFilePath(self,dataSetId,wfInstanceId=None,fileSource="archive",versionId="latest",mileStone=None):
+        return self.__getStandardPath(dataSetId=entityId,
+                                      wfInstanceId=wfInstanceId,
+                                      fileSource=fileSource,
+                                      versionId=versionId,
+                                      partNumber='1',
+                                      contentTypeBase='em-volume',
+                                      formatType='map',
+                                      mileStone=mileStone)
+
+    def getEmMaskFilePath(self,dataSetId,maskNumber='1',wfInstanceId=None,fileSource="archive",versionId="latest",mileStone=None):
+        return self.__getStandardPath(dataSetId=dataSetId,
+                                      wfInstanceId=wfInstanceId,
+                                      fileSource=fileSource,
+                                      versionId=versionId,
+                                      partNumber=maskNumber,
+                                      contentTypeBase='em-mask',
+                                      formatType='map',
+                                      mileStone=mileStone)
 
     #
     def getFilePath(self,dataSetId,wfInstanceId=None,contentType=None,formatType=None,fileSource="archive",versionId="latest",partNumber='1',mileStone=None):

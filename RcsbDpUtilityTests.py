@@ -1,5 +1,4 @@
 ##
-#
 # File:    RcsbDpUtilityTests.py
 # Author:  j. westbrook
 # Date:    9-Sep-2010
