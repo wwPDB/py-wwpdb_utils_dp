@@ -7,10 +7,12 @@
 #  28-Feb-2013 jdw incorporate PathInfo() class
 #  05-Mar-2013 jdw fetch() should not strip version information for output files.
 #  08-Mar-2013 jdw add method to separately set path for 'session' storage.
+#  29-Jun-2014 jdw refactor add getVersionFileList() and getPartitionFileList()
 ##
 """
-Import and export annotation data files between session and workflow storage.
-     
+ Implements common data exchange operations including: moving annotation data files between session
+and workflow storage, accessing files in workflow directories,  and routine file maintenance operations.
+
 """
 __docformat__ = "restructuredtext en"
 __author__    = "John Westbrook"
@@ -19,6 +21,7 @@ __license__   = "Creative Commons Attribution 3.0 Unported"
 __version__   = "V0.09"
 
 import sys, os, string, shutil, traceback, glob
+from datetime import datetime
 
 from wwpdb.api.facade.ConfigInfo              import ConfigInfo
 from wwpdb.api.facade.DataReference           import DataFileReference
@@ -26,9 +29,10 @@ from wwpdb.utils.rcsb.PathInfo                import PathInfo
 
 class DataExchange(object):
     """
-     This class encapsulates all of the data exchange operations
-     required to move data annotation data files between session
-     and workflow storage.     
+     Implements common data exchange operations
+     including: moving annotation data files between session
+     and workflow storage, accessing files in workflow directories,
+     and routine file maintenance operations.
      
     """
     def __init__(self,reqObj=None, depDataSetId=None, wfInstanceId=None, fileSource='archive', verbose=False,log=sys.stderr):
@@ -46,10 +50,11 @@ class DataExchange(object):
         self.__sessionPath = self.__sessionObj.getPath()
         self.__siteId=self.__reqObj.getValue("WWPDB_SITE_ID")
         self.__cI = ConfigInfo(self.__siteId)
+        self.__pI = PathInfo(siteId=self.__siteId, sessionPath=self.__sessionPath, verbose=self.__verbose, log=self.__lfh)
 
         
         #
-        if (self.__verbose):
+        if (self.__debug):
             self.__lfh.write("+DataExchange.__setup() - session id   %s\n" % (self.__sessionObj.getId()))
             self.__lfh.write("+DataExchange.__setup() - session path %s\n" % (self.__sessionObj.getPath()))
             
@@ -298,58 +303,129 @@ class DataExchange(object):
             return None
 
     ##
+    def getVersionFileList(self,fileSource="archive",contentType="model",formatType="pdbx",partitionNumber='1',mileStone=None):
+        """
+        For the input content object return a list of file versions sorted by modification time.
+
+        Return:
+              List of [(file path, modification date string),...]
+
+        """
+        try:
+            if fileSource=='session' and self.__inputSessionPath is not None:
+                self.__pI.setSessionPath(self.__inputSessionPath)
+
+            fPattern=self.__pI.getFilePathVersionTemplate(dataSetId=self.__depDataSetId,
+                                                          wfInstanceId=self.__wfInstanceId,
+                                                          contentType=contentType,
+                                                          formatType=formatType,
+                                                          fileSource=fileSource,
+                                                          partNumber=partitionNumber,
+                                                          mileStone=mileStone)
+            return self.__getFileList(fPattern)
+        except:
+            if self.__verbose:
+                self.__lfh.write("+DataExchange.getVersionFileList() failing for data set %s instance %s file source %s\n" %
+                                 (self.__depDataSetId, self.__wfInstanceId,self.__fileSource))
+                traceback.print_exc(file=self.__lfh)                
+            return []
+
+    def getPartitionFileList(self,fileSource="archive",contentType="model",formatType="pdbx",partitionNumber='1',mileStone=None):
+        """
+        For the input content object return a list of file versions sorted by modification time.
+
+        Return:
+              List of [(file path, modification date string),...]
+
+        """
+        try:
+            if fileSource=='session' and self.__inputSessionPath is not None:
+                self.__pI.setSessionPath(self.__inputSessionPath)
+
+            fPattern=self.__pI.getFilePathPartitionTemplate(dataSetId=self.__depDataSetId,
+                                                            wfInstanceId=self.__wfInstanceId,
+                                                            contentType=contentType,
+                                                            formatType=formatType,
+                                                            fileSource=fileSource,
+                                                            mileStone=mileStone)
+            return self.__getFileList(fPattern)
+        except:
+            if self.__verbose:
+                self.__lfh.write("+DataExchange.getVersionFileList() failing for data set %s instance %s file source %s\n" %
+                                 (self.__depDataSetId, self.__wfInstanceId,self.__fileSource))
+                traceback.print_exc(file=self.__lfh)                
+            return []
+
+
+    def __getFileList(self,fPattern="*"):
+        """
+        For the input glob compatible file pattern produce a file list sorted by modification date.
+
+        Return:
+              List of [(file path, modification date string),...]
+
+        """
+        try:
+            files = filter(os.path.isfile, glob.glob(fPattern))
+            file_date_tuple_list = []
+            for x in files:
+                d = os.path.getmtime(x)
+                file_date_tuple = (x,d)
+                file_date_tuple_list.append(file_date_tuple)
+
+            # Sort the tuple list by the modification time
+            file_date_tuple_list.sort(key=lambda x: x[1],reverse=True)
+            rTup=[]
+            for fP,mT in file_date_tuple_list:
+                tS=datetime.fromtimestamp(mT).strftime("%Y-%b-%d %H:%M:%S")
+                rTup.append( (fP,tS))
+            return rTup
+        except:
+            if self.__verbose:
+                self.__lfh.write("+DataExchange.getVersionFileList() failing for data set %s instance %s file source %s\n" %
+                                 (self.__depDataSetId, self.__wfInstanceId,self.__fileSource))
+                traceback.print_exc(file=self.__lfh)                
+            return []
 
     ##
-    def __getArchiveFileName(self,contentType="model",formatType="pdbx",version="latest",partitionNumber=1):
-        (d,f)=self.__targetFilePath(fileSource="archive",contentType=contentType,formatType=formatType,version=version,partitionNumber=partitionNumber)
+    def __getArchiveFileName(self,contentType="model",formatType="pdbx",version="latest",partitionNumber='1',mileStone=None):
+        (fp,d,f)=self.__targetFilePath(fileSource="archive",contentType=contentType,formatType=formatType,version=version,partitionNumber=partitionNumber,mileStone=mileStone)
         return f
 
-    def __getInstanceFileName(self,contentType="model",formatType="pdbx",version="latest",partitionNumber=1):
-        (d,f)=self.__targetFilePath(fileSource="wf-instance",contentType=contentType,formatType=formatType,version=version,partitionNumber=partitionNumber)
+    def __getInstanceFileName(self,contentType="model",formatType="pdbx",version="latest",partitionNumber='1',mileStone=None):
+        (fp,d,f)=self.__targetFilePath(fileSource="wf-instance",contentType=contentType,formatType=formatType,version=version,partitionNumber=partitionNumber,mileStone=mileStone)
         return f    
         
 
-    def __getFilePath(self,fileSource="archive",contentType="model",formatType="pdbx",version="latest",partitionNumber=1):
-        """ Return the file path for the input content object if this is valid. If the file path
-            cannot be verified return None.
+    def __getFilePath(self,fileSource="archive",contentType="model",formatType="pdbx",version="latest",partitionNumber='1',mileStone=None):
+        (fp,d,f)=self.__targetFilePath(fileSource=fileSource,contentType=contentType,formatType=formatType,version=version,partitionNumber=partitionNumber,mileStone=mileStone)
+        return fp
 
+
+    def __targetFilePath(self,fileSource="archive",contentType="model",formatType="pdbx",version="latest",partitionNumber='1',mileStone=None):
+        """ Return the file path, directory path, and filen ame  for the input content object if this object is valid. 
+
+            If the file path cannot be verified return None for all values
         """         
         try:
-            pI = PathInfo(siteId=self.__siteId, sessionPath=self.__sessionPath, verbose=self.__verbose, log=self.__lfh)
-            #
             if fileSource=='session' and self.__inputSessionPath is not None:
-                pI.setSessionPath(self.__inputSessionPath)
-            fP=pI.getFilePath(dataSetId=self.__depDataSetId,
-                              wfInstanceId=self.__wfInstanceId,
-                              contentType=contentType,
-                              formatType=formatType,
-                              fileSource=fileSource,
-                              versionId=version,
-                              partNumber=partitionNumber)
-
-            return fP,os.path.split(fP)
+                self.__pI.setSessionPath(self.__inputSessionPath)
+            fP=self.__pI.getFilePath(dataSetId=self.__depDataSetId,
+                                     wfInstanceId=self.__wfInstanceId,
+                                     contentType=contentType,
+                                     formatType=formatType,
+                                     fileSource=fileSource,
+                                     versionId=version,
+                                     partNumber=partitionNumber,
+                                     mileStone=mileStone)
+            dN,fN=os.path.split(fP)
+            return fP,dN,fN
         except:
+            if self.__debug:
+                self.__lfh.write("+DataExchange.__targetFilePath() failing for data set %s instance %s file source %s\n" %
+                                 (self.__depDataSetId, self.__wfInstanceId,self.__fileSource))
+                traceback.print_exc(file=self.__lfh)                
+
             return (None,None,None)
 
 
-    def __targetFilePath(self,fileSource="archive",contentType="model",formatType="pdbx",version="latest",partitionNumber=1):
-        """ Return the file path for the input content object if this is valid. If the file path
-            cannot be verified return None.
-
-        """  
-        pI = PathInfo(siteId=self.__siteId, sessionPath=self.__sessionPath, verbose=self.__verbose, log=self.__lfh)
-        if fileSource=='session' and self.__inputSessionPath is not None:
-            pI.setSessionPath(self.__inputSessionPath)              
-        fP=pI.getFilePath(dataSetId=self.__depDataSetId,
-                          wfInstanceId=self.__wfInstanceId,
-                          contentType=contentType,
-                          formatType=formatType,
-                          fileSource=fileSource,
-                          versionId=version,
-                          partNumber=partitionNumber)
-        #
-        try:
-            return os.path.split(fP)
-        except:
-            return (None,None)
-    ##
