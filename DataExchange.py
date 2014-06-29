@@ -353,33 +353,3 @@ class DataExchange(object):
         except:
             return (None,None)
     ##
-    ## 
-    def getFileList(self,fileSource="archive",contentType="model",formatType="pdbx",version="latest",partitionNumber=1):
-
-        fPattern=self.__getArchiveFileName(contentType=contentType,formatType=formatType,version="none",partitionNumber=partitionNumber)
-
-        files = filter(os.path.isfile, glob.glob(fPattern))
-file_date_tuple_list = []
-for x in files:
-    d = os.path.getmtime(x)
-    #tuple with file and date, add it in a list
-    file_date_tuple = (x,d)
-    file_date_tuple_list.append(file_date_tuple)
-#sort the tuple list by the second element which is the date
-file_date_tuple_list.sort(key=lambda x: x[1])
-Optionally, you can use a list comprehension to make the code more compact and clean ...
-
-file_date_tuple_list = [(x,os.path.getmtime(x)) for x in files]
-file_date_tuple_list.sort(key=lambda x: x[1])
-This two lines would replace all the for loop from the first example.
-
-Now if what you want in the list is a string with filename and date formatted then ... add this import ...
-
-from datetime import date
-and another line with this list comprehension that takes the modification time stamp and formats it into a string.
-
-file_date_string_list = ["%s %s"%(x[0],date.fromtimestamp(x[1])) \
-                                             for x in file_date_tuple_list]
-For reversing the order of the sort use the optional parameter reverse in the sort execution:
-
-file_date_tuple_list.sort(key=lambda x: x[1],reverse=True)
