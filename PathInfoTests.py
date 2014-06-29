@@ -4,6 +4,7 @@
 #
 # Updates:
 #   27-Aug-2013  jdw verify after milestone addition to api.
+#   28-Jun-2014  jdw add template examples
 ##
 """
 Test cases for creating standard file names for sequence resources and data files.
@@ -87,13 +88,14 @@ class PathInfoTests(unittest.TestCase):
                 fp=pI.getSequenceAssignmentFilePath(dataSetId,wfInstanceId=wfInst,fileSource=fs, versionId=vId)
                 self.__lfh.write("Sequence assignment (PDBx):   %s\n" % fp)
 
-                for ePart in ['1','2','3']:
-                    fp=pI.getBlastMatchFilePath(entityId=eId,entityPart=ePart,wfInstanceId=wfInst,fileSource=fs, versionId=vId)
-                    self.__lfh.write("Blast match entity %s  (xml):   %s\n" % (eId,fp))
-
                 fp=pI.getFilePath(dataSetId,wfInstanceId=wfInst,contentType='seqdb-match',formatType='pdbx',fileSource=fs,versionId=vId,partNumber=pId,mileStone=None)
                 self.__lfh.write("Sequence match (getFilePath) (PDBx):   %s\n" % fp)
-                        
+                #
+
+                ft=pI.getFilePathVersionTemplate(dataSetId,wfInstanceId=wfInst,contentType='em-volume',formatType='map',fileSource="archive",partNumber=pId,mileStone=None)
+                self.__lfh.write("EM volume version template:   %r\n" % ft)
+                ft=pI.getFilePathPartitionTemplate(dataSetId,wfInstanceId=wfInst,contentType='em-mask',formatType='map',fileSource="archive",mileStone=None)
+                self.__lfh.write("EM mask partition template:   %r\n" % ft)                   
         except:
             traceback.print_exc(file=self.__lfh)
             self.fail()
