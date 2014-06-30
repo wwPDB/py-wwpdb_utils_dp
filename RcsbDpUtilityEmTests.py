@@ -81,6 +81,8 @@ class RcsbDpUtilityEmTests(unittest.TestCase):
             self.__lfh.write("Map header keys: %r\n" % mD.keys())
             self.__lfh.write("Map header: %r\n" % mD.items())
 
+            self.__lfh.write("Input  header keys: %r\n" % mD['input_header'].keys())
+            self.__lfh.write("Output header keys: %r\n" % mD['output_header'].keys())
             #
             x = mD['input_histogram_categories']
             y = mD['input_histogram_values']

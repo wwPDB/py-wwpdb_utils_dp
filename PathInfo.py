@@ -339,8 +339,9 @@ class PathInfo(object):
 
             if (dfRef.isReferenceValid()):                  
                 fP=dfRef.getFilePathReference()
-                pT=dfRef.getPartitionNumberSearchTarget()
-                vT=dfRef.getVersionIdSearchTarget()
+                dP=dfRef.getDirPathReference()
+                pT=os.path.join(dP,dfRef.getPartitionNumberSearchTarget())
+                vT=os.path.join(dP,dfRef.getVersionIdSearchTarget())
                 if (self.__debug):                
                     self.__lfh.write("+PathInfo.__getStandardPath() file path:              %s\n" % fP)
                     self.__lfh.write("+PathInfo.__getStandardPath() partition search path:  %s\n" % pT)
