@@ -16,8 +16,10 @@ import sys, unittest, os, os.path, traceback, json,math
 
 from wwpdb.api.facade.ConfigInfo          import ConfigInfo,getSiteId
 from wwpdb.utils.rcsb.RcsbDpUtility       import RcsbDpUtility
-
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+
 
 class RcsbDpUtilityEmTests(unittest.TestCase):
     def setUp(self):
