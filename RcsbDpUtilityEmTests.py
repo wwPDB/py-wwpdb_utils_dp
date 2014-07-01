@@ -96,14 +96,17 @@ class RcsbDpUtilityEmTests(unittest.TestCase):
             #
             width = float(x[-1] - x[0])/float(len(x))
             #width = 2.0
-
+            self.__lfh.write("Starting plot\n")
             plt.bar( x, y, width, color="r", log=True)
+            self.__lfh.write("Loaded data\n")
             plt.title('Map density distribution')
+            self.__lfh.write("set title\n")
             plt.ylabel( 'Voxels (log(10))' )
             plt.xlabel( 'Density' )
-            
+            self.__lfh.write("set labels\n")            
             plotFileName = "map-density-plot.png" 
             plt.savefig( plotFileName, format="png" )
+            self.__lfh.write("saved figure\n")            
 
         except:
             traceback.print_exc(file=self.__lfh)
