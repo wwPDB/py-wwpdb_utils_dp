@@ -77,7 +77,6 @@ class RcsbDpUtilityEmTests(unittest.TestCase):
             dp.exp(of)            
             dp.cleanup()
             #
-
             mD=json.load(open(of,'r'))
             self.__lfh.write("Map header keys: %r\n" % mD.keys())
             self.__lfh.write("Map header: %r\n" % mD.items())
@@ -103,8 +102,8 @@ class RcsbDpUtilityEmTests(unittest.TestCase):
             plt.ylabel( 'Voxels (log(10))' )
             plt.xlabel( 'Density' )
             
-            plotFileName = "map-density-plot.svg" 
-            plt.savefig( plotFileName, format="svg" )
+            plotFileName = "map-density-plot.png" 
+            plt.savefig( plotFileName, format="png" )
 
         except:
             traceback.print_exc(file=self.__lfh)
