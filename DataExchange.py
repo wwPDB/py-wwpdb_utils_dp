@@ -322,7 +322,7 @@ class DataExchange(object):
                                                           fileSource=fileSource,
                                                           partNumber=partitionNumber,
                                                           mileStone=mileStone)
-            return self.__getFileList(fPattern)
+            return self.__getFileList(fPattern,sortFlag=True)
         except:
             if self.__verbose:
                 self.__lfh.write("+DataExchange.getVersionFileList() failing for data set %s instance %s file source %s\n" %
@@ -348,7 +348,7 @@ class DataExchange(object):
                                                             formatType=formatType,
                                                             fileSource=fileSource,
                                                             mileStone=mileStone)
-            return self.__getFileList(fPattern)
+            return self.__getFileList(fPattern,sortFlag=False)
         except:
             if self.__verbose:
                 self.__lfh.write("+DataExchange.getVersionFileList() failing for data set %s instance %s file source %s\n" %
@@ -357,9 +357,11 @@ class DataExchange(object):
             return []
 
 
-    def __getFileList(self,fPattern="*"):
+    def __getFileList(self,fPattern="*",sortFlag=True):
         """
         For the input glob compatible file pattern produce a file list sorted by modification date.
+
+        If sortFlag is set then file list is sorted by modification date (e.g. recently changes first)
 
         Return:
               List of [(file path, modification date string),...]
@@ -373,8 +375,9 @@ class DataExchange(object):
                 file_date_tuple = (x,d)
                 file_date_tuple_list.append(file_date_tuple)
 
-            # Sort the tuple list by the modification time
-            file_date_tuple_list.sort(key=lambda x: x[1],reverse=True)
+            # Sort the tuple list by the modification time (recent changes first)
+            if sortFlag:
+                file_date_tuple_list.sort(key=lambda x: x[1],reverse=True)
             rTup=[]
             for fP,mT in file_date_tuple_list:
                 tS=datetime.fromtimestamp(mT).strftime("%Y-%b-%d %H:%M:%S")

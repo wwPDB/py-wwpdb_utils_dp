@@ -14,6 +14,7 @@
 # 25-Jun-2014   jdw   add convenience methods getEmVolumeFilePath() getEmMaskFilePath()
 # 26-Jun-2014   jdw   correct parameter errors on blast-match and map methods, add omit-map methods
 # 28-Jun-2014   jdw   add template methods for searching file versions and partitions
+#  1-Jul-2014   jdw   fix initialization in __getPathWorker()
 ## 
 """
 Common methods for finding path information for resource and data files in the wwPDB data processing
@@ -27,6 +28,7 @@ __license__   = "Creative Commons Attribution 3.0 Unported"
 __version__   = "V0.07"
 
 import sys, os, os.path, traceback
+from wwpdb.api.facade.ConfigInfo     import ConfigInfo
 from wwpdb.api.facade.DataReference  import DataFileReference
 
 class PathInfo(object):
@@ -47,13 +49,28 @@ class PathInfo(object):
         self.__siteId=siteId
         self.__sessionPath = sessionPath
         self.__sessionDownloadPath=os.path.join(self.__sessionPath,"downloads")
+        self.__cI=ConfigInfo(siteId=self.__siteId,verbose=self.__verbose,log=self.__lfh)
+
+
         #
     def setSessionPath(self,sessionPath):
         """  Set the top path that will be searched for files with fileSource='session'
         """
         self.__sessionPath=sessionPath
         self.__sessionDownloadPath=os.path.join(self.__sessionPath,"downloads")
-        
+
+    def getArchivePath(self,dataSetId):
+        try:
+            return os.path.join(self.__cI.get('SITE_ARCHIVE_STORAGE_PATH'),'archive',dataSetId)        
+        except:
+            return None
+
+    def getDepositPath(self,dataSetId):
+        try:
+            return os.path.join(self.__cI.get('SITE_ARCHIVE_STORAGE_PATH'),'deposit',dataSetId)        
+        except:
+            return None
+
     def getModelPdbxFilePath(self,dataSetId,wfInstanceId=None,fileSource="archive",versionId="latest",mileStone=None):
         return self.__getStandardPath(dataSetId=dataSetId,
                                       wfInstanceId=wfInstanceId,
@@ -257,11 +274,11 @@ class PathInfo(object):
 
     def getFilePathVersionTemplate(self,dataSetId,wfInstanceId=None,contentType=None,formatType=None,fileSource="archive",partNumber='1',mileStone=None):
         fp,vt,pt=self.__getPathWorker(dataSetId=dataSetId,
-                                        wfInstanceId=wfInstanceId,
-                                        contentTypeBase=contentType,
-                                        formatType=formatType,
-                                        fileSource=fileSource,
-                                        versionId='none',partNumber=partNumber,mileStone=mileStone)
+                                      wfInstanceId=wfInstanceId,
+                                      contentTypeBase=contentType,
+                                      formatType=formatType,
+                                      fileSource=fileSource,
+                                      versionId='none',partNumber=partNumber,mileStone=mileStone)
         return vt
 
     def getFilePathPartitionTemplate(self,dataSetId,wfInstanceId=None,contentType=None,formatType=None,fileSource="archive",mileStone=None):
@@ -336,7 +353,10 @@ class PathInfo(object):
             else:
                 self.__lfh.write("+PathInfo.__getStandardPath() bad file source %s for id %s wf id %s\n" % (fileSource,dataSetId,wfInstanceId))
                 return None,None,None
-
+            
+            fP=None
+            vT=None
+            pT=None
             if (dfRef.isReferenceValid()):                  
                 fP=dfRef.getFilePathReference()
                 dP=dfRef.getDirPathReference()

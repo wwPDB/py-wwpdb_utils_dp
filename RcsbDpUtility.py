@@ -150,7 +150,8 @@ class RcsbDpUtility(object):
                                 "annot-validate-geometry"]
         self.__sequenceOps = ['seq-blastp','seq-blastn']
         self.__validateOps = ['validate-geometry']
-        self.__emOps = ['mapfix-big', 'em2em-spider', 'fsc_check', 'img-convert','annot-read-map-header']
+        self.__emOps = ['mapfix-big', 'em2em-spider', 'fsc_check', 'img-convert','annot-read-map-header',
+                        'annot-read-map-header-in-place','annot-update-map-header-in-place']
 
         #
         # Source, destination and logfile path details
@@ -1858,11 +1859,88 @@ class RcsbDpUtility(object):
             cmd += " ; } 2> " + ePath + " 1> " + oPath 
             cmd += " ; cat " + ePath + " > " + lPath
 
+        elif (op == "annot-read-map-header-in-place"):
+            # Read the header of the map file avoiding a local copy - 
+            #
+            # java -Xms256m -Xmx256m -jar /wwpdb_da/da_top/tools-macosx-108/packages/mapFix/mapFixDep.jar -h
+            #  -in  <filename>           : input map
+            # -out <filename>           : output map
+            # -cell <x> <y> <z>         : set x/y/z-length x/y/z
+            # -label <DepCode>          : write new label
+            # -gridsampling <x> <y> <z> : set x/y/z- grid sampling
+            # -gridstart <x> <y> <z>    : set x/y/z- grid start point
+            # -voxel <x> <y> <z>        : set x/y/z-length values to N[X/Y/Z]-length
+            #  Recommend : java -Xms256m -Xmx256m -jar mapFixDep.jar -in <filein> -out <fileout> -all
+
+            if  self.__inputParamDict.has_key('map_file_path'):
+                inpMapFilePath=self.__inputParamDict['map_file_path']
+            # Export map header as JSON packet - 
+            jarPath=os.path.join(self.__packagePath, "mapFix", "mapFixDep.jar")
+            cmd  += self.__javaPath + " -Xms256m -Xmx256m -jar " + jarPath
+            # -out is a temporary file place holder -- 
+            cmd  +=  " -in " + inpMapFilePath + " -out  dummy-out.map " 
+            # these dummy arguments required to run this code -- 
+            cmd  += " -voxel 1.0 1.0 1.0 -label test "
+            # oPath here will be the JSON  output containing may header details -- 
+            cmd += " ; } 2> " + ePath + " 1> " + oPath 
+            cmd += " ; cat " + ePath + " > " + lPath
+
+        elif (op == "annot-update-map-header-in-place"):
+            # update the header of the map file avoiding a local copy - 
+            #
+            # java -Xms256m -Xmx256m -jar /wwpdb_da/da_top/tools-macosx-108/packages/mapFix/mapFixDep.jar -h
+            #  -in  <filename>           : input map
+            # -out <filename>           : output map
+            # -cell <x> <y> <z>         : set x/y/z-length x/y/z
+            # -label <DepCode>          : write new label
+            # -gridsampling <x> <y> <z> : set x/y/z- grid sampling
+            # -gridstart <x> <y> <z>    : set x/y/z- grid start point
+            # -voxel <x> <y> <z>        : set x/y/z-length values to N[X/Y/Z]-length
+            #  Recommend : java -Xms256m -Xmx256m -jar mapFixDep.jar -in <filein> -out <fileout> -all
+            
+            # use references for input and output file paths - 
+            if  self.__inputParamDict.has_key('input_map_file_path'):
+                inpMapFilePath=self.__inputParamDict['input_map_file_path']
+
+            if  self.__inputParamDict.has_key('output_map_file_path'):
+                outMapFilePath=self.__inputParamDict['output_map_file_path']
+            #
+            jarPath=os.path.join(self.__packagePath, "mapFix", "mapFixDep.jar")
+            cmd  += self.__javaPath + " -Xms256m -Xmx256m -jar " + jarPath
+            # -out is a temporary file place holder -- 
+            cmd  +=  " -in " + inpMapFilePath + " -out  " + outMapFilePath
+            #
+            if  self.__inputParamDict.has_key('voxel'):
+                argVal=self.__inputParamDict['voxel']
+                cmd  += " -voxel " + argVal
+            if  self.__inputParamDict.has_key('cell'):
+                argVal=self.__inputParamDict['cell']
+                cmd  += " -cell " + argVal
+
+            if  self.__inputParamDict.has_key('label'):
+                argVal=self.__inputParamDict['label']
+                cmd  += " -label " + argVal
+
+            if  self.__inputParamDict.has_key('gridsampling'):
+                argVal=self.__inputParamDict['gridsampling']
+                cmd  += " -gridsampling " + argVal
+
+            if  self.__inputParamDict.has_key('gridstart'):
+                argVal=self.__inputParamDict['gridstart']
+                cmd  += " -gridstart " + argVal
+            #
+            # these dummy arguments required to run this code -- 
+            #cmd  += " -voxel 1.0 1.0 1.0 -label test "
+            # oPath here will be the JSON  output containing may header details -- 
+            #
+            cmd += " ; } 2> " + ePath + " 1> " + oPath 
+            cmd += " ; cat " + ePath + " > " + lPath
+
         else:
             pass
         
 
-        if (op not in ("em2em-spider", "mapfix-big", "fsc_check", "img-convert","annot-read-map-header")):
+        if (op not in ("em2em-spider", "mapfix-big", "fsc_check", "img-convert","annot-read-map-header","annot-read-map-header-in-place", "annot-update-map-header-in-place")):
             return -1
         #
 

@@ -1,5 +1,4 @@
 ##
-#
 # File:    RcsbDpUtilityEmTests.py
 # Author:  J. Westbrook
 # Date:    May 26,2014
