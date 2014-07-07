@@ -15,6 +15,7 @@
 # 26-Jun-2014   jdw   correct parameter errors on blast-match and map methods, add omit-map methods
 # 28-Jun-2014   jdw   add template methods for searching file versions and partitions
 #  1-Jul-2014   jdw   fix initialization in __getPathWorker()
+#  5-Jul-2014   jdw   add getFilePathContentTypeTemplate()
 ## 
 """
 Common methods for finding path information for resource and data files in the wwPDB data processing
@@ -62,6 +63,18 @@ class PathInfo(object):
     def getArchivePath(self,dataSetId):
         try:
             return os.path.join(self.__cI.get('SITE_ARCHIVE_STORAGE_PATH'),'archive',dataSetId)        
+        except:
+            return None
+
+    def getInstancePath(self,dataSetId,wfInstanceId):
+        try:
+            return os.path.join(self.__cI.get('SITE_ARCHIVE_STORAGE_PATH'),'workflow',dataSetId,'instance',wfInstanceId)        
+        except:
+            return None
+
+    def getInstanceTopPath(self,dataSetId):
+        try:
+            return os.path.join(self.__cI.get('SITE_ARCHIVE_STORAGE_PATH'),'workflow',dataSetId,'instance')        
         except:
             return None
 
@@ -273,30 +286,39 @@ class PathInfo(object):
         
 
     def getFilePathVersionTemplate(self,dataSetId,wfInstanceId=None,contentType=None,formatType=None,fileSource="archive",partNumber='1',mileStone=None):
-        fp,vt,pt=self.__getPathWorker(dataSetId=dataSetId,
-                                      wfInstanceId=wfInstanceId,
-                                      contentTypeBase=contentType,
-                                      formatType=formatType,
-                                      fileSource=fileSource,
-                                      versionId='none',partNumber=partNumber,mileStone=mileStone)
+        fp,vt,pt,cct=self.__getPathWorker(dataSetId=dataSetId,
+                                          wfInstanceId=wfInstanceId,
+                                          contentTypeBase=contentType,
+                                          formatType=formatType,
+                                          fileSource=fileSource,
+                                          versionId='none',partNumber=partNumber,mileStone=mileStone)
         return vt
 
     def getFilePathPartitionTemplate(self,dataSetId,wfInstanceId=None,contentType=None,formatType=None,fileSource="archive",mileStone=None):
-        fp,vt,pt=self.__getPathWorker(dataSetId=dataSetId,
-                                      wfInstanceId=wfInstanceId,
-                                      contentTypeBase=contentType,
-                                      formatType=formatType,
-                                      fileSource=fileSource,
-                                      versionId='none', 
-                                      partNumber='1', 
-                                      mileStone=mileStone)
+        fp,vt,pt,cct=self.__getPathWorker(dataSetId=dataSetId,
+                                          wfInstanceId=wfInstanceId,
+                                          contentTypeBase=contentType,
+                                          formatType=formatType,
+                                          fileSource=fileSource,
+                                          versionId='none', 
+                                          partNumber='1', 
+                                          mileStone=mileStone)
         return pt
-        
 
+    def getFilePathContentTypeTemplate(self,dataSetId,wfInstanceId=None,contentType=None,fileSource="archive"):
+        fp,vt,pt,cct=self.__getPathWorker(dataSetId=dataSetId,
+                                          wfInstanceId=wfInstanceId,
+                                          contentTypeBase=contentType,
+                                          formatType='any',
+                                          fileSource=fileSource,
+                                          versionId='none', 
+                                          partNumber='1', 
+                                          mileStone=None)
+        return cct
 
     def __getStandardPath(self,dataSetId,wfInstanceId=None,contentTypeBase=None,formatType=None,fileSource="archive",versionId="latest",partNumber='1',mileStone=None):
         try:
-            fP,vT,pT = self.__getPathWorker(dataSetId=dataSetId,
+            fP,vT,pT,ccT = self.__getPathWorker(dataSetId=dataSetId,
                                             wfInstanceId=wfInstanceId,
                                             contentTypeBase=contentTypeBase,
                                             formatType=formatType,
@@ -328,6 +350,12 @@ class PathInfo(object):
                 dfRef.setContentTypeAndFormat(contentType,formatType)
                 dfRef.setPartitionNumber(partNumber)
                 dfRef.setVersionId(versionId)
+            elif (fileSource in ['deposit']):
+                dfRef.setDepositionDataSetId(dataSetId)
+                dfRef.setStorageType('deposit')
+                dfRef.setContentTypeAndFormat(contentType,formatType)
+                dfRef.setPartitionNumber(partNumber)
+                dfRef.setVersionId(versionId)
             elif (fileSource =='wf-instance'):
                 dfRef.setDepositionDataSetId(dataSetId)
                 dfRef.setWorkflowInstanceId(wfInstanceId)
@@ -351,34 +379,38 @@ class PathInfo(object):
                 dfRef.setPartitionNumber(partNumber)
                 dfRef.setVersionId(versionId)
             else:
-                self.__lfh.write("+PathInfo.__getStandardPath() bad file source %s for id %s wf id %s\n" % (fileSource,dataSetId,wfInstanceId))
-                return None,None,None
+                self.__lfh.write("+PathInfo.__getPathworker() bad file source %s for id %s wf id %s contentType %r \n" % 
+                                 (fileSource,dataSetId,wfInstanceId,contentType))
+                return None,None,None,None
             
             fP=None
             vT=None
             pT=None
+            ctT=None
             if (dfRef.isReferenceValid()):                  
                 fP=dfRef.getFilePathReference()
                 dP=dfRef.getDirPathReference()
                 pT=os.path.join(dP,dfRef.getPartitionNumberSearchTarget())
                 vT=os.path.join(dP,dfRef.getVersionIdSearchTarget())
+                ctT=os.path.join(dP,dfRef.getContentTypeSearchTarget())
                 if (self.__debug):                
-                    self.__lfh.write("+PathInfo.__getStandardPath() file path:              %s\n" % fP)
-                    self.__lfh.write("+PathInfo.__getStandardPath() partition search path:  %s\n" % pT)
-                    self.__lfh.write("+PathInfo.__getStandardPath() version search path:    %s\n" % vT)
-                else:
-                    fP=dfRef.getFilePathReference()
-                    vT=None
-                    pT=None
-                    self.__lfh.write("+PathInfo.__getStandardPath() file path:      %s\n" % fP)
-                    self.__lfh.write("+PathInfo.__getStandardPath() invalid file path for %s for id %s wf id %s\n" % (fileSource,dataSetId,wfInstanceId))
-                    #
-            return fP,vT,pT
+                    self.__lfh.write("+PathInfo.__getPathworker() file path:                %s\n" % fP)
+                    self.__lfh.write("+PathInfo.__getPathworker() partition search path:    %s\n" % pT)
+                    self.__lfh.write("+PathInfo.__getPathworker() version search path:      %s\n" % vT)
+                    self.__lfh.write("+PathInfo.__getPathworker() content type search path: %s\n" % ctT)
+            else:
+                dP=dfRef.getDirPathReference()
+                ctT=os.path.join(dP,dfRef.getContentTypeSearchTarget())
+                if (self.__debug):
+                    self.__lfh.write("+PathInfo.__getPathworker() content type search path: %s\n" % ctT)
+                #
+            return fP,vT,pT,ctT
         except:
-            #if self.__verbose:
-            self.__lfh.write("+PathInfo.__getPathWorker() failing for %s id %s wf id %s\n" % (fileSource,dataSetId,wfInstanceId))
-            traceback.print_exc(file=self.__lfh)                
-            return None,None,None
+            if self.__verbose:
+                self.__lfh.write("+PathInfo.__getPathWorker() failing for source %s id %s wf id %s contentType %r\n" % 
+                                 (fileSource,dataSetId,wfInstanceId,contentType))
+                traceback.print_exc(file=self.__lfh)                
+            return None,None,None,None
 
     ###
     ### Need to relocate this 

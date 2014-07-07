@@ -8,6 +8,7 @@
 #  05-Mar-2013 jdw fetch() should not strip version information for output files.
 #  08-Mar-2013 jdw add method to separately set path for 'session' storage.
 #  29-Jun-2014 jdw refactor add getVersionFileList() and getPartitionFileList()
+#   5-Jul-2014 jdw  getContentTypeFileList() and getMiscFileList()
 ##
 """
  Implements common data exchange operations including: moving annotation data files between session
@@ -44,7 +45,7 @@ class DataExchange(object):
         self.__verbose=verbose        
         self.__lfh=log
         #
-        self.__debug=False        
+        self.__debug=True
         #
         self.__sessionObj  = self.__reqObj.getSessionObj()
         self.__sessionPath = self.__sessionObj.getPath()
@@ -308,7 +309,7 @@ class DataExchange(object):
         For the input content object return a list of file versions sorted by modification time.
 
         Return:
-              List of [(file path, modification date string),...]
+              List of [(file path, modification date string,size),...]
 
         """
         try:
@@ -322,7 +323,7 @@ class DataExchange(object):
                                                           fileSource=fileSource,
                                                           partNumber=partitionNumber,
                                                           mileStone=mileStone)
-            return self.__getFileList(fPattern,sortFlag=True)
+            return self.__getFileList([fPattern],sortFlag=True)
         except:
             if self.__verbose:
                 self.__lfh.write("+DataExchange.getVersionFileList() failing for data set %s instance %s file source %s\n" %
@@ -330,12 +331,12 @@ class DataExchange(object):
                 traceback.print_exc(file=self.__lfh)                
             return []
 
-    def getPartitionFileList(self,fileSource="archive",contentType="model",formatType="pdbx",partitionNumber='1',mileStone=None):
+    def getPartitionFileList(self,fileSource="archive",contentType="model",formatType="pdbx",mileStone=None):
         """
         For the input content object return a list of file versions sorted by modification time.
 
         Return:
-              List of [(file path, modification date string),...]
+              List of [(file path, modification date string,size),...]
 
         """
         try:
@@ -348,7 +349,7 @@ class DataExchange(object):
                                                             formatType=formatType,
                                                             fileSource=fileSource,
                                                             mileStone=mileStone)
-            return self.__getFileList(fPattern,sortFlag=False)
+            return self.__getFileList([fPattern],sortFlag=True)
         except:
             if self.__verbose:
                 self.__lfh.write("+DataExchange.getVersionFileList() failing for data set %s instance %s file source %s\n" %
@@ -356,32 +357,79 @@ class DataExchange(object):
                 traceback.print_exc(file=self.__lfh)                
             return []
 
+    def getContentTypeFileList(self,fileSource="archive",contentTypeList=["model"]):
+        """
+        For the input content object return a list of file versions sorted by modification time.
 
-    def __getFileList(self,fPattern="*",sortFlag=True):
+        Return:
+              List of [(file path, modification date string,size),...]
+
+        """
+        try:
+            if fileSource=='session' and self.__inputSessionPath is not None:
+                self.__pI.setSessionPath(self.__inputSessionPath)
+            fPatternList=[]
+            for contentType in contentTypeList:
+                fPattern=self.__pI.getFilePathContentTypeTemplate(dataSetId=self.__depDataSetId,
+                                                                  wfInstanceId=self.__wfInstanceId,
+                                                                  contentType=contentType,
+                                                                  fileSource=fileSource)
+
+                fPatternList.append(fPattern)
+            if self.__debug:
+                self.__lfh.write("+DataExchange.getContentTypeFileList() patterns %r\n" % fPatternList)
+            return self.__getFileList(fPatternList,sortFlag=True)
+        except:
+            if self.__verbose:
+                self.__lfh.write("+DataExchange.getVersionFileList() failing for data set %s instance %s file source %s\n" %
+                                 (self.__depDataSetId, self.__wfInstanceId,self.__fileSource))
+                traceback.print_exc(file=self.__lfh)                
+            return []
+
+    def getMiscFileList(self,fPatternList=["*"],sortFlag=True):
+        return self.__getFileList(fPatternList=fPatternList,sortFlag=sortFlag)
+
+    def getLogFileList(self,entryId,fileSource='archive'):
+        if fileSource in ['archive','wf-archive']:
+            pth=self.__pI.getArchivePath(entryId)
+            fpat=os.path.join(pth,'*log')
+        elif fileSource in ['deposit']:
+            pth=self.__pI.getDepositPath(entryId)
+            fpat=os.path.join(pth,'*log')
+        else:
+            return []
+        return self.__getFileList(fPatternList=[fpat],sortFlag=True)
+
+
+    def __getFileList(self,fPatternList=["*"],sortFlag=True):
         """
         For the input glob compatible file pattern produce a file list sorted by modification date.
 
         If sortFlag is set then file list is sorted by modification date (e.g. recently changes first)
 
         Return:
-              List of [(file path, modification date string),...]
+              List of [(file path, modification date string, KBytes),...]
 
         """
         try:
-            files = filter(os.path.isfile, glob.glob(fPattern))
+            files=[]
+            for fPattern in fPatternList:
+                files.extend(filter(os.path.isfile, glob.glob(fPattern)))
+
             file_date_tuple_list = []
             for x in files:
                 d = os.path.getmtime(x)
-                file_date_tuple = (x,d)
+                s = float(os.path.getsize(x))/1000.0
+                file_date_tuple = (x,d,s)
                 file_date_tuple_list.append(file_date_tuple)
 
             # Sort the tuple list by the modification time (recent changes first)
             if sortFlag:
                 file_date_tuple_list.sort(key=lambda x: x[1],reverse=True)
             rTup=[]
-            for fP,mT in file_date_tuple_list:
+            for fP,mT,sZ in file_date_tuple_list:
                 tS=datetime.fromtimestamp(mT).strftime("%Y-%b-%d %H:%M:%S")
-                rTup.append( (fP,tS))
+                rTup.append( (fP,tS,sZ))
             return rTup
         except:
             if self.__verbose:

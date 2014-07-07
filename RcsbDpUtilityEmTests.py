@@ -20,6 +20,10 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
+import pygal
+from pygal.style import LightStyle
+from pygal.style import LightColorizedStyle
+from pygal.style import LightGreenStyle
 
 class RcsbDpUtilityEmTests(unittest.TestCase):
     def setUp(self):
@@ -104,13 +108,70 @@ class RcsbDpUtilityEmTests(unittest.TestCase):
             plt.ylabel( 'Voxels (log(10))' )
             plt.xlabel( 'Density' )
             self.__lfh.write("set labels\n")            
-            plotFileName = "map-density-plot.png" 
-            plt.savefig( plotFileName, format="png" )
+            plotFileName = "map-density-plot-mpl.svg" 
+            plt.savefig( plotFileName, format="svg" )
             self.__lfh.write("saved figure\n")            
 
         except:
             traceback.print_exc(file=self.__lfh)
             self.fail()
+
+
+    def testReadMapHeaderPygal(self): 
+        """  Test read map header -- export JSON packet and plot density distribution -
+        """
+        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        try:
+            dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
+            #
+            inpPath=os.path.join(self.__testFilePath,self.__testMapNormal)
+            of=self.__testMapNormal+"_map-header-data_P1.json"
+            dp.imp(inpPath)
+            dp.op("annot-read-map-header")
+            dp.expLog("annot-read-map-header.log")
+            dp.exp(of)            
+            dp.cleanup()
+            #
+            mD=json.load(open(of,'r'))
+            self.__lfh.write("Map header keys: %r\n" % mD.keys())
+            self.__lfh.write("Map header: %r\n" % mD.items())
+
+            self.__lfh.write("Input  header keys: %r\n" % mD['input_header'].keys())
+            self.__lfh.write("Output header keys: %r\n" % mD['output_header'].keys())
+            #
+            x = mD['input_histogram_categories']
+            y = mD['input_histogram_values']
+            logy=[]
+            for v in y:
+                if float(v) <= 0.0:
+                    logy.append(math.log10(.1))
+                else:
+                    logy.append(math.log10(float(v)))
+
+            
+            width = float(x[-1] - x[0])/float(len(x))
+            #width = 2.0
+
+            self.__lfh.write("Starting plot len x %d len y %d \n" % ( len(x),len(logy)  ) )
+            nL=int(len(x)/10)
+            #
+            #bar_chart = pygal.Bar(x_label_rotation=20, show_minor_x_labels=False,style=LightColorizedStyle)
+            bar_chart = pygal.Bar(x_label_rotation=20, show_minor_x_labels=False,style=LightGreenStyle)
+            bar_chart.title = 'Map density distribution'
+            bar_chart.x_labels = map(str,[int(t) for t in x])
+            bar_chart.x_labels_major = map(str,[int(t) for t in x[::nL] ])
+
+            bar_chart.add('Voxels (log(10)', logy)
+            plotFileName = "map-density-plot-pygal.svg" 
+            bar_chart.render_to_file(plotFileName)
+            
+
+        except:
+            traceback.print_exc(file=self.__lfh)
+            self.fail()
+
+    def myround(self, x, base=5):
+        return int(base * round(float(x)/base))
 
     def testEm2EmSpider(self): 
         """  Test mapfix utility
@@ -137,6 +198,7 @@ class RcsbDpUtilityEmTests(unittest.TestCase):
 
 def suiteAnnotEmTests():
     suiteSelect = unittest.TestSuite()
+    suiteSelect.addTest(RcsbDpUtilityEmTests("testReadMapHeaderPygal"))    
     suiteSelect.addTest(RcsbDpUtilityEmTests("testReadMapHeader"))    
     #suiteSelect.addTest(RcsbDpUtilityEmTests("testMapFix"))    
     #suiteSelect.addTest(RcsbDpUtilityEmTests("testEm2EmSpider"))    
