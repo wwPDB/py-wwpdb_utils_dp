@@ -393,12 +393,15 @@ class DataExchange(object):
         if fileSource in ['archive','wf-archive']:
             pth=self.__pI.getArchivePath(entryId)
             fpat=os.path.join(pth,'*log')
+            patList=[fpat]
         elif fileSource in ['deposit']:
             pth=self.__pI.getDepositPath(entryId)
-            fpat=os.path.join(pth,'*log')
+            fpat1=os.path.join(pth,'*log')
+            fpat2=os.path.join(pth,'log','*')
+            patList=[fpat1,fpat2]
         else:
             return []
-        return self.__getFileList(fPatternList=[fpat],sortFlag=True)
+        return self.__getFileList(fPatternList=patList,sortFlag=True)
 
 
     def __getFileList(self,fPatternList=["*"],sortFlag=True):
