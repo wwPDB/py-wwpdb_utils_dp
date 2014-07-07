@@ -15,7 +15,8 @@
 # 26-Jun-2014   jdw   correct parameter errors on blast-match and map methods, add omit-map methods
 # 28-Jun-2014   jdw   add template methods for searching file versions and partitions
 #  1-Jul-2014   jdw   fix initialization in __getPathWorker()
-#  5-Jul-2014   jdw   add getFilePathContentTypeTemplate()
+#  5-Jul-2014   jdw   add method getFilePathContentTypeTemplate()
+#  7-Jul2014    jdw   add method getStatusHistoryFilePath()
 ## 
 """
 Common methods for finding path information for resource and data files in the wwPDB data processing
@@ -238,6 +239,16 @@ class PathInfo(object):
                                       contentTypeBase='em-mask',
                                       formatType='map',
                                       mileStone=mileStone)
+
+    def getStatusHistoryFilePath(self,dataSetId,fileSource="archive",versionId="latest"):
+        return self.__getStandardPath(dataSetId=dataSetId,
+                                      wfInstanceId=None,
+                                      fileSource=fileSource,
+                                      versionId=versionId,
+                                      partNumber='1',
+                                      contentTypeBase='status-history',
+                                      formatType='pdbx',
+                                      mileStone=None)
 
     #
     def getFilePath(self,dataSetId,wfInstanceId=None,contentType=None,formatType=None,fileSource="archive",versionId="latest",partNumber='1',mileStone=None):
