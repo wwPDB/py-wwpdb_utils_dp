@@ -47,7 +47,7 @@ class PathInfo(object):
         """
         self.__verbose=verbose
         self.__lfh=log
-        self.__debug=True
+        self.__debug=False
         self.__siteId=siteId
         self.__sessionPath = sessionPath
         self.__sessionDownloadPath=os.path.join(self.__sessionPath,"downloads")

@@ -78,6 +78,7 @@
 # 1-Jun-2014  jdw add maptest operation -- make javapath site dependent -  note - MapFixDep  not providing mandatory parameters at this point -
 # 25-Jun-2014 jdw add  "annot-make-omit-maps"
 # 27-Jun-2014 jdw add option to remove maximum alignment length
+#  8-Jul-2014 jdw make the mode of the temporary directory group -rx-            
 ##
 """
 Wrapper class for data processing and chemical component utilities.
@@ -218,17 +219,27 @@ class RcsbDpUtility(object):
                 self.__lfh.write("+RcsbDpUtility.useResult()  - Using result from step %s\n" % self.__stepNoSaved)        
         
     def __makeTempWorkingDir(self):
-        hostName=str(socket.gethostname()).split('.')[0]
-        if ((hostName is not None) and (len(hostName) > 0)):
-            suffix = '-' + hostName
-        else:
-            suffix = '-dir'
+        try:
+            hostName=str(socket.gethostname()).split('.')[0]
+            if ((hostName is not None) and (len(hostName) > 0)):
+                suffix = '-' + hostName
+            else:
+                suffix = '-dir'
 
-        prefix='rcsb-'
-        if (self.__tmpPath != None and os.path.isdir(self.__tmpPath)):
-            self.__wrkPath = tempfile.mkdtemp(suffix,prefix,self.__tmpPath)
-        else:
-            self.__wrkPath = tempfile.mkdtemp(suffix,prefix)            
+            prefix='rcsb-'
+            if (self.__tmpPath != None and os.path.isdir(self.__tmpPath)):
+                self.__wrkPath = tempfile.mkdtemp(suffix,prefix,self.__tmpPath)
+            else:
+                self.__wrkPath = tempfile.mkdtemp(suffix,prefix)            
+            #
+            os.chmod(self.__wrkPath,0750)
+            return True
+        except:
+            if (self.__verbose): 
+                self.__lfh.write("+RcsbDpUtility.__makeTempWorkingDir()  - failed \n")
+                traceback.print_exc(file=self.__lfh)                                    
+            return False
+        
 
         
     def setWorkingDir(self,dPath):

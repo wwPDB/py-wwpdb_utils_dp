@@ -18,6 +18,7 @@
 # 11-Oct-2013 zf   add getDictionary() method
 # 22-Dec-2013 jdw  Add HTML template processing method - setHtmlFromTemplate()
 # 27-Feb-2014 jdw  Add setReturnFormat() method -
+# 13-Jul-2014 jdw  Adjust formating in print methods
 ##
 """
 WebRequest provides containers and accessors for managing request parameter information.
@@ -54,8 +55,7 @@ class WebRequest(object):
             sL=[]
             sL.append("\n+WebRequest.printIt() WebRequest dictionary contents:\n")
             for k,vL in self.__dict.items():
-                sL.append("  - Key: %-35s  value(s): " % k)
-                sL.append("   %r\n" % vL)
+                sL.append("  - Key: %-35s  value(s): %r\n" % (k,vL))
             sL.append("   --------------------------------------------\n")
             return ''.join(sL)
         except:
@@ -70,8 +70,7 @@ class WebRequest(object):
             
             for k in sorted(self.__dict.keys()):
                 vL=self.__dict[k]
-                ofh.write("  - Key: %-35s  value(s): " % k)
-                ofh.write(" %r\n" % vL)
+                ofh.write("  - Key: %-35s  value(s): %r\n" % (k,vL))
             ofh.write("   --------------------------------------------\n")                                         
         except:
             pass
@@ -83,8 +82,7 @@ class WebRequest(object):
                 oL.append('<pre>\n')
             oL.append("\ +nWebRequest.dump() Request Dictionary Contents:\n")             
             for k,vL in self.__dict.items():
-                oL.append("  - Key: %-35s  value(s): " % k)
-                oL.append(" %r\n " % vL)
+                oL.append("  - Key: %-35s  value(s): %r\n" % (k,vL))
             oL.append("   --------------------------------------------\n")
             if (format == 'html'):
                 oL.append('</pre>\n')
