@@ -104,7 +104,7 @@ class RcsbDpUtilityMapTests(unittest.TestCase):
         """
         self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
         try:
-            for pdbId in ['2yn2']:
+            for pdbId in ['3of4']:
                 #of2fofc=pdbId+"_2fofc.map"
                 #offofc=pdbId+"_fofc.map"
 
@@ -229,6 +229,11 @@ def suiteMapCalcTests():
     #suiteSelect.addTest(RcsbDpUtilityMapTests("testAnnotLigandMapCalc"))
     return suiteSelect    
 
+def suiteLigandMapCalcTests():
+    suiteSelect = unittest.TestSuite()
+    suiteSelect.addTest(RcsbDpUtilityMapTests("testAnnotLigandMapCalc"))
+    return suiteSelect    
+
 def suiteAnnotDccTests():
     suiteSelect = unittest.TestSuite()
     suiteSelect.addTest(RcsbDpUtilityMapTests("testAnnotDccReport"))
@@ -248,9 +253,11 @@ if __name__ == '__main__':
         mySuite=suiteAnnotDccTests()
         unittest.TextTestRunner(verbosity=2).run(mySuite)
 
+        mySuite=suiteLigandMapCalcTests()
+        unittest.TextTestRunner(verbosity=2).run(mySuite)
     else:
         pass
+        
+    mySuite=suiteLigandMapCalcTests()
+    unittest.TextTestRunner(verbosity=2).run(mySuite)
 
-
-    mySuite=suiteMapCalcTests()
-    unittest.TextTestRunner(verbosity=2).run(mySuite)        
