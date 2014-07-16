@@ -110,7 +110,7 @@ class RcsbDpUtilityMapTests(unittest.TestCase):
 
                 testFileXyz=pdbId+".cif"
                 testFileSf=pdbId+"-sf.cif"
-                
+                #
                 dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True,log=self.__lfh)
                 dp.setDebugMode(flag=True)
                 xyzPath=os.path.join(self.__testFilePath,testFileXyz)
@@ -125,6 +125,24 @@ class RcsbDpUtilityMapTests(unittest.TestCase):
                 dp.addInput(name="output_index_path",value=outIndexPath)  
                 dp.op("annot-make-ligand-maps")
                 dp.expLog(pdbId+"-annot-make-ligand-maps.log")
+                #
+
+                dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True,log=self.__lfh)
+                dp.setDebugMode(flag=True)
+                xyzPath=os.path.join(self.__testFilePath,testFileXyz)
+                sfPath=os.path.join(self.__testFilePath,testFileSf)
+                #
+                outDataPath=os.path.join(self.__tmpPath,'np-cc-omit-maps') 
+                outIndexPath='./np-cc-omit-maps-index.cif'
+                #
+                dp.imp(xyzPath)
+                dp.addInput(name="omit_map",value=True)            
+                dp.addInput(name="sf_file_path",value=sfPath)            
+                dp.addInput(name="output_data_path",value=outDataPath)  
+                dp.addInput(name="output_index_path",value=outIndexPath)  
+                dp.op("annot-make-ligand-maps")
+                dp.expLog(pdbId+"-annot-make-ligand-omit-maps.log")
+
                 # 
                 # This application 
                 #dp.cleanup()
@@ -250,7 +268,6 @@ if __name__ == '__main__':
     #
     doAll=False
     if (doAll):
-
         mySuite=suiteMapCalcTests()
         unittest.TextTestRunner(verbosity=2).run(mySuite)        
 
@@ -261,7 +278,10 @@ if __name__ == '__main__':
         unittest.TextTestRunner(verbosity=2).run(mySuite)
     else:
         pass
-        
+
+    mySuite=suiteMapCalcTests()
+    unittest.TextTestRunner(verbosity=2).run(mySuite)                
+    #
     mySuite=suiteLigandMapCalcTests()
     unittest.TextTestRunner(verbosity=2).run(mySuite)
 

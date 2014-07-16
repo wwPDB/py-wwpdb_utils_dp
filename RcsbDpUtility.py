@@ -971,7 +971,11 @@ class RcsbDpUtility(object):
             if  self.__inputParamDict.has_key('dcc_arguments'):
                 dccArgs="  " + self.__inputParamDict['dcc_arguments'] + "  "
 
-            
+            omitArgs=''
+            if  self.__inputParamDict.has_key('omit_map'):
+                omitArgs=' -omitmap '
+            #
+
             if  self.__inputParamDict.has_key('sf_file_path'):
                 sfPath=self.__inputParamDict['sf_file_path']
                 sfPathFull = os.path.abspath(sfPath)       
@@ -996,7 +1000,7 @@ class RcsbDpUtility(object):
             outDataPathFull=os.path.abspath(outDataPath)
             #
 
-            cmd += thisCmd + dccArgs  + " -cif ./" + iPath + " -sf  ./" + sfFileName + " -ligmapcif  -no_xtriage "
+            cmd += thisCmd + dccArgs  + " -cif ./" + iPath + " -sf  ./" + sfFileName + " -ligmapcif  -no_xtriage " + omitArgs
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
 
         elif (op == "annot-dcc-report"):
@@ -1204,7 +1208,7 @@ class RcsbDpUtility(object):
             #cmd += thisCmd + " -cif ./" + iPath + " -sf  ./" + sfFileName + " -omitmap -map  -no_xtriage -o " + oPath
             #cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
             #
-            cmd += thisCmd + " -cif ./" + iPath + " -sf  ./" + sfFileName + " -map  -noeds -no_xtriage -o " + oPath
+            cmd += thisCmd + " -cif ./" + iPath + " -sf  ./" + sfFileName + " -omitmap  -noeds -no_xtriage -o " + oPath
             cmd += " -2fofc " + map2fofcPath + " -fofc " + mapfofcPath 
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
 
