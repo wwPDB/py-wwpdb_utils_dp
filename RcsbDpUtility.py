@@ -1607,7 +1607,7 @@ class RcsbDpUtility(object):
             # specified output path -- 
             if (self.__verbose):
                 self.__lfh.write("+RcsbDpUtility._annotationStep()  - for operation %s return path %s\n" % (op,outDataPathFull))
-            pat = os.path.join(self.__wrkPath,'/*.map')
+            pat = os.path.join(self.__wrkPath,'*.map')
             self.__resultMapPathList= glob.glob(pat)
             if (self.__debug):
                 self.__lfh.write("+RcsbDpUtility._annotationStep()  - pat %s resultMapPathList %s\n" % (pat,self.__resultMapPathList))
