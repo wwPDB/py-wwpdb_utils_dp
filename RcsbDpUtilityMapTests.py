@@ -112,6 +112,7 @@ class RcsbDpUtilityMapTests(unittest.TestCase):
                 testFileSf=pdbId+"-sf.cif"
                 
                 dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True,log=self.__lfh)
+                db.setDebugMode(flag=True)
                 xyzPath=os.path.join(self.__testFilePath,testFileXyz)
                 sfPath=os.path.join(self.__testFilePath,testFileSf)
                 #
