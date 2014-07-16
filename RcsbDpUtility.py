@@ -1607,12 +1607,12 @@ class RcsbDpUtility(object):
             # specified output path -- 
             if (self.__verbose):
                 self.__lfh.write("+RcsbDpUtility._annotationStep()  - for operation %s return path %s\n" % (op,outDataPathFull))
-            pat = self.__wrkPath + '/*.map'
+            pat = os.path.join(self.__wrkPath,'/*.map')
             self.__resultMapPathList= glob.glob(pat)
             if (self.__debug):
                 self.__lfh.write("+RcsbDpUtility._annotationStep()  - pat %s resultMapPathList %s\n" % (pat,self.__resultMapPathList))
             #
-            pat = self.__wrkPath + '/[0-9]*.cif'
+            pat = os.path.join(self.__wrkPath, '[0-9]*.cif')
             self.__resultCifPathList= glob.glob(pat)
             if (self.__debug):
                 self.__lfh.write("+RcsbDpUtility._annotationStep()  - pat %s resultCifPathList %s\n" % (pat,self.__resultCifPathList))
@@ -1640,6 +1640,8 @@ class RcsbDpUtility(object):
                         self.__lfh.write("+RcsbDpUtility._annotationStep()  - returning map file %s\n" % ofp)
                 # cif snippet files
                 for fp in self.__resultCifPathList:
+                    if fp.endswith('-sf.cif'):
+                        continue
                     (dn,fn)=os.path.split(fp)
                     ofp=os.path.join(outDataPathFull,fn)
                     shutil.copyfile(fp,ofp)
