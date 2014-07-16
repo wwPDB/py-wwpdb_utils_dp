@@ -1621,7 +1621,6 @@ class RcsbDpUtility(object):
                 if (not os.path.isdir(outDataPathFull)):
                     os.makedirs(outDataPathFull,0755)                
                 # index file -- 
-
                 ipT=os.path.join(self.__wrkPath,'LIG_PEPTIDE.cif')
                 if (os.access(ipT,os.R_OK)):
                     shutil.copyfile(ipT,outIndexPathFull)
