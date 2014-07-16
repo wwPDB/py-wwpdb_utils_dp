@@ -991,7 +991,7 @@ class RcsbDpUtility(object):
             map2fofcPath=os.path.join(self.__wrkPath, iPath+"_2fofc.map")            
             #
 
-            cmd += thisCmd + dccArgs  + " -cif ./" + iPath + " -sf  ./" + sfFileName + " -ligmap  -no_xtriage "
+            cmd += thisCmd + dccArgs  + " -cif ./" + iPath + " -sf  ./" + sfFileName + " -ligmapcif  -no_xtriage "
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
 
         elif (op == "annot-dcc-report"):
