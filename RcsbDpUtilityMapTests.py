@@ -6,6 +6,7 @@
 # Version: 0.001
 #
 # Update:
+#  16-Jul-2014 jdw  add tests for ligand maps and omit maps
 ##
 """
 Test cases for map production and structure factor reflection file validation - 
@@ -53,8 +54,8 @@ class RcsbDpUtilityMapTests(unittest.TestCase):
         self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
         try:
             for pdbId in ['1cbs','3of4','3oqp']:
-                of2fofc=pdbId+"_2fofc.map"
-                offofc=pdbId+"_fofc.map"
+                of2fofc=pdbId+"_map-2fofc_P1.map"
+                offofc=pdbId+"_map-fofc_P1.map"
 
                 testFileXyz=pdbId+".cif"
                 testFileSf=pdbId+"-sf.cif"
@@ -79,8 +80,8 @@ class RcsbDpUtilityMapTests(unittest.TestCase):
         self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
         try:
             for pdbId in ['1cbs','3of4','3oqp']:
-                of2fofc=pdbId+"_omit-2fofc.map"
-                offofc=pdbId+"_omit-fofc.map"
+                of2fofc=pdbId+"_map-omit-2fofc_P1.map"
+                offofc=pdbId+"_map-omit-fofc_P1.map"
 
                 testFileXyz=pdbId+".cif"
                 testFileSf=pdbId+"-sf.cif"
@@ -105,8 +106,6 @@ class RcsbDpUtilityMapTests(unittest.TestCase):
         self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
         try:
             for pdbId in ['3of4']:
-                #of2fofc=pdbId+"_2fofc.map"
-                #offofc=pdbId+"_fofc.map"
 
                 testFileXyz=pdbId+".cif"
                 testFileSf=pdbId+"-sf.cif"
@@ -117,7 +116,7 @@ class RcsbDpUtilityMapTests(unittest.TestCase):
                 sfPath=os.path.join(self.__testFilePath,testFileSf)
                 #
                 outDataPath=os.path.join(self.__tmpPath,'np-cc-maps') 
-                outIndexPath='./np-cc-maps-index.cif'
+                outIndexPath=os.path.join(self.__tmpPath,'np-cc-maps','np-cc-maps-index.cif') 
                 #
                 dp.imp(xyzPath)
                 dp.addInput(name="sf_file_path",value=sfPath)            
@@ -126,26 +125,27 @@ class RcsbDpUtilityMapTests(unittest.TestCase):
                 dp.op("annot-make-ligand-maps")
                 dp.expLog(pdbId+"-annot-make-ligand-maps.log")
                 #
+                if (False):
+                    dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True,log=self.__lfh)
+                    dp.setDebugMode(flag=True)
+                    xyzPath=os.path.join(self.__testFilePath,testFileXyz)
+                    sfPath=os.path.join(self.__testFilePath,testFileSf)
+                    #
+                    outDataPath=os.path.join(self.__tmpPath,'np-cc-omit-maps') 
+                    outIndexPath=os.path.join(self.__tmpPath,'np-cc-omit-maps','np-cc-omit-maps-index.cif') 
+                    #
+                    dp.imp(xyzPath)
+                    dp.addInput(name="omit_map",value=True)            
+                    dp.addInput(name="sf_file_path",value=sfPath)            
+                    dp.addInput(name="output_data_path",value=outDataPath)  
+                    dp.addInput(name="output_index_path",value=outIndexPath)  
+                    dp.op("annot-make-ligand-maps")
+                    dp.expLog(pdbId+"-annot-make-ligand-omit-maps.log")
 
-                dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True,log=self.__lfh)
-                dp.setDebugMode(flag=True)
-                xyzPath=os.path.join(self.__testFilePath,testFileXyz)
-                sfPath=os.path.join(self.__testFilePath,testFileSf)
-                #
-                outDataPath=os.path.join(self.__tmpPath,'np-cc-omit-maps') 
-                outIndexPath='./np-cc-omit-maps-index.cif'
-                #
-                dp.imp(xyzPath)
-                dp.addInput(name="omit_map",value=True)            
-                dp.addInput(name="sf_file_path",value=sfPath)            
-                dp.addInput(name="output_data_path",value=outDataPath)  
-                dp.addInput(name="output_index_path",value=outIndexPath)  
-                dp.op("annot-make-ligand-maps")
-                dp.expLog(pdbId+"-annot-make-ligand-omit-maps.log")
+                    # 
+                    # This application 
+                    #dp.cleanup()
 
-                # 
-                # This application 
-                #dp.cleanup()
         except:
             traceback.print_exc(file=self.__lfh)
             self.fail()
@@ -242,8 +242,6 @@ class RcsbDpUtilityMapTests(unittest.TestCase):
             traceback.print_exc(file=self.__lfh)
             self.fail()
 
-
-
 def suiteMapCalcTests():
     suiteSelect = unittest.TestSuite()
     suiteSelect.addTest(RcsbDpUtilityMapTests("testAnnotMapCalc"))
@@ -279,9 +277,10 @@ if __name__ == '__main__':
     else:
         pass
 
-    mySuite=suiteMapCalcTests()
-    unittest.TextTestRunner(verbosity=2).run(mySuite)                
     #
+    mySuite=suiteLigandMapCalcTests()
+    unittest.TextTestRunner(verbosity=2).run(mySuite)
+
     mySuite=suiteLigandMapCalcTests()
     unittest.TextTestRunner(verbosity=2).run(mySuite)
 
