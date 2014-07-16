@@ -100,7 +100,7 @@ class RcsbDpUtilityMapTests(unittest.TestCase):
             self.fail()
 
     def testAnnotLigandMapCalc(self): 
-        """  Test create density maps --
+        """  Test create non-polymer local density maps --
         """
         self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
         try:
@@ -113,16 +113,19 @@ class RcsbDpUtilityMapTests(unittest.TestCase):
                 
                 dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True,log=self.__lfh)
                 xyzPath=os.path.join(self.__testFilePath,testFileXyz)
-                sfPath=os.path.join(self.__testFilePath,testFileSf)     
-                outMapPath='.'
-                outMapPathFull=os.path.abspath(outMapPath) 
+                sfPath=os.path.join(self.__testFilePath,testFileSf)
+                #
+                outDataPath=os.path.join(self.__tmpPath,'np-cc-maps') 
+                outIndexPath='./np-cc-maps-index.cif'
                 #
                 dp.imp(xyzPath)
                 dp.addInput(name="sf_file_path",value=sfPath)            
-                dp.addInput(name="output_map_file_path",value=outMapPathFull)            
+                dp.addInput(name="output_data_path",value=outDataPath)  
+                dp.addInput(name="output_index_path",value=outIndexPath)  
                 dp.op("annot-make-ligand-maps")
                 dp.expLog(pdbId+"-annot-make-ligand-maps.log")
-                #dp.expList(dstPathList=[of2fofc,offofc])
+                # 
+                # This application 
                 #dp.cleanup()
         except:
             traceback.print_exc(file=self.__lfh)

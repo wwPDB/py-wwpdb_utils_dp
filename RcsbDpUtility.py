@@ -982,13 +982,18 @@ class RcsbDpUtility(object):
                 sfPath="none"
                 sfPathFull="none"                
 
-            if  self.__inputParamDict.has_key('output_map_file_path'):
-                outMapPath=self.__inputParamDict['output_map_file_path']
+            if  self.__inputParamDict.has_key('output_data_path'):
+                outDataPath=self.__inputParamDict['output_data_path']
             else:
-                outMapPath='.'
-                
-            outMapPathFull=os.path.abspath(outMapPath)
-            map2fofcPath=os.path.join(self.__wrkPath, iPath+"_2fofc.map")            
+                outDataPath='.'
+
+            if  self.__inputParamDict.has_key('output_index_path'):
+                outIndexPath=self.__inputParamDict['output_index_path']
+            else:
+                outIndexPath='./np-map-index.cif'
+
+            outIndexPathFull=os.path.abspath(outIndexPath)                
+            outDataPathFull=os.path.abspath(outDataPath)
             #
 
             cmd += thisCmd + dccArgs  + " -cif ./" + iPath + " -sf  ./" + sfFileName + " -ligmapcif  -no_xtriage "
@@ -1598,25 +1603,53 @@ class RcsbDpUtility(object):
                         self.__resultPathList.append(fp)
 
         elif (op == "annot-make-ligand-maps"):
+            # Here we manage copying the maps non-polymer CIF snippets and a defining index file to the user
+            # specified output path -- 
+            if (self.__verbose):
+                self.__lfh.write("+RcsbDpUtility._annotationStep()  - for operation %s return path %s\n" % (op,outDataPathFull))
             pat = self.__wrkPath + '/*.map'
-            self.__resultPathList= glob.glob(pat)
+            self.__resultMapPathList= glob.glob(pat)
             if (self.__debug):
-                self.__lfh.write("+RcsbDpUtility._annotationStep()  - pat %s resultPathList %s\n" % (pat,self.__resultPathList))
-                self.__lfh.write("+RcsbDpUtility._annotationStep()  - return path %s\n" % outMapPathFull)
+                self.__lfh.write("+RcsbDpUtility._annotationStep()  - pat %s resultMapPathList %s\n" % (pat,self.__resultMapPathList))
+            #
+            pat = self.__wrkPath + '/[0-9]*.cif'
+            self.__resultCifPathList= glob.glob(pat)
+            if (self.__debug):
+                self.__lfh.write("+RcsbDpUtility._annotationStep()  - pat %s resultCifPathList %s\n" % (pat,self.__resultCifPathList))
+            #
+            try:
+                if (not os.path.isdir(outDataPathFull)):
+                    os.makedirs(outDataPathFull,0755)                
+                # index file -- 
 
-            if os.access(outMapPathFull,os.W_OK):
-                try:
-                    for fp in self.__resultPathList:
-                        if fp.endswith('_2fofc.map'):
-                            continue
-                        (dn,fn)=os.path.split(fp)
-                        ofp=os.path.join(outMapPathFull,fn)
-                        shutil.copyfile(fp,ofp)
-                        if (self.__verbose):
-                            self.__lfh.write("+RcsbDpUtility._annotationStep()  - returning map file %s\n" % ofp)
-                except:
+                ipT=os.path.join(self.__wrkPath,'LIG_PEPTIDE.cif')
+                if (os.access(ipT,os.R_OK)):
+                    shutil.copyfile(ipT,outIndexPathFull)
+                else:
+                    if (self.__verbose):
+                        self.__lfh.write("+RcsbDpUtility._annotationStep()  - missing map index file %s\n" % ipT)
+
+                # map files
+                for fp in self.__resultMapPathList:
+                    if fp.endswith('_2fofc.map'):
+                        continue
+                    (dn,fn)=os.path.split(fp)
+                    ofp=os.path.join(outDataPathFull,fn)
+                    shutil.copyfile(fp,ofp)
                     if (self.__debug):
-                        traceback.print_exc(file=self.__lfh)                    
+                        self.__lfh.write("+RcsbDpUtility._annotationStep()  - returning map file %s\n" % ofp)
+                # cif snippet files
+                for fp in self.__resultCifPathList:
+                    (dn,fn)=os.path.split(fp)
+                    ofp=os.path.join(outDataPathFull,fn)
+                    shutil.copyfile(fp,ofp)
+                    if (self.__debug):
+                        self.__lfh.write("+RcsbDpUtility._annotationStep()  - returning cif snippet file %s\n" % ofp)
+
+            except:
+                if (self.__verbose):
+                    self.__lfh.write("+RcsbDpUtility._annotationStep() - failing return of files for operation %s\n" % op)
+                    traceback.print_exc(file=self.__lfh)                    
 
         elif (op == "annot-chem-shift-check"):
             pass
