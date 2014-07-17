@@ -1202,8 +1202,8 @@ class RcsbDpUtility(object):
                 sfPathFull="none"                
 
             #
-            map2fofcPath=os.path.abspath(os.path.join(self.__wrkPath, iPath+"_omit-map-2fofc.map"))
-            mapfofcPath =os.path.abspath(os.path.join(self.__wrkPath, iPath+"_omit-map-fofc.map"))
+            map2fofcPath=os.path.abspath(os.path.join(self.__wrkPath, iPath+"_map-omit-2fofc_P1.map"))
+            mapfofcPath =os.path.abspath(os.path.join(self.__wrkPath, iPath+"_map-omit-fofc_P1.map"))
 
             #cmd += thisCmd + " -cif ./" + iPath + " -sf  ./" + sfFileName + " -omitmap -map  -no_xtriage -o " + oPath
             #cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
@@ -1240,8 +1240,8 @@ class RcsbDpUtility(object):
                 sfPathFull="none"                
 
             #
-            map2fofcPath=os.path.abspath(os.path.join(self.__wrkPath, iPath+"_map-2fofc.map"))
-            mapfofcPath =os.path.abspath(os.path.join(self.__wrkPath, iPath+"_map-fofc.map"))
+            map2fofcPath=os.path.abspath(os.path.join(self.__wrkPath, iPath+"_map-2fofc_P1.map"))
+            mapfofcPath =os.path.abspath(os.path.join(self.__wrkPath, iPath+"_map-fofc_P1.map"))
 
             #cmd += thisCmd + " -cif ./" + iPath + " -sf  ./" + sfFileName + " -map  -no_xtriage -o " + oPath
             #cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath

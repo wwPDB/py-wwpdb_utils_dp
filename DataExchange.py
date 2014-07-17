@@ -247,7 +247,44 @@ class DataExchange(object):
                 traceback.print_exc(file=self.__lfh)                            
             return False            
             
+    def copyDirToSession(self,dirName):
+        """  Replicate the input diretory in the session directory -
+        """
+        try:
+            if self.__fileSource in ['archive','wf-archive']:
+                pth=self.__pI.getArchivePath(self.__depDataSetId)
+            elif self.__fileSource in ['deposit']:
+                pth=self.__pI.getDepositPath(self.__depDataSetId)
+            elif self.__fileSource in ['wf-instance']:
+                pth=self.__pI.getInstancePath(self.__depDataSetId,self.__wfInstanceId)
+            else:
+                return False
 
+            srcPath=os.path.join(pth,dirName)
+            if not os.access(srcPath,os.R_OK):
+                return False
+
+            dstPath=os.path.join(self.__sessionPath,dirName)
+            if (not os.path.isdir(dstPath)):
+                os.makedirs(dstPath,0755)
+            #
+            fPattern=os.path.join(srcPath,"*")
+            fpL=filter(os.path.isfile, glob.glob(fPattern))
+            for fp in fpL:
+                dN,fN=os.path.split(fp)
+                oP=os.path.join(dstPath,fN)
+                shutil.copyfile(fp,oP)
+            return True
+        except:
+            if self.__verbose:
+                self.__lfh.write("+DataExchange.copyDirToSession() fails for dirName %s\n" % (dirName))
+                traceback.print_exc(file=self.__lfh)                            
+            return False            
+
+        
+        return  True
+        
+    
     def copyToSession(self,contentType,formatType,version="latest",partitionNumber=1):
         """ Copy the input content object into the session directory using archive naming conventions less version details.
 
