@@ -59,18 +59,18 @@ class FormatOut(object):
             if (len(thing) > 0):
                 if (name != None and len(name) > 0):
                     self.indent("\n",ind)
-                    str1 = "CONTENTS OF: %s\n" % name
+                    str1 = "CONTENTS OF LIST: %s\n" % name
                     self.indent(str1,ind)        
                 iEl = 0
                 for el in thing:
+                    lab =  name + ' list index [' + str(iEl) + ']'
                     iEl += 1
-                    lab = name + '[' + str(iEl) + ']'
                     self.autoFormat(lab,el,ind+indInc)
         elif (inOt.find('dict') > 0):
             if (len(thing) > 0):
                 if (name != None and len(name) > 0):
                     self.indent("\n",ind)                                    
-                    str1 = "CONTENTS OF: %s\n" % name
+                    str1 = "CONTENTS OF DICTIONARY: %s\n" % name
                     self.indent(str1,ind)                
                 keys = thing.keys()
                 keys.sort()
