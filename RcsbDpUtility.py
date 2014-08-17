@@ -1977,6 +1977,11 @@ class RcsbDpUtility(object):
             if  self.__inputParamDict.has_key('gridstart'):
                 argVal=self.__inputParamDict['gridstart']
                 cmd  += " -gridstart " + argVal
+            # any options ---
+            if  self.__inputParamDict.has_key('options'):
+                argVal=self.__inputParamDict['options']
+                cmd  += " " + argVal
+
             #
             # these dummy arguments required to run this code -- 
             #cmd  += " -voxel 1.0 1.0 1.0 -label test "

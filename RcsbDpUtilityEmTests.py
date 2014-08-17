@@ -36,11 +36,12 @@ class RcsbDpUtilityEmTests(unittest.TestCase):
         cI=ConfigInfo(self.__siteId)
         
         self.__testFilePath  ='./data'
-        self.__testMapNormal = "normal.map"
+        #self.__testMapNormal = "normal.map"
         self.__testMapSpider = "testmap.spi"
         #
         # Brian's protein dna complex 3IYD
         self.__testMapEmd = 'emd_5127.map'
+        self.__testMapNormal = self.__testMapEmd
 
 
     def tearDown(self):

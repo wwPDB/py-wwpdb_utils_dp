@@ -8,23 +8,26 @@ Date:    24-Mar-2006
 Version: 0.001
 Split off from utils.py and converted to a class with string buffer.
 
-Update:  5-Feb-2010
-         Add stream method -
+Update:  5-Feb-2010 jdw     Add stream method -
+        17-Aug-2014 jdw     Fix bool type stream formatting
 
 """
-import sys
+import sys,traceback
 
 MAX_INDENT=100
 SPACE=' '*MAX_INDENT
 
-class FormatOut:
+class FormatOut(object):
     """ 
     """
     def __init__(self):
         self.__buffer = []
 
     def writeStream(self,fObj):
-        fObj.writelines(self.__buffer)
+        try:
+            fObj.write(''.join(self.__buffer))
+        except:
+            traceback.print_exc(file=sys.stderr)
         
     def write(self,filename):
         fH = open(filename,'w')
@@ -46,7 +49,7 @@ class FormatOut:
         inOt = str(type(thing)).lower()
         ind = indent + 0
         indInc = indentIncr
-        if (inOt.find('str') > 0 or inOt.find('int') > 0 or inOt.find('unicode') > 0 or \
+        if (inOt.find('str') > 0 or inOt.find('int') > 0 or inOt.find('unicode') > 0 or inOt.find('bool') > 0 or \
             inOt.find('float') > 0 or inOt.find('long') > 0 or \
             inOt.find('date') > 0 or inOt.find('time') > 0):
             if (len( str(thing)) > 0 ) :
