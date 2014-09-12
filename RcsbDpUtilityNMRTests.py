@@ -74,6 +74,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             of="cs-coord-file-check.html"
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
             inpPath=os.path.join(self.__testFilePath,self.__testFileStarCs)
+            #
             xyzPath=os.path.abspath(os.path.join(self.__testFilePath,self.__testFileNmrModel))
             dp.imp(inpPath)
             dp.addInput(name="coordinate_file_path",value=xyzPath)            
