@@ -35,7 +35,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
         self.__testFilePath       = './data'
         #
         self.__testFileStarCs    = '2MMZ_cs.str'
-        self.__testFileNmrMode   = '2MMZ.cif'
+        self.__testFileNmrModel  = '2MMZ.cif'
         #
         self.__testNmrModel      = '2MMZ.cif'
         self.__testNmrMr         = '2MMZ.mr'
