@@ -78,7 +78,9 @@
 # 1-Jun-2014  jdw add maptest operation -- make javapath site dependent -  note - MapFixDep  not providing mandatory parameters at this point -
 # 25-Jun-2014 jdw add  "annot-make-omit-maps"
 # 27-Jun-2014 jdw add option to remove maximum alignment length
-#  8-Jul-2014 jdw make the mode of the temporary directory group -rx-            
+#  8-Jul-2014 jdw make the mode of the temporary directory group -rx- 
+# 11-Sep-2014 jdw add "annot-chem-shifts-atom-name-check","annot-chem-shifts-upload-check"  ... 
+# 12-Sep-2014 jdw add  -nmr opt for checkCoorFormat        
 ##
 """
 Wrapper class for data processing and chemical component utilities.
@@ -95,6 +97,7 @@ from wwpdb.api.facade.ConfigInfo        import ConfigInfo
 from subprocess import call,Popen
 
 from wwpdb.utils.rcsb.PdbxStripCategory import PdbxStripCategory
+
 
 class RcsbDpUtility(object):
     """ Wrapper class for data processing and chemical component utilities.
@@ -148,7 +151,8 @@ class RcsbDpUtility(object):
                                 "annot-rcsb2pdbx-withpdbid-singlequote", "annot-rcsb2pdbx-alt",
                                 "annot-move-xyz-by-matrix","annot-move-xyz-by-symop","annot-extra-checks",
                                 "annot-update-terminal-atoms","annot-merge-xyz","annot-gen-assem-pdbx","annot-cif2pdbx-withpdbid",
-                                "annot-validate-geometry"]
+                                "annot-validate-geometry",
+                                "annot-chem-shifts-atom-name-check","annot-chem-shifts-upload-check"]
         self.__sequenceOps = ['seq-blastp','seq-blastn']
         self.__validateOps = ['validate-geometry']
         self.__emOps = ['mapfix-big', 'em2em-spider', 'fsc_check', 'img-convert','annot-read-map-header',
@@ -553,14 +557,20 @@ class RcsbDpUtility(object):
             # CheckCoorFormat -input inputfile -format (pdb|pdbx) -output outputfile
             cmdPath =os.path.join(self.__annotAppsPath,"bin","CheckCoorFormat")
             thisCmd  = " ; " + cmdPath                        
-            cmd += thisCmd + " -input " + iPath + " -format pdbx  -output " + oPath 
+            nmrOpt = ' '
+            if  self.__inputParamDict.has_key('nmr'):
+                nmrOpt = ' -nmr '
+            cmd += thisCmd + " -input " + iPath + " -format pdbx  -output " + oPath + nmrOpt
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
 
         elif (op == "annot-format-check-pdb"):
             # CheckCoorFormat -input inputfile -format (pdb|pdbx) -output outputfile
             cmdPath =os.path.join(self.__annotAppsPath,"bin","CheckCoorFormat")
             thisCmd  = " ; " + cmdPath                        
-            cmd += thisCmd + " -input " + iPath + " -format pdb  -output " + oPath 
+            nmrOpt = ' '
+            if  self.__inputParamDict.has_key('nmr'):
+                nmrOpt = ' -nmr '
+            cmd += thisCmd + " -input " + iPath + " -format pdb  -output " + oPath + nmrOpt
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
 
         elif (op == "annot-nmrstar2pdbx"):
@@ -1392,6 +1402,68 @@ class RcsbDpUtility(object):
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
             cmd += " ; cat annot-step.log " + " >> " + lPath
 
+        elif (op == "annot-chem-shifts-upload-check"):
+            
+            cmdPath =os.path.join(self.__annotAppsPath,"bin","upload_shifts_check")
+            thisCmd  = " ; " + cmdPath                        
+            pList=[]
+            nList=[]
+            chkName="cs-diags.cif"
+            lCheckPath=os.path.abspath(os.path.join(self.__wrkPath,chkName ))
+            chkPath=""
+            if  self.__inputParamDict.has_key('chemical_shifts_file_path_list'):
+                pList=self.__inputParamDict['chemical_shifts_file_path_list']
+
+            if  self.__inputParamDict.has_key('chemical_shifts_auth_file_name_list'):
+                nList=self.__inputParamDict['chemical_shifts_auth_file_name_list']
+            #
+            if  self.__inputParamDict.has_key('chemical_shifts_upload_check_file_path'):
+                chkPath=self.__inputParamDict['chemical_shifts_upload_check_file_path']
+            #
+            tt=[]
+            for i in range(len(pList)):
+                if len(nList) > i:
+                    fn=nList[i]
+                else:
+                    dn,fn=os.path.split(pList[i])
+                tt.append(" -input %s  -auth_name %s " % (os.path.abspath(str(pList[i])), str(fn) ) )
+            #
+            cmd += thisCmd + ' '.join(tt)  + " -output " + oPath + " -log " + lCheckPath
+            #
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
+
+        elif (op == "annot-chem-shifts-atom-name-check"):
+            #  iPath input is the target chemical shift file oPath is the output cs file 
+            #
+            cmdPath =os.path.join(self.__annotAppsPath,"bin","shift_coord_check")
+            thisCmd  = " ; " + cmdPath                        
+            chkName="cs-coord-diags.cif"
+            lCheckPath=os.path.abspath(os.path.join(self.__wrkPath,chkName ))
+            chkPath=""
+            #
+            # auxiliary output file 
+            if  self.__inputParamDict.has_key('chemical_shifts_coord_check_file_path'):
+                chkPath=self.__inputParamDict['chemical_shifts_coord_check_file_path']
+            #
+            if  self.__inputParamDict.has_key('coordinate_file_path'):
+                xyzPath=self.__inputParamDict['coordinate_file_path']
+                xyzPathFull = os.path.abspath(xyzPath)       
+                (h,xyzFileName)=os.path.split(xyzPath)
+                xyzWrkPath=os.path.join(self.__wrkPath,xyzFileName)
+                xyzCnvWrkPath=os.path.join(self.__wrkPath,'cnv-'+xyzFileName)
+                shutil.copyfile(xyzPathFull,xyzWrkPath)
+            else:
+                xyzPath="none"
+                xyzPathFull="none"                
+            
+            # First add data items to the model 
+            cmd +=  " ; " + maxitCmd + " -o 8  -i " + xyzWrkPath + " -dep -log maxit.log "
+            cmd += " ; mv -f " + xyzWrkPath + ".cif " + xyzCnvWrkPath
+            #
+            cmd += thisCmd + ' -input ' + iPath  + " -output " + oPath + " -ciffile " + xyzCnvWrkPath + " -log " + lCheckPath
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
+
+
         elif (op == "prd-search"):
             cmd += " ; PRDCC_PATH="  + self.__prdccCvsPath + " ; export PRDCC_PATH "
             cmd += " ; PRD_DICT_PATH="  + self.__prdDictPath + " ; export PRD_DICT_PATH "
@@ -1658,6 +1730,9 @@ class RcsbDpUtility(object):
 
         elif (op == "annot-chem-shift-check"):
             pass
+        elif (op in ["annot-chem-shifts-atom-name-check","annot-chem-shifts-upload-check"]):
+            if os.access(lCheckPath,os.R_OK):
+                shutil.copyfile(lCheckPath,chkPath)
         else:
             self.__resultPathList = [os.path.join(self.__wrkPath,oPath)]
 
