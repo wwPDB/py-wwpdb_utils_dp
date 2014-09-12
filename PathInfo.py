@@ -16,7 +16,8 @@
 # 28-Jun-2014   jdw   add template methods for searching file versions and partitions
 #  1-Jul-2014   jdw   fix initialization in __getPathWorker()
 #  5-Jul-2014   jdw   add method getFilePathContentTypeTemplate()
-#  7-Jul2014    jdw   add method getStatusHistoryFilePath()
+#  7-Jul-2014   jdw   add method getStatusHistoryFilePath()
+# 23-Aug-2014   jdw   add method getEmDepositVolumeParamsFilePath()
 ## 
 """
 Common methods for finding path information for resource and data files in the wwPDB data processing
@@ -238,6 +239,16 @@ class PathInfo(object):
                                       partNumber=maskNumber,
                                       contentTypeBase='em-mask',
                                       formatType='map',
+                                      mileStone=mileStone)
+
+    def getEmDepositVolumeParamsFilePath(self,dataSetId,maskNumber='1',wfInstanceId=None,fileSource="deposit",versionId="latest",mileStone=None):
+        return self.__getStandardPath(dataSetId=dataSetId,
+                                      wfInstanceId=wfInstanceId,
+                                      fileSource=fileSource,
+                                      versionId=versionId,
+                                      partNumber=maskNumber,
+                                      contentTypeBase='deposit-volume-params',
+                                      formatType='pic',
                                       mileStone=mileStone)
 
     def getStatusHistoryFilePath(self,dataSetId,fileSource="archive",versionId="latest"):
