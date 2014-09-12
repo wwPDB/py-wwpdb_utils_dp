@@ -29,10 +29,10 @@ class RcsbDpUtilityNMRTests(unittest.TestCase):
         self.__siteId=getSiteId(defaultSiteId='WWPDB_DEPLOY_TEST')
         self.__lfh.write("\nTesting with site environment for:  %s\n" % self.__siteId)
         #
-        self.__tmpPath         = './rcsb-tmp-dir'        
+        self.__tmpPath         = os.path.abspath('./rcsb-tmp-dir')
         cI=ConfigInfo(self.__siteId)
         
-        self.__testFilePath       = './data'
+        self.__testFilePath       = os.path.abspath('./data')
         #
         self.__testFileStarCs    = '2MMZ_cs.str'
         self.__testFileNmrModel  = '2MMZ.cif'
