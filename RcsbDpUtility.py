@@ -81,6 +81,7 @@
 #  8-Jul-2014 jdw make the mode of the temporary directory group -rx- 
 # 11-Sep-2014 jdw add "annot-chem-shifts-atom-name-check","annot-chem-shifts-upload-check"  ... 
 # 12-Sep-2014 jdw add  -nmr opt for checkCoorFormat        
+# 14-Sep-2014 jdw add inputParamDict.has_key('deposit') to annot-merge-xyz
 ##
 """
 Wrapper class for data processing and chemical component utilities.
@@ -1338,7 +1339,7 @@ class RcsbDpUtility(object):
 
             ##
         elif (op == "annot-merge-xyz"):
-            #   MergeCoordinates -input input_ciffile -output output_ciffile -newcoord new_coordinate_file -format pdb|cif [-log logfile]
+            #   MergeCoordinates -input input_ciffile -output output_ciffile -newcoord new_coordinate_file -format pdb|cif [-log logfile] [ -dep]
             #
             #        option "-format pdb":   new_coordinates_file is PDB format file
             #        option "-format cif":   new_coordinates_file is cif format file
@@ -1358,6 +1359,9 @@ class RcsbDpUtility(object):
             else:
                 cmd += " -format cif "
             #
+            if  self.__inputParamDict.has_key('deposit'):
+                cmd += " -dep "
+
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
             cmd += " ; cat annot-step.log " + " >> " + lPath
 
