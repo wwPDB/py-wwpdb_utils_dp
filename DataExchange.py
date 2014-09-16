@@ -370,7 +370,7 @@ class DataExchange(object):
 
     def getPartitionFileList(self,fileSource="archive",contentType="model",formatType="pdbx",mileStone=None):
         """
-        For the input content object return a list of file versions sorted by modification time.
+        For the input content object return a list of file partitions sorted by modification time.
 
         Return:
               List of [(file path, modification date string,size),...]

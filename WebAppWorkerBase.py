@@ -51,6 +51,7 @@ class WebAppWorkerBase(object):
         self._cI=ConfigInfo(self._siteId)
         #
         self._uds=None
+        # UtilDataStore prefix for general session data -- used by _getSession()
         self._udsPrefix=None
         #
         # Service items include:
@@ -104,7 +105,7 @@ class WebAppWorkerBase(object):
     #
     def _saveSessionParameter(self, param=None, value=None, pvD=None, prefix=None):
         """ Store the input (param,value) pair and/or the contents of parameter value
-            dictionary (pvD) in the session parameter store.  
+            dictionary (pvD) in the session parameter store.    
         """
         try:
             #if self._uds is None:
@@ -121,6 +122,17 @@ class WebAppWorkerBase(object):
             if (self._verbose):
                 self._lfh.write("+%s.%s failed in session %s\n" % (self.__class__.__name__,sys._getframe().f_code.co_name,self._sessionId))
         return False
+
+    def _getSessionParameter(self, param=None, prefix=None):
+        """ Recover session data for the input parameter or return an empty string.
+        """
+        try:
+            self._uds=UtilDataStore(reqObj=self._reqObj,prefix=prefix,verbose=self._verbose,log=self._lfh)                        
+            return self._uds.get(param)
+        except:
+            if (self._verbose):
+                self._lfh.write("+%s.%s failed in session %s\n" % (self.__class__.__name__,sys._getframe().f_code.co_name,self._sessionId))
+        return ''
             
         
     def _getFileText(self,filePath):
@@ -162,7 +174,7 @@ class WebAppWorkerBase(object):
             self._lfh.write("+%s.%s - session path  %s\n" % (self.__class__.__name__,sys._getframe().f_code.co_name,self._sessionPath))
 
         if (useContext):
-            uds=UtilDataStore(reqObj=self._reqObj,prefix=None,verbose=self._verbose,log=self._lfh)
+            uds=UtilDataStore(reqObj=self._reqObj,prefix=self._udsPrefix,verbose=self._verbose,log=self._lfh)
             dd=uds.getDictionary()
             if (self._verbose):
                 self._lfh.write("+%s.%s -  importing persisted general session parameters: %r\n" % (self.__class__.__name__,sys._getframe().f_code.co_name,dd.items()))

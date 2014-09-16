@@ -82,6 +82,7 @@
 # 11-Sep-2014 jdw add "annot-chem-shifts-atom-name-check","annot-chem-shifts-upload-check"  ... 
 # 12-Sep-2014 jdw add  -nmr opt for checkCoorFormat        
 # 14-Sep-2014 jdw add inputParamDict.has_key('deposit') to annot-merge-xyz
+# 16-Sep-2014 jdw add "annot-reorder-models"
 ##
 """
 Wrapper class for data processing and chemical component utilities.
@@ -153,7 +154,7 @@ class RcsbDpUtility(object):
                                 "annot-move-xyz-by-matrix","annot-move-xyz-by-symop","annot-extra-checks",
                                 "annot-update-terminal-atoms","annot-merge-xyz","annot-gen-assem-pdbx","annot-cif2pdbx-withpdbid",
                                 "annot-validate-geometry",
-                                "annot-chem-shifts-atom-name-check","annot-chem-shifts-upload-check"]
+                                "annot-chem-shifts-atom-name-check","annot-chem-shifts-upload-check","annot-reorder-models"]
         self.__sequenceOps = ['seq-blastp','seq-blastn']
         self.__validateOps = ['validate-geometry']
         self.__emOps = ['mapfix-big', 'em2em-spider', 'fsc_check', 'img-convert','annot-read-map-header',
@@ -1304,6 +1305,19 @@ class RcsbDpUtility(object):
             if  self.__inputParamDict.has_key('transform_file_path'):
                 assignFilePath=self.__inputParamDict['transform_file_path']                                
                 cmd += " -assign " + assignFilePath           
+            #
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
+            cmd += " ; cat annot-step.log " + " >> " + lPath
+
+        elif (op == "annot-reorder-models"):
+            # ReorderModels -input input_ciffile -output output_ciffile -mol_id model_number -log logfile
+            #
+            cmdPath =os.path.join(self.__annotAppsPath,"bin","RorderModels")
+            thisCmd  = " ; " + cmdPath                        
+            cmd += thisCmd + " -input " + iPath + " -output " + oPath + " -log annot-step.log "
+            if  self.__inputParamDict.has_key('model_number'):
+                model_number=self.__inputParamDict['model_number']                                
+                cmd += " -mol_id " + model_number
             #
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
             cmd += " ; cat annot-step.log " + " >> " + lPath

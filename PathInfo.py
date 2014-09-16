@@ -18,6 +18,7 @@
 #  5-Jul-2014   jdw   add method getFilePathContentTypeTemplate()
 #  7-Jul-2014   jdw   add method getStatusHistoryFilePath()
 # 23-Aug-2014   jdw   add method getEmDepositVolumeParamsFilePath()
+# 14-Sep-2014   jdw   add isValidFileName(fileName, requireVersion=True) and splitFileName(fileName)
 ## 
 """
 Common methods for finding path information for resource and data files in the wwPDB data processing
@@ -32,7 +33,7 @@ __version__   = "V0.07"
 
 import sys, os, os.path, traceback
 from wwpdb.api.facade.ConfigInfo     import ConfigInfo
-from wwpdb.api.facade.DataReference  import DataFileReference
+from wwpdb.api.facade.DataReference  import DataFileReference, ReferenceFileComponents
 
 class PathInfo(object):
     """ Common methods for finding path information for sequence resources and data files.
@@ -54,8 +55,40 @@ class PathInfo(object):
         self.__sessionDownloadPath=os.path.join(self.__sessionPath,"downloads")
         self.__cI=ConfigInfo(siteId=self.__siteId,verbose=self.__verbose,log=self.__lfh)
 
+    def setDebugFlag(self,flag):
+        self.__debug=flag
 
-        #
+    def isValidFileName(self,fileName, requireVersion=True):
+        """ Is the input file name project compliant ?
+        """ 
+        rfc=ReferenceFileComponents(verbose=self.__verbose,log=self.__lfh)
+        if rfc.set(fileName=fileName) :
+            (dId,cT,cF,pN,vN) = rfc.get()
+            if ( requireVersion ):
+                if ((dId is None)  or (cT is None) or (cF is None) or (pN is None) or (vN is None) ):
+                    return False
+                else:
+                    return True
+            else:
+                if ((dId is None)  or (cT is None) or (cF is None) or (pN is None)):
+                    return False
+                else:
+                    return True
+        else:
+            return False
+
+    def splitFileName(self,fileName):
+        """
+        returns (depositionDataSetId, contentType, contentFormat, filePartionNumber, [versionId (int) or None])
+        """
+        try:
+            rfc=ReferenceFileComponents(verbose=self.__verbose,log=self.__lfh)
+            rfc.set(fileName=fileName)
+            return rfc.get()
+        except:
+            return (None,None,None,None,None)
+        
+    #
     def setSessionPath(self,sessionPath):
         """  Set the top path that will be searched for files with fileSource='session'
         """
@@ -251,6 +284,27 @@ class PathInfo(object):
                                       formatType='pic',
                                       mileStone=mileStone)
 
+    def getAuthChemcialShiftsFilePath(self,dataSetId,formatType='nmr-star',partNumber='next',wfInstanceId=None,fileSource="archive",versionId="latest",mileStone=None):
+        return self.__getStandardPath(dataSetId=dataSetId,
+                                      wfInstanceId=wfInstanceId,
+                                      fileSource=fileSource,
+                                      versionId=versionId,
+                                      partNumber=partNumber,
+                                      contentTypeBase='nmr-chemical-shifts-auth',
+                                      formatType=formatType,
+                                      mileStone=mileStone)
+
+    def getChemcialShiftsFilePath(self,dataSetId,formatType='nmr-star',wfInstanceId=None,fileSource="archive",versionId="latest",mileStone=None):
+        return self.__getStandardPath(dataSetId=dataSetId,
+                                      wfInstanceId=wfInstanceId,
+                                      fileSource=fileSource,
+                                      versionId=versionId,
+                                      partNumber='1',
+                                      contentTypeBase='nmr-chemical-shifts',
+                                      formatType=formatType,
+                                      mileStone=mileStone)
+
+
     def getStatusHistoryFilePath(self,dataSetId,fileSource="archive",versionId="latest"):
         return self.__getStandardPath(dataSetId=dataSetId,
                                       wfInstanceId=None,
@@ -365,6 +419,9 @@ class PathInfo(object):
             else:
                 contentType = contentTypeBase
                 #
+            if (self.__debug):
+                self.__lfh.write("+PathInfo.__getPathworker() file source %s for id %s wf id %s contentType %r formatType %r partNumber %r versionId %r\n" % 
+                                 (fileSource,dataSetId,wfInstanceId,contentType,formatType,partNumber,versionId))
             dfRef=DataFileReference(siteId=self.__siteId,verbose=self.__verbose,log=self.__lfh)
             if (fileSource in ['archive','wf-archive']):
                 dfRef.setDepositionDataSetId(dataSetId)

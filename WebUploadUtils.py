@@ -5,8 +5,9 @@
 # Updates:
 #  28-Feb-2013   jdw imported common functions from WebApp(*).py  modules.
 #  03-Mar-2013   jdw catch unicode type in empty file request. 
-#  28-Feb-2104   jdw add rename and file extension methods
-#   2-Apr-2104   jdw add version flag to getFileExtension(fileName,ignoreVersion=False)
+#  28-Feb-2014   jdw add rename and file extension methods
+#   2-Apr-2014   jdw add version flag to getFileExtension(fileName,ignoreVersion=False)
+#  14-Sep-2014   jdw add getUploadFileName():
 ##
 """
 Utilities to manage  web application upload tasks.
@@ -54,6 +55,36 @@ class WebUploadUtils(object):
         if ((fs is None) or (type(fs) == types.StringType) or (type(fs) == types.UnicodeType) ):
             return False
         return True
+
+    def getUploadFileName(self,fileTag='file'):
+        """  Get the user supplied name of for the uploaded file -
+        """
+        #
+        if (self.__verbose):
+            self.__lfh.write("+WebUploadUtils.getUploadFileName() - operation started\n")
+        #
+        try:
+            fs=self.__reqObj.getRawValue(fileTag)
+            if (self.__verbose):
+                self.__lfh.write("+WebUploadUtils.copyToSession() - upload file descriptor fs =     %r\n" % fs)
+                self.__lfh.write("+WebUploadUtils.copyToSession() - upload file descriptor fs =     %s\n" % fs)
+            formRequestFileName = str(fs.filename).strip()
+
+            #
+            if (formRequestFileName.find('\\') != -1) :
+                uploadInputFilefName=ntpath.basename(formRequestFileName)
+            else:
+                uploadInputFileName=os.path.basename(formRequestFileName)
+
+            if (self.__verbose):
+                self.__lfh.write("+WebUploadUtils.getUploadFileName() Uploaded file name %s\n" % str(uploadInputFileName) )
+            #
+            return uploadInputFileName
+        except:
+            if (self.__verbose):
+                self.__lfh.write("+WebUploadUtils.getUploadFileName() processing failed\n")
+                traceback.print_exc(file=self.__lfh)                            
+        return None
 
     def copyToSession(self,fileTag='file',sessionFileName=None, uncompress=True ):
         """  Copy uploaded file identified form element name 'fileTag' to the current session directory.
