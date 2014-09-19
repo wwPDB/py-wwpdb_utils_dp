@@ -1312,7 +1312,7 @@ class RcsbDpUtility(object):
         elif (op == "annot-reorder-models"):
             # ReorderModels -input input_ciffile -output output_ciffile -mol_id model_number -log logfile
             #
-            cmdPath =os.path.join(self.__annotAppsPath,"bin","RorderModels")
+            cmdPath =os.path.join(self.__annotAppsPath,"bin","ReorderModels")
             thisCmd  = " ; " + cmdPath                        
             cmd += thisCmd + " -input " + iPath + " -output " + oPath + " -log annot-step.log "
             if  self.__inputParamDict.has_key('model_number'):
