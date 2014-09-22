@@ -83,6 +83,7 @@
 # 12-Sep-2014 jdw add  -nmr opt for checkCoorFormat        
 # 14-Sep-2014 jdw add inputParamDict.has_key('deposit') to annot-merge-xyz
 # 16-Sep-2014 jdw add "annot-reorder-models"
+# 21-Sep-2014 jdw update annot-wwpdb-validate-test  
 ##
 """
 Wrapper class for data processing and chemical component utilities.
@@ -932,15 +933,25 @@ class RcsbDpUtility(object):
             cmd += " ; cp  -f " + pdfPath + " " + oPath
 
         elif (op == "annot-wwpdb-validate-test"):
-            # For the second version of the validation package --
+            # 
+            #  This is all respects the same as "annot-wwpdb-validate-test" except that it uses a test version of the launch script Vpack-test.
             #
-            # The validation package is currently set to self configure in a wrapper
-            # shell script.  No environment settings are required here at this point.
+            # This parameter permits overriding the 
             #
+            if  self.__inputParamDict.has_key('request_annotation_context'):
+                annotContext=self.__inputParamDict['request_annotation_context']
+                if annotContext in ["yes","no"]:
+                    cmd += " ; REQUEST_ANNOTATION_CONTEXT="  + annotContext + " ; export REQUEST_ANNOTATION_CONTEXT "
+
             cmd += " ; WWPDB_SITE_ID="  + self.__siteId  + " ; export WWPDB_SITE_ID "
             cmd += " ; DEPLOY_DIR="  + self.__deployPath  + " ; export DEPLOY_DIR "
-            cmdPath =os.path.join(self.__packagePath,"Vpack-test","scripts","vpack-run.sh")
+            cmdPath =os.path.join(self.__packagePath,"Vpack-v2","scripts","vpack-test-run.sh")
             thisCmd  = " ; " + cmdPath                        
+
+            if  self.__inputParamDict.has_key('entry_id'):
+                entryId=self.__inputParamDict['entry_id']
+            else:
+                entryId="1abc"
             
             if  self.__inputParamDict.has_key('sf_file_path'):
                 sfPath=self.__inputParamDict['sf_file_path']
@@ -948,6 +959,13 @@ class RcsbDpUtility(object):
             else:
                 sfPath="none"
                 sfPathFull="none"                
+
+            if  self.__inputParamDict.has_key('cs_file_path'):
+                csPath=self.__inputParamDict['cs_file_path']
+                csPathFull = os.path.abspath(csPath)                
+            else:
+                csPath="none"
+                csPathFull="none"                
 
             #
             xmlPath=os.path.join(self.__wrkPath, "out.xml")
@@ -960,7 +978,7 @@ class RcsbDpUtility(object):
             else:
                 cleanOpt="none"
             #
-            cmd += thisCmd + " 1abc " + iPathFull + " " + sfPathFull + " " + pdfPath +  " " + xmlPath + " " + cleanOpt 
+            cmd += thisCmd + " " + entryId + " " + iPathFull + " "  + pdfPath +  " " + xmlPath + " " + pdfFullPath + " " + pngPath + " " + svgPath + " " + cleanOpt + " " +sfPathFull + " " + csPathFull 
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
             cmd += " ; cp  -f " + pdfPath + " " + oPath
 
@@ -1619,7 +1637,7 @@ class RcsbDpUtility(object):
             strpCt=PdbxStripCategory(verbose=self.__verbose,log=self.__lfh)
             strpCt.strip(oPath2Full,oPathFull,stripList)
         
-        if ((op == "annot-wwpdb-validate-1") or (op == "annot-wwpdb-validate-2") or (op == "annot-wwpdb-validate-alt") ):
+        if ((op == "annot-wwpdb-validate-2") or (op == "annot-wwpdb-validate-alt") ):
             self.__resultPathList=[]
             #
             # Push the output pdf and xml files onto the resultPathList.

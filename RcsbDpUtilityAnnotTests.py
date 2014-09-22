@@ -627,6 +627,36 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             self.fail()
 
 
+    def testAnnotValidateListNmrTest(self): 
+        """  Test create validation report for the test list of example PDB ids (NMR examples)
+        """
+        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        try:
+            for pdbId in self.__testValidateNmrIdList:
+                ofpdf=pdbId+"-valrpt.pdf"
+                ofxml=pdbId+"-valdata.xml"
+                offullpdf=pdbId+"-valrpt_full.pdf"
+                ofpng=pdbId+"-val-slider.png"
+                ofsvg=pdbId+"-val-slider.svg"
+                #
+                testFileValidateXyz=pdbId+".cif"
+                testFileValidateCs=pdbId+"-cs.cif"
+                dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
+                
+                xyzPath=os.path.join(self.__testFilePath,testFileValidateXyz)
+                csPath=os.path.join(self.__testFilePath,testFileValidateCs)            
+                dp.addInput(name="request_annotation_context",value="yes")            
+                dp.imp(xyzPath)
+                dp.addInput(name="cs_file_path",value=sfPath)            
+                dp.op("annot-wwpdb-validate-test")
+                dp.expLog(pdbId+"-annot-validate-test.log")
+                dp.expList(dstPathList=[ofpdf,ofxml,offullpdf,ofpng,ofsvg])
+                dp.cleanup()
+        except:
+            traceback.print_exc(file=self.__lfh)
+            self.fail()
+
+
     def testArchiveValidateListV2(self): 
         """  Test create validation report for the test list of example dep dataset ids
         """
@@ -996,6 +1026,12 @@ def suiteArchiveValidationV2Tests():
     suiteSelect.addTest(RcsbDpUtilityAnnotTests("testArchiveValidateListV2"))    
     return suiteSelect        
 
+def suiteArchiveValidationNmrTests():
+    suiteSelect = unittest.TestSuite()
+    suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotValidateListNmrTest"))    
+    return suiteSelect        
+
+    
 
 def suiteArchiveSiteTests():
     suiteSelect = unittest.TestSuite()
@@ -1127,9 +1163,11 @@ if __name__ == '__main__':
         mySuite=suiteAnnotPrdSearchTests()
         unittest.TextTestRunner(verbosity=2).run(mySuite)
 
+        mySuite=suiteArchiveValidationNmrTests()
+        unittest.TextTestRunner(verbosity=2).run(mySuite)        
+
     else:
         pass
 
-
-    mySuite=suiteMapCalcTests()
+    mySuite=suiteArchiveValidationNmrTests()
     unittest.TextTestRunner(verbosity=2).run(mySuite)        
