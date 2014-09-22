@@ -92,6 +92,8 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
         #self.__testFilePrdSearch       = '3RUN.cif'
         self.__testFilePrdSearch       = 'D_1200000237_model_P1.cif.V1'
 
+        self.__testValidateNmrIdList=['2MMZ']
+
     def tearDown(self):
         pass
 
@@ -640,7 +642,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
                 ofsvg=pdbId+"-val-slider.svg"
                 #
                 testFileValidateXyz=pdbId+".cif"
-                testFileValidateCs=pdbId+"-cs.cif"
+                testFileValidateCs=pdbId+"_cs.cif"
                 dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
                 
                 xyzPath=os.path.join(self.__testFilePath,testFileValidateXyz)
