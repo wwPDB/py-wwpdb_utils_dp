@@ -642,11 +642,11 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
                 ofsvg=pdbId+"-val-slider.svg"
                 #
                 testFileValidateXyz=pdbId+".cif"
-                testFileValidateCs=pdbId+"_cs.cif"
+                testFileValidateCs=pdbId+"-cs.cif"
                 dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
                 
-                xyzPath=os.path.join(self.__testFilePath,testFileValidateXyz)
-                csPath=os.path.join(self.__testFilePath,testFileValidateCs)            
+                xyzPath=os.path.abspath(os.path.join(self.__testFilePath,testFileValidateXyz))
+                csPath=os.path.abspath(os.path.join(self.__testFilePath,testFileValidateCs))
                 dp.addInput(name="request_annotation_context",value="yes")            
                 dp.imp(xyzPath)
                 dp.addInput(name="cs_file_path",value=csPath)            
