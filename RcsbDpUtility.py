@@ -1637,7 +1637,7 @@ class RcsbDpUtility(object):
             strpCt=PdbxStripCategory(verbose=self.__verbose,log=self.__lfh)
             strpCt.strip(oPath2Full,oPathFull,stripList)
         
-        if ((op == "annot-wwpdb-validate-2") or (op == "annot-wwpdb-validate-alt") ):
+        if ((op == "annot-wwpdb-validate-2") or (op == "annot-wwpdb-validate-alt") or (op == "annot-wwpdb-validate-test") ):
             self.__resultPathList=[]
             #
             # Push the output pdf and xml files onto the resultPathList.
