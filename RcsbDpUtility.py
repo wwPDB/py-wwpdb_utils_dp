@@ -968,11 +968,11 @@ class RcsbDpUtility(object):
                 csPathFull="none"                
 
             #
-            xmlPath=os.path.join(self.__wrkPath, "out.xml")
-            pdfPath=os.path.join(self.__wrkPath, "out.pdf")
-            pdfFullPath=os.path.join(self.__wrkPath, "out_full.pdf")
-            pngPath=os.path.join(self.__wrkPath, "out.png")
-            svgPath=os.path.join(self.__wrkPath, "out.svg")
+            xmlPath=os.path.abspath(os.path.join(self.__wrkPath, "out.xml"))
+            pdfPath=os.path.abspath(os.path.join(self.__wrkPath, "out.pdf"))
+            pdfFullPath=os.path.abspath(os.path.join(self.__wrkPath, "out_full.pdf"))
+            pngPath=os.path.abspath(os.path.join(self.__wrkPath, "out.png"))
+            svgPath=os.path.abspath(os.path.join(self.__wrkPath, "out.svg"))
             if (not self.__verbose):
                 cleanOpt="cleanup"
             else:
