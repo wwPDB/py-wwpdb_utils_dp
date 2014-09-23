@@ -92,6 +92,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
         #self.__testFilePrdSearch       = '3RUN.cif'
         self.__testFilePrdSearch       = 'D_1200000237_model_P1.cif.V1'
 
+        self.__testValidateXrayIdList=['1cbs']
         self.__testValidateNmrIdList=['2MMZ']
 
     def tearDown(self):
@@ -658,6 +659,37 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             traceback.print_exc(file=self.__lfh)
             self.fail()
 
+    def testAnnotValidateListXrayTest(self): 
+        """  Test create validation report for the test list of example PDB ids (NMR examples)
+        """
+        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        try:
+            for pdbId in self.__testValidateXrayIdList:
+                ofpdf=pdbId+"-valrpt.pdf"
+                ofxml=pdbId+"-valdata.xml"
+                offullpdf=pdbId+"-valrpt_full.pdf"
+                ofpng=pdbId+"-val-slider.png"
+                ofsvg=pdbId+"-val-slider.svg"
+                #
+                testFileValidateXyz=pdbId+".cif"
+                testFileValidateSf=pdbId+"-sf.cif"
+                dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
+                
+                xyzPath=os.path.abspath(os.path.join(self.__testFilePath,testFileValidateXyz))
+                sfPath=os.path.abspath(os.path.join(self.__testFilePath,testFileValidateSf))
+                dp.addInput(name="request_annotation_context",value="yes")            
+                dp.imp(xyzPath)
+                dp.addInput(name="sf_file_path",value=sfPath)            
+                dp.op("annot-wwpdb-validate-test")
+                dp.expLog(pdbId+"-annot-validate-test.log")
+                dp.expList(dstPathList=[ofpdf,ofxml,offullpdf,ofpng,ofsvg])
+                dp.cleanup()
+        except:
+            traceback.print_exc(file=self.__lfh)
+            self.fail()
+
+
+
 
     def testArchiveValidateListV2(self): 
         """  Test create validation report for the test list of example dep dataset ids
@@ -1033,6 +1065,10 @@ def suiteArchiveValidationNmrTests():
     suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotValidateListNmrTest"))    
     return suiteSelect        
 
+def suiteArchiveValidationXrayTests():
+    suiteSelect = unittest.TestSuite()
+    suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotValidateListXrayTest"))    
+    return suiteSelect        
     
 
 def suiteArchiveSiteTests():
@@ -1171,5 +1207,6 @@ if __name__ == '__main__':
     else:
         pass
 
-    mySuite=suiteArchiveValidationNmrTests()
+    mySuite=suiteArchiveValidationXrayTests()
+    #    mySuite=suiteArchiveValidationNmrTests()
     unittest.TextTestRunner(verbosity=2).run(mySuite)        
