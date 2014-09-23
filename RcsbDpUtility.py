@@ -951,7 +951,7 @@ class RcsbDpUtility(object):
             if  self.__inputParamDict.has_key('entry_id'):
                 entryId=self.__inputParamDict['entry_id']
             else:
-                entryId="1abc"
+                entryId="2abc"
             
             if  self.__inputParamDict.has_key('sf_file_path'):
                 sfPath=self.__inputParamDict['sf_file_path']
