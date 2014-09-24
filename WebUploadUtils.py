@@ -66,8 +66,8 @@ class WebUploadUtils(object):
         try:
             fs=self.__reqObj.getRawValue(fileTag)
             if (self.__verbose):
-                self.__lfh.write("+WebUploadUtils.copyToSession() - upload file descriptor fs =     %r\n" % fs)
-                self.__lfh.write("+WebUploadUtils.copyToSession() - upload file descriptor fs =     %s\n" % fs)
+                self.__lfh.write("+WebUploadUtils.getUploadFileName() - upload file descriptor fs =     %r\n" % fs)
+                self.__lfh.write("+WebUploadUtils.getUploadFileName() - upload file descriptor fs =     %s\n" % fs)
             formRequestFileName = str(fs.filename).strip()
 
             #
@@ -100,7 +100,6 @@ class WebUploadUtils(object):
             fs=self.__reqObj.getRawValue(fileTag)
             if (self.__verbose):
                 self.__lfh.write("+WebUploadUtils.copyToSession() - upload file descriptor fs =     %r\n" % fs)
-                self.__lfh.write("+WebUploadUtils.copyToSession() - upload file descriptor fs =     %s\n" % fs)
             #formRequestFileName = str(fs.filename).strip().lower()
             formRequestFileName = str(fs.filename).strip()
 
@@ -191,7 +190,7 @@ class WebUploadUtils(object):
         return fExt
 
     def perceiveIdentifier(self,fileName):
-        """ Return the file identifier and identifier type if these can be deduced from 
+        """ Return the file identifier and identifier source if these can be deduced from 
             the input file name.   Returned values are in uppercase. 
         """
         #
@@ -222,10 +221,10 @@ class WebUploadUtils(object):
             fId=head
             fType="UNKNOWN"
             if (self.__verbose):
-                self.__lfh.write("+WebUploadUtils.copyToSession() using non-standard identifier %r for %r\n" % (head,str(fileName) ) )
+                self.__lfh.write("+WebUploadUtils.perceiveIdentifier() using non-standard identifier %r for %r\n" % (head,str(fileName) ) )
 
         if (self.__verbose):
-            self.__lfh.write("+WebUploadUtils.copyToSession() using identifier fId %r and fType %r \n" % (fId,fType ) )
+            self.__lfh.write("+WebUploadUtils.perceiveIdentifier() using identifier fId %r and file source %r \n" % (fId,fType ) )
 
         return fId,fType
 

@@ -19,6 +19,7 @@
 #  7-Jul-2014   jdw   add method getStatusHistoryFilePath()
 # 23-Aug-2014   jdw   add method getEmDepositVolumeParamsFilePath()
 # 14-Sep-2014   jdw   add isValidFileName(fileName, requireVersion=True) and splitFileName(fileName)
+# 24-Sep-2014   jdw   add getFileExtension(formatType)
 ## 
 """
 Common methods for finding path information for resource and data files in the wwPDB data processing
@@ -76,6 +77,13 @@ class PathInfo(object):
                     return True
         else:
             return False
+
+    def getFileExtension(self,formatType):
+        eD=self.__cI.get('FILE_FORMAT_EXTENSION_DICTIONARY')
+        try:
+            return eD[formatType]
+        except:
+            return None
 
     def splitFileName(self,fileName):
         """

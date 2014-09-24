@@ -201,8 +201,14 @@ class RcsbDpUtility(object):
         self.__debug=flag
 
     def setTimeout(self,seconds):
-        self.__lfh.write("+INFO RcsbDpUtility.setTimeout() - Set execution time out %d (seconds)\n" % seconds)
-        self.__timeout=seconds
+        try:
+            if seconds is None or int(seconds) < 1:
+                return False
+            self.__lfh.write("+INFO RcsbDpUtility.setTimeout() - Set execution time out %d (seconds)\n" % seconds)
+            self.__timeout=int(seconds)
+            return True
+        except:
+            return False
 
     def setRcsbAppsPath(self,fPath):
         """ Set or overwrite the configuration setting for __rcsbAppsPath.
