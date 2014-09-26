@@ -84,6 +84,7 @@
 # 14-Sep-2014 jdw add inputParamDict.has_key('deposit') to annot-merge-xyz
 # 16-Sep-2014 jdw add "annot-reorder-models"
 # 21-Sep-2014 jdw update annot-wwpdb-validate-test  
+# 26-Sep-2014 jdw update annot-pdbx2nmrstar (prior version retired to annot-pdbx2nmrstar-bmrb)
 ##
 """
 Wrapper class for data processing and chemical component utilities.
@@ -141,7 +142,8 @@ class RcsbDpUtility(object):
                                 "annot-merge-struct-site","annot-reposition-solvent","annot-base-pair-info",
                                 "annot-validation","annot-site","annot-rcsb2pdbx","annot-consolidated-tasks",
                                 "annot-wwpdb-validate-test","annot-wwpdb-validate-2","prd-search","annot-wwpdb-validate-alt",
-                                "annot-chem-shift-check","annot-chem-shift-coord-check","annot-nmrstar2pdbx","annot-pdbx2nmrstar",
+                                "annot-chem-shift-check","annot-chem-shift-coord-check",
+                                "annot-nmrstar2pdbx","annot-pdbx2nmrstar","annot-pdbx2nmrstar-bmrb",
                                 "annot-reposition-solvent-add-derived", "annot-rcsb2pdbx-strip", "annot-rcsbeps2pdbx-strip",
                                 "annot-rcsb2pdbx-strip-plus-entity", "annot-rcsbeps2pdbx-strip-plus-entity",
                                 "chem-comp-instance-update","annot-cif2cif","annot-cif2pdb","annot-pdb2cif","annot-poly-link-dist",
@@ -595,7 +597,7 @@ class RcsbDpUtility(object):
             cmd += thisCmd + "  " + iPath + " " + dId + " " + oPath 
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
 
-        elif (op == "annot-pdbx2nmrstar"):
+        elif (op == "annot-pdbx2nmrstar-bmrb"):
             # self.__packagePath
             if  self.__inputParamDict.has_key('data_set_id'):
                 dId=self.__inputParamDict['data_set_id']                                
@@ -687,8 +689,20 @@ class RcsbDpUtility(object):
             cmd +=  " ; " + maxitCmd + " -single_quotation -o 9  -i " + iPath + " -log maxit.log "
             cmd += " ; mv -f " + iPath + ".cif " + oPath
 
+        elif (op == "annot-pdbx2nmrstar"):
+            #  For PDBx to NMR STar
+            cmdPath =os.path.join(self.__annotAppsPath,"bin","GenNMRStarCSFile")
+            thisCmd  = " ; " + cmdPath                        
+            if  self.__inputParamDict.has_key('pdb_id'):
+                dId=self.__inputParamDict['pdb_id']
+            else:
+                dId="UNASSIGNED"
+
+            idOpt=" -pdb_id  %s " % str(dId)
+            cmd += thisCmd + " -input " + iPath + " -output " + oPath +  idOpt
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
+
         elif (op == "annot-rcsb2pdbx"):
-            
             # New minimal RCSB internal cif to PDBx cif converter -
             cmdPath =os.path.join(self.__annotAppsPath,"bin","PdbxConverter")
             thisCmd  = " ; " + cmdPath                        
@@ -972,7 +986,6 @@ class RcsbDpUtility(object):
             else:
                 csPath="none"
                 csPathFull="none"                
-
             #
             xmlPath=os.path.abspath(os.path.join(self.__wrkPath, "out.xml"))
             pdfPath=os.path.abspath(os.path.join(self.__wrkPath, "out.pdf"))
