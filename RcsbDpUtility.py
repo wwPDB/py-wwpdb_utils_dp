@@ -584,19 +584,6 @@ class RcsbDpUtility(object):
             cmd += thisCmd + " -input " + iPath + " -format pdb  -output " + oPath + nmrOpt
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
 
-        elif (op == "annot-nmrstar2pdbx"):
-            # self.__packagePath
-            if  self.__inputParamDict.has_key('data_set_id'):
-                dId=self.__inputParamDict['data_set_id']                                
-            else:
-                dId="UNASSIGNED"
-            #
-            cmdPath =os.path.join(self.__packagePath,"aditnmr-util","nmrstar_to_pdbx.sh")
-            thisCmd  = " ; " + cmdPath                        
-            cmd += " ; PACKAGE_DIR="  + self.__packagePath    + " ; export PACKAGE_DIR "
-            cmd += thisCmd + "  " + iPath + " " + dId + " " + oPath 
-            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
-
         elif (op == "annot-pdbx2nmrstar-bmrb"):
             # self.__packagePath
             if  self.__inputParamDict.has_key('data_set_id'):
@@ -698,8 +685,8 @@ class RcsbDpUtility(object):
             else:
                 dId="UNASSIGNED"
 
-            idOpt=" -pdb_id  %s " % str(dId)
-            cmd += thisCmd + " -input " + iPath + " -output " + oPath +  idOpt
+            idOpt=" -pdbid  %s " % str(dId)
+            cmd += thisCmd + " -i " + iPath + " -o " + oPath +  idOpt
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
 
         elif (op == "annot-rcsb2pdbx"):

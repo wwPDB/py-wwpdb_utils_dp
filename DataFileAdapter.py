@@ -13,6 +13,7 @@
 # 24-Dec-2013  jdw  add pdbx2Assemblies(idCode,inpFilePath,outPath='.',idxFilePath=None)
 # 24-Dec-2013  jdw  add cif2pdbx()
 # 16-Jan-2014  jdw  Update method for cif2pdbx()
+# 25-Sep-2014  jdw  add pdbx2nmrstar()
 ##
 """
 Encapsulate data model format type conversions.
@@ -40,6 +41,26 @@ class DataFileAdapter(object):
         self.__sObj  =self.__reqObj.getSessionObj()
         self.__sessionId=self.__sObj.getId()
         self.__sessionPath=self.__sObj.getPath()
+
+    def pdbx2nmrstar(self,inpPath,outPath,pdbId=None):
+        """  PDBx to NMRSTAR
+        """
+        try:
+            dp = RcsbDpUtility(tmpPath=self.__sessionPath, siteId=self.__siteId, verbose=self.__verbose,log=self.__lfh)
+            dp.imp(inpPath)
+            if (pdbId is not None):
+                dp.addInput(name="pdb_id",value=pdbId,type='param')
+            dp.op("annot-pdbx2nmrstar")
+            logPath=os.path.join(self.__sessionPath,"annot-pdbx2nmrstar.log")
+            dp.expLog(logPath)
+            dp.exp(outPath)
+            if (not self.__debug):
+                dp.cleanup()
+        except:
+            traceback.print_exc(file=self.__lfh)
+            return False
+        #
+        return True        
 
     def rcsb2Pdbx(self,inpPath,outPath,stripFlag=False,stripEntityFlag=False): 
         """  RCSB CIF -> PDBx conversion  (Using the smaller application in the annotation package)
