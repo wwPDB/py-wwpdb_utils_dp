@@ -177,7 +177,9 @@ class WebAppWorkerBase(object):
             uds=UtilDataStore(reqObj=self._reqObj,prefix=self._udsPrefix,verbose=self._verbose,log=self._lfh)
             dd=uds.getDictionary()
             if (self._verbose):
-                self._lfh.write("+%s.%s -  importing persisted general session parameters: %r\n" % (self.__class__.__name__,sys._getframe().f_code.co_name,dd.items()))
+                self._lfh.write("+%s.%s -  importing persisted general session parameters:\n" % (self.__class__.__name__,sys._getframe().f_code.co_name))
+                for k,v in dd.items():
+                    self._lfh.write(" %30s= %s\n" % (k,v))
             self._reqObj.setDictionary(dd,overWrite=True)
 
 

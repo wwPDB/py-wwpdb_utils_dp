@@ -45,7 +45,7 @@ class DataExchange(object):
         self.__verbose=verbose        
         self.__lfh=log
         #
-        self.__debug=True
+        self.__debug=False
         #
         self.__sessionObj  = self.__reqObj.getSessionObj()
         self.__sessionPath = self.__sessionObj.getPath()
@@ -274,6 +274,9 @@ class DataExchange(object):
                 dN,fN=os.path.split(fp)
                 oP=os.path.join(dstPath,fN)
                 shutil.copyfile(fp,oP)
+
+            if self.__verbose:
+                self.__lfh.write("+DataExchange.copyDirToSession() successful session copy of dirName %s\n" % (dirName))
             return True
         except:
             if self.__verbose:
@@ -292,23 +295,26 @@ class DataExchange(object):
 
         """
         inpFilePath=self.__getFilePath(fileSource=self.__fileSource,contentType=contentType,formatType=formatType,version=version,partitionNumber=partitionNumber)
-        if (self.__verbose):
+        if (self.__debug):
             self.__lfh.write("+DataExchange.copyToSession() source file type %s format %s version %s path %s\n" % (contentType,formatType,version,inpFilePath))
 
         try:
+            outFilePath=None
             if (os.access(inpFilePath,os.R_OK)):
                 fn=self.__getArchiveFileName(contentType,formatType,version="none",partitionNumber=partitionNumber)
                 outFilePath=os.path.join(self.__sessionPath,fn)
                 if (self.__verbose):
-                    self.__lfh.write("+DataExchange.copyToSession() session destination file path %s\n" % outFilePath)
+                    self.__lfh.write("+DataExchange.copyToSession() content type %s format %s copied to session path %s\n" % (contentType,formatType,outFilePath))
                 shutil.copyfile(inpFilePath,outFilePath)                    
                 return outFilePath
             else:
-                if (self.__verbose):
+                if (self.__debug):
                     self.__lfh.write("+DataExchange.copyToSession() missing input file at path %s\n" % inpFilePath)                
                 return None
         except:
             if self.__verbose:
+                if (self.__verbose):
+                    self.__lfh.write("+DataExchange.copyToSession() Failing for content type %s format %s with session path %s\n" % (contentType,formatType,outFilePath))
                 traceback.print_exc(file=self.__lfh)                            
             return None
 
