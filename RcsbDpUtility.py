@@ -85,6 +85,7 @@
 # 16-Sep-2014 jdw add "annot-reorder-models"
 # 21-Sep-2014 jdw update annot-wwpdb-validate-test  
 # 26-Sep-2014 jdw update annot-pdbx2nmrstar (prior version retired to annot-pdbx2nmrstar-bmrb)
+#  1-Oct-2014 jdw add "annot-chem-shifts-update"
 ##
 """
 Wrapper class for data processing and chemical component utilities.
@@ -157,7 +158,7 @@ class RcsbDpUtility(object):
                                 "annot-move-xyz-by-matrix","annot-move-xyz-by-symop","annot-extra-checks",
                                 "annot-update-terminal-atoms","annot-merge-xyz","annot-gen-assem-pdbx","annot-cif2pdbx-withpdbid",
                                 "annot-validate-geometry",
-                                "annot-chem-shifts-atom-name-check","annot-chem-shifts-upload-check","annot-reorder-models"]
+                                "annot-chem-shifts-atom-name-check","annot-chem-shifts-upload-check","annot-reorder-models","annot-chem-shifts-update"]
         self.__sequenceOps = ['seq-blastp','seq-blastn']
         self.__validateOps = ['validate-geometry']
         self.__emOps = ['mapfix-big', 'em2em-spider', 'fsc_check', 'img-convert','annot-read-map-header',
@@ -1505,6 +1506,26 @@ class RcsbDpUtility(object):
             cmd += thisCmd + ' -input ' + iPath  + " -output " + oPath + " -ciffile " + xyzCnvWrkPath + " -log " + lCheckPath
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
 
+        elif (op == "annot-chem-shifts-update"):
+            #  iPath input is the target chemical shift file oPath is the output cs file 
+            #
+            # update_chemical_shift -input input_chemical_shift_file -output output_chemical_shift_file -ciffile coord_cif_file -log logfile 
+            #
+            cmdPath =os.path.join(self.__annotAppsPath,"bin","update_chemical_shift")
+            thisCmd  = " ; " + cmdPath                        
+
+            if  self.__inputParamDict.has_key('coordinate_file_path'):
+                xyzPath=self.__inputParamDict['coordinate_file_path']
+                xyzPathFull = os.path.abspath(xyzPath)       
+                (h,xyzFileName)=os.path.split(xyzPath)
+                xyzWrkPath=os.path.join(self.__wrkPath,xyzFileName)
+                shutil.copyfile(xyzPathFull,xyzWrkPath)
+            else:
+                xyzPath="none"
+                xyzPathFull="none"                
+            
+            cmd += thisCmd + ' -input ' + iPath  + " -output " + oPath + " -ciffile " + xyzWrkPath + " -log " + lPath
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath                        
 
         elif (op == "prd-search"):
             cmd += " ; PRDCC_PATH="  + self.__prdccCvsPath + " ; export PRDCC_PATH "
