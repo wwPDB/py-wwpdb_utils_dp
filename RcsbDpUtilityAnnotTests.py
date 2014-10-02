@@ -649,6 +649,8 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
                 xyzPath=os.path.abspath(os.path.join(self.__testFilePath,testFileValidateXyz))
                 csPath=os.path.abspath(os.path.join(self.__testFilePath,testFileValidateCs))
                 dp.addInput(name="request_annotation_context",value="yes")            
+                # adding explicit selection of steps -- 
+                dp.addInput(name="step_list",value=" coreclust,chemicalshifts,writexml,writepdf ")            
                 dp.imp(xyzPath)
                 dp.addInput(name="cs_file_path",value=csPath)
                 dp.op("annot-wwpdb-validate-test")
