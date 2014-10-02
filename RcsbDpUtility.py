@@ -942,7 +942,7 @@ class RcsbDpUtility(object):
 
         elif (op == "annot-wwpdb-validate-test"):
             # 
-            #  This is all respects the same as "annot-wwpdb-validate-test" except that it uses a test version of the launch script Vpack-test.
+            #  This is in all respects the same as "annot-wwpdb-validate-alt" except that it uses a test version of the launch script Vpack-test.
             #
             # This parameter permits overriding the 
             #
@@ -974,6 +974,12 @@ class RcsbDpUtility(object):
             else:
                 csPath="none"
                 csPathFull="none"                
+
+            if  self.__inputParamDict.has_key('step_list'):
+                stepList=self.__inputParamDict['step_list']
+            else:
+                stepList="none"
+
             #
             xmlPath=os.path.abspath(os.path.join(self.__wrkPath, "out.xml"))
             pdfPath=os.path.abspath(os.path.join(self.__wrkPath, "out.pdf"))
@@ -985,7 +991,7 @@ class RcsbDpUtility(object):
             else:
                 cleanOpt="none"
             #
-            cmd += thisCmd + " " + entryId + " " + iPathFull + " "  + pdfPath +  " " + xmlPath + " " + pdfFullPath + " " + pngPath + " " + svgPath + " " + cleanOpt + " " +sfPathFull + " " + csPathFull 
+            cmd += thisCmd + " " + entryId + " " + iPathFull + " "  + pdfPath +  " " + xmlPath + " " + pdfFullPath + " " + pngPath + " " + svgPath + " " + cleanOpt + " " +sfPathFull + " " + csPathFull + " " + stepList
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
             cmd += " ; cp  -f " + pdfPath + " " + oPath
 
