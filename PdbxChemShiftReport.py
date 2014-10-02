@@ -67,7 +67,7 @@ class PdbxChemShiftReport(object):
             if attributeName in aList:
                 idx=aList.index(attributeName)
                 for r in rList:
-                    retVal.append(r[idx])
+                    retVal.append(str(r[idx]).strip())
         except:
             pass
 
