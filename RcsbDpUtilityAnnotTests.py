@@ -650,7 +650,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
                 csPath=os.path.abspath(os.path.join(self.__testFilePath,testFileValidateCs))
                 dp.addInput(name="request_annotation_context",value="yes")            
                 dp.imp(xyzPath)
-                dp.addInput(name="cs_file_path",value=csPath)            
+                dp.addInput(name="cs_file_path",value=csPath)
                 dp.op("annot-wwpdb-validate-test")
                 dp.expLog(pdbId+"-annot-validate-test.log")
                 dp.expList(dstPathList=[ofpdf,ofxml,offullpdf,ofpng,ofsvg])
@@ -1207,6 +1207,6 @@ if __name__ == '__main__':
     else:
         pass
 
-    mySuite=suiteArchiveValidationXrayTests()
-    #    mySuite=suiteArchiveValidationNmrTests()
+    #mySuite=suiteArchiveValidationXrayTests()
+    mySuite=suiteArchiveValidationNmrTests()
     unittest.TextTestRunner(verbosity=2).run(mySuite)        
