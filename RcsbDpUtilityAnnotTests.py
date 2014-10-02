@@ -93,7 +93,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
         self.__testFilePrdSearch       = 'D_1200000237_model_P1.cif.V1'
 
         self.__testValidateXrayIdList=['1cbs']
-        self.__testValidateNmrIdList=['2MMZ']
+        self.__testValidateNmrIdList=['2MM4','2MMZ']
 
     def tearDown(self):
         pass

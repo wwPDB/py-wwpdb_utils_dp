@@ -1,0 +1,874 @@
+data_entry_information
+# 
+_Entry.Sf_category        entry_information 
+_Entry.ID                 2MM4 
+_Entry.Assigned_BMRB_ID   19845 
+# 
+loop_
+_Audit.Revision_ID 
+_Audit.Creation_date 
+_Audit.Update_record 
+_Audit.Creation_method 
+_Audit.Entry_ID 
+1 2014-03-19 'Nomenclature checked and updated'    . 2MM4 
+2 2014-03-19 'Preliminary version'                 . 2MM4 
+3 2014-03-20 'Chemical shifts checked and updated' . 2MM4 
+4 2014-03-23 'Nomenclature checked and updated'    . 2MM4 
+5 2014-04-02 'Initial release'                     . 2MM4 
+# 
+data_chemical_shift_reference_1
+# 
+_Chem_shift_reference.Sf_category    chem_shift_reference 
+_Chem_shift_reference.Sf_framecode   chemical_shift_reference_1 
+_Chem_shift_reference.Entry_ID       2MM4 
+_Chem_shift_reference.ID             1 
+# 
+loop_
+_Chem_shift_ref.Atom_type 
+_Chem_shift_ref.Atom_isotope_number 
+_Chem_shift_ref.Mol_common_name 
+_Chem_shift_ref.Atom_group 
+_Chem_shift_ref.Concentration_val 
+_Chem_shift_ref.Concentration_units 
+_Chem_shift_ref.Solvent 
+_Chem_shift_ref.Rank 
+_Chem_shift_ref.Chem_shift_units 
+_Chem_shift_ref.Chem_shift_val 
+_Chem_shift_ref.Ref_method 
+_Chem_shift_ref.Ref_type 
+_Chem_shift_ref.Indirect_shift_ratio 
+_Chem_shift_ref.Entry_ID 
+_Chem_shift_ref.Chem_shift_reference_ID 
+H 1  DSS 'methyl protons' ? ? ? ? ppm 0 internal direct   1           2MM4 1 
+C 13 DSS 'methyl protons' ? ? ? ? ppm 0 internal indirect 0.251449530 2MM4 1 
+N 15 DSS 'methyl protons' ? ? ? ? ppm 0 internal indirect 0.101329118 2MM4 1 
+# 
+data_assigned_chem_shift_list_1
+# 
+_Assigned_chem_shift_list.Sf_category                assigned_chemical_shifts 
+_Assigned_chem_shift_list.Sf_framecode               assigned_chem_shift_list_1 
+_Assigned_chem_shift_list.Entry_ID                   2MM4 
+_Assigned_chem_shift_list.ID                         1 
+_Assigned_chem_shift_list.Data_file_name             Etr.str 
+_Assigned_chem_shift_list.Sample_condition_list_ID   1 
+_Assigned_chem_shift_list.Chem_shift_reference_ID    1 
+# 
+loop_
+_Atom_chem_shift.ID 
+_Atom_chem_shift.Entity_assembly_ID 
+_Atom_chem_shift.Entity_ID 
+_Atom_chem_shift.Comp_index_ID 
+_Atom_chem_shift.Seq_ID 
+_Atom_chem_shift.Comp_ID 
+_Atom_chem_shift.Atom_ID 
+_Atom_chem_shift.Atom_type 
+_Atom_chem_shift.Atom_isotope_number 
+_Atom_chem_shift.Val 
+_Atom_chem_shift.Val_err 
+_Atom_chem_shift.Assign_fig_of_merit 
+_Atom_chem_shift.Ambiguity_code 
+_Atom_chem_shift.Occupancy 
+_Atom_chem_shift.Resonance_ID 
+_Atom_chem_shift.Auth_entity_assembly_ID 
+_Atom_chem_shift.Auth_asym_ID 
+_Atom_chem_shift.Auth_seq_ID 
+_Atom_chem_shift.Auth_comp_ID 
+_Atom_chem_shift.Auth_atom_ID 
+_Atom_chem_shift.PDB_model_num 
+_Atom_chem_shift.PDB_strand_ID 
+_Atom_chem_shift.PDB_ins_code 
+_Atom_chem_shift.PDB_residue_no 
+_Atom_chem_shift.PDB_residue_name 
+_Atom_chem_shift.PDB_atom_name 
+_Atom_chem_shift.Original_PDB_strand_ID 
+_Atom_chem_shift.Original_PDB_residue_no 
+_Atom_chem_shift.Original_PDB_residue_name 
+_Atom_chem_shift.Original_PDB_atom_name 
+_Atom_chem_shift.Details 
+_Atom_chem_shift.Entry_ID 
+_Atom_chem_shift.Assigned_chem_shift_list_ID 
+1   1 1 1  1  GLU H1   H 1  8.117   0.020 ? . ? ? . A 8  GLU H1   ? A ? 8  GLU H    A 8  GLU H    . 2MM4 ? 
+2   1 1 1  1  GLU HA   H 1  4.294   0.020 ? . ? ? . A 8  GLU HA   ? A ? 8  GLU HA   A 8  GLU HA   . 2MM4 ? 
+3   1 1 1  1  GLU HB2  H 1  2.062   0.020 ? . ? ? . A 8  GLU HB2  ? A ? 8  GLU HB2  A 8  GLU HB2  . 2MM4 ? 
+4   1 1 1  1  GLU HB3  H 1  1.950   0.020 ? . ? ? . A 8  GLU HB3  ? A ? 8  GLU HB3  A 8  GLU HB3  . 2MM4 ? 
+5   1 1 1  1  GLU HG2  H 1  2.308   0.020 ? . ? ? . A 8  GLU HG2  ? A ? 8  GLU HG2  A 8  GLU HG2  . 2MM4 ? 
+6   1 1 1  1  GLU HG3  H 1  2.253   0.020 ? . ? ? . A 8  GLU HG3  ? A ? 8  GLU HG3  A 8  GLU HG3  . 2MM4 ? 
+7   1 1 1  1  GLU C    C 13 174.138 0.300 ? . ? ? . A 8  GLU C    ? A ? 8  GLU C    A 8  GLU C    . 2MM4 ? 
+8   1 1 1  1  GLU CA   C 13 56.779  0.300 ? . ? ? . A 8  GLU CA   ? A ? 8  GLU CA   A 8  GLU CA   . 2MM4 ? 
+9   1 1 1  1  GLU CB   C 13 29.545  0.300 ? . ? ? . A 8  GLU CB   ? A ? 8  GLU CB   A 8  GLU CB   . 2MM4 ? 
+10  1 1 1  1  GLU CG   C 13 34.845  0.300 ? . ? ? . A 8  GLU CG   ? A ? 8  GLU CG   A 8  GLU CG   . 2MM4 ? 
+11  1 1 1  1  GLU N    N 15 120.937 0.300 ? . ? ? . A 8  GLU N    ? A ? 8  GLU N    A 8  GLU N    . 2MM4 ? 
+12  1 1 2  2  THR H    H 1  7.930   0.020 ? . ? ? . A 9  THR H    ? A ? 9  THR H    A 9  THR H    . 2MM4 ? 
+13  1 1 2  2  THR HA   H 1  4.213   0.020 ? . ? ? . A 9  THR HA   ? A ? 9  THR HA   A 9  THR HA   . 2MM4 ? 
+14  1 1 2  2  THR HB   H 1  4.217   0.020 ? . ? ? . A 9  THR HB   ? A ? 9  THR HB   A 9  THR HB   . 2MM4 ? 
+15  1 1 2  2  THR HG21 H 1  1.174   0.020 ? . ? ? . A 9  THR HG21 ? A ? 9  THR HG21 A 9  THR HG21 . 2MM4 ? 
+16  1 1 2  2  THR HG22 H 1  1.174   0.020 ? . ? ? . A 9  THR HG22 ? A ? 9  THR HG22 A 9  THR HG22 . 2MM4 ? 
+17  1 1 2  2  THR HG23 H 1  1.174   0.020 ? . ? ? . A 9  THR HG23 ? A ? 9  THR HG23 A 9  THR HG23 . 2MM4 ? 
+18  1 1 2  2  THR C    C 13 172.757 0.300 ? . ? ? . A 9  THR C    ? A ? 9  THR C    A 9  THR C    . 2MM4 ? 
+19  1 1 2  2  THR CA   C 13 62.810  0.300 ? . ? ? . A 9  THR CA   ? A ? 9  THR CA   A 9  THR CA   . 2MM4 ? 
+20  1 1 2  2  THR CB   C 13 69.878  0.300 ? . ? ? . A 9  THR CB   ? A ? 9  THR CB   A 9  THR CB   . 2MM4 ? 
+21  1 1 2  2  THR CG2  C 13 21.852  0.300 ? . ? ? . A 9  THR CG2  ? A ? 9  THR CG2  A 9  THR CG2  . 2MM4 ? 
+22  1 1 2  2  THR N    N 15 113.692 0.300 ? . ? ? . A 9  THR N    ? A ? 9  THR N    A 9  THR N    . 2MM4 ? 
+23  1 1 3  3  GLY H    H 1  8.266   0.020 ? . ? ? . A 10 GLY H    ? A ? 10 GLY H    A 10 GLY H    . 2MM4 ? 
+24  1 1 3  3  GLY HA2  H 1  4.011   0.020 ? . ? ? . A 10 GLY HA2  ? A ? 10 GLY HA2  A 10 GLY HA2  . 2MM4 ? 
+25  1 1 3  3  GLY HA3  H 1  3.903   0.020 ? . ? ? . A 10 GLY HA3  ? A ? 10 GLY HA3  A 10 GLY HA3  . 2MM4 ? 
+26  1 1 3  3  GLY C    C 13 171.923 0.300 ? . ? ? . A 10 GLY C    ? A ? 10 GLY C    A 10 GLY C    . 2MM4 ? 
+27  1 1 3  3  GLY CA   C 13 46.099  0.300 ? . ? ? . A 10 GLY CA   ? A ? 10 GLY CA   A 10 GLY CA   . 2MM4 ? 
+28  1 1 3  3  GLY N    N 15 110.842 0.300 ? . ? ? . A 10 GLY N    ? A ? 10 GLY N    A 10 GLY N    . 2MM4 ? 
+29  1 1 4  4  THR H    H 1  7.753   0.020 ? . ? ? . A 11 THR H    ? A ? 11 THR H    A 11 THR H    . 2MM4 ? 
+30  1 1 4  4  THR HA   H 1  4.220   0.020 ? . ? ? . A 11 THR HA   ? A ? 11 THR HA   A 11 THR HA   . 2MM4 ? 
+31  1 1 4  4  THR HB   H 1  4.217   0.020 ? . ? ? . A 11 THR HB   ? A ? 11 THR HB   A 11 THR HB   . 2MM4 ? 
+32  1 1 4  4  THR HG21 H 1  1.147   0.020 ? . ? ? . A 11 THR HG21 ? A ? 11 THR HG21 A 11 THR HG21 . 2MM4 ? 
+33  1 1 4  4  THR HG22 H 1  1.147   0.020 ? . ? ? . A 11 THR HG22 ? A ? 11 THR HG22 A 11 THR HG22 . 2MM4 ? 
+34  1 1 4  4  THR HG23 H 1  1.147   0.020 ? . ? ? . A 11 THR HG23 ? A ? 11 THR HG23 A 11 THR HG23 . 2MM4 ? 
+35  1 1 4  4  THR C    C 13 171.906 0.300 ? . ? ? . A 11 THR C    ? A ? 11 THR C    A 11 THR C    . 2MM4 ? 
+36  1 1 4  4  THR CA   C 13 62.721  0.300 ? . ? ? . A 11 THR CA   ? A ? 11 THR CA   A 11 THR CA   . 2MM4 ? 
+37  1 1 4  4  THR CB   C 13 69.549  0.300 ? . ? ? . A 11 THR CB   ? A ? 11 THR CB   A 11 THR CB   . 2MM4 ? 
+38  1 1 4  4  THR CG2  C 13 22.103  0.300 ? . ? ? . A 11 THR CG2  ? A ? 11 THR CG2  A 11 THR CG2  . 2MM4 ? 
+39  1 1 4  4  THR N    N 15 113.754 0.300 ? . ? ? . A 11 THR N    ? A ? 11 THR N    A 11 THR N    . 2MM4 ? 
+40  1 1 5  5  LEU H    H 1  7.980   0.020 ? . ? ? . A 12 LEU H    ? A ? 12 LEU H    A 12 LEU H    . 2MM4 ? 
+41  1 1 5  5  LEU HA   H 1  4.240   0.020 ? . ? ? . A 12 LEU HA   ? A ? 12 LEU HA   A 12 LEU HA   . 2MM4 ? 
+42  1 1 5  5  LEU HB2  H 1  1.660   0.020 ? . ? ? . A 12 LEU HB2  ? A ? 12 LEU HB2  A 12 LEU HB2  . 2MM4 ? 
+43  1 1 5  5  LEU HB3  H 1  1.495   0.020 ? . ? ? . A 12 LEU HB3  ? A ? 12 LEU HB3  A 12 LEU HB3  . 2MM4 ? 
+44  1 1 5  5  LEU HG   H 1  1.571   0.020 ? . ? ? . A 12 LEU HG   ? A ? 12 LEU HG   A 12 LEU HG   . 2MM4 ? 
+45  1 1 5  5  LEU HD11 H 1  0.877   0.020 ? . ? ? . A 12 LEU HD11 ? A ? 12 LEU HD11 A 12 LEU HD11 . 2MM4 ? 
+46  1 1 5  5  LEU HD12 H 1  0.877   0.020 ? . ? ? . A 12 LEU HD12 ? A ? 12 LEU HD12 A 12 LEU HD12 . 2MM4 ? 
+47  1 1 5  5  LEU HD13 H 1  0.877   0.020 ? . ? ? . A 12 LEU HD13 ? A ? 12 LEU HD13 A 12 LEU HD13 . 2MM4 ? 
+48  1 1 5  5  LEU HD21 H 1  0.835   0.020 ? . ? ? . A 12 LEU HD21 ? A ? 12 LEU HD21 A 12 LEU HD21 . 2MM4 ? 
+49  1 1 5  5  LEU HD22 H 1  0.835   0.020 ? . ? ? . A 12 LEU HD22 ? A ? 12 LEU HD22 A 12 LEU HD22 . 2MM4 ? 
+50  1 1 5  5  LEU HD23 H 1  0.835   0.020 ? . ? ? . A 12 LEU HD23 ? A ? 12 LEU HD23 A 12 LEU HD23 . 2MM4 ? 
+51  1 1 5  5  LEU C    C 13 175.221 0.300 ? . ? ? . A 12 LEU C    ? A ? 12 LEU C    A 12 LEU C    . 2MM4 ? 
+52  1 1 5  5  LEU CA   C 13 56.799  0.300 ? . ? ? . A 12 LEU CA   ? A ? 12 LEU CA   A 12 LEU CA   . 2MM4 ? 
+53  1 1 5  5  LEU CB   C 13 42.536  0.300 ? . ? ? . A 12 LEU CB   ? A ? 12 LEU CB   A 12 LEU CB   . 2MM4 ? 
+54  1 1 5  5  LEU CG   C 13 27.295  0.300 ? . ? ? . A 12 LEU CG   ? A ? 12 LEU CG   A 12 LEU CG   . 2MM4 ? 
+55  1 1 5  5  LEU CD1  C 13 25.111  0.300 ? . ? ? . A 12 LEU CD1  ? A ? 12 LEU CD1  A 12 LEU CD1  . 2MM4 ? 
+56  1 1 5  5  LEU CD2  C 13 25.000  0.300 ? . ? ? . A 12 LEU CD2  ? A ? 12 LEU CD2  A 12 LEU CD2  . 2MM4 ? 
+57  1 1 5  5  LEU N    N 15 123.669 0.300 ? . ? ? . A 12 LEU N    ? A ? 12 LEU N    A 12 LEU N    . 2MM4 ? 
+58  1 1 6  6  ILE H    H 1  7.861   0.020 ? . ? ? . A 13 ILE H    ? A ? 13 ILE H    A 13 ILE H    . 2MM4 ? 
+59  1 1 6  6  ILE HA   H 1  3.913   0.020 ? . ? ? . A 13 ILE HA   ? A ? 13 ILE HA   A 13 ILE HA   . 2MM4 ? 
+60  1 1 6  6  ILE HB   H 1  1.880   0.020 ? . ? ? . A 13 ILE HB   ? A ? 13 ILE HB   A 13 ILE HB   . 2MM4 ? 
+61  1 1 6  6  ILE HG12 H 1  1.511   0.020 ? . ? ? . A 13 ILE HG12 ? A ? 13 ILE HG12 A 13 ILE HG12 . 2MM4 ? 
+62  1 1 6  6  ILE HG13 H 1  1.084   0.020 ? . ? ? . A 13 ILE HG13 ? A ? 13 ILE HG13 A 13 ILE HG13 . 2MM4 ? 
+63  1 1 6  6  ILE HG21 H 1  0.826   0.020 ? . ? ? . A 13 ILE HG21 ? A ? 13 ILE HG21 A 13 ILE HG21 . 2MM4 ? 
+64  1 1 6  6  ILE HG22 H 1  0.826   0.020 ? . ? ? . A 13 ILE HG22 ? A ? 13 ILE HG22 A 13 ILE HG22 . 2MM4 ? 
+65  1 1 6  6  ILE HG23 H 1  0.826   0.020 ? . ? ? . A 13 ILE HG23 ? A ? 13 ILE HG23 A 13 ILE HG23 . 2MM4 ? 
+66  1 1 6  6  ILE HD11 H 1  0.796   0.020 ? . ? ? . A 13 ILE HD11 ? A ? 13 ILE HD11 A 13 ILE HD11 . 2MM4 ? 
+67  1 1 6  6  ILE HD12 H 1  0.796   0.020 ? . ? ? . A 13 ILE HD12 ? A ? 13 ILE HD12 A 13 ILE HD12 . 2MM4 ? 
+68  1 1 6  6  ILE HD13 H 1  0.796   0.020 ? . ? ? . A 13 ILE HD13 ? A ? 13 ILE HD13 A 13 ILE HD13 . 2MM4 ? 
+69  1 1 6  6  ILE C    C 13 173.425 0.300 ? . ? ? . A 13 ILE C    ? A ? 13 ILE C    A 13 ILE C    . 2MM4 ? 
+70  1 1 6  6  ILE CA   C 13 62.889  0.300 ? . ? ? . A 13 ILE CA   ? A ? 13 ILE CA   A 13 ILE CA   . 2MM4 ? 
+71  1 1 6  6  ILE CB   C 13 38.249  0.300 ? . ? ? . A 13 ILE CB   ? A ? 13 ILE CB   A 13 ILE CB   . 2MM4 ? 
+72  1 1 6  6  ILE CG1  C 13 28.368  0.300 ? . ? ? . A 13 ILE CG1  ? A ? 13 ILE CG1  A 13 ILE CG1  . 2MM4 ? 
+73  1 1 6  6  ILE CG2  C 13 17.524  0.300 ? . ? ? . A 13 ILE CG2  ? A ? 13 ILE CG2  A 13 ILE CG2  . 2MM4 ? 
+74  1 1 6  6  ILE CD1  C 13 13.103  0.300 ? . ? ? . A 13 ILE CD1  ? A ? 13 ILE CD1  A 13 ILE CD1  . 2MM4 ? 
+75  1 1 6  6  ILE N    N 15 120.086 0.300 ? . ? ? . A 13 ILE N    ? A ? 13 ILE N    A 13 ILE N    . 2MM4 ? 
+76  1 1 7  7  VAL H    H 1  7.549   0.020 ? . ? ? . A 14 VAL H    ? A ? 14 VAL H    A 14 VAL H    . 2MM4 ? 
+77  1 1 7  7  VAL HA   H 1  3.790   0.020 ? . ? ? . A 14 VAL HA   ? A ? 14 VAL HA   A 14 VAL HA   . 2MM4 ? 
+78  1 1 7  7  VAL HB   H 1  2.050   0.020 ? . ? ? . A 14 VAL HB   ? A ? 14 VAL HB   A 14 VAL HB   . 2MM4 ? 
+79  1 1 7  7  VAL HG11 H 1  0.871   0.020 ? . ? ? . A 14 VAL HG11 ? A ? 14 VAL HG11 A 14 VAL HG11 . 2MM4 ? 
+80  1 1 7  7  VAL HG12 H 1  0.871   0.020 ? . ? ? . A 14 VAL HG12 ? A ? 14 VAL HG12 A 14 VAL HG12 . 2MM4 ? 
+81  1 1 7  7  VAL HG13 H 1  0.871   0.020 ? . ? ? . A 14 VAL HG13 ? A ? 14 VAL HG13 A 14 VAL HG13 . 2MM4 ? 
+82  1 1 7  7  VAL HG21 H 1  0.934   0.020 ? . ? ? . A 14 VAL HG21 ? A ? 14 VAL HG21 A 14 VAL HG21 . 2MM4 ? 
+83  1 1 7  7  VAL HG22 H 1  0.934   0.020 ? . ? ? . A 14 VAL HG22 ? A ? 14 VAL HG22 A 14 VAL HG22 . 2MM4 ? 
+84  1 1 7  7  VAL HG23 H 1  0.934   0.020 ? . ? ? . A 14 VAL HG23 ? A ? 14 VAL HG23 A 14 VAL HG23 . 2MM4 ? 
+85  1 1 7  7  VAL C    C 13 173.429 0.300 ? . ? ? . A 14 VAL C    ? A ? 14 VAL C    A 14 VAL C    . 2MM4 ? 
+86  1 1 7  7  VAL CA   C 13 64.409  0.300 ? . ? ? . A 14 VAL CA   ? A ? 14 VAL CA   A 14 VAL CA   . 2MM4 ? 
+87  1 1 7  7  VAL CB   C 13 32.007  0.300 ? . ? ? . A 14 VAL CB   ? A ? 14 VAL CB   A 14 VAL CB   . 2MM4 ? 
+88  1 1 7  7  VAL CG1  C 13 21.232  0.300 ? . ? ? . A 14 VAL CG1  ? A ? 14 VAL CG1  A 14 VAL CG1  . 2MM4 ? 
+89  1 1 7  7  VAL CG2  C 13 21.830  0.300 ? . ? ? . A 14 VAL CG2  ? A ? 14 VAL CG2  A 14 VAL CG2  . 2MM4 ? 
+90  1 1 7  7  VAL N    N 15 119.785 0.300 ? . ? ? . A 14 VAL N    ? A ? 14 VAL N    A 14 VAL N    . 2MM4 ? 
+91  1 1 8  8  ASN H    H 1  8.010   0.020 ? . ? ? . A 15 ASN H    ? A ? 15 ASN H    A 15 ASN H    . 2MM4 ? 
+92  1 1 8  8  ASN HA   H 1  4.549   0.020 ? . ? ? . A 15 ASN HA   ? A ? 15 ASN HA   A 15 ASN HA   . 2MM4 ? 
+93  1 1 8  8  ASN HB2  H 1  2.860   0.020 ? . ? ? . A 15 ASN HB2  ? A ? 15 ASN HB2  A 15 ASN HB2  . 2MM4 ? 
+94  1 1 8  8  ASN HB3  H 1  2.703   0.020 ? . ? ? . A 15 ASN HB3  ? A ? 15 ASN HB3  A 15 ASN HB3  . 2MM4 ? 
+95  1 1 8  8  ASN HD21 H 1  7.439   0.020 ? . ? ? . A 15 ASN HD21 ? A ? 15 ASN HD21 A 15 ASN HD21 . 2MM4 ? 
+96  1 1 8  8  ASN HD22 H 1  6.733   0.020 ? . ? ? . A 15 ASN HD22 ? A ? 15 ASN HD22 A 15 ASN HD22 . 2MM4 ? 
+97  1 1 8  8  ASN C    C 13 173.619 0.300 ? . ? ? . A 15 ASN C    ? A ? 15 ASN C    A 15 ASN C    . 2MM4 ? 
+98  1 1 8  8  ASN CA   C 13 54.805  0.300 ? . ? ? . A 15 ASN CA   ? A ? 15 ASN CA   A 15 ASN CA   . 2MM4 ? 
+99  1 1 8  8  ASN CB   C 13 38.824  0.300 ? . ? ? . A 15 ASN CB   ? A ? 15 ASN CB   A 15 ASN CB   . 2MM4 ? 
+100 1 1 8  8  ASN N    N 15 119.567 0.300 ? . ? ? . A 15 ASN N    ? A ? 15 ASN N    A 15 ASN N    . 2MM4 ? 
+101 1 1 8  8  ASN ND2  N 15 113.209 0.300 ? . ? ? . A 15 ASN ND2  ? A ? 15 ASN ND2  A 15 ASN ND2  . 2MM4 ? 
+102 1 1 9  9  SER H    H 1  8.039   0.020 ? . ? ? . A 16 SER H    ? A ? 16 SER H    A 16 SER H    . 2MM4 ? 
+103 1 1 9  9  SER HA   H 1  4.177   0.020 ? . ? ? . A 16 SER HA   ? A ? 16 SER HA   A 16 SER HA   . 2MM4 ? 
+104 1 1 9  9  SER HB2  H 1  3.795   0.020 ? . ? ? . A 16 SER HB2  ? A ? 16 SER HB2  A 16 SER HB2  . 2MM4 ? 
+105 1 1 9  9  SER HB3  H 1  3.795   0.020 ? . ? ? . A 16 SER HB3  ? A ? 16 SER HB3  A 16 SER HB3  . 2MM4 ? 
+106 1 1 9  9  SER CA   C 13 61.705  0.300 ? . ? ? . A 16 SER CA   ? A ? 16 SER CA   A 16 SER CA   . 2MM4 ? 
+107 1 1 9  9  SER CB   C 13 63.752  0.300 ? . ? ? . A 16 SER CB   ? A ? 16 SER CB   A 16 SER CB   . 2MM4 ? 
+108 1 1 9  9  SER N    N 15 116.730 0.300 ? . ? ? . A 16 SER N    ? A ? 16 SER N    A 16 SER N    . 2MM4 ? 
+109 1 1 10 10 VAL H    H 1  7.896   0.020 ? . ? ? . A 17 VAL H    ? A ? 17 VAL H    A 17 VAL H    . 2MM4 ? 
+110 1 1 10 10 VAL HA   H 1  3.677   0.020 ? . ? ? . A 17 VAL HA   ? A ? 17 VAL HA   A 17 VAL HA   . 2MM4 ? 
+111 1 1 10 10 VAL HB   H 1  2.185   0.020 ? . ? ? . A 17 VAL HB   ? A ? 17 VAL HB   A 17 VAL HB   . 2MM4 ? 
+112 1 1 10 10 VAL HG11 H 1  1.019   0.020 ? . ? ? . A 17 VAL HG11 ? A ? 17 VAL HG11 A 17 VAL HG11 . 2MM4 ? 
+113 1 1 10 10 VAL HG12 H 1  1.019   0.020 ? . ? ? . A 17 VAL HG12 ? A ? 17 VAL HG12 A 17 VAL HG12 . 2MM4 ? 
+114 1 1 10 10 VAL HG13 H 1  1.019   0.020 ? . ? ? . A 17 VAL HG13 ? A ? 17 VAL HG13 A 17 VAL HG13 . 2MM4 ? 
+115 1 1 10 10 VAL HG21 H 1  0.937   0.020 ? . ? ? . A 17 VAL HG21 ? A ? 17 VAL HG21 A 17 VAL HG21 . 2MM4 ? 
+116 1 1 10 10 VAL HG22 H 1  0.937   0.020 ? . ? ? . A 17 VAL HG22 ? A ? 17 VAL HG22 A 17 VAL HG22 . 2MM4 ? 
+117 1 1 10 10 VAL HG23 H 1  0.937   0.020 ? . ? ? . A 17 VAL HG23 ? A ? 17 VAL HG23 A 17 VAL HG23 . 2MM4 ? 
+118 1 1 10 10 VAL C    C 13 174.474 0.300 ? . ? ? . A 17 VAL C    ? A ? 17 VAL C    A 17 VAL C    . 2MM4 ? 
+119 1 1 10 10 VAL CA   C 13 66.671  0.300 ? . ? ? . A 17 VAL CA   ? A ? 17 VAL CA   A 17 VAL CA   . 2MM4 ? 
+120 1 1 10 10 VAL CB   C 13 31.531  0.300 ? . ? ? . A 17 VAL CB   ? A ? 17 VAL CB   A 17 VAL CB   . 2MM4 ? 
+121 1 1 10 10 VAL CG1  C 13 23.154  0.300 ? . ? ? . A 17 VAL CG1  ? A ? 17 VAL CG1  A 17 VAL CG1  . 2MM4 ? 
+122 1 1 10 10 VAL CG2  C 13 21.471  0.300 ? . ? ? . A 17 VAL CG2  ? A ? 17 VAL CG2  A 17 VAL CG2  . 2MM4 ? 
+123 1 1 10 10 VAL N    N 15 122.062 0.300 ? . ? ? . A 17 VAL N    ? A ? 17 VAL N    A 17 VAL N    . 2MM4 ? 
+124 1 1 11 11 LEU H    H 1  7.857   0.020 ? . ? ? . A 18 LEU H    ? A ? 18 LEU H    A 18 LEU H    . 2MM4 ? 
+125 1 1 11 11 LEU HA   H 1  3.998   0.020 ? . ? ? . A 18 LEU HA   ? A ? 18 LEU HA   A 18 LEU HA   . 2MM4 ? 
+126 1 1 11 11 LEU HB2  H 1  1.867   0.020 ? . ? ? . A 18 LEU HB2  ? A ? 18 LEU HB2  A 18 LEU HB2  . 2MM4 ? 
+127 1 1 11 11 LEU HB3  H 1  1.472   0.020 ? . ? ? . A 18 LEU HB3  ? A ? 18 LEU HB3  A 18 LEU HB3  . 2MM4 ? 
+128 1 1 11 11 LEU HG   H 1  1.802   0.020 ? . ? ? . A 18 LEU HG   ? A ? 18 LEU HG   A 18 LEU HG   . 2MM4 ? 
+129 1 1 11 11 LEU HD11 H 1  0.915   0.020 ? . ? ? . A 18 LEU HD11 ? A ? 18 LEU HD11 A 18 LEU HD11 . 2MM4 ? 
+130 1 1 11 11 LEU HD12 H 1  0.915   0.020 ? . ? ? . A 18 LEU HD12 ? A ? 18 LEU HD12 A 18 LEU HD12 . 2MM4 ? 
+131 1 1 11 11 LEU HD13 H 1  0.915   0.020 ? . ? ? . A 18 LEU HD13 ? A ? 18 LEU HD13 A 18 LEU HD13 . 2MM4 ? 
+132 1 1 11 11 LEU HD21 H 1  0.841   0.020 ? . ? ? . A 18 LEU HD21 ? A ? 18 LEU HD21 A 18 LEU HD21 . 2MM4 ? 
+133 1 1 11 11 LEU HD22 H 1  0.841   0.020 ? . ? ? . A 18 LEU HD22 ? A ? 18 LEU HD22 A 18 LEU HD22 . 2MM4 ? 
+134 1 1 11 11 LEU HD23 H 1  0.841   0.020 ? . ? ? . A 18 LEU HD23 ? A ? 18 LEU HD23 A 18 LEU HD23 . 2MM4 ? 
+135 1 1 11 11 LEU C    C 13 175.511 0.300 ? . ? ? . A 18 LEU C    ? A ? 18 LEU C    A 18 LEU C    . 2MM4 ? 
+136 1 1 11 11 LEU CA   C 13 58.107  0.300 ? . ? ? . A 18 LEU CA   ? A ? 18 LEU CA   A 18 LEU CA   . 2MM4 ? 
+137 1 1 11 11 LEU CB   C 13 41.593  0.300 ? . ? ? . A 18 LEU CB   ? A ? 18 LEU CB   A 18 LEU CB   . 2MM4 ? 
+138 1 1 11 11 LEU CG   C 13 27.220  0.300 ? . ? ? . A 18 LEU CG   ? A ? 18 LEU CG   A 18 LEU CG   . 2MM4 ? 
+139 1 1 11 11 LEU CD1  C 13 25.612  0.300 ? . ? ? . A 18 LEU CD1  ? A ? 18 LEU CD1  A 18 LEU CD1  . 2MM4 ? 
+140 1 1 11 11 LEU CD2  C 13 23.558  0.300 ? . ? ? . A 18 LEU CD2  ? A ? 18 LEU CD2  A 18 LEU CD2  . 2MM4 ? 
+141 1 1 11 11 LEU N    N 15 119.103 0.300 ? . ? ? . A 18 LEU N    ? A ? 18 LEU N    A 18 LEU N    . 2MM4 ? 
+142 1 1 12 12 LEU H    H 1  7.745   0.020 ? . ? ? . A 19 LEU H    ? A ? 19 LEU H    A 19 LEU H    . 2MM4 ? 
+143 1 1 12 12 LEU HA   H 1  4.152   0.020 ? . ? ? . A 19 LEU HA   ? A ? 19 LEU HA   A 19 LEU HA   . 2MM4 ? 
+144 1 1 12 12 LEU HB2  H 1  1.750   0.020 ? . ? ? . A 19 LEU HB2  ? A ? 19 LEU HB2  A 19 LEU HB2  . 2MM4 ? 
+145 1 1 12 12 LEU HB3  H 1  1.569   0.020 ? . ? ? . A 19 LEU HB3  ? A ? 19 LEU HB3  A 19 LEU HB3  . 2MM4 ? 
+146 1 1 12 12 LEU HG   H 1  1.663   0.020 ? . ? ? . A 19 LEU HG   ? A ? 19 LEU HG   A 19 LEU HG   . 2MM4 ? 
+147 1 1 12 12 LEU HD11 H 1  0.849   0.020 ? . ? ? . A 19 LEU HD11 ? A ? 19 LEU HD11 A 19 LEU HD11 . 2MM4 ? 
+148 1 1 12 12 LEU HD12 H 1  0.849   0.020 ? . ? ? . A 19 LEU HD12 ? A ? 19 LEU HD12 A 19 LEU HD12 . 2MM4 ? 
+149 1 1 12 12 LEU HD13 H 1  0.849   0.020 ? . ? ? . A 19 LEU HD13 ? A ? 19 LEU HD13 A 19 LEU HD13 . 2MM4 ? 
+150 1 1 12 12 LEU C    C 13 175.156 0.300 ? . ? ? . A 19 LEU C    ? A ? 19 LEU C    A 19 LEU C    . 2MM4 ? 
+151 1 1 12 12 LEU CA   C 13 58.011  0.300 ? . ? ? . A 19 LEU CA   ? A ? 19 LEU CA   A 19 LEU CA   . 2MM4 ? 
+152 1 1 12 12 LEU CB   C 13 42.027  0.300 ? . ? ? . A 19 LEU CB   ? A ? 19 LEU CB   A 19 LEU CB   . 2MM4 ? 
+153 1 1 12 12 LEU CG   C 13 27.218  0.300 ? . ? ? . A 19 LEU CG   ? A ? 19 LEU CG   A 19 LEU CG   . 2MM4 ? 
+154 1 1 12 12 LEU CD1  C 13 25.040  0.300 ? . ? ? . A 19 LEU CD1  ? A ? 19 LEU CD1  A 19 LEU CD1  . 2MM4 ? 
+155 1 1 12 12 LEU N    N 15 118.291 0.300 ? . ? ? . A 19 LEU N    ? A ? 19 LEU N    A 19 LEU N    . 2MM4 ? 
+156 1 1 13 13 PHE H    H 1  8.002   0.020 ? . ? ? . A 20 PHE H    ? A ? 20 PHE H    A 20 PHE H    . 2MM4 ? 
+157 1 1 13 13 PHE HA   H 1  4.188   0.020 ? . ? ? . A 20 PHE HA   ? A ? 20 PHE HA   A 20 PHE HA   . 2MM4 ? 
+158 1 1 13 13 PHE HB2  H 1  3.239   0.020 ? . ? ? . A 20 PHE HB2  ? A ? 20 PHE HB2  A 20 PHE HB2  . 2MM4 ? 
+159 1 1 13 13 PHE HB3  H 1  3.134   0.020 ? . ? ? . A 20 PHE HB3  ? A ? 20 PHE HB3  A 20 PHE HB3  . 2MM4 ? 
+160 1 1 13 13 PHE HD1  H 1  7.032   0.020 ? . ? ? . A 20 PHE HD1  ? A ? 20 PHE HD1  A 20 PHE HD1  . 2MM4 ? 
+161 1 1 13 13 PHE HD2  H 1  7.032   0.020 ? . ? ? . A 20 PHE HD2  ? A ? 20 PHE HD2  A 20 PHE HD2  . 2MM4 ? 
+162 1 1 13 13 PHE HE1  H 1  6.965   0.020 ? . ? ? . A 20 PHE HE1  ? A ? 20 PHE HE1  A 20 PHE HE1  . 2MM4 ? 
+163 1 1 13 13 PHE HE2  H 1  6.965   0.020 ? . ? ? . A 20 PHE HE2  ? A ? 20 PHE HE2  A 20 PHE HE2  . 2MM4 ? 
+164 1 1 13 13 PHE C    C 13 174.260 0.300 ? . ? ? . A 20 PHE C    ? A ? 20 PHE C    A 20 PHE C    . 2MM4 ? 
+165 1 1 13 13 PHE CA   C 13 61.626  0.300 ? . ? ? . A 20 PHE CA   ? A ? 20 PHE CA   A 20 PHE CA   . 2MM4 ? 
+166 1 1 13 13 PHE CB   C 13 38.643  0.300 ? . ? ? . A 20 PHE CB   ? A ? 20 PHE CB   A 20 PHE CB   . 2MM4 ? 
+167 1 1 13 13 PHE CD1  C 13 131.983 0.300 ? . ? ? . A 20 PHE CD1  ? A ? 20 PHE CD1  A 20 PHE CD1  . 2MM4 ? 
+168 1 1 13 13 PHE CE1  C 13 131.000 0.300 ? . ? ? . A 20 PHE CE1  ? A ? 20 PHE CE1  A 20 PHE CE1  . 2MM4 ? 
+169 1 1 13 13 PHE N    N 15 118.415 0.300 ? . ? ? . A 20 PHE N    ? A ? 20 PHE N    A 20 PHE N    . 2MM4 ? 
+170 1 1 14 14 LEU H    H 1  8.456   0.020 ? . ? ? . A 21 LEU H    ? A ? 21 LEU H    A 21 LEU H    . 2MM4 ? 
+171 1 1 14 14 LEU HA   H 1  3.797   0.020 ? . ? ? . A 21 LEU HA   ? A ? 21 LEU HA   A 21 LEU HA   . 2MM4 ? 
+172 1 1 14 14 LEU HB2  H 1  1.885   0.020 ? . ? ? . A 21 LEU HB2  ? A ? 21 LEU HB2  A 21 LEU HB2  . 2MM4 ? 
+173 1 1 14 14 LEU HB3  H 1  1.783   0.020 ? . ? ? . A 21 LEU HB3  ? A ? 21 LEU HB3  A 21 LEU HB3  . 2MM4 ? 
+174 1 1 14 14 LEU HG   H 1  1.928   0.020 ? . ? ? . A 21 LEU HG   ? A ? 21 LEU HG   A 21 LEU HG   . 2MM4 ? 
+175 1 1 14 14 LEU HD11 H 1  0.808   0.020 ? . ? ? . A 21 LEU HD11 ? A ? 21 LEU HD11 A 21 LEU HD11 . 2MM4 ? 
+176 1 1 14 14 LEU HD12 H 1  0.808   0.020 ? . ? ? . A 21 LEU HD12 ? A ? 21 LEU HD12 A 21 LEU HD12 . 2MM4 ? 
+177 1 1 14 14 LEU HD13 H 1  0.808   0.020 ? . ? ? . A 21 LEU HD13 ? A ? 21 LEU HD13 A 21 LEU HD13 . 2MM4 ? 
+178 1 1 14 14 LEU HD21 H 1  0.789   0.020 ? . ? ? . A 21 LEU HD21 ? A ? 21 LEU HD21 A 21 LEU HD21 . 2MM4 ? 
+179 1 1 14 14 LEU HD22 H 1  0.789   0.020 ? . ? ? . A 21 LEU HD22 ? A ? 21 LEU HD22 A 21 LEU HD22 . 2MM4 ? 
+180 1 1 14 14 LEU HD23 H 1  0.789   0.020 ? . ? ? . A 21 LEU HD23 ? A ? 21 LEU HD23 A 21 LEU HD23 . 2MM4 ? 
+181 1 1 14 14 LEU C    C 13 175.324 0.300 ? . ? ? . A 21 LEU C    ? A ? 21 LEU C    A 21 LEU C    . 2MM4 ? 
+182 1 1 14 14 LEU CA   C 13 58.128  0.300 ? . ? ? . A 21 LEU CA   ? A ? 21 LEU CA   A 21 LEU CA   . 2MM4 ? 
+183 1 1 14 14 LEU CB   C 13 41.957  0.300 ? . ? ? . A 21 LEU CB   ? A ? 21 LEU CB   A 21 LEU CB   . 2MM4 ? 
+184 1 1 14 14 LEU CG   C 13 26.796  0.300 ? . ? ? . A 21 LEU CG   ? A ? 21 LEU CG   A 21 LEU CG   . 2MM4 ? 
+185 1 1 14 14 LEU CD1  C 13 23.474  0.300 ? . ? ? . A 21 LEU CD1  ? A ? 21 LEU CD1  A 21 LEU CD1  . 2MM4 ? 
+186 1 1 14 14 LEU CD2  C 13 23.192  0.300 ? . ? ? . A 21 LEU CD2  ? A ? 21 LEU CD2  A 21 LEU CD2  . 2MM4 ? 
+187 1 1 14 14 LEU N    N 15 118.571 0.300 ? . ? ? . A 21 LEU N    ? A ? 21 LEU N    A 21 LEU N    . 2MM4 ? 
+188 1 1 15 15 ALA H    H 1  8.353   0.020 ? . ? ? . A 22 ALA H    ? A ? 22 ALA H    A 22 ALA H    . 2MM4 ? 
+189 1 1 15 15 ALA HA   H 1  3.779   0.020 ? . ? ? . A 22 ALA HA   ? A ? 22 ALA HA   A 22 ALA HA   . 2MM4 ? 
+190 1 1 15 15 ALA HB1  H 1  1.405   0.020 ? . ? ? . A 22 ALA HB1  ? A ? 22 ALA HB1  A 22 ALA HB1  . 2MM4 ? 
+191 1 1 15 15 ALA HB2  H 1  1.405   0.020 ? . ? ? . A 22 ALA HB2  ? A ? 22 ALA HB2  A 22 ALA HB2  . 2MM4 ? 
+192 1 1 15 15 ALA HB3  H 1  1.405   0.020 ? . ? ? . A 22 ALA HB3  ? A ? 22 ALA HB3  A 22 ALA HB3  . 2MM4 ? 
+193 1 1 15 15 ALA C    C 13 175.697 0.300 ? . ? ? . A 22 ALA C    ? A ? 22 ALA C    A 22 ALA C    . 2MM4 ? 
+194 1 1 15 15 ALA CA   C 13 55.721  0.300 ? . ? ? . A 22 ALA CA   ? A ? 22 ALA CA   A 22 ALA CA   . 2MM4 ? 
+195 1 1 15 15 ALA CB   C 13 17.788  0.300 ? . ? ? . A 22 ALA CB   ? A ? 22 ALA CB   A 22 ALA CB   . 2MM4 ? 
+196 1 1 15 15 ALA N    N 15 120.775 0.300 ? . ? ? . A 22 ALA N    ? A ? 22 ALA N    A 22 ALA N    . 2MM4 ? 
+197 1 1 16 16 PHE H    H 1  8.121   0.020 ? . ? ? . A 23 PHE H    ? A ? 23 PHE H    A 23 PHE H    . 2MM4 ? 
+198 1 1 16 16 PHE HA   H 1  4.108   0.020 ? . ? ? . A 23 PHE HA   ? A ? 23 PHE HA   A 23 PHE HA   . 2MM4 ? 
+199 1 1 16 16 PHE HB2  H 1  3.215   0.020 ? . ? ? . A 23 PHE HB2  ? A ? 23 PHE HB2  A 23 PHE HB2  . 2MM4 ? 
+200 1 1 16 16 PHE HB3  H 1  3.078   0.020 ? . ? ? . A 23 PHE HB3  ? A ? 23 PHE HB3  A 23 PHE HB3  . 2MM4 ? 
+201 1 1 16 16 PHE HD1  H 1  6.951   0.020 ? . ? ? . A 23 PHE HD1  ? A ? 23 PHE HD2  A 23 PHE HD2  . 2MM4 ? 
+202 1 1 16 16 PHE HD2  H 1  6.951   0.020 ? . ? ? . A 23 PHE HD2  ? A ? 23 PHE HD1  A 23 PHE HD1  . 2MM4 ? 
+203 1 1 16 16 PHE HE1  H 1  6.985   0.020 ? . ? ? . A 23 PHE HE1  ? A ? 23 PHE HE2  A 23 PHE HE2  . 2MM4 ? 
+204 1 1 16 16 PHE HE2  H 1  6.985   0.020 ? . ? ? . A 23 PHE HE2  ? A ? 23 PHE HE1  A 23 PHE HE1  . 2MM4 ? 
+205 1 1 16 16 PHE C    C 13 173.859 0.300 ? . ? ? . A 23 PHE C    ? A ? 23 PHE C    A 23 PHE C    . 2MM4 ? 
+206 1 1 16 16 PHE CA   C 13 61.271  0.300 ? . ? ? . A 23 PHE CA   ? A ? 23 PHE CA   A 23 PHE CA   . 2MM4 ? 
+207 1 1 16 16 PHE CB   C 13 38.853  0.300 ? . ? ? . A 23 PHE CB   ? A ? 23 PHE CB   A 23 PHE CB   . 2MM4 ? 
+208 1 1 16 16 PHE CD2  C 13 131.456 0.300 ? . ? ? . A 23 PHE CD2  ? A ? 23 PHE CD1  A 23 PHE CD1  . 2MM4 ? 
+209 1 1 16 16 PHE CE2  C 13 129.290 0.300 ? . ? ? . A 23 PHE CE2  ? A ? 23 PHE CE1  A 23 PHE CE1  . 2MM4 ? 
+210 1 1 16 16 PHE N    N 15 117.860 0.300 ? . ? ? . A 23 PHE N    ? A ? 23 PHE N    A 23 PHE N    . 2MM4 ? 
+211 1 1 17 17 VAL H    H 1  8.124   0.020 ? . ? ? . A 24 VAL H    ? A ? 24 VAL H    A 24 VAL H    . 2MM4 ? 
+212 1 1 17 17 VAL HA   H 1  3.134   0.020 ? . ? ? . A 24 VAL HA   ? A ? 24 VAL HA   A 24 VAL HA   . 2MM4 ? 
+213 1 1 17 17 VAL HB   H 1  2.031   0.020 ? . ? ? . A 24 VAL HB   ? A ? 24 VAL HB   A 24 VAL HB   . 2MM4 ? 
+214 1 1 17 17 VAL HG11 H 1  0.677   0.020 ? . ? ? . A 24 VAL HG11 ? A ? 24 VAL HG11 A 24 VAL HG11 . 2MM4 ? 
+215 1 1 17 17 VAL HG12 H 1  0.677   0.020 ? . ? ? . A 24 VAL HG12 ? A ? 24 VAL HG12 A 24 VAL HG12 . 2MM4 ? 
+216 1 1 17 17 VAL HG13 H 1  0.677   0.020 ? . ? ? . A 24 VAL HG13 ? A ? 24 VAL HG13 A 24 VAL HG13 . 2MM4 ? 
+217 1 1 17 17 VAL HG21 H 1  0.596   0.020 ? . ? ? . A 24 VAL HG21 ? A ? 24 VAL HG21 A 24 VAL HG21 . 2MM4 ? 
+218 1 1 17 17 VAL HG22 H 1  0.596   0.020 ? . ? ? . A 24 VAL HG22 ? A ? 24 VAL HG22 A 24 VAL HG22 . 2MM4 ? 
+219 1 1 17 17 VAL HG23 H 1  0.596   0.020 ? . ? ? . A 24 VAL HG23 ? A ? 24 VAL HG23 A 24 VAL HG23 . 2MM4 ? 
+220 1 1 17 17 VAL C    C 13 174.684 0.300 ? . ? ? . A 24 VAL C    ? A ? 24 VAL C    A 24 VAL C    . 2MM4 ? 
+221 1 1 17 17 VAL CA   C 13 67.419  0.300 ? . ? ? . A 24 VAL CA   ? A ? 24 VAL CA   A 24 VAL CA   . 2MM4 ? 
+222 1 1 17 17 VAL CB   C 13 31.106  0.300 ? . ? ? . A 24 VAL CB   ? A ? 24 VAL CB   A 24 VAL CB   . 2MM4 ? 
+223 1 1 17 17 VAL CG1  C 13 21.279  0.300 ? . ? ? . A 24 VAL CG1  ? A ? 24 VAL CG1  A 24 VAL CG1  . 2MM4 ? 
+224 1 1 17 17 VAL CG2  C 13 23.299  0.300 ? . ? ? . A 24 VAL CG2  ? A ? 24 VAL CG2  A 24 VAL CG2  . 2MM4 ? 
+225 1 1 17 17 VAL N    N 15 119.181 0.300 ? . ? ? . A 24 VAL N    ? A ? 24 VAL N    A 24 VAL N    . 2MM4 ? 
+226 1 1 18 18 VAL H    H 1  8.250   0.020 ? . ? ? . A 25 VAL H    ? A ? 25 VAL H    A 25 VAL H    . 2MM4 ? 
+227 1 1 18 18 VAL HA   H 1  3.324   0.020 ? . ? ? . A 25 VAL HA   ? A ? 25 VAL HA   A 25 VAL HA   . 2MM4 ? 
+228 1 1 18 18 VAL HB   H 1  2.107   0.020 ? . ? ? . A 25 VAL HB   ? A ? 25 VAL HB   A 25 VAL HB   . 2MM4 ? 
+229 1 1 18 18 VAL HG11 H 1  0.727   0.020 ? . ? ? . A 25 VAL HG11 ? A ? 25 VAL HG11 A 25 VAL HG11 . 2MM4 ? 
+230 1 1 18 18 VAL HG12 H 1  0.727   0.020 ? . ? ? . A 25 VAL HG12 ? A ? 25 VAL HG12 A 25 VAL HG12 . 2MM4 ? 
+231 1 1 18 18 VAL HG13 H 1  0.727   0.020 ? . ? ? . A 25 VAL HG13 ? A ? 25 VAL HG13 A 25 VAL HG13 . 2MM4 ? 
+232 1 1 18 18 VAL HG21 H 1  0.897   0.020 ? . ? ? . A 25 VAL HG21 ? A ? 25 VAL HG21 A 25 VAL HG21 . 2MM4 ? 
+233 1 1 18 18 VAL HG22 H 1  0.897   0.020 ? . ? ? . A 25 VAL HG22 ? A ? 25 VAL HG22 A 25 VAL HG22 . 2MM4 ? 
+234 1 1 18 18 VAL HG23 H 1  0.897   0.020 ? . ? ? . A 25 VAL HG23 ? A ? 25 VAL HG23 A 25 VAL HG23 . 2MM4 ? 
+235 1 1 18 18 VAL C    C 13 174.244 0.300 ? . ? ? . A 25 VAL C    ? A ? 25 VAL C    A 25 VAL C    . 2MM4 ? 
+236 1 1 18 18 VAL CA   C 13 67.740  0.300 ? . ? ? . A 25 VAL CA   ? A ? 25 VAL CA   A 25 VAL CA   . 2MM4 ? 
+237 1 1 18 18 VAL CB   C 13 31.270  0.300 ? . ? ? . A 25 VAL CB   ? A ? 25 VAL CB   A 25 VAL CB   . 2MM4 ? 
+238 1 1 18 18 VAL CG1  C 13 21.660  0.300 ? . ? ? . A 25 VAL CG1  ? A ? 25 VAL CG1  A 25 VAL CG1  . 2MM4 ? 
+239 1 1 18 18 VAL CG2  C 13 23.520  0.300 ? . ? ? . A 25 VAL CG2  ? A ? 25 VAL CG2  A 25 VAL CG2  . 2MM4 ? 
+240 1 1 18 18 VAL N    N 15 119.215 0.300 ? . ? ? . A 25 VAL N    ? A ? 25 VAL N    A 25 VAL N    . 2MM4 ? 
+241 1 1 19 19 PHE H    H 1  8.413   0.020 ? . ? ? . A 26 PHE H    ? A ? 26 PHE H    A 26 PHE H    . 2MM4 ? 
+242 1 1 19 19 PHE HA   H 1  3.900   0.020 ? . ? ? . A 26 PHE HA   ? A ? 26 PHE HA   A 26 PHE HA   . 2MM4 ? 
+243 1 1 19 19 PHE HB2  H 1  3.132   0.020 ? . ? ? . A 26 PHE HB2  ? A ? 26 PHE HB2  A 26 PHE HB2  . 2MM4 ? 
+244 1 1 19 19 PHE HB3  H 1  2.997   0.020 ? . ? ? . A 26 PHE HB3  ? A ? 26 PHE HB3  A 26 PHE HB3  . 2MM4 ? 
+245 1 1 19 19 PHE HD1  H 1  6.833   0.020 ? . ? ? . A 26 PHE HD1  ? A ? 26 PHE HD2  A 26 PHE HD2  . 2MM4 ? 
+246 1 1 19 19 PHE HD2  H 1  6.833   0.020 ? . ? ? . A 26 PHE HD2  ? A ? 26 PHE HD1  A 26 PHE HD1  . 2MM4 ? 
+247 1 1 19 19 PHE HE1  H 1  6.856   0.020 ? . ? ? . A 26 PHE HE1  ? A ? 26 PHE HE2  A 26 PHE HE2  . 2MM4 ? 
+248 1 1 19 19 PHE HE2  H 1  6.856   0.020 ? . ? ? . A 26 PHE HE2  ? A ? 26 PHE HE1  A 26 PHE HE1  . 2MM4 ? 
+249 1 1 19 19 PHE C    C 13 175.371 0.300 ? . ? ? . A 26 PHE C    ? A ? 26 PHE C    A 26 PHE C    . 2MM4 ? 
+250 1 1 19 19 PHE CA   C 13 61.651  0.300 ? . ? ? . A 26 PHE CA   ? A ? 26 PHE CA   A 26 PHE CA   . 2MM4 ? 
+251 1 1 19 19 PHE CB   C 13 38.760  0.300 ? . ? ? . A 26 PHE CB   ? A ? 26 PHE CB   A 26 PHE CB   . 2MM4 ? 
+252 1 1 19 19 PHE CD2  C 13 132.001 0.300 ? . ? ? . A 26 PHE CD2  ? A ? 26 PHE CD1  A 26 PHE CD1  . 2MM4 ? 
+253 1 1 19 19 PHE N    N 15 119.875 0.300 ? . ? ? . A 26 PHE N    ? A ? 26 PHE N    A 26 PHE N    . 2MM4 ? 
+254 1 1 20 20 LEU H    H 1  8.453   0.020 ? . ? ? . A 27 LEU H    ? A ? 27 LEU H    A 27 LEU H    . 2MM4 ? 
+255 1 1 20 20 LEU HA   H 1  3.533   0.020 ? . ? ? . A 27 LEU HA   ? A ? 27 LEU HA   A 27 LEU HA   . 2MM4 ? 
+256 1 1 20 20 LEU HB2  H 1  1.433   0.020 ? . ? ? . A 27 LEU HB2  ? A ? 27 LEU HB2  A 27 LEU HB2  . 2MM4 ? 
+257 1 1 20 20 LEU HB3  H 1  1.337   0.020 ? . ? ? . A 27 LEU HB3  ? A ? 27 LEU HB3  A 27 LEU HB3  . 2MM4 ? 
+258 1 1 20 20 LEU HG   H 1  1.385   0.020 ? . ? ? . A 27 LEU HG   ? A ? 27 LEU HG   A 27 LEU HG   . 2MM4 ? 
+259 1 1 20 20 LEU HD11 H 1  0.574   0.020 ? . ? ? . A 27 LEU HD11 ? A ? 27 LEU HD11 A 27 LEU HD11 . 2MM4 ? 
+260 1 1 20 20 LEU HD12 H 1  0.574   0.020 ? . ? ? . A 27 LEU HD12 ? A ? 27 LEU HD12 A 27 LEU HD12 . 2MM4 ? 
+261 1 1 20 20 LEU HD13 H 1  0.574   0.020 ? . ? ? . A 27 LEU HD13 ? A ? 27 LEU HD13 A 27 LEU HD13 . 2MM4 ? 
+262 1 1 20 20 LEU HD21 H 1  0.610   0.020 ? . ? ? . A 27 LEU HD21 ? A ? 27 LEU HD21 A 27 LEU HD21 . 2MM4 ? 
+263 1 1 20 20 LEU HD22 H 1  0.610   0.020 ? . ? ? . A 27 LEU HD22 ? A ? 27 LEU HD22 A 27 LEU HD22 . 2MM4 ? 
+264 1 1 20 20 LEU HD23 H 1  0.610   0.020 ? . ? ? . A 27 LEU HD23 ? A ? 27 LEU HD23 A 27 LEU HD23 . 2MM4 ? 
+265 1 1 20 20 LEU C    C 13 175.256 0.300 ? . ? ? . A 27 LEU C    ? A ? 27 LEU C    A 27 LEU C    . 2MM4 ? 
+266 1 1 20 20 LEU CA   C 13 58.211  0.300 ? . ? ? . A 27 LEU CA   ? A ? 27 LEU CA   A 27 LEU CA   . 2MM4 ? 
+267 1 1 20 20 LEU CB   C 13 41.564  0.300 ? . ? ? . A 27 LEU CB   ? A ? 27 LEU CB   A 27 LEU CB   . 2MM4 ? 
+268 1 1 20 20 LEU CG   C 13 26.437  0.300 ? . ? ? . A 27 LEU CG   ? A ? 27 LEU CG   A 27 LEU CG   . 2MM4 ? 
+269 1 1 20 20 LEU CD1  C 13 24.562  0.300 ? . ? ? . A 27 LEU CD1  ? A ? 27 LEU CD1  A 27 LEU CD1  . 2MM4 ? 
+270 1 1 20 20 LEU CD2  C 13 24.053  0.300 ? . ? ? . A 27 LEU CD2  ? A ? 27 LEU CD2  A 27 LEU CD2  . 2MM4 ? 
+271 1 1 20 20 LEU N    N 15 122.548 0.300 ? . ? ? . A 27 LEU N    ? A ? 27 LEU N    A 27 LEU N    . 2MM4 ? 
+272 1 1 21 21 LEU H    H 1  8.248   0.020 ? . ? ? . A 28 LEU H    ? A ? 28 LEU H    A 28 LEU H    . 2MM4 ? 
+273 1 1 21 21 LEU HA   H 1  3.799   0.020 ? . ? ? . A 28 LEU HA   ? A ? 28 LEU HA   A 28 LEU HA   . 2MM4 ? 
+274 1 1 21 21 LEU HB2  H 1  1.808   0.020 ? . ? ? . A 28 LEU HB2  ? A ? 28 LEU HB2  A 28 LEU HB2  . 2MM4 ? 
+275 1 1 21 21 LEU HB3  H 1  1.284   0.020 ? . ? ? . A 28 LEU HB3  ? A ? 28 LEU HB3  A 28 LEU HB3  . 2MM4 ? 
+276 1 1 21 21 LEU HG   H 1  1.765   0.020 ? . ? ? . A 28 LEU HG   ? A ? 28 LEU HG   A 28 LEU HG   . 2MM4 ? 
+277 1 1 21 21 LEU HD11 H 1  0.667   0.020 ? . ? ? . A 28 LEU HD11 ? A ? 28 LEU HD11 A 28 LEU HD11 . 2MM4 ? 
+278 1 1 21 21 LEU HD12 H 1  0.667   0.020 ? . ? ? . A 28 LEU HD12 ? A ? 28 LEU HD12 A 28 LEU HD12 . 2MM4 ? 
+279 1 1 21 21 LEU HD13 H 1  0.667   0.020 ? . ? ? . A 28 LEU HD13 ? A ? 28 LEU HD13 A 28 LEU HD13 . 2MM4 ? 
+280 1 1 21 21 LEU HD21 H 1  0.649   0.020 ? . ? ? . A 28 LEU HD21 ? A ? 28 LEU HD21 A 28 LEU HD21 . 2MM4 ? 
+281 1 1 21 21 LEU HD22 H 1  0.649   0.020 ? . ? ? . A 28 LEU HD22 ? A ? 28 LEU HD22 A 28 LEU HD22 . 2MM4 ? 
+282 1 1 21 21 LEU HD23 H 1  0.649   0.020 ? . ? ? . A 28 LEU HD23 ? A ? 28 LEU HD23 A 28 LEU HD23 . 2MM4 ? 
+283 1 1 21 21 LEU C    C 13 175.881 0.300 ? . ? ? . A 28 LEU C    ? A ? 28 LEU C    A 28 LEU C    . 2MM4 ? 
+284 1 1 21 21 LEU CA   C 13 58.492  0.300 ? . ? ? . A 28 LEU CA   ? A ? 28 LEU CA   A 28 LEU CA   . 2MM4 ? 
+285 1 1 21 21 LEU CB   C 13 41.760  0.300 ? . ? ? . A 28 LEU CB   ? A ? 28 LEU CB   A 28 LEU CB   . 2MM4 ? 
+286 1 1 21 21 LEU CG   C 13 26.746  0.300 ? . ? ? . A 28 LEU CG   ? A ? 28 LEU CG   A 28 LEU CG   . 2MM4 ? 
+287 1 1 21 21 LEU CD1  C 13 25.323  0.300 ? . ? ? . A 28 LEU CD1  ? A ? 28 LEU CD1  A 28 LEU CD1  . 2MM4 ? 
+288 1 1 21 21 LEU CD2  C 13 22.973  0.300 ? . ? ? . A 28 LEU CD2  ? A ? 28 LEU CD2  A 28 LEU CD2  . 2MM4 ? 
+289 1 1 21 21 LEU N    N 15 119.385 0.300 ? . ? ? . A 28 LEU N    ? A ? 28 LEU N    A 28 LEU N    . 2MM4 ? 
+290 1 1 22 22 VAL H    H 1  8.446   0.020 ? . ? ? . A 29 VAL H    ? A ? 29 VAL H    A 29 VAL H    . 2MM4 ? 
+291 1 1 22 22 VAL HA   H 1  3.319   0.020 ? . ? ? . A 29 VAL HA   ? A ? 29 VAL HA   A 29 VAL HA   . 2MM4 ? 
+292 1 1 22 22 VAL HB   H 1  1.953   0.020 ? . ? ? . A 29 VAL HB   ? A ? 29 VAL HB   A 29 VAL HB   . 2MM4 ? 
+293 1 1 22 22 VAL HG11 H 1  0.723   0.020 ? . ? ? . A 29 VAL HG11 ? A ? 29 VAL HG11 A 29 VAL HG11 . 2MM4 ? 
+294 1 1 22 22 VAL HG12 H 1  0.723   0.020 ? . ? ? . A 29 VAL HG12 ? A ? 29 VAL HG12 A 29 VAL HG12 . 2MM4 ? 
+295 1 1 22 22 VAL HG13 H 1  0.723   0.020 ? . ? ? . A 29 VAL HG13 ? A ? 29 VAL HG13 A 29 VAL HG13 . 2MM4 ? 
+296 1 1 22 22 VAL HG21 H 1  0.682   0.020 ? . ? ? . A 29 VAL HG21 ? A ? 29 VAL HG21 A 29 VAL HG21 . 2MM4 ? 
+297 1 1 22 22 VAL HG22 H 1  0.682   0.020 ? . ? ? . A 29 VAL HG22 ? A ? 29 VAL HG22 A 29 VAL HG22 . 2MM4 ? 
+298 1 1 22 22 VAL HG23 H 1  0.682   0.020 ? . ? ? . A 29 VAL HG23 ? A ? 29 VAL HG23 A 29 VAL HG23 . 2MM4 ? 
+299 1 1 22 22 VAL C    C 13 174.734 0.300 ? . ? ? . A 29 VAL C    ? A ? 29 VAL C    A 29 VAL C    . 2MM4 ? 
+300 1 1 22 22 VAL CA   C 13 67.192  0.300 ? . ? ? . A 29 VAL CA   ? A ? 29 VAL CA   A 29 VAL CA   . 2MM4 ? 
+301 1 1 22 22 VAL CB   C 13 31.175  0.300 ? . ? ? . A 29 VAL CB   ? A ? 29 VAL CB   A 29 VAL CB   . 2MM4 ? 
+302 1 1 22 22 VAL CG1  C 13 21.261  0.300 ? . ? ? . A 29 VAL CG1  ? A ? 29 VAL CG1  A 29 VAL CG1  . 2MM4 ? 
+303 1 1 22 22 VAL CG2  C 13 21.694  0.300 ? . ? ? . A 29 VAL CG2  ? A ? 29 VAL CG2  A 29 VAL CG2  . 2MM4 ? 
+304 1 1 22 22 VAL N    N 15 118.515 0.300 ? . ? ? . A 29 VAL N    ? A ? 29 VAL N    A 29 VAL N    . 2MM4 ? 
+305 1 1 23 23 THR H    H 1  7.923   0.020 ? . ? ? . A 30 THR H    ? A ? 30 THR H    A 30 THR H    . 2MM4 ? 
+306 1 1 23 23 THR HA   H 1  3.432   0.020 ? . ? ? . A 30 THR HA   ? A ? 30 THR HA   A 30 THR HA   . 2MM4 ? 
+307 1 1 23 23 THR HB   H 1  3.896   0.020 ? . ? ? . A 30 THR HB   ? A ? 30 THR HB   A 30 THR HB   . 2MM4 ? 
+308 1 1 23 23 THR HG21 H 1  0.834   0.020 ? . ? ? . A 30 THR HG21 ? A ? 30 THR HG21 A 30 THR HG21 . 2MM4 ? 
+309 1 1 23 23 THR HG22 H 1  0.834   0.020 ? . ? ? . A 30 THR HG22 ? A ? 30 THR HG22 A 30 THR HG22 . 2MM4 ? 
+310 1 1 23 23 THR HG23 H 1  0.834   0.020 ? . ? ? . A 30 THR HG23 ? A ? 30 THR HG23 A 30 THR HG23 . 2MM4 ? 
+311 1 1 23 23 THR CA   C 13 68.606  0.300 ? . ? ? . A 30 THR CA   ? A ? 30 THR CA   A 30 THR CA   . 2MM4 ? 
+312 1 1 23 23 THR CB   C 13 67.147  0.300 ? . ? ? . A 30 THR CB   ? A ? 30 THR CB   A 30 THR CB   . 2MM4 ? 
+313 1 1 23 23 THR CG2  C 13 21.245  0.300 ? . ? ? . A 30 THR CG2  ? A ? 30 THR CG2  A 30 THR CG2  . 2MM4 ? 
+314 1 1 23 23 THR N    N 15 117.313 0.300 ? . ? ? . A 30 THR N    ? A ? 30 THR N    A 30 THR N    . 2MM4 ? 
+315 1 1 24 24 LEU H    H 1  8.382   0.020 ? . ? ? . A 31 LEU H    ? A ? 31 LEU H    A 31 LEU H    . 2MM4 ? 
+316 1 1 24 24 LEU HA   H 1  3.858   0.020 ? . ? ? . A 31 LEU HA   ? A ? 31 LEU HA   A 31 LEU HA   . 2MM4 ? 
+317 1 1 24 24 LEU HB2  H 1  1.771   0.020 ? . ? ? . A 31 LEU HB2  ? A ? 31 LEU HB2  A 31 LEU HB2  . 2MM4 ? 
+318 1 1 24 24 LEU HB3  H 1  1.416   0.020 ? . ? ? . A 31 LEU HB3  ? A ? 31 LEU HB3  A 31 LEU HB3  . 2MM4 ? 
+319 1 1 24 24 LEU HG   H 1  1.709   0.020 ? . ? ? . A 31 LEU HG   ? A ? 31 LEU HG   A 31 LEU HG   . 2MM4 ? 
+320 1 1 24 24 LEU HD11 H 1  0.710   0.020 ? . ? ? . A 31 LEU HD11 ? A ? 31 LEU HD11 A 31 LEU HD11 . 2MM4 ? 
+321 1 1 24 24 LEU HD12 H 1  0.710   0.020 ? . ? ? . A 31 LEU HD12 ? A ? 31 LEU HD12 A 31 LEU HD12 . 2MM4 ? 
+322 1 1 24 24 LEU HD13 H 1  0.710   0.020 ? . ? ? . A 31 LEU HD13 ? A ? 31 LEU HD13 A 31 LEU HD13 . 2MM4 ? 
+323 1 1 24 24 LEU HD21 H 1  0.704   0.020 ? . ? ? . A 31 LEU HD21 ? A ? 31 LEU HD21 A 31 LEU HD21 . 2MM4 ? 
+324 1 1 24 24 LEU HD22 H 1  0.704   0.020 ? . ? ? . A 31 LEU HD22 ? A ? 31 LEU HD22 A 31 LEU HD22 . 2MM4 ? 
+325 1 1 24 24 LEU HD23 H 1  0.704   0.020 ? . ? ? . A 31 LEU HD23 ? A ? 31 LEU HD23 A 31 LEU HD23 . 2MM4 ? 
+326 1 1 24 24 LEU C    C 13 177.164 0.300 ? . ? ? . A 31 LEU C    ? A ? 31 LEU C    A 31 LEU C    . 2MM4 ? 
+327 1 1 24 24 LEU CA   C 13 58.145  0.300 ? . ? ? . A 31 LEU CA   ? A ? 31 LEU CA   A 31 LEU CA   . 2MM4 ? 
+328 1 1 24 24 LEU CB   C 13 41.615  0.300 ? . ? ? . A 31 LEU CB   ? A ? 31 LEU CB   A 31 LEU CB   . 2MM4 ? 
+329 1 1 24 24 LEU CG   C 13 26.825  0.300 ? . ? ? . A 31 LEU CG   ? A ? 31 LEU CG   A 31 LEU CG   . 2MM4 ? 
+330 1 1 24 24 LEU CD1  C 13 24.996  0.300 ? . ? ? . A 31 LEU CD1  ? A ? 31 LEU CD1  A 31 LEU CD1  . 2MM4 ? 
+331 1 1 24 24 LEU CD2  C 13 23.534  0.300 ? . ? ? . A 31 LEU CD2  ? A ? 31 LEU CD2  A 31 LEU CD2  . 2MM4 ? 
+332 1 1 24 24 LEU N    N 15 120.629 0.300 ? . ? ? . A 31 LEU N    ? A ? 31 LEU N    A 31 LEU N    . 2MM4 ? 
+333 1 1 25 25 ALA H    H 1  8.517   0.020 ? . ? ? . A 32 ALA H    ? A ? 32 ALA H    A 32 ALA H    . 2MM4 ? 
+334 1 1 25 25 ALA HA   H 1  3.836   0.020 ? . ? ? . A 32 ALA HA   ? A ? 32 ALA HA   A 32 ALA HA   . 2MM4 ? 
+335 1 1 25 25 ALA HB1  H 1  1.387   0.020 ? . ? ? . A 32 ALA HB1  ? A ? 32 ALA HB1  A 32 ALA HB1  . 2MM4 ? 
+336 1 1 25 25 ALA HB2  H 1  1.387   0.020 ? . ? ? . A 32 ALA HB2  ? A ? 32 ALA HB2  A 32 ALA HB2  . 2MM4 ? 
+337 1 1 25 25 ALA HB3  H 1  1.387   0.020 ? . ? ? . A 32 ALA HB3  ? A ? 32 ALA HB3  A 32 ALA HB3  . 2MM4 ? 
+338 1 1 25 25 ALA C    C 13 175.968 0.300 ? . ? ? . A 32 ALA C    ? A ? 32 ALA C    A 32 ALA C    . 2MM4 ? 
+339 1 1 25 25 ALA CA   C 13 55.918  0.300 ? . ? ? . A 32 ALA CA   ? A ? 32 ALA CA   A 32 ALA CA   . 2MM4 ? 
+340 1 1 25 25 ALA CB   C 13 17.802  0.300 ? . ? ? . A 32 ALA CB   ? A ? 32 ALA CB   A 32 ALA CB   . 2MM4 ? 
+341 1 1 25 25 ALA N    N 15 125.216 0.300 ? . ? ? . A 32 ALA N    ? A ? 32 ALA N    A 32 ALA N    . 2MM4 ? 
+342 1 1 26 26 ILE H    H 1  8.288   0.020 ? . ? ? . A 33 ILE H    ? A ? 33 ILE H    A 33 ILE H    . 2MM4 ? 
+343 1 1 26 26 ILE HA   H 1  3.481   0.020 ? . ? ? . A 33 ILE HA   ? A ? 33 ILE HA   A 33 ILE HA   . 2MM4 ? 
+344 1 1 26 26 ILE HB   H 1  1.910   0.020 ? . ? ? . A 33 ILE HB   ? A ? 33 ILE HB   A 33 ILE HB   . 2MM4 ? 
+345 1 1 26 26 ILE HG12 H 1  1.821   0.020 ? . ? ? . A 33 ILE HG12 ? A ? 33 ILE HG12 A 33 ILE HG12 . 2MM4 ? 
+346 1 1 26 26 ILE HG13 H 1  0.867   0.020 ? . ? ? . A 33 ILE HG13 ? A ? 33 ILE HG13 A 33 ILE HG13 . 2MM4 ? 
+347 1 1 26 26 ILE HG21 H 1  0.773   0.020 ? . ? ? . A 33 ILE HG21 ? A ? 33 ILE HG21 A 33 ILE HG21 . 2MM4 ? 
+348 1 1 26 26 ILE HG22 H 1  0.773   0.020 ? . ? ? . A 33 ILE HG22 ? A ? 33 ILE HG22 A 33 ILE HG22 . 2MM4 ? 
+349 1 1 26 26 ILE HG23 H 1  0.773   0.020 ? . ? ? . A 33 ILE HG23 ? A ? 33 ILE HG23 A 33 ILE HG23 . 2MM4 ? 
+350 1 1 26 26 ILE HD11 H 1  0.672   0.020 ? . ? ? . A 33 ILE HD11 ? A ? 33 ILE HD11 A 33 ILE HD11 . 2MM4 ? 
+351 1 1 26 26 ILE HD12 H 1  0.672   0.020 ? . ? ? . A 33 ILE HD12 ? A ? 33 ILE HD12 A 33 ILE HD12 . 2MM4 ? 
+352 1 1 26 26 ILE HD13 H 1  0.672   0.020 ? . ? ? . A 33 ILE HD13 ? A ? 33 ILE HD13 A 33 ILE HD13 . 2MM4 ? 
+353 1 1 26 26 ILE C    C 13 175.004 0.300 ? . ? ? . A 33 ILE C    ? A ? 33 ILE C    A 33 ILE C    . 2MM4 ? 
+354 1 1 26 26 ILE CA   C 13 65.554  0.300 ? . ? ? . A 33 ILE CA   ? A ? 33 ILE CA   A 33 ILE CA   . 2MM4 ? 
+355 1 1 26 26 ILE CB   C 13 37.657  0.300 ? . ? ? . A 33 ILE CB   ? A ? 33 ILE CB   A 33 ILE CB   . 2MM4 ? 
+356 1 1 26 26 ILE CG1  C 13 29.478  0.300 ? . ? ? . A 33 ILE CG1  ? A ? 33 ILE CG1  A 33 ILE CG1  . 2MM4 ? 
+357 1 1 26 26 ILE CG2  C 13 17.208  0.300 ? . ? ? . A 33 ILE CG2  ? A ? 33 ILE CG2  A 33 ILE CG2  . 2MM4 ? 
+358 1 1 26 26 ILE CD1  C 13 13.625  0.300 ? . ? ? . A 33 ILE CD1  ? A ? 33 ILE CD1  A 33 ILE CD1  . 2MM4 ? 
+359 1 1 26 26 ILE N    N 15 118.722 0.300 ? . ? ? . A 33 ILE N    ? A ? 33 ILE N    A 33 ILE N    . 2MM4 ? 
+360 1 1 27 27 LEU H    H 1  8.493   0.020 ? . ? ? . A 34 LEU H    ? A ? 34 LEU H    A 34 LEU H    . 2MM4 ? 
+361 1 1 27 27 LEU HA   H 1  3.893   0.020 ? . ? ? . A 34 LEU HA   ? A ? 34 LEU HA   A 34 LEU HA   . 2MM4 ? 
+362 1 1 27 27 LEU HB2  H 1  1.837   0.020 ? . ? ? . A 34 LEU HB2  ? A ? 34 LEU HB2  A 34 LEU HB2  . 2MM4 ? 
+363 1 1 27 27 LEU HB3  H 1  1.423   0.020 ? . ? ? . A 34 LEU HB3  ? A ? 34 LEU HB3  A 34 LEU HB3  . 2MM4 ? 
+364 1 1 27 27 LEU HG   H 1  1.836   0.020 ? . ? ? . A 34 LEU HG   ? A ? 34 LEU HG   A 34 LEU HG   . 2MM4 ? 
+365 1 1 27 27 LEU HD11 H 1  0.777   0.020 ? . ? ? . A 34 LEU HD11 ? A ? 34 LEU HD11 A 34 LEU HD11 . 2MM4 ? 
+366 1 1 27 27 LEU HD12 H 1  0.777   0.020 ? . ? ? . A 34 LEU HD12 ? A ? 34 LEU HD12 A 34 LEU HD12 . 2MM4 ? 
+367 1 1 27 27 LEU HD13 H 1  0.777   0.020 ? . ? ? . A 34 LEU HD13 ? A ? 34 LEU HD13 A 34 LEU HD13 . 2MM4 ? 
+368 1 1 27 27 LEU HD21 H 1  0.788   0.020 ? . ? ? . A 34 LEU HD21 ? A ? 34 LEU HD21 A 34 LEU HD21 . 2MM4 ? 
+369 1 1 27 27 LEU HD22 H 1  0.788   0.020 ? . ? ? . A 34 LEU HD22 ? A ? 34 LEU HD22 A 34 LEU HD22 . 2MM4 ? 
+370 1 1 27 27 LEU HD23 H 1  0.788   0.020 ? . ? ? . A 34 LEU HD23 ? A ? 34 LEU HD23 A 34 LEU HD23 . 2MM4 ? 
+371 1 1 27 27 LEU C    C 13 176.439 0.300 ? . ? ? . A 34 LEU C    ? A ? 34 LEU C    A 34 LEU C    . 2MM4 ? 
+372 1 1 27 27 LEU CA   C 13 58.436  0.300 ? . ? ? . A 34 LEU CA   ? A ? 34 LEU CA   A 34 LEU CA   . 2MM4 ? 
+373 1 1 27 27 LEU CB   C 13 42.152  0.300 ? . ? ? . A 34 LEU CB   ? A ? 34 LEU CB   A 34 LEU CB   . 2MM4 ? 
+374 1 1 27 27 LEU CG   C 13 26.782  0.300 ? . ? ? . A 34 LEU CG   ? A ? 34 LEU CG   A 34 LEU CG   . 2MM4 ? 
+375 1 1 27 27 LEU CD1  C 13 25.642  0.300 ? . ? ? . A 34 LEU CD1  ? A ? 34 LEU CD1  A 34 LEU CD1  . 2MM4 ? 
+376 1 1 27 27 LEU CD2  C 13 23.493  0.300 ? . ? ? . A 34 LEU CD2  ? A ? 34 LEU CD2  A 34 LEU CD2  . 2MM4 ? 
+377 1 1 27 27 LEU N    N 15 118.987 0.300 ? . ? ? . A 34 LEU N    ? A ? 34 LEU N    A 34 LEU N    . 2MM4 ? 
+378 1 1 28 28 THR H    H 1  8.215   0.020 ? . ? ? . A 35 THR H    ? A ? 35 THR H    A 35 THR H    . 2MM4 ? 
+379 1 1 28 28 THR HA   H 1  3.652   0.020 ? . ? ? . A 35 THR HA   ? A ? 35 THR HA   A 35 THR HA   . 2MM4 ? 
+380 1 1 28 28 THR HB   H 1  4.202   0.020 ? . ? ? . A 35 THR HB   ? A ? 35 THR HB   A 35 THR HB   . 2MM4 ? 
+381 1 1 28 28 THR HG21 H 1  1.060   0.020 ? . ? ? . A 35 THR HG21 ? A ? 35 THR HG21 A 35 THR HG21 . 2MM4 ? 
+382 1 1 28 28 THR HG22 H 1  1.060   0.020 ? . ? ? . A 35 THR HG22 ? A ? 35 THR HG22 A 35 THR HG22 . 2MM4 ? 
+383 1 1 28 28 THR HG23 H 1  1.060   0.020 ? . ? ? . A 35 THR HG23 ? A ? 35 THR HG23 A 35 THR HG23 . 2MM4 ? 
+384 1 1 28 28 THR C    C 13 173.366 0.300 ? . ? ? . A 35 THR C    ? A ? 35 THR C    A 35 THR C    . 2MM4 ? 
+385 1 1 28 28 THR CA   C 13 68.153  0.300 ? . ? ? . A 35 THR CA   ? A ? 35 THR CA   A 35 THR CA   . 2MM4 ? 
+386 1 1 28 28 THR CB   C 13 68.162  0.300 ? . ? ? . A 35 THR CB   ? A ? 35 THR CB   A 35 THR CB   . 2MM4 ? 
+387 1 1 28 28 THR CG2  C 13 21.272  0.300 ? . ? ? . A 35 THR CG2  ? A ? 35 THR CG2  A 35 THR CG2  . 2MM4 ? 
+388 1 1 28 28 THR N    N 15 116.630 0.300 ? . ? ? . A 35 THR N    ? A ? 35 THR N    A 35 THR N    . 2MM4 ? 
+389 1 1 29 29 ALA H    H 1  8.358   0.020 ? . ? ? . A 36 ALA H    ? A ? 36 ALA H    A 36 ALA H    . 2MM4 ? 
+390 1 1 29 29 ALA HA   H 1  3.864   0.020 ? . ? ? . A 36 ALA HA   ? A ? 36 ALA HA   A 36 ALA HA   . 2MM4 ? 
+391 1 1 29 29 ALA HB1  H 1  1.414   0.020 ? . ? ? . A 36 ALA HB1  ? A ? 36 ALA HB1  A 36 ALA HB1  . 2MM4 ? 
+392 1 1 29 29 ALA HB2  H 1  1.414   0.020 ? . ? ? . A 36 ALA HB2  ? A ? 36 ALA HB2  A 36 ALA HB2  . 2MM4 ? 
+393 1 1 29 29 ALA HB3  H 1  1.414   0.020 ? . ? ? . A 36 ALA HB3  ? A ? 36 ALA HB3  A 36 ALA HB3  . 2MM4 ? 
+394 1 1 29 29 ALA C    C 13 176.510 0.300 ? . ? ? . A 36 ALA C    ? A ? 36 ALA C    A 36 ALA C    . 2MM4 ? 
+395 1 1 29 29 ALA CA   C 13 55.758  0.300 ? . ? ? . A 36 ALA CA   ? A ? 36 ALA CA   A 36 ALA CA   . 2MM4 ? 
+396 1 1 29 29 ALA CB   C 13 18.054  0.300 ? . ? ? . A 36 ALA CB   ? A ? 36 ALA CB   A 36 ALA CB   . 2MM4 ? 
+397 1 1 29 29 ALA N    N 15 124.667 0.300 ? . ? ? . A 36 ALA N    ? A ? 36 ALA N    A 36 ALA N    . 2MM4 ? 
+398 1 1 30 30 LEU H    H 1  8.360   0.020 ? . ? ? . A 37 LEU H    ? A ? 37 LEU H    A 37 LEU H    . 2MM4 ? 
+399 1 1 30 30 LEU HA   H 1  3.973   0.020 ? . ? ? . A 37 LEU HA   ? A ? 37 LEU HA   A 37 LEU HA   . 2MM4 ? 
+400 1 1 30 30 LEU HB2  H 1  1.458   0.020 ? . ? ? . A 37 LEU HB2  ? A ? 37 LEU HB2  A 37 LEU HB2  . 2MM4 ? 
+401 1 1 30 30 LEU HB3  H 1  1.458   0.020 ? . ? ? . A 37 LEU HB3  ? A ? 37 LEU HB3  A 37 LEU HB3  . 2MM4 ? 
+402 1 1 30 30 LEU HG   H 1  1.896   0.020 ? . ? ? . A 37 LEU HG   ? A ? 37 LEU HG   A 37 LEU HG   . 2MM4 ? 
+403 1 1 30 30 LEU HD11 H 1  0.848   0.020 ? . ? ? . A 37 LEU HD11 ? A ? 37 LEU HD11 A 37 LEU HD11 . 2MM4 ? 
+404 1 1 30 30 LEU HD12 H 1  0.848   0.020 ? . ? ? . A 37 LEU HD12 ? A ? 37 LEU HD12 A 37 LEU HD12 . 2MM4 ? 
+405 1 1 30 30 LEU HD13 H 1  0.848   0.020 ? . ? ? . A 37 LEU HD13 ? A ? 37 LEU HD13 A 37 LEU HD13 . 2MM4 ? 
+406 1 1 30 30 LEU HD21 H 1  0.707   0.020 ? . ? ? . A 37 LEU HD21 ? A ? 37 LEU HD21 A 37 LEU HD21 . 2MM4 ? 
+407 1 1 30 30 LEU HD22 H 1  0.707   0.020 ? . ? ? . A 37 LEU HD22 ? A ? 37 LEU HD22 A 37 LEU HD22 . 2MM4 ? 
+408 1 1 30 30 LEU HD23 H 1  0.707   0.020 ? . ? ? . A 37 LEU HD23 ? A ? 37 LEU HD23 A 37 LEU HD23 . 2MM4 ? 
+409 1 1 30 30 LEU C    C 13 176.538 0.300 ? . ? ? . A 37 LEU C    ? A ? 37 LEU C    A 37 LEU C    . 2MM4 ? 
+410 1 1 30 30 LEU CA   C 13 57.853  0.300 ? . ? ? . A 37 LEU CA   ? A ? 37 LEU CA   A 37 LEU CA   . 2MM4 ? 
+411 1 1 30 30 LEU CB   C 13 42.018  0.300 ? . ? ? . A 37 LEU CB   ? A ? 37 LEU CB   A 37 LEU CB   . 2MM4 ? 
+412 1 1 30 30 LEU CG   C 13 26.695  0.300 ? . ? ? . A 37 LEU CG   ? A ? 37 LEU CG   A 37 LEU CG   . 2MM4 ? 
+413 1 1 30 30 LEU CD1  C 13 24.800  0.300 ? . ? ? . A 37 LEU CD1  ? A ? 37 LEU CD1  A 37 LEU CD1  . 2MM4 ? 
+414 1 1 30 30 LEU CD2  C 13 24.289  0.300 ? . ? ? . A 37 LEU CD2  ? A ? 37 LEU CD2  A 37 LEU CD2  . 2MM4 ? 
+415 1 1 30 30 LEU N    N 15 116.565 0.300 ? . ? ? . A 37 LEU N    ? A ? 37 LEU N    A 37 LEU N    . 2MM4 ? 
+416 1 1 31 31 ARG H    H 1  8.082   0.020 ? . ? ? . A 38 ARG H    ? A ? 38 ARG H    A 38 ARG H    . 2MM4 ? 
+417 1 1 31 31 ARG HA   H 1  4.104   0.020 ? . ? ? . A 38 ARG HA   ? A ? 38 ARG HA   A 38 ARG HA   . 2MM4 ? 
+418 1 1 31 31 ARG HB2  H 1  2.002   0.020 ? . ? ? . A 38 ARG HB2  ? A ? 38 ARG HB2  A 38 ARG HB2  . 2MM4 ? 
+419 1 1 31 31 ARG HB3  H 1  1.943   0.020 ? . ? ? . A 38 ARG HB3  ? A ? 38 ARG HB3  A 38 ARG HB3  . 2MM4 ? 
+420 1 1 31 31 ARG HG2  H 1  1.688   0.020 ? . ? ? . A 38 ARG HG2  ? A ? 38 ARG HG2  A 38 ARG HG2  . 2MM4 ? 
+421 1 1 31 31 ARG HG3  H 1  1.661   0.020 ? . ? ? . A 38 ARG HG3  ? A ? 38 ARG HG3  A 38 ARG HG3  . 2MM4 ? 
+422 1 1 31 31 ARG HD2  H 1  3.188   0.020 ? . ? ? . A 38 ARG HD2  ? A ? 38 ARG HD2  A 38 ARG HD2  . 2MM4 ? 
+423 1 1 31 31 ARG HD3  H 1  3.116   0.020 ? . ? ? . A 38 ARG HD3  ? A ? 38 ARG HD3  A 38 ARG HD3  . 2MM4 ? 
+424 1 1 31 31 ARG HE   H 1  7.226   0.020 ? . ? ? . A 38 ARG HE   ? A ? 38 ARG HE   A 38 ARG HE   . 2MM4 ? 
+425 1 1 31 31 ARG C    C 13 176.208 0.300 ? . ? ? . A 38 ARG C    ? A ? 38 ARG C    A 38 ARG C    . 2MM4 ? 
+426 1 1 31 31 ARG CA   C 13 58.100  0.300 ? . ? ? . A 38 ARG CA   ? A ? 38 ARG CA   A 38 ARG CA   . 2MM4 ? 
+427 1 1 31 31 ARG CB   C 13 29.502  0.300 ? . ? ? . A 38 ARG CB   ? A ? 38 ARG CB   A 38 ARG CB   . 2MM4 ? 
+428 1 1 31 31 ARG CG   C 13 27.348  0.300 ? . ? ? . A 38 ARG CG   ? A ? 38 ARG CG   A 38 ARG CG   . 2MM4 ? 
+429 1 1 31 31 ARG CD   C 13 43.128  0.300 ? . ? ? . A 38 ARG CD   ? A ? 38 ARG CD   A 38 ARG CD   . 2MM4 ? 
+430 1 1 31 31 ARG N    N 15 119.392 0.300 ? . ? ? . A 38 ARG N    ? A ? 38 ARG N    A 38 ARG N    . 2MM4 ? 
+431 1 1 31 31 ARG NE   N 15 84.642  0.300 ? . ? ? . A 38 ARG NE   ? A ? 38 ARG NE   A 38 ARG NE   . 2MM4 ? 
+432 1 1 32 32 LEU H    H 1  8.446   0.020 ? . ? ? . A 39 LEU H    ? A ? 39 LEU H    A 39 LEU H    . 2MM4 ? 
+433 1 1 32 32 LEU HA   H 1  4.243   0.020 ? . ? ? . A 39 LEU HA   ? A ? 39 LEU HA   A 39 LEU HA   . 2MM4 ? 
+434 1 1 32 32 LEU HB2  H 1  1.818   0.020 ? . ? ? . A 39 LEU HB2  ? A ? 39 LEU HB2  A 39 LEU HB2  . 2MM4 ? 
+435 1 1 32 32 LEU HB3  H 1  1.342   0.020 ? . ? ? . A 39 LEU HB3  ? A ? 39 LEU HB3  A 39 LEU HB3  . 2MM4 ? 
+436 1 1 32 32 LEU HG   H 1  1.789   0.020 ? . ? ? . A 39 LEU HG   ? A ? 39 LEU HG   A 39 LEU HG   . 2MM4 ? 
+437 1 1 32 32 LEU HD11 H 1  0.825   0.020 ? . ? ? . A 39 LEU HD11 ? A ? 39 LEU HD11 A 39 LEU HD11 . 2MM4 ? 
+438 1 1 32 32 LEU HD12 H 1  0.825   0.020 ? . ? ? . A 39 LEU HD12 ? A ? 39 LEU HD12 A 39 LEU HD12 . 2MM4 ? 
+439 1 1 32 32 LEU HD13 H 1  0.825   0.020 ? . ? ? . A 39 LEU HD13 ? A ? 39 LEU HD13 A 39 LEU HD13 . 2MM4 ? 
+440 1 1 32 32 LEU HD21 H 1  0.757   0.020 ? . ? ? . A 39 LEU HD21 ? A ? 39 LEU HD21 A 39 LEU HD21 . 2MM4 ? 
+441 1 1 32 32 LEU HD22 H 1  0.757   0.020 ? . ? ? . A 39 LEU HD22 ? A ? 39 LEU HD22 A 39 LEU HD22 . 2MM4 ? 
+442 1 1 32 32 LEU HD23 H 1  0.757   0.020 ? . ? ? . A 39 LEU HD23 ? A ? 39 LEU HD23 A 39 LEU HD23 . 2MM4 ? 
+443 1 1 32 32 LEU C    C 13 175.702 0.300 ? . ? ? . A 39 LEU C    ? A ? 39 LEU C    A 39 LEU C    . 2MM4 ? 
+444 1 1 32 32 LEU CA   C 13 56.979  0.300 ? . ? ? . A 39 LEU CA   ? A ? 39 LEU CA   A 39 LEU CA   . 2MM4 ? 
+445 1 1 32 32 LEU CB   C 13 41.893  0.300 ? . ? ? . A 39 LEU CB   ? A ? 39 LEU CB   A 39 LEU CB   . 2MM4 ? 
+446 1 1 32 32 LEU CG   C 13 27.335  0.300 ? . ? ? . A 39 LEU CG   ? A ? 39 LEU CG   A 39 LEU CG   . 2MM4 ? 
+447 1 1 32 32 LEU CD1  C 13 25.143  0.300 ? . ? ? . A 39 LEU CD1  ? A ? 39 LEU CD1  A 39 LEU CD1  . 2MM4 ? 
+448 1 1 32 32 LEU CD2  C 13 25.139  0.300 ? . ? ? . A 39 LEU CD2  ? A ? 39 LEU CD2  A 39 LEU CD2  . 2MM4 ? 
+449 1 1 32 32 LEU N    N 15 120.438 0.300 ? . ? ? . A 39 LEU N    ? A ? 39 LEU N    A 39 LEU N    . 2MM4 ? 
+450 1 1 33 33 ALA H    H 1  8.321   0.020 ? . ? ? . A 40 ALA H    ? A ? 40 ALA H    A 40 ALA H    . 2MM4 ? 
+451 1 1 33 33 ALA HA   H 1  3.975   0.020 ? . ? ? . A 40 ALA HA   ? A ? 40 ALA HA   A 40 ALA HA   . 2MM4 ? 
+452 1 1 33 33 ALA HB1  H 1  1.428   0.020 ? . ? ? . A 40 ALA HB1  ? A ? 40 ALA HB1  A 40 ALA HB1  . 2MM4 ? 
+453 1 1 33 33 ALA HB2  H 1  1.428   0.020 ? . ? ? . A 40 ALA HB2  ? A ? 40 ALA HB2  A 40 ALA HB2  . 2MM4 ? 
+454 1 1 33 33 ALA HB3  H 1  1.428   0.020 ? . ? ? . A 40 ALA HB3  ? A ? 40 ALA HB3  A 40 ALA HB3  . 2MM4 ? 
+455 1 1 33 33 ALA C    C 13 175.838 0.300 ? . ? ? . A 40 ALA C    ? A ? 40 ALA C    A 40 ALA C    . 2MM4 ? 
+456 1 1 33 33 ALA CA   C 13 54.710  0.300 ? . ? ? . A 40 ALA CA   ? A ? 40 ALA CA   A 40 ALA CA   . 2MM4 ? 
+457 1 1 33 33 ALA CB   C 13 18.319  0.300 ? . ? ? . A 40 ALA CB   ? A ? 40 ALA CB   A 40 ALA CB   . 2MM4 ? 
+458 1 1 33 33 ALA N    N 15 122.512 0.300 ? . ? ? . A 40 ALA N    ? A ? 40 ALA N    A 40 ALA N    . 2MM4 ? 
+459 1 1 34 34 ALA H    H 1  8.038   0.020 ? . ? ? . A 41 ALA H    ? A ? 41 ALA H    A 41 ALA H    . 2MM4 ? 
+460 1 1 34 34 ALA HA   H 1  4.024   0.020 ? . ? ? . A 41 ALA HA   ? A ? 41 ALA HA   A 41 ALA HA   . 2MM4 ? 
+461 1 1 34 34 ALA HB1  H 1  1.349   0.020 ? . ? ? . A 41 ALA HB1  ? A ? 41 ALA HB1  A 41 ALA HB1  . 2MM4 ? 
+462 1 1 34 34 ALA HB2  H 1  1.349   0.020 ? . ? ? . A 41 ALA HB2  ? A ? 41 ALA HB2  A 41 ALA HB2  . 2MM4 ? 
+463 1 1 34 34 ALA HB3  H 1  1.349   0.020 ? . ? ? . A 41 ALA HB3  ? A ? 41 ALA HB3  A 41 ALA HB3  . 2MM4 ? 
+464 1 1 34 34 ALA C    C 13 176.517 0.300 ? . ? ? . A 41 ALA C    ? A ? 41 ALA C    A 41 ALA C    . 2MM4 ? 
+465 1 1 34 34 ALA CA   C 13 54.486  0.300 ? . ? ? . A 41 ALA CA   ? A ? 41 ALA CA   A 41 ALA CA   . 2MM4 ? 
+466 1 1 34 34 ALA CB   C 13 18.468  0.300 ? . ? ? . A 41 ALA CB   ? A ? 41 ALA CB   A 41 ALA CB   . 2MM4 ? 
+467 1 1 34 34 ALA N    N 15 119.754 0.300 ? . ? ? . A 41 ALA N    ? A ? 41 ALA N    A 41 ALA N    . 2MM4 ? 
+468 1 1 35 35 TYR H    H 1  7.814   0.020 ? . ? ? . A 42 TYR H    ? A ? 42 TYR H    A 42 TYR H    . 2MM4 ? 
+469 1 1 35 35 TYR HA   H 1  4.326   0.020 ? . ? ? . A 42 TYR HA   ? A ? 42 TYR HA   A 42 TYR HA   . 2MM4 ? 
+470 1 1 35 35 TYR HB2  H 1  3.094   0.020 ? . ? ? . A 42 TYR HB2  ? A ? 42 TYR HB2  A 42 TYR HB2  . 2MM4 ? 
+471 1 1 35 35 TYR HB3  H 1  3.018   0.020 ? . ? ? . A 42 TYR HB3  ? A ? 42 TYR HB3  A 42 TYR HB3  . 2MM4 ? 
+472 1 1 35 35 TYR HD1  H 1  7.046   0.020 ? . ? ? . A 42 TYR HD1  ? A ? 42 TYR HD1  A 42 TYR HD1  . 2MM4 ? 
+473 1 1 35 35 TYR HD2  H 1  7.046   0.020 ? . ? ? . A 42 TYR HD2  ? A ? 42 TYR HD2  A 42 TYR HD2  . 2MM4 ? 
+474 1 1 35 35 TYR HE1  H 1  6.707   0.020 ? . ? ? . A 42 TYR HE1  ? A ? 42 TYR HE1  A 42 TYR HE1  . 2MM4 ? 
+475 1 1 35 35 TYR HE2  H 1  6.707   0.020 ? . ? ? . A 42 TYR HE2  ? A ? 42 TYR HE2  A 42 TYR HE2  . 2MM4 ? 
+476 1 1 35 35 TYR C    C 13 174.633 0.300 ? . ? ? . A 42 TYR C    ? A ? 42 TYR C    A 42 TYR C    . 2MM4 ? 
+477 1 1 35 35 TYR CA   C 13 60.098  0.300 ? . ? ? . A 42 TYR CA   ? A ? 42 TYR CA   A 42 TYR CA   . 2MM4 ? 
+478 1 1 35 35 TYR CB   C 13 38.936  0.300 ? . ? ? . A 42 TYR CB   ? A ? 42 TYR CB   A 42 TYR CB   . 2MM4 ? 
+479 1 1 35 35 TYR CD1  C 13 131.963 0.300 ? . ? ? . A 42 TYR CD1  ? A ? 42 TYR CD1  A 42 TYR CD1  . 2MM4 ? 
+480 1 1 35 35 TYR CE1  C 13 116.643 0.300 ? . ? ? . A 42 TYR CE1  ? A ? 42 TYR CE1  A 42 TYR CE1  . 2MM4 ? 
+481 1 1 35 35 TYR N    N 15 118.272 0.300 ? . ? ? . A 42 TYR N    ? A ? 42 TYR N    A 42 TYR N    . 2MM4 ? 
+482 1 1 36 36 ALA H    H 1  8.172   0.020 ? . ? ? . A 43 ALA H    ? A ? 43 ALA H    A 43 ALA H    . 2MM4 ? 
+483 1 1 36 36 ALA HA   H 1  4.111   0.020 ? . ? ? . A 43 ALA HA   ? A ? 43 ALA HA   A 43 ALA HA   . 2MM4 ? 
+484 1 1 36 36 ALA HB1  H 1  1.412   0.020 ? . ? ? . A 43 ALA HB1  ? A ? 43 ALA HB1  A 43 ALA HB1  . 2MM4 ? 
+485 1 1 36 36 ALA HB2  H 1  1.412   0.020 ? . ? ? . A 43 ALA HB2  ? A ? 43 ALA HB2  A 43 ALA HB2  . 2MM4 ? 
+486 1 1 36 36 ALA HB3  H 1  1.412   0.020 ? . ? ? . A 43 ALA HB3  ? A ? 43 ALA HB3  A 43 ALA HB3  . 2MM4 ? 
+487 1 1 36 36 ALA C    C 13 175.241 0.300 ? . ? ? . A 43 ALA C    ? A ? 43 ALA C    A 43 ALA C    . 2MM4 ? 
+488 1 1 36 36 ALA CA   C 13 53.842  0.300 ? . ? ? . A 43 ALA CA   ? A ? 43 ALA CA   A 43 ALA CA   . 2MM4 ? 
+489 1 1 36 36 ALA CB   C 13 18.427  0.300 ? . ? ? . A 43 ALA CB   ? A ? 43 ALA CB   A 43 ALA CB   . 2MM4 ? 
+490 1 1 36 36 ALA N    N 15 122.908 0.300 ? . ? ? . A 43 ALA N    ? A ? 43 ALA N    A 43 ALA N    . 2MM4 ? 
+491 1 1 37 37 ALA H    H 1  7.953   0.020 ? . ? ? . A 44 ALA H    ? A ? 44 ALA H    A 44 ALA H    . 2MM4 ? 
+492 1 1 37 37 ALA HA   H 1  4.051   0.020 ? . ? ? . A 44 ALA HA   ? A ? 44 ALA HA   A 44 ALA HA   . 2MM4 ? 
+493 1 1 37 37 ALA HB1  H 1  1.393   0.020 ? . ? ? . A 44 ALA HB1  ? A ? 44 ALA HB1  A 44 ALA HB1  . 2MM4 ? 
+494 1 1 37 37 ALA HB2  H 1  1.393   0.020 ? . ? ? . A 44 ALA HB2  ? A ? 44 ALA HB2  A 44 ALA HB2  . 2MM4 ? 
+495 1 1 37 37 ALA HB3  H 1  1.393   0.020 ? . ? ? . A 44 ALA HB3  ? A ? 44 ALA HB3  A 44 ALA HB3  . 2MM4 ? 
+496 1 1 37 37 ALA C    C 13 175.092 0.300 ? . ? ? . A 44 ALA C    ? A ? 44 ALA C    A 44 ALA C    . 2MM4 ? 
+497 1 1 37 37 ALA CA   C 13 53.611  0.300 ? . ? ? . A 44 ALA CA   ? A ? 44 ALA CA   A 44 ALA CA   . 2MM4 ? 
+498 1 1 37 37 ALA CB   C 13 18.689  0.300 ? . ? ? . A 44 ALA CB   ? A ? 44 ALA CB   A 44 ALA CB   . 2MM4 ? 
+499 1 1 37 37 ALA N    N 15 119.906 0.300 ? . ? ? . A 44 ALA N    ? A ? 44 ALA N    A 44 ALA N    . 2MM4 ? 
+500 1 1 38 38 ASN H    H 1  7.847   0.020 ? . ? ? . A 45 ASN H    ? A ? 45 ASN H    A 45 ASN H    . 2MM4 ? 
+501 1 1 38 38 ASN HA   H 1  4.541   0.020 ? . ? ? . A 45 ASN HA   ? A ? 45 ASN HA   A 45 ASN HA   . 2MM4 ? 
+502 1 1 38 38 ASN HB2  H 1  2.798   0.020 ? . ? ? . A 45 ASN HB2  ? A ? 45 ASN HB2  A 45 ASN HB2  . 2MM4 ? 
+503 1 1 38 38 ASN HB3  H 1  2.702   0.020 ? . ? ? . A 45 ASN HB3  ? A ? 45 ASN HB3  A 45 ASN HB3  . 2MM4 ? 
+504 1 1 38 38 ASN HD21 H 1  6.773   0.020 ? . ? ? . A 45 ASN HD21 ? A ? 45 ASN HD21 A 45 ASN HD21 . 2MM4 ? 
+505 1 1 38 38 ASN HD22 H 1  7.392   0.020 ? . ? ? . A 45 ASN HD22 ? A ? 45 ASN HD22 A 45 ASN HD22 . 2MM4 ? 
+506 1 1 38 38 ASN CA   C 13 54.506  0.300 ? . ? ? . A 45 ASN CA   ? A ? 45 ASN CA   A 45 ASN CA   . 2MM4 ? 
+507 1 1 38 38 ASN CB   C 13 38.602  0.300 ? . ? ? . A 45 ASN CB   ? A ? 45 ASN CB   A 45 ASN CB   . 2MM4 ? 
+508 1 1 38 38 ASN N    N 15 114.984 0.300 ? . ? ? . A 45 ASN N    ? A ? 45 ASN N    A 45 ASN N    . 2MM4 ? 
+509 1 1 38 38 ASN ND2  N 15 113.566 0.300 ? . ? ? . A 45 ASN ND2  ? A ? 45 ASN ND2  A 45 ASN ND2  . 2MM4 ? 
+510 1 1 39 39 ILE H    H 1  7.790   0.020 ? . ? ? . A 46 ILE H    ? A ? 46 ILE H    A 46 ILE H    . 2MM4 ? 
+511 1 1 39 39 ILE HA   H 1  4.033   0.020 ? . ? ? . A 46 ILE HA   ? A ? 46 ILE HA   A 46 ILE HA   . 2MM4 ? 
+512 1 1 39 39 ILE HB   H 1  1.864   0.020 ? . ? ? . A 46 ILE HB   ? A ? 46 ILE HB   A 46 ILE HB   . 2MM4 ? 
+513 1 1 39 39 ILE HG12 H 1  1.434   0.020 ? . ? ? . A 46 ILE HG12 ? A ? 46 ILE HG12 A 46 ILE HG12 . 2MM4 ? 
+514 1 1 39 39 ILE HG13 H 1  1.137   0.020 ? . ? ? . A 46 ILE HG13 ? A ? 46 ILE HG13 A 46 ILE HG13 . 2MM4 ? 
+515 1 1 39 39 ILE HG21 H 1  0.850   0.020 ? . ? ? . A 46 ILE HG21 ? A ? 46 ILE HG21 A 46 ILE HG21 . 2MM4 ? 
+516 1 1 39 39 ILE HG22 H 1  0.850   0.020 ? . ? ? . A 46 ILE HG22 ? A ? 46 ILE HG22 A 46 ILE HG22 . 2MM4 ? 
+517 1 1 39 39 ILE HG23 H 1  0.850   0.020 ? . ? ? . A 46 ILE HG23 ? A ? 46 ILE HG23 A 46 ILE HG23 . 2MM4 ? 
+518 1 1 39 39 ILE HD11 H 1  0.748   0.020 ? . ? ? . A 46 ILE HD11 ? A ? 46 ILE HD11 A 46 ILE HD11 . 2MM4 ? 
+519 1 1 39 39 ILE HD12 H 1  0.748   0.020 ? . ? ? . A 46 ILE HD12 ? A ? 46 ILE HD12 A 46 ILE HD12 . 2MM4 ? 
+520 1 1 39 39 ILE HD13 H 1  0.748   0.020 ? . ? ? . A 46 ILE HD13 ? A ? 46 ILE HD13 A 46 ILE HD13 . 2MM4 ? 
+521 1 1 39 39 ILE C    C 13 173.344 0.300 ? . ? ? . A 46 ILE C    ? A ? 46 ILE C    A 46 ILE C    . 2MM4 ? 
+522 1 1 39 39 ILE CA   C 13 62.357  0.300 ? . ? ? . A 46 ILE CA   ? A ? 46 ILE CA   A 46 ILE CA   . 2MM4 ? 
+523 1 1 39 39 ILE CB   C 13 38.657  0.300 ? . ? ? . A 46 ILE CB   ? A ? 46 ILE CB   A 46 ILE CB   . 2MM4 ? 
+524 1 1 39 39 ILE CG1  C 13 27.847  0.300 ? . ? ? . A 46 ILE CG1  ? A ? 46 ILE CG1  A 46 ILE CG1  . 2MM4 ? 
+525 1 1 39 39 ILE CG2  C 13 17.895  0.300 ? . ? ? . A 46 ILE CG2  ? A ? 46 ILE CG2  A 46 ILE CG2  . 2MM4 ? 
+526 1 1 39 39 ILE CD1  C 13 13.494  0.300 ? . ? ? . A 46 ILE CD1  ? A ? 46 ILE CD1  A 46 ILE CD1  . 2MM4 ? 
+527 1 1 39 39 ILE N    N 15 119.155 0.300 ? . ? ? . A 46 ILE N    ? A ? 46 ILE N    A 46 ILE N    . 2MM4 ? 
+528 1 1 40 40 VAL H    H 1  7.582   0.020 ? . ? ? . A 47 VAL H    ? A ? 47 VAL H    A 47 VAL H    . 2MM4 ? 
+529 1 1 40 40 VAL HA   H 1  4.133   0.020 ? . ? ? . A 47 VAL HA   ? A ? 47 VAL HA   A 47 VAL HA   . 2MM4 ? 
+530 1 1 40 40 VAL HB   H 1  2.119   0.020 ? . ? ? . A 47 VAL HB   ? A ? 47 VAL HB   A 47 VAL HB   . 2MM4 ? 
+531 1 1 40 40 VAL HG11 H 1  0.875   0.020 ? . ? ? . A 47 VAL HG11 ? A ? 47 VAL HG11 A 47 VAL HG11 . 2MM4 ? 
+532 1 1 40 40 VAL HG12 H 1  0.875   0.020 ? . ? ? . A 47 VAL HG12 ? A ? 47 VAL HG12 A 47 VAL HG12 . 2MM4 ? 
+533 1 1 40 40 VAL HG13 H 1  0.875   0.020 ? . ? ? . A 47 VAL HG13 ? A ? 47 VAL HG13 A 47 VAL HG13 . 2MM4 ? 
+534 1 1 40 40 VAL HG21 H 1  0.875   0.020 ? . ? ? . A 47 VAL HG21 ? A ? 47 VAL HG21 A 47 VAL HG21 . 2MM4 ? 
+535 1 1 40 40 VAL HG22 H 1  0.875   0.020 ? . ? ? . A 47 VAL HG22 ? A ? 47 VAL HG22 A 47 VAL HG22 . 2MM4 ? 
+536 1 1 40 40 VAL HG23 H 1  0.875   0.020 ? . ? ? . A 47 VAL HG23 ? A ? 47 VAL HG23 A 47 VAL HG23 . 2MM4 ? 
+537 1 1 40 40 VAL C    C 13 172.672 0.300 ? . ? ? . A 47 VAL C    ? A ? 47 VAL C    A 47 VAL C    . 2MM4 ? 
+538 1 1 40 40 VAL CA   C 13 62.149  0.300 ? . ? ? . A 47 VAL CA   ? A ? 47 VAL CA   A 47 VAL CA   . 2MM4 ? 
+539 1 1 40 40 VAL CB   C 13 32.807  0.300 ? . ? ? . A 47 VAL CB   ? A ? 47 VAL CB   A 47 VAL CB   . 2MM4 ? 
+540 1 1 40 40 VAL CG1  C 13 21.897  0.300 ? . ? ? . A 47 VAL CG1  ? A ? 47 VAL CG1  A 47 VAL CG1  . 2MM4 ? 
+541 1 1 40 40 VAL N    N 15 117.526 0.300 ? . ? ? . A 47 VAL N    ? A ? 47 VAL N    A 47 VAL N    . 2MM4 ? 
+542 1 1 41 41 ASN H    H 1  8.053   0.020 ? . ? ? . A 48 ASN H    ? A ? 48 ASN H    A 48 ASN H    . 2MM4 ? 
+543 1 1 41 41 ASN HA   H 1  4.658   0.020 ? . ? ? . A 48 ASN HA   ? A ? 48 ASN HA   A 48 ASN HA   . 2MM4 ? 
+544 1 1 41 41 ASN HB2  H 1  2.851   0.020 ? . ? ? . A 48 ASN HB2  ? A ? 48 ASN HB2  A 48 ASN HB2  . 2MM4 ? 
+545 1 1 41 41 ASN HB3  H 1  2.671   0.020 ? . ? ? . A 48 ASN HB3  ? A ? 48 ASN HB3  A 48 ASN HB3  . 2MM4 ? 
+546 1 1 41 41 ASN HD21 H 1  7.401   0.020 ? . ? ? . A 48 ASN HD21 ? A ? 48 ASN HD21 A 48 ASN HD21 . 2MM4 ? 
+547 1 1 41 41 ASN HD22 H 1  6.780   0.020 ? . ? ? . A 48 ASN HD22 ? A ? 48 ASN HD22 A 48 ASN HD22 . 2MM4 ? 
+548 1 1 41 41 ASN CA   C 13 53.478  0.300 ? . ? ? . A 48 ASN CA   ? A ? 48 ASN CA   A 48 ASN CA   . 2MM4 ? 
+549 1 1 41 41 ASN CB   C 13 38.573  0.300 ? . ? ? . A 48 ASN CB   ? A ? 48 ASN CB   A 48 ASN CB   . 2MM4 ? 
+550 1 1 41 41 ASN N    N 15 120.091 0.300 ? . ? ? . A 48 ASN N    ? A ? 48 ASN N    A 48 ASN N    . 2MM4 ? 
+551 1 1 41 41 ASN ND2  N 15 113.787 0.300 ? . ? ? . A 48 ASN ND2  ? A ? 48 ASN ND2  A 48 ASN ND2  . 2MM4 ? 
+552 1 1 42 42 VAL H    H 1  7.685   0.020 ? . ? ? . A 49 VAL H    ? A ? 49 VAL H    A 49 VAL H    . 2MM4 ? 
+553 1 1 42 42 VAL HA   H 1  4.133   0.020 ? . ? ? . A 49 VAL HA   ? A ? 49 VAL HA   A 49 VAL HA   . 2MM4 ? 
+554 1 1 42 42 VAL HB   H 1  2.062   0.020 ? . ? ? . A 49 VAL HB   ? A ? 49 VAL HB   A 49 VAL HB   . 2MM4 ? 
+555 1 1 42 42 VAL HG11 H 1  0.878   0.020 ? . ? ? . A 49 VAL HG11 ? A ? 49 VAL HG11 A 49 VAL HG11 . 2MM4 ? 
+556 1 1 42 42 VAL HG12 H 1  0.878   0.020 ? . ? ? . A 49 VAL HG12 ? A ? 49 VAL HG12 A 49 VAL HG12 . 2MM4 ? 
+557 1 1 42 42 VAL HG13 H 1  0.878   0.020 ? . ? ? . A 49 VAL HG13 ? A ? 49 VAL HG13 A 49 VAL HG13 . 2MM4 ? 
+558 1 1 42 42 VAL HG21 H 1  0.859   0.020 ? . ? ? . A 49 VAL HG21 ? A ? 49 VAL HG21 A 49 VAL HG21 . 2MM4 ? 
+559 1 1 42 42 VAL HG22 H 1  0.859   0.020 ? . ? ? . A 49 VAL HG22 ? A ? 49 VAL HG22 A 49 VAL HG22 . 2MM4 ? 
+560 1 1 42 42 VAL HG23 H 1  0.859   0.020 ? . ? ? . A 49 VAL HG23 ? A ? 49 VAL HG23 A 49 VAL HG23 . 2MM4 ? 
+561 1 1 42 42 VAL C    C 13 172.595 0.300 ? . ? ? . A 49 VAL C    ? A ? 49 VAL C    A 49 VAL C    . 2MM4 ? 
+562 1 1 42 42 VAL CA   C 13 62.049  0.300 ? . ? ? . A 49 VAL CA   ? A ? 49 VAL CA   A 49 VAL CA   . 2MM4 ? 
+563 1 1 42 42 VAL CB   C 13 33.271  0.300 ? . ? ? . A 49 VAL CB   ? A ? 49 VAL CB   A 49 VAL CB   . 2MM4 ? 
+564 1 1 42 42 VAL CG1  C 13 21.753  0.300 ? . ? ? . A 49 VAL CG1  ? A ? 49 VAL CG1  A 49 VAL CG1  . 2MM4 ? 
+565 1 1 42 42 VAL CG2  C 13 20.172  0.300 ? . ? ? . A 49 VAL CG2  ? A ? 49 VAL CG2  A 49 VAL CG2  . 2MM4 ? 
+566 1 1 42 42 VAL N    N 15 118.854 0.300 ? . ? ? . A 49 VAL N    ? A ? 49 VAL N    A 49 VAL N    . 2MM4 ? 
+567 1 1 43 43 SER H    H 1  8.075   0.020 ? . ? ? . A 50 SER H    ? A ? 50 SER H    A 50 SER H    . 2MM4 ? 
+568 1 1 43 43 SER HA   H 1  4.466   0.020 ? . ? ? . A 50 SER HA   ? A ? 50 SER HA   A 50 SER HA   . 2MM4 ? 
+569 1 1 43 43 SER HB2  H 1  3.793   0.020 ? . ? ? . A 50 SER HB2  ? A ? 50 SER HB2  A 50 SER HB2  . 2MM4 ? 
+570 1 1 43 43 SER HB3  H 1  3.793   0.020 ? . ? ? . A 50 SER HB3  ? A ? 50 SER HB3  A 50 SER HB3  . 2MM4 ? 
+571 1 1 43 43 SER C    C 13 171.430 0.300 ? . ? ? . A 50 SER C    ? A ? 50 SER C    A 50 SER C    . 2MM4 ? 
+572 1 1 43 43 SER CA   C 13 58.128  0.300 ? . ? ? . A 50 SER CA   ? A ? 50 SER CA   A 50 SER CA   . 2MM4 ? 
+573 1 1 43 43 SER CB   C 13 63.916  0.300 ? . ? ? . A 50 SER CB   ? A ? 50 SER CB   A 50 SER CB   . 2MM4 ? 
+574 1 1 43 43 SER N    N 15 118.689 0.300 ? . ? ? . A 50 SER N    ? A ? 50 SER N    A 50 SER N    . 2MM4 ? 
+575 1 1 44 44 LEU H    H 1  7.991   0.020 ? . ? ? . A 51 LEU H    ? A ? 51 LEU H    A 51 LEU H    . 2MM4 ? 
+576 1 1 44 44 LEU HA   H 1  4.305   0.020 ? . ? ? . A 51 LEU HA   ? A ? 51 LEU HA   A 51 LEU HA   . 2MM4 ? 
+577 1 1 44 44 LEU HB2  H 1  1.503   0.020 ? . ? ? . A 51 LEU HB2  ? A ? 51 LEU HB2  A 51 LEU HB2  . 2MM4 ? 
+578 1 1 44 44 LEU HB3  H 1  1.503   0.020 ? . ? ? . A 51 LEU HB3  ? A ? 51 LEU HB3  A 51 LEU HB3  . 2MM4 ? 
+579 1 1 44 44 LEU HG   H 1  1.606   0.020 ? . ? ? . A 51 LEU HG   ? A ? 51 LEU HG   A 51 LEU HG   . 2MM4 ? 
+580 1 1 44 44 LEU HD11 H 1  0.855   0.020 ? . ? ? . A 51 LEU HD11 ? A ? 51 LEU HD11 A 51 LEU HD11 . 2MM4 ? 
+581 1 1 44 44 LEU HD12 H 1  0.855   0.020 ? . ? ? . A 51 LEU HD12 ? A ? 51 LEU HD12 A 51 LEU HD12 . 2MM4 ? 
+582 1 1 44 44 LEU HD13 H 1  0.855   0.020 ? . ? ? . A 51 LEU HD13 ? A ? 51 LEU HD13 A 51 LEU HD13 . 2MM4 ? 
+583 1 1 44 44 LEU C    C 13 174.110 0.300 ? . ? ? . A 51 LEU C    ? A ? 51 LEU C    A 51 LEU C    . 2MM4 ? 
+584 1 1 44 44 LEU CA   C 13 55.145  0.300 ? . ? ? . A 51 LEU CA   ? A ? 51 LEU CA   A 51 LEU CA   . 2MM4 ? 
+585 1 1 44 44 LEU CB   C 13 42.674  0.300 ? . ? ? . A 51 LEU CB   ? A ? 51 LEU CB   A 51 LEU CB   . 2MM4 ? 
+586 1 1 44 44 LEU CG   C 13 27.208  0.300 ? . ? ? . A 51 LEU CG   ? A ? 51 LEU CG   A 51 LEU CG   . 2MM4 ? 
+587 1 1 44 44 LEU CD1  C 13 25.620  0.300 ? . ? ? . A 51 LEU CD1  ? A ? 51 LEU CD1  A 51 LEU CD1  . 2MM4 ? 
+588 1 1 44 44 LEU N    N 15 123.536 0.300 ? . ? ? . A 51 LEU N    ? A ? 51 LEU N    A 51 LEU N    . 2MM4 ? 
+589 1 1 45 45 VAL H    H 1  7.536   0.020 ? . ? ? . A 52 VAL H    ? A ? 52 VAL H    A 52 VAL H    . 2MM4 ? 
+590 1 1 45 45 VAL HA   H 1  3.992   0.020 ? . ? ? . A 52 VAL HA   ? A ? 52 VAL HA   A 52 VAL HA   . 2MM4 ? 
+591 1 1 45 45 VAL HB   H 1  2.018   0.020 ? . ? ? . A 52 VAL HB   ? A ? 52 VAL HB   A 52 VAL HB   . 2MM4 ? 
+592 1 1 45 45 VAL HG11 H 1  0.861   0.020 ? . ? ? . A 52 VAL HG11 ? A ? 52 VAL HG11 A 52 VAL HG11 . 2MM4 ? 
+593 1 1 45 45 VAL HG12 H 1  0.861   0.020 ? . ? ? . A 52 VAL HG12 ? A ? 52 VAL HG12 A 52 VAL HG12 . 2MM4 ? 
+594 1 1 45 45 VAL HG13 H 1  0.861   0.020 ? . ? ? . A 52 VAL HG13 ? A ? 52 VAL HG13 A 52 VAL HG13 . 2MM4 ? 
+595 1 1 45 45 VAL HG21 H 1  0.855   0.020 ? . ? ? . A 52 VAL HG21 ? A ? 52 VAL HG21 A 52 VAL HG21 . 2MM4 ? 
+596 1 1 45 45 VAL HG22 H 1  0.855   0.020 ? . ? ? . A 52 VAL HG22 ? A ? 52 VAL HG22 A 52 VAL HG22 . 2MM4 ? 
+597 1 1 45 45 VAL HG23 H 1  0.855   0.020 ? . ? ? . A 52 VAL HG23 ? A ? 52 VAL HG23 A 52 VAL HG23 . 2MM4 ? 
+598 1 1 45 45 VAL C    C 13 172.476 0.300 ? . ? ? . A 52 VAL C    ? A ? 52 VAL C    A 52 VAL C    . 2MM4 ? 
+599 1 1 45 45 VAL CA   C 13 62.772  0.300 ? . ? ? . A 52 VAL CA   ? A ? 52 VAL CA   A 52 VAL CA   . 2MM4 ? 
+600 1 1 45 45 VAL CB   C 13 33.066  0.300 ? . ? ? . A 52 VAL CB   ? A ? 52 VAL CB   A 52 VAL CB   . 2MM4 ? 
+601 1 1 45 45 VAL CG1  C 13 20.864  0.300 ? . ? ? . A 52 VAL CG1  ? A ? 52 VAL CG1  A 52 VAL CG1  . 2MM4 ? 
+602 1 1 45 45 VAL CG2  C 13 21.467  0.300 ? . ? ? . A 52 VAL CG2  ? A ? 52 VAL CG2  A 52 VAL CG2  . 2MM4 ? 
+603 1 1 45 45 VAL N    N 15 119.649 0.300 ? . ? ? . A 52 VAL N    ? A ? 52 VAL N    A 52 VAL N    . 2MM4 ? 
+604 1 1 46 46 LYS H    H 1  8.038   0.020 ? . ? ? . A 53 LYS H    ? A ? 53 LYS H    A 53 LYS H    . 2MM4 ? 
+605 1 1 46 46 LYS HA   H 1  4.354   0.020 ? . ? ? . A 53 LYS HA   ? A ? 53 LYS HA   A 53 LYS HA   . 2MM4 ? 
+606 1 1 46 46 LYS HB2  H 1  1.868   0.020 ? . ? ? . A 53 LYS HB2  ? A ? 53 LYS HB2  A 53 LYS HB2  . 2MM4 ? 
+607 1 1 46 46 LYS HB3  H 1  1.778   0.020 ? . ? ? . A 53 LYS HB3  ? A ? 53 LYS HB3  A 53 LYS HB3  . 2MM4 ? 
+608 1 1 46 46 LYS HG2  H 1  1.501   0.020 ? . ? ? . A 53 LYS HG2  ? A ? 53 LYS HG2  A 53 LYS HG2  . 2MM4 ? 
+609 1 1 46 46 LYS HG3  H 1  1.416   0.020 ? . ? ? . A 53 LYS HG3  ? A ? 53 LYS HG3  A 53 LYS HG3  . 2MM4 ? 
+610 1 1 46 46 LYS HD2  H 1  1.692   0.020 ? . ? ? . A 53 LYS HD2  ? A ? 53 LYS HD2  A 53 LYS HD2  . 2MM4 ? 
+611 1 1 46 46 LYS HD3  H 1  1.643   0.020 ? . ? ? . A 53 LYS HD3  ? A ? 53 LYS HD3  A 53 LYS HD3  . 2MM4 ? 
+612 1 1 46 46 LYS HE2  H 1  2.970   0.020 ? . ? ? . A 53 LYS HE2  ? A ? 53 LYS HE2  A 53 LYS HE2  . 2MM4 ? 
+613 1 1 46 46 LYS HE3  H 1  2.970   0.020 ? . ? ? . A 53 LYS HE3  ? A ? 53 LYS HE3  A 53 LYS HE3  . 2MM4 ? 
+614 1 1 46 46 LYS CA   C 13 56.567  0.300 ? . ? ? . A 53 LYS CA   ? A ? 53 LYS CA   A 53 LYS CA   . 2MM4 ? 
+615 1 1 46 46 LYS CB   C 13 31.689  0.300 ? . ? ? . A 53 LYS CB   ? A ? 53 LYS CB   A 53 LYS CB   . 2MM4 ? 
+616 1 1 46 46 LYS CG   C 13 25.097  0.300 ? . ? ? . A 53 LYS CG   ? A ? 53 LYS CG   A 53 LYS CG   . 2MM4 ? 
+617 1 1 46 46 LYS CD   C 13 29.449  0.300 ? . ? ? . A 53 LYS CD   ? A ? 53 LYS CD   A 53 LYS CD   . 2MM4 ? 
+618 1 1 46 46 LYS CE   C 13 42.104  0.300 ? . ? ? . A 53 LYS CE   ? A ? 53 LYS CE   A 53 LYS CE   . 2MM4 ? 
+619 1 1 46 46 LYS N    N 15 122.004 0.300 ? . ? ? . A 53 LYS N    ? A ? 53 LYS N    A 53 LYS N    . 2MM4 ? 
+620 1 1 47 47 PRO HA   H 1  4.353   0.020 ? . ? ? . A 54 PRO HA   ? A ? 54 PRO HA   A 54 PRO HA   . 2MM4 ? 
+621 1 1 47 47 PRO HB2  H 1  2.190   0.020 ? . ? ? . A 54 PRO HB2  ? A ? 54 PRO HB2  A 54 PRO HB2  . 2MM4 ? 
+622 1 1 47 47 PRO HB3  H 1  1.883   0.020 ? . ? ? . A 54 PRO HB3  ? A ? 54 PRO HB3  A 54 PRO HB3  . 2MM4 ? 
+623 1 1 47 47 PRO HG2  H 1  2.050   0.020 ? . ? ? . A 54 PRO HG2  ? A ? 54 PRO HG2  A 54 PRO HG2  . 2MM4 ? 
+624 1 1 47 47 PRO HG3  H 1  1.888   0.020 ? . ? ? . A 54 PRO HG3  ? A ? 54 PRO HG3  A 54 PRO HG3  . 2MM4 ? 
+625 1 1 47 47 PRO HD2  H 1  3.810   0.020 ? . ? ? . A 54 PRO HD2  ? A ? 54 PRO HD2  A 54 PRO HD2  . 2MM4 ? 
+626 1 1 47 47 PRO HD3  H 1  3.765   0.020 ? . ? ? . A 54 PRO HD3  ? A ? 54 PRO HD3  A 54 PRO HD3  . 2MM4 ? 
+627 1 1 47 47 PRO CA   C 13 65.103  0.300 ? . ? ? . A 54 PRO CA   ? A ? 54 PRO CA   A 54 PRO CA   . 2MM4 ? 
+628 1 1 47 47 PRO CB   C 13 32.193  0.300 ? . ? ? . A 54 PRO CB   ? A ? 54 PRO CB   A 54 PRO CB   . 2MM4 ? 
+629 1 1 47 47 PRO CG   C 13 27.772  0.300 ? . ? ? . A 54 PRO CG   ? A ? 54 PRO CG   A 54 PRO CG   . 2MM4 ? 
+630 1 1 47 47 PRO CD   C 13 50.245  0.300 ? . ? ? . A 54 PRO CD   ? A ? 54 PRO CD   A 54 PRO CD   . 2MM4 ? 
+631 1 1 48 48 THR H    H 1  7.722   0.020 ? . ? ? . A 55 THR H    ? A ? 55 THR H    A 55 THR H    . 2MM4 ? 
+632 1 1 48 48 THR HA   H 1  3.910   0.020 ? . ? ? . A 55 THR HA   ? A ? 55 THR HA   A 55 THR HA   . 2MM4 ? 
+633 1 1 48 48 THR HB   H 1  4.121   0.020 ? . ? ? . A 55 THR HB   ? A ? 55 THR HB   A 55 THR HB   . 2MM4 ? 
+634 1 1 48 48 THR HG21 H 1  1.172   0.020 ? . ? ? . A 55 THR HG21 ? A ? 55 THR HG21 A 55 THR HG21 . 2MM4 ? 
+635 1 1 48 48 THR HG22 H 1  1.172   0.020 ? . ? ? . A 55 THR HG22 ? A ? 55 THR HG22 A 55 THR HG22 . 2MM4 ? 
+636 1 1 48 48 THR HG23 H 1  1.172   0.020 ? . ? ? . A 55 THR HG23 ? A ? 55 THR HG23 A 55 THR HG23 . 2MM4 ? 
+637 1 1 48 48 THR C    C 13 172.822 0.300 ? . ? ? . A 55 THR C    ? A ? 55 THR C    A 55 THR C    . 2MM4 ? 
+638 1 1 48 48 THR CA   C 13 65.030  0.300 ? . ? ? . A 55 THR CA   ? A ? 55 THR CA   A 55 THR CA   . 2MM4 ? 
+639 1 1 48 48 THR CB   C 13 68.882  0.300 ? . ? ? . A 55 THR CB   ? A ? 55 THR CB   A 55 THR CB   . 2MM4 ? 
+640 1 1 48 48 THR CG2  C 13 22.319  0.300 ? . ? ? . A 55 THR CG2  ? A ? 55 THR CG2  A 55 THR CG2  . 2MM4 ? 
+641 1 1 48 48 THR N    N 15 111.485 0.300 ? . ? ? . A 55 THR N    ? A ? 55 THR N    A 55 THR N    . 2MM4 ? 
+642 1 1 49 49 VAL H    H 1  7.597   0.020 ? . ? ? . A 56 VAL H    ? A ? 56 VAL H    A 56 VAL H    . 2MM4 ? 
+643 1 1 49 49 VAL HA   H 1  3.772   0.020 ? . ? ? . A 56 VAL HA   ? A ? 56 VAL HA   A 56 VAL HA   . 2MM4 ? 
+644 1 1 49 49 VAL HB   H 1  2.113   0.020 ? . ? ? . A 56 VAL HB   ? A ? 56 VAL HB   A 56 VAL HB   . 2MM4 ? 
+645 1 1 49 49 VAL HG11 H 1  0.896   0.020 ? . ? ? . A 56 VAL HG11 ? A ? 56 VAL HG11 A 56 VAL HG11 . 2MM4 ? 
+646 1 1 49 49 VAL HG12 H 1  0.896   0.020 ? . ? ? . A 56 VAL HG12 ? A ? 56 VAL HG12 A 56 VAL HG12 . 2MM4 ? 
+647 1 1 49 49 VAL HG13 H 1  0.896   0.020 ? . ? ? . A 56 VAL HG13 ? A ? 56 VAL HG13 A 56 VAL HG13 . 2MM4 ? 
+648 1 1 49 49 VAL HG21 H 1  0.946   0.020 ? . ? ? . A 56 VAL HG21 ? A ? 56 VAL HG21 A 56 VAL HG21 . 2MM4 ? 
+649 1 1 49 49 VAL HG22 H 1  0.946   0.020 ? . ? ? . A 56 VAL HG22 ? A ? 56 VAL HG22 A 56 VAL HG22 . 2MM4 ? 
+650 1 1 49 49 VAL HG23 H 1  0.946   0.020 ? . ? ? . A 56 VAL HG23 ? A ? 56 VAL HG23 A 56 VAL HG23 . 2MM4 ? 
+651 1 1 49 49 VAL C    C 13 174.904 0.300 ? . ? ? . A 56 VAL C    ? A ? 56 VAL C    A 56 VAL C    . 2MM4 ? 
+652 1 1 49 49 VAL CA   C 13 64.971  0.300 ? . ? ? . A 56 VAL CA   ? A ? 56 VAL CA   A 56 VAL CA   . 2MM4 ? 
+653 1 1 49 49 VAL CB   C 13 31.989  0.300 ? . ? ? . A 56 VAL CB   ? A ? 56 VAL CB   A 56 VAL CB   . 2MM4 ? 
+654 1 1 49 49 VAL CG1  C 13 21.196  0.300 ? . ? ? . A 56 VAL CG1  ? A ? 56 VAL CG1  A 56 VAL CG1  . 2MM4 ? 
+655 1 1 49 49 VAL CG2  C 13 21.773  0.300 ? . ? ? . A 56 VAL CG2  ? A ? 56 VAL CG2  A 56 VAL CG2  . 2MM4 ? 
+656 1 1 49 49 VAL N    N 15 121.165 0.300 ? . ? ? . A 56 VAL N    ? A ? 56 VAL N    A 56 VAL N    . 2MM4 ? 
+657 1 1 50 50 TYR H    H 1  7.964   0.020 ? . ? ? . A 57 TYR H    ? A ? 57 TYR H    A 57 TYR H    . 2MM4 ? 
+658 1 1 50 50 TYR HA   H 1  4.227   0.020 ? . ? ? . A 57 TYR HA   ? A ? 57 TYR HA   A 57 TYR HA   . 2MM4 ? 
+659 1 1 50 50 TYR HB2  H 1  3.024   0.020 ? . ? ? . A 57 TYR HB2  ? A ? 57 TYR HB2  A 57 TYR HB2  . 2MM4 ? 
+660 1 1 50 50 TYR HB3  H 1  3.024   0.020 ? . ? ? . A 57 TYR HB3  ? A ? 57 TYR HB3  A 57 TYR HB3  . 2MM4 ? 
+661 1 1 50 50 TYR HD1  H 1  6.995   0.020 ? . ? ? . A 57 TYR HD1  ? A ? 57 TYR HD2  A 57 TYR HD2  . 2MM4 ? 
+662 1 1 50 50 TYR HD2  H 1  6.995   0.020 ? . ? ? . A 57 TYR HD2  ? A ? 57 TYR HD1  A 57 TYR HD1  . 2MM4 ? 
+663 1 1 50 50 TYR HE1  H 1  6.708   0.020 ? . ? ? . A 57 TYR HE1  ? A ? 57 TYR HE2  A 57 TYR HE2  . 2MM4 ? 
+664 1 1 50 50 TYR HE2  H 1  6.708   0.020 ? . ? ? . A 57 TYR HE2  ? A ? 57 TYR HE1  A 57 TYR HE1  . 2MM4 ? 
+665 1 1 50 50 TYR C    C 13 174.969 0.300 ? . ? ? . A 57 TYR C    ? A ? 57 TYR C    A 57 TYR C    . 2MM4 ? 
+666 1 1 50 50 TYR CA   C 13 60.755  0.300 ? . ? ? . A 57 TYR CA   ? A ? 57 TYR CA   A 57 TYR CA   . 2MM4 ? 
+667 1 1 50 50 TYR CB   C 13 38.453  0.300 ? . ? ? . A 57 TYR CB   ? A ? 57 TYR CB   A 57 TYR CB   . 2MM4 ? 
+668 1 1 50 50 TYR CD2  C 13 132.020 0.300 ? . ? ? . A 57 TYR CD2  ? A ? 57 TYR CD1  A 57 TYR CD1  . 2MM4 ? 
+669 1 1 50 50 TYR CE2  C 13 117.758 0.300 ? . ? ? . A 57 TYR CE2  ? A ? 57 TYR CE1  A 57 TYR CE1  . 2MM4 ? 
+670 1 1 50 50 TYR N    N 15 122.177 0.300 ? . ? ? . A 57 TYR N    ? A ? 57 TYR N    A 57 TYR N    . 2MM4 ? 
+671 1 1 51 51 VAL H    H 1  8.018   0.020 ? . ? ? . A 58 VAL H    ? A ? 58 VAL H    A 58 VAL H    . 2MM4 ? 
+672 1 1 51 51 VAL HA   H 1  3.529   0.020 ? . ? ? . A 58 VAL HA   ? A ? 58 VAL HA   A 58 VAL HA   . 2MM4 ? 
+673 1 1 51 51 VAL HB   H 1  2.126   0.020 ? . ? ? . A 58 VAL HB   ? A ? 58 VAL HB   A 58 VAL HB   . 2MM4 ? 
+674 1 1 51 51 VAL HG11 H 1  1.068   0.020 ? . ? ? . A 58 VAL HG11 ? A ? 58 VAL HG11 A 58 VAL HG11 . 2MM4 ? 
+675 1 1 51 51 VAL HG12 H 1  1.068   0.020 ? . ? ? . A 58 VAL HG12 ? A ? 58 VAL HG12 A 58 VAL HG12 . 2MM4 ? 
+676 1 1 51 51 VAL HG13 H 1  1.068   0.020 ? . ? ? . A 58 VAL HG13 ? A ? 58 VAL HG13 A 58 VAL HG13 . 2MM4 ? 
+677 1 1 51 51 VAL HG21 H 1  0.882   0.020 ? . ? ? . A 58 VAL HG21 ? A ? 58 VAL HG21 A 58 VAL HG21 . 2MM4 ? 
+678 1 1 51 51 VAL HG22 H 1  0.882   0.020 ? . ? ? . A 58 VAL HG22 ? A ? 58 VAL HG22 A 58 VAL HG22 . 2MM4 ? 
+679 1 1 51 51 VAL HG23 H 1  0.882   0.020 ? . ? ? . A 58 VAL HG23 ? A ? 58 VAL HG23 A 58 VAL HG23 . 2MM4 ? 
+680 1 1 51 51 VAL C    C 13 174.250 0.300 ? . ? ? . A 58 VAL C    ? A ? 58 VAL C    A 58 VAL C    . 2MM4 ? 
+681 1 1 51 51 VAL CA   C 13 66.223  0.300 ? . ? ? . A 58 VAL CA   ? A ? 58 VAL CA   A 58 VAL CA   . 2MM4 ? 
+682 1 1 51 51 VAL CB   C 13 31.803  0.300 ? . ? ? . A 58 VAL CB   ? A ? 58 VAL CB   A 58 VAL CB   . 2MM4 ? 
+683 1 1 51 51 VAL CG1  C 13 22.739  0.300 ? . ? ? . A 58 VAL CG1  ? A ? 58 VAL CG1  A 58 VAL CG1  . 2MM4 ? 
+684 1 1 51 51 VAL CG2  C 13 21.699  0.300 ? . ? ? . A 58 VAL CG2  ? A ? 58 VAL CG2  A 58 VAL CG2  . 2MM4 ? 
+685 1 1 51 51 VAL N    N 15 119.069 0.300 ? . ? ? . A 58 VAL N    ? A ? 58 VAL N    A 58 VAL N    . 2MM4 ? 
+686 1 1 52 52 TYR H    H 1  8.142   0.020 ? . ? ? . A 59 TYR H    ? A ? 59 TYR H    A 59 TYR H    . 2MM4 ? 
+687 1 1 52 52 TYR HA   H 1  4.115   0.020 ? . ? ? . A 59 TYR HA   ? A ? 59 TYR HA   A 59 TYR HA   . 2MM4 ? 
+688 1 1 52 52 TYR HB2  H 1  3.016   0.020 ? . ? ? . A 59 TYR HB2  ? A ? 59 TYR HB2  A 59 TYR HB2  . 2MM4 ? 
+689 1 1 52 52 TYR HB3  H 1  3.016   0.020 ? . ? ? . A 59 TYR HB3  ? A ? 59 TYR HB3  A 59 TYR HB3  . 2MM4 ? 
+690 1 1 52 52 TYR HD1  H 1  6.943   0.020 ? . ? ? . A 59 TYR HD1  ? A ? 59 TYR HD2  A 59 TYR HD2  . 2MM4 ? 
+691 1 1 52 52 TYR HD2  H 1  6.943   0.020 ? . ? ? . A 59 TYR HD2  ? A ? 59 TYR HD1  A 59 TYR HD1  . 2MM4 ? 
+692 1 1 52 52 TYR HE1  H 1  6.692   0.020 ? . ? ? . A 59 TYR HE1  ? A ? 59 TYR HE2  A 59 TYR HE2  . 2MM4 ? 
+693 1 1 52 52 TYR HE2  H 1  6.692   0.020 ? . ? ? . A 59 TYR HE2  ? A ? 59 TYR HE1  A 59 TYR HE1  . 2MM4 ? 
+694 1 1 52 52 TYR C    C 13 173.899 0.300 ? . ? ? . A 59 TYR C    ? A ? 59 TYR C    A 59 TYR C    . 2MM4 ? 
+695 1 1 52 52 TYR CA   C 13 60.929  0.300 ? . ? ? . A 59 TYR CA   ? A ? 59 TYR CA   A 59 TYR CA   . 2MM4 ? 
+696 1 1 52 52 TYR CB   C 13 38.602  0.300 ? . ? ? . A 59 TYR CB   ? A ? 59 TYR CB   A 59 TYR CB   . 2MM4 ? 
+697 1 1 52 52 TYR CD2  C 13 131.980 0.300 ? . ? ? . A 59 TYR CD2  ? A ? 59 TYR CD1  A 59 TYR CD1  . 2MM4 ? 
+698 1 1 52 52 TYR CE2  C 13 117.244 0.300 ? . ? ? . A 59 TYR CE2  ? A ? 59 TYR CE1  A 59 TYR CE1  . 2MM4 ? 
+699 1 1 52 52 TYR N    N 15 120.360 0.300 ? . ? ? . A 59 TYR N    ? A ? 59 TYR N    A 59 TYR N    . 2MM4 ? 
+700 1 1 53 53 SER H    H 1  8.057   0.020 ? . ? ? . A 60 SER H    ? A ? 60 SER H    A 60 SER H    . 2MM4 ? 
+701 1 1 53 53 SER HA   H 1  3.979   0.020 ? . ? ? . A 60 SER HA   ? A ? 60 SER HA   A 60 SER HA   . 2MM4 ? 
+702 1 1 53 53 SER HB2  H 1  3.871   0.020 ? . ? ? . A 60 SER HB2  ? A ? 60 SER HB2  A 60 SER HB2  . 2MM4 ? 
+703 1 1 53 53 SER HB3  H 1  3.871   0.020 ? . ? ? . A 60 SER HB3  ? A ? 60 SER HB3  A 60 SER HB3  . 2MM4 ? 
+704 1 1 53 53 SER C    C 13 172.887 0.300 ? . ? ? . A 60 SER C    ? A ? 60 SER C    A 60 SER C    . 2MM4 ? 
+705 1 1 53 53 SER CA   C 13 60.987  0.300 ? . ? ? . A 60 SER CA   ? A ? 60 SER CA   A 60 SER CA   . 2MM4 ? 
+706 1 1 53 53 SER CB   C 13 63.267  0.300 ? . ? ? . A 60 SER CB   ? A ? 60 SER CB   A 60 SER CB   . 2MM4 ? 
+707 1 1 53 53 SER N    N 15 113.480 0.300 ? . ? ? . A 60 SER N    ? A ? 60 SER N    A 60 SER N    . 2MM4 ? 
+708 1 1 54 54 ARG H    H 1  7.606   0.020 ? . ? ? . A 61 ARG H    ? A ? 61 ARG H    A 61 ARG H    . 2MM4 ? 
+709 1 1 54 54 ARG HA   H 1  4.103   0.020 ? . ? ? . A 61 ARG HA   ? A ? 61 ARG HA   A 61 ARG HA   . 2MM4 ? 
+710 1 1 54 54 ARG HB2  H 1  1.811   0.020 ? . ? ? . A 61 ARG HB2  ? A ? 61 ARG HB2  A 61 ARG HB2  . 2MM4 ? 
+711 1 1 54 54 ARG HB3  H 1  1.722   0.020 ? . ? ? . A 61 ARG HB3  ? A ? 61 ARG HB3  A 61 ARG HB3  . 2MM4 ? 
+712 1 1 54 54 ARG HG2  H 1  1.497   0.020 ? . ? ? . A 61 ARG HG2  ? A ? 61 ARG HG2  A 61 ARG HG2  . 2MM4 ? 
+713 1 1 54 54 ARG HG3  H 1  1.451   0.020 ? . ? ? . A 61 ARG HG3  ? A ? 61 ARG HG3  A 61 ARG HG3  . 2MM4 ? 
+714 1 1 54 54 ARG HD2  H 1  3.035   0.020 ? . ? ? . A 61 ARG HD2  ? A ? 61 ARG HD2  A 61 ARG HD2  . 2MM4 ? 
+715 1 1 54 54 ARG HD3  H 1  2.963   0.020 ? . ? ? . A 61 ARG HD3  ? A ? 61 ARG HD3  A 61 ARG HD3  . 2MM4 ? 
+716 1 1 54 54 ARG HE   H 1  7.039   0.020 ? . ? ? . A 61 ARG HE   ? A ? 61 ARG HE   A 61 ARG HE   . 2MM4 ? 
+717 1 1 54 54 ARG C    C 13 175.399 0.300 ? . ? ? . A 61 ARG C    ? A ? 61 ARG C    A 61 ARG C    . 2MM4 ? 
+718 1 1 54 54 ARG CA   C 13 57.427  0.300 ? . ? ? . A 61 ARG CA   ? A ? 61 ARG CA   A 61 ARG CA   . 2MM4 ? 
+719 1 1 54 54 ARG CB   C 13 30.008  0.300 ? . ? ? . A 61 ARG CB   ? A ? 61 ARG CB   A 61 ARG CB   . 2MM4 ? 
+720 1 1 54 54 ARG CG   C 13 27.275  0.300 ? . ? ? . A 61 ARG CG   ? A ? 61 ARG CG   A 61 ARG CG   . 2MM4 ? 
+721 1 1 54 54 ARG CD   C 13 42.811  0.300 ? . ? ? . A 61 ARG CD   ? A ? 61 ARG CD   A 61 ARG CD   . 2MM4 ? 
+722 1 1 54 54 ARG N    N 15 120.962 0.300 ? . ? ? . A 61 ARG N    ? A ? 61 ARG N    A 61 ARG N    . 2MM4 ? 
+723 1 1 54 54 ARG NE   N 15 84.354  0.300 ? . ? ? . A 61 ARG NE   ? A ? 61 ARG NE   A 61 ARG NE   . 2MM4 ? 
+724 1 1 55 55 VAL H    H 1  7.848   0.020 ? . ? ? . A 62 VAL H    ? A ? 62 VAL H    A 62 VAL H    . 2MM4 ? 
+725 1 1 55 55 VAL HA   H 1  3.805   0.020 ? . ? ? . A 62 VAL HA   ? A ? 62 VAL HA   A 62 VAL HA   . 2MM4 ? 
+726 1 1 55 55 VAL HB   H 1  2.068   0.020 ? . ? ? . A 62 VAL HB   ? A ? 62 VAL HB   A 62 VAL HB   . 2MM4 ? 
+727 1 1 55 55 VAL HG11 H 1  0.944   0.020 ? . ? ? . A 62 VAL HG11 ? A ? 62 VAL HG11 A 62 VAL HG11 . 2MM4 ? 
+728 1 1 55 55 VAL HG12 H 1  0.944   0.020 ? . ? ? . A 62 VAL HG12 ? A ? 62 VAL HG12 A 62 VAL HG12 . 2MM4 ? 
+729 1 1 55 55 VAL HG13 H 1  0.944   0.020 ? . ? ? . A 62 VAL HG13 ? A ? 62 VAL HG13 A 62 VAL HG13 . 2MM4 ? 
+730 1 1 55 55 VAL HG21 H 1  0.882   0.020 ? . ? ? . A 62 VAL HG21 ? A ? 62 VAL HG21 A 62 VAL HG21 . 2MM4 ? 
+731 1 1 55 55 VAL HG22 H 1  0.882   0.020 ? . ? ? . A 62 VAL HG22 ? A ? 62 VAL HG22 A 62 VAL HG22 . 2MM4 ? 
+732 1 1 55 55 VAL HG23 H 1  0.882   0.020 ? . ? ? . A 62 VAL HG23 ? A ? 62 VAL HG23 A 62 VAL HG23 . 2MM4 ? 
+733 1 1 55 55 VAL C    C 13 174.155 0.300 ? . ? ? . A 62 VAL C    ? A ? 62 VAL C    A 62 VAL C    . 2MM4 ? 
+734 1 1 55 55 VAL CA   C 13 64.458  0.300 ? . ? ? . A 62 VAL CA   ? A ? 62 VAL CA   A 62 VAL CA   . 2MM4 ? 
+735 1 1 55 55 VAL CB   C 13 31.969  0.300 ? . ? ? . A 62 VAL CB   ? A ? 62 VAL CB   A 62 VAL CB   . 2MM4 ? 
+736 1 1 55 55 VAL CG1  C 13 22.263  0.300 ? . ? ? . A 62 VAL CG1  ? A ? 62 VAL CG1  A 62 VAL CG1  . 2MM4 ? 
+737 1 1 55 55 VAL CG2  C 13 21.552  0.300 ? . ? ? . A 62 VAL CG2  ? A ? 62 VAL CG2  A 62 VAL CG2  . 2MM4 ? 
+738 1 1 55 55 VAL N    N 15 117.852 0.300 ? . ? ? . A 62 VAL N    ? A ? 62 VAL N    A 62 VAL N    . 2MM4 ? 
+739 1 1 56 56 LYS H    H 1  7.759   0.020 ? . ? ? . A 63 LYS H    ? A ? 63 LYS H    A 63 LYS H    . 2MM4 ? 
+740 1 1 56 56 LYS HA   H 1  4.051   0.020 ? . ? ? . A 63 LYS HA   ? A ? 63 LYS HA   A 63 LYS HA   . 2MM4 ? 
+741 1 1 56 56 LYS HB2  H 1  1.572   0.020 ? . ? ? . A 63 LYS HB2  ? A ? 63 LYS HB2  A 63 LYS HB2  . 2MM4 ? 
+742 1 1 56 56 LYS HB3  H 1  1.502   0.020 ? . ? ? . A 63 LYS HB3  ? A ? 63 LYS HB3  A 63 LYS HB3  . 2MM4 ? 
+743 1 1 56 56 LYS HG2  H 1  1.150   0.020 ? . ? ? . A 63 LYS HG2  ? A ? 63 LYS HG2  A 63 LYS HG2  . 2MM4 ? 
+744 1 1 56 56 LYS HG3  H 1  1.150   0.020 ? . ? ? . A 63 LYS HG3  ? A ? 63 LYS HG3  A 63 LYS HG3  . 2MM4 ? 
+745 1 1 56 56 LYS HD2  H 1  1.457   0.020 ? . ? ? . A 63 LYS HD2  ? A ? 63 LYS HD2  A 63 LYS HD2  . 2MM4 ? 
+746 1 1 56 56 LYS HD3  H 1  1.457   0.020 ? . ? ? . A 63 LYS HD3  ? A ? 63 LYS HD3  A 63 LYS HD3  . 2MM4 ? 
+747 1 1 56 56 LYS HE2  H 1  2.868   0.020 ? . ? ? . A 63 LYS HE2  ? A ? 63 LYS HE2  A 63 LYS HE2  . 2MM4 ? 
+748 1 1 56 56 LYS HE3  H 1  2.815   0.020 ? . ? ? . A 63 LYS HE3  ? A ? 63 LYS HE3  A 63 LYS HE3  . 2MM4 ? 
+749 1 1 56 56 LYS C    C 13 173.615 0.300 ? . ? ? . A 63 LYS C    ? A ? 63 LYS C    A 63 LYS C    . 2MM4 ? 
+750 1 1 56 56 LYS CA   C 13 56.727  0.300 ? . ? ? . A 63 LYS CA   ? A ? 63 LYS CA   A 63 LYS CA   . 2MM4 ? 
+751 1 1 56 56 LYS CB   C 13 32.105  0.300 ? . ? ? . A 63 LYS CB   ? A ? 63 LYS CB   A 63 LYS CB   . 2MM4 ? 
+752 1 1 56 56 LYS CG   C 13 24.482  0.300 ? . ? ? . A 63 LYS CG   ? A ? 63 LYS CG   A 63 LYS CG   . 2MM4 ? 
+753 1 1 56 56 LYS CD   C 13 28.869  0.300 ? . ? ? . A 63 LYS CD   ? A ? 63 LYS CD   A 63 LYS CD   . 2MM4 ? 
+754 1 1 56 56 LYS CE   C 13 42.115  0.300 ? . ? ? . A 63 LYS CE   ? A ? 63 LYS CE   A 63 LYS CE   . 2MM4 ? 
+755 1 1 56 56 LYS N    N 15 119.254 0.300 ? . ? ? . A 63 LYS N    ? A ? 63 LYS N    A 63 LYS N    . 2MM4 ? 
+756 1 1 57 57 ASN H    H 1  7.615   0.020 ? . ? ? . A 64 ASN H    ? A ? 64 ASN H    A 64 ASN H    . 2MM4 ? 
+757 1 1 57 57 ASN HA   H 1  4.642   0.020 ? . ? ? . A 64 ASN HA   ? A ? 64 ASN HA   A 64 ASN HA   . 2MM4 ? 
+758 1 1 57 57 ASN HB2  H 1  2.863   0.020 ? . ? ? . A 64 ASN HB2  ? A ? 64 ASN HB2  A 64 ASN HB2  . 2MM4 ? 
+759 1 1 57 57 ASN HB3  H 1  2.626   0.020 ? . ? ? . A 64 ASN HB3  ? A ? 64 ASN HB3  A 64 ASN HB3  . 2MM4 ? 
+760 1 1 57 57 ASN HD21 H 1  6.751   0.020 ? . ? ? . A 64 ASN HD21 ? A ? 64 ASN HD21 A 64 ASN HD21 . 2MM4 ? 
+761 1 1 57 57 ASN HD22 H 1  7.465   0.020 ? . ? ? . A 64 ASN HD22 ? A ? 64 ASN HD22 A 64 ASN HD22 . 2MM4 ? 
+762 1 1 57 57 ASN C    C 13 171.750 0.300 ? . ? ? . A 64 ASN C    ? A ? 64 ASN C    A 64 ASN C    . 2MM4 ? 
+763 1 1 57 57 ASN CA   C 13 53.313  0.300 ? . ? ? . A 64 ASN CA   ? A ? 64 ASN CA   A 64 ASN CA   . 2MM4 ? 
+764 1 1 57 57 ASN CB   C 13 39.260  0.300 ? . ? ? . A 64 ASN CB   ? A ? 64 ASN CB   A 64 ASN CB   . 2MM4 ? 
+765 1 1 57 57 ASN N    N 15 117.696 0.300 ? . ? ? . A 64 ASN N    ? A ? 64 ASN N    A 64 ASN N    . 2MM4 ? 
+766 1 1 57 57 ASN ND2  N 15 113.802 0.300 ? . ? ? . A 64 ASN ND2  ? A ? 64 ASN ND2  A 64 ASN ND2  . 2MM4 ? 
+767 1 1 58 58 LEU H    H 1  7.492   0.020 ? . ? ? . A 65 LEU H    ? A ? 65 LEU H    A 65 LEU H    . 2MM4 ? 
+768 1 1 58 58 LEU HA   H 1  4.067   0.020 ? . ? ? . A 65 LEU HA   ? A ? 65 LEU HA   A 65 LEU HA   . 2MM4 ? 
+769 1 1 58 58 LEU HB2  H 1  1.626   0.020 ? . ? ? . A 65 LEU HB2  ? A ? 65 LEU HB2  A 65 LEU HB2  . 2MM4 ? 
+770 1 1 58 58 LEU HB3  H 1  1.510   0.020 ? . ? ? . A 65 LEU HB3  ? A ? 65 LEU HB3  A 65 LEU HB3  . 2MM4 ? 
+771 1 1 58 58 LEU HG   H 1  1.655   0.020 ? . ? ? . A 65 LEU HG   ? A ? 65 LEU HG   A 65 LEU HG   . 2MM4 ? 
+772 1 1 58 58 LEU HD11 H 1  0.863   0.020 ? . ? ? . A 65 LEU HD11 ? A ? 65 LEU HD11 A 65 LEU HD11 . 2MM4 ? 
+773 1 1 58 58 LEU HD12 H 1  0.863   0.020 ? . ? ? . A 65 LEU HD12 ? A ? 65 LEU HD12 A 65 LEU HD12 . 2MM4 ? 
+774 1 1 58 58 LEU HD13 H 1  0.863   0.020 ? . ? ? . A 65 LEU HD13 ? A ? 65 LEU HD13 A 65 LEU HD13 . 2MM4 ? 
+775 1 1 58 58 LEU HD21 H 1  0.808   0.020 ? . ? ? . A 65 LEU HD21 ? A ? 65 LEU HD21 A 65 LEU HD21 . 2MM4 ? 
+776 1 1 58 58 LEU HD22 H 1  0.808   0.020 ? . ? ? . A 65 LEU HD22 ? A ? 65 LEU HD22 A 65 LEU HD22 . 2MM4 ? 
+777 1 1 58 58 LEU HD23 H 1  0.808   0.020 ? . ? ? . A 65 LEU HD23 ? A ? 65 LEU HD23 A 65 LEU HD23 . 2MM4 ? 
+778 1 1 58 58 LEU C    C 13 178.928 0.300 ? . ? ? . A 65 LEU C    ? A ? 65 LEU C    A 65 LEU C    . 2MM4 ? 
+779 1 1 58 58 LEU CA   C 13 56.778  0.300 ? . ? ? . A 65 LEU CA   ? A ? 65 LEU CA   A 65 LEU CA   . 2MM4 ? 
+780 1 1 58 58 LEU CB   C 13 42.873  0.300 ? . ? ? . A 65 LEU CB   ? A ? 65 LEU CB   A 65 LEU CB   . 2MM4 ? 
+781 1 1 58 58 LEU CG   C 13 27.062  0.300 ? . ? ? . A 65 LEU CG   ? A ? 65 LEU CG   A 65 LEU CG   . 2MM4 ? 
+782 1 1 58 58 LEU CD1  C 13 25.454  0.300 ? . ? ? . A 65 LEU CD1  ? A ? 65 LEU CD1  A 65 LEU CD1  . 2MM4 ? 
+783 1 1 58 58 LEU CD2  C 13 23.620  0.300 ? . ? ? . A 65 LEU CD2  ? A ? 65 LEU CD2  A 65 LEU CD2  . 2MM4 ? 
+784 1 1 58 58 LEU N    N 15 126.142 0.300 ? . ? ? . A 65 LEU N    ? A ? 65 LEU N    A 65 LEU N    . 2MM4 ? 
+# 
