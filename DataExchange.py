@@ -217,7 +217,7 @@ class DataExchange(object):
             self.__lfh.write("+DataExchange.export() destination type %s format %s version %s path %s\n" % (contentType,formatType,version,outFilePath))
 
         try:
-            if (os.access(inpFilePath,os.R_OK)):
+            if (os.access(inpFilePath,os.R_OK) and (os.path.getsize(inpFilePath) > 0)):
                 if (self.__verbose):
                     self.__lfh.write("+DataExchange.export() destination file path %s\n" % outFilePath)
                 if inpFilePath.endswith(".gz"):
@@ -227,7 +227,7 @@ class DataExchange(object):
                 return True
             else:
                 if (self.__verbose):
-                    self.__lfh.write("+DataExchange.export() missing input file at path %s\n" % inpFilePath)                
+                    self.__lfh.write("+DataExchange.export() missing or zero length input file at path %s\n" % inpFilePath)
                 return False
         except:
             if self.__verbose:
