@@ -1826,7 +1826,7 @@ class RcsbDpUtility(object):
         self.__prdccCvsPath   =  self.__getConfigPath('SITE_PRDCC_CVS_PATH')
         self.__prdDictPath    =  os.path.join(self.__getConfigPath('SITE_DEPLOY_PATH'), 'reference', 'components', 'prd-dict')
 
-        self.__rcsbAppsPath  =  os.path.join(self.__packagePath,'annotation-pack')
+        self.__rcsbAppsPath  =  os.path.join(self.__packagePath,'annotation')
         #
         # These may not be needed -- 
         self.__pdbxDictPath  =  self.__getConfigPath('SITE_PDBX_DICT_PATH')
