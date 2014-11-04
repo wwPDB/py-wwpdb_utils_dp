@@ -24,15 +24,16 @@ class MultiProcWorker(multiprocessing.Process):
 
          Worker method must support the following prototype -
     
-         retList=self.__workerFunc(dataList=nextList)            
+         retList,diagList=self.__workerFunc(dataList=nextList)            
     """
-    def __init__(self,taskQueue,resultQueue,workerFunc,verbose=False,log=sys.stderr):
+    def __init__(self,taskQueue,resultQueue,diagQueue,workerFunc,verbose=False,log=sys.stderr):
         multiprocessing.Process.__init__(self)
         self.__taskQueue=taskQueue
         self.__resultQueue=resultQueue
         self.__lfh=log
         self.__verbose=verbose
         self.__workerFunc=workerFunc
+        self.__diagQueue=diagQueue
         
     def run(self):
         processName=self.name
@@ -45,8 +46,9 @@ class MultiProcWorker(multiprocessing.Process):
                     self.__lfh.flush()
                 break
             #
-            retList=self.__workerFunc(dataList=nextList)            
+            retList,diagList=self.__workerFunc(dataList=nextList)            
             self.__resultQueue.put(retList)
+            self.__diagQueue.put(diagList)
         return
 
 
@@ -86,10 +88,11 @@ class MultiProcUtil(object):
         #
         taskQueue=multiprocessing.Queue()
         resultQueue=multiprocessing.Queue()
+        diagQueue=multiprocessing.Queue()        
         #
         # Create list of worker processes
         #
-        workers=[MultiProcWorker(taskQueue,resultQueue,self.__workerFunc,verbose=self.__verbose,log=self.__lfh) for i in xrange(numProc) ]
+        workers=[MultiProcWorker(taskQueue,resultQueue,diagQueue,self.__workerFunc,verbose=self.__verbose,log=self.__lfh) for i in xrange(numProc) ]
         for w in workers:
             w.start()
 
@@ -101,12 +104,28 @@ class MultiProcUtil(object):
             taskQueue.put(None)
 
         np = numProc
+        result=[]
+        diagList=[]
+        tL=[]
         while np:
-            result = resultQueue.get()
-            self.__lfh.write("+MultiProcUtil(runMulti() Success length %d list %r\n"  % (len(result),result))
-            self.__lfh.flush()            
-            np -= 1
+            r = resultQueue.get()
+            if r is not None and len(r) > 0:
+                result.extend(r)
 
-        self.__lfh.write("+MultiProcUtil(runMulti) all tasks completed\n")
-        self.__lfh.flush()        
-            
+            d = diagQueue.get()
+            if d is not None and len(d) > 0:
+                for tt in d:
+                    if len(str(tt).strip())  > 0:
+                        tL.append(tt)
+            np -= 1
+        diagList=list(set(tL))
+        self.__lfh.write("+MultiProcUtil(runMulti() inpput task length %d success length %d\n"  % (len(dataList),len(result)))
+        if len(dataList) == len(result):
+            self.__lfh.write("+MultiProcUtil(runMulti) all tasks completed\n")
+            self.__lfh.flush()
+            return True,[],diagList
+        else:
+            failList=list(set(dataList)-set(result))
+            self.__lfh.write("+MultiProcUtil(runMulti) incomplete run\n")
+            self.__lfh.flush()
+            return False,failList,diagList

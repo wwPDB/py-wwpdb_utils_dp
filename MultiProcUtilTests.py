@@ -69,8 +69,8 @@ class MultiProcUtilTests(unittest.TestCase):
             fS=FileStatus(topCachePath=self.__topCachePath,verbose=self.__verbose,log=self.__lfh)
             mpu=MultiProcUtil(verbose=True,log=self.__lfh)
             mpu.set(workerObj=fS,workerMethod="check")
-            mpu.runMulti(dataList=dataList,numProc=4)
-            self.__lfh.write("Run completed")
+            ok,failList=mpu.runMulti(dataList=dataList,numProc=4)
+            self.__lfh.write("Multi-proc run ended status %r failures %r" % (ok,failList))
         except:
             traceback.print_exc(file=self.__lfh)
             self.fail()

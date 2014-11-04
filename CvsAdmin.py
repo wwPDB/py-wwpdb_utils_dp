@@ -39,7 +39,7 @@ class  CvsWrapperBase(object):
         #
         self.__verbose=verbose
         self.__lfh=log
-        self.__debug=True
+        self.__debug=False
         
         self._repositoryHost=None
         self._repositoryPath=None
@@ -79,13 +79,14 @@ class  CvsWrapperBase(object):
     def _runCvsCommand(self,myCommand):
         retcode=-100
         try:
-            if self.__verbose:
+            if self.__debug:
                 self.__lfh.write("+CvsWrapperBase._runCvsCommand Command: %s\n" % myCommand)
             
             # retcode = subprocess.call(myCommand, stdout=self.__lfh, stderr=self.__lfh, shell=True)
             retcode = subprocess.call(myCommand,  shell=True)            
             if retcode != 0:
                 if self.__verbose:
+                    self.__lfh.write("+CvsWrapperBase.(_runCvsCommand)  Failed command: %s\n" % myCommand)                    
                     self.__lfh.write("+CvsWrapperBase(_runCvsCommand) Child was terminated by signal %r\n" % retcode)
                 return False
             else:
@@ -126,23 +127,34 @@ class  CvsWrapperBase(object):
 
         return text
 
-    def _getErrorText(self):
+    def _getErrorText(self,filterInfo=False):
         text=""
         try:
             filePath=self.__errorFilePath
-            return self.__getTextFile(filePath)
+            text=self.__getTextFile(filePath,filterInfo=filterInfo)            
+            if self.__verbose:
+                self.__lfh.write("+CvsWrapperBase(_getErrorText) path: %r  text: %s\n" % (filePath,text))
+                self.__lfh.flush()
         except:
             if self.__verbose:
                 traceback.print_exc(file=self.__lfh)                                            
-                self.__lfh.write("+CvsWrapperBase(_getErrorText) path %r\n" % self.__errorFilePath)            
+                self.__lfh.write("+CvsWrapperBase(_getErrorText) path %r\n" % self.__errorFilePath)
+                self.__lfh.flush()
         
         return text
 
-    def __getTextFile(self,filePath):
+    def __getTextFile(self,filePath,filterInfo=False):
         text=""
         try:
             ifh=open(filePath,'r')
-            text=ifh.read()
+            tL=[]
+            for line in ifh:
+                if line.startswith('?'):
+                    continue
+                if len(str(line[:-1]).strip()) > 0:
+                    tL.append(line[:-1])
+            ifh.close()
+            text='\n'.join(set(tL))
         except:
             pass
         
@@ -155,7 +167,7 @@ class  CvsWrapperBase(object):
         else:
             self._wrkPath = os.path.abspath( tempfile.mkdtemp('tmpdir','tmpCVS') )
         
-        if self.__verbose:
+        if self.__debug:
             self.__lfh.write("+CvsWrapperBase(_makeTempWorkingDir) Working directory path set to  %r\n" % self._wrkPath)
 
     def cleanup(self):
@@ -181,7 +193,7 @@ class  CvsAdmin(CvsWrapperBase):
         #
         self.__verbose=verbose
         self.__lfh=log
-        self.__debug=True
+        self.__debug=False
 
 
     def getHistory(self,cvsPath):
@@ -321,7 +333,7 @@ class  CvsSandBoxAdmin(CvsWrapperBase):
         #
         self.__verbose=verbose
         self.__lfh=log
-        self.__debug=True
+        self.__debug=False
         #
         self.__sandBoxTopPath=None
 
@@ -339,7 +351,6 @@ class  CvsSandBoxAdmin(CvsWrapperBase):
 
     def getSandBoxTopPath(self):
         return os.path.abspath(self.__sandBoxTopPath)
-
 
     def checkOut(self,projectPath=None,revId=None):
         """ Create CVS sandbox working copy of the input project path within the current repository.
@@ -364,8 +375,23 @@ class  CvsSandBoxAdmin(CvsWrapperBase):
             text='Check out failed with repository project path issue: %s' % projectPath
         
         return (ok,text)
-        
-    def update(self,projectDir,relProjectPath='.',prune=False):
+
+    def updateList(self, dataList):
+        retList=[]
+        diagTextList=[]
+        for dTup in dataList:
+            pDir,relPath,prune=dTup
+            ok,text=self.update(projectDir=pDir,relProjectPath=relPath,prune=True,fetchErrorLog=True,appendErrors=True)
+            diagTextList.append(text)
+            if self.__verbose:
+                self.__lfh.write("+CvsSandBoxAdmin(updateList) project %s path %s status %r diagnostics:\n%s\n" % (pDir,relPath,ok,text))
+                self.__lfh.write("\n+CvsSandBoxAdmin(updateList) current diagnostics length %d\n" % len(diagTextList))                
+                self.__lfh.flush()
+            if ok:
+                retList.append(dTup)
+        return retList,diagTextList
+    
+    def update(self,projectDir,relProjectPath='.',prune=False,fetchErrorLog=True,appendErrors=False):
         """ Update CVS sandbox working copy of the input project path.   The project path must
             correspond to an existing working copy of the repository.
 
@@ -377,12 +403,15 @@ class  CvsSandBoxAdmin(CvsWrapperBase):
         text=''
         ok=False
         if (os.access(targetPath,os.W_OK)):
-            cmd = self.__getUpdateCmd(projectDir,relProjectPath=relProjectPath,prune=prune)
-            if (self.__verbose):
+            cmd = self.__getUpdateCmd(projectDir,relProjectPath=relProjectPath,prune=prune,appendErrors=appendErrors)
+            if (self.__debug):
                 self.__lfh.write("\n+CvsSandBoxAdmin(update) update command %s\n" % cmd)            
             if cmd is not None:
                 ok=self._runCvsCommand(myCommand=cmd)
-                text=self._getErrorText()
+                if fetchErrorLog:
+                    text=self._getErrorText(filterInfo=True)
+                else:
+                    text="+CvsSandBoxAdmin(update) failing update command %s" % cmd
             else:
                 text='Update failed with repository command processing error'
         else:
@@ -539,7 +568,7 @@ class  CvsSandBoxAdmin(CvsWrapperBase):
             cmd=None
         return cmd
 
-    def __getUpdateProjectCmd(self, projectDir, prune=False):
+    def __getUpdateProjectCmd(self, projectDir, prune=False, appendErrors=False):
         """ Return CVS command for updating a complete project working directory from current repository.
         """
         if self._wrkPath is None:
@@ -553,12 +582,12 @@ class  CvsSandBoxAdmin(CvsWrapperBase):
             targetPath=os.path.join(self.__sandBoxTopPath,projectDir)
             cmd = " cd " + targetPath + "; "
             cmd+="cvs -d " +  self._cvsRoot  + " update -C -d " + pF + \
-                      self._getRedirect(fileNameOut=errPath,fileNameErr=errPath) + " ; "
+                      self._getRedirect(fileNameOut=errPath,fileNameErr=errPath,append=appendErrors) + " ; "
         else:
             cmd=None
         return cmd
 
-    def __getUpdateCmd(self, projectDir, relProjectPath, prune=False):
+    def __getUpdateCmd(self, projectDir, relProjectPath, prune=False, appendErrors=False):
         """ Return CVS command for updating the input relative path within project working
             directory from current repository.
         """        
@@ -572,8 +601,8 @@ class  CvsSandBoxAdmin(CvsWrapperBase):
                 pF=" "
             targetPath=os.path.join(self.__sandBoxTopPath,projectDir)
             cmd = " cd " + targetPath + "; "
-            cmd+="cvs -d " +  self._cvsRoot  + " update -C -d " + pF + relProjectPath + \
-                      self._getRedirect(fileNameOut=errPath,fileNameErr=errPath) + " ; "
+            cmd+="cvs -q -d " +  self._cvsRoot  + " update -C -d " + pF + relProjectPath + \
+                      self._getRedirect(fileNameOut=errPath,fileNameErr=errPath,append=appendErrors) + " ; "
         else:
             cmd=None
         return cmd
