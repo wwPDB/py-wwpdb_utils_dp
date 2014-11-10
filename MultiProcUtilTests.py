@@ -1,10 +1,11 @@
 ##
 # File:    MultiProcUtilTests.py
 # Author:  jdw
-# Date:    2-Oct-2011
+# Date:    2-Nov-2011
 # Version: 0.001
 #
 # Updates:
+#  9-Nov-2014  jdw  Update example for returned results -
 #
 ##
 """
@@ -30,7 +31,7 @@ class FileStatus(object):
         self.__lfh=log
         self.__topCachePath=topCachePath
 
-    def check(self,dataList):
+    def check(self,dataList,procName):
         """  Performs a file system check on the input dataList of directory keys
              within the chemical component repository sandbox.
 
@@ -40,11 +41,11 @@ class FileStatus(object):
         retList=[]
         for d in dataList:
             dirPath=os.path.join(self.__topCachePath,d[0])
-            #self.__lfh.write("FileStatus.check() testing directory %s\n" % dirPath)            
+            #self.__lfh.write("FileStatus.check() process name %s testing directory %s\n" % (procName,dirPath))
             if os.access(dirPath,os.R_OK):
                 #self.__lfh.write("FileStatus.check() directory %s is ok\n" % dirPath)
                 retList.append(d)
-        return retList
+        return retList,retList,[]
 
                  
 class MultiProcUtilTests(unittest.TestCase):
@@ -69,7 +70,7 @@ class MultiProcUtilTests(unittest.TestCase):
             fS=FileStatus(topCachePath=self.__topCachePath,verbose=self.__verbose,log=self.__lfh)
             mpu=MultiProcUtil(verbose=True,log=self.__lfh)
             mpu.set(workerObj=fS,workerMethod="check")
-            ok,failList=mpu.runMulti(dataList=dataList,numProc=4)
+            ok,failList,resultList,diagList=mpu.runMulti(dataList=dataList,numProc=4,numResults=1)
             self.__lfh.write("Multi-proc run ended status %r failures %r" % (ok,failList))
         except:
             traceback.print_exc(file=self.__lfh)

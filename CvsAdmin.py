@@ -376,7 +376,13 @@ class  CvsSandBoxAdmin(CvsWrapperBase):
         
         return (ok,text)
 
-    def updateList(self, dataList):
+    def updateList(self, dataList,procName):
+        """  Implements an interface for multiprocessing module -- 
+
+             input is [(CvsProjectDir, relativePath, pruneFlag),...]
+
+             returns -  successList,resultList=successList,diagList 
+        """
         retList=[]
         diagTextList=[]
         for dTup in dataList:
@@ -384,12 +390,12 @@ class  CvsSandBoxAdmin(CvsWrapperBase):
             ok,text=self.update(projectDir=pDir,relProjectPath=relPath,prune=True,fetchErrorLog=True,appendErrors=True)
             diagTextList.append(text)
             if self.__verbose:
-                self.__lfh.write("+CvsSandBoxAdmin(updateList) project %s path %s status %r diagnostics:\n%s\n" % (pDir,relPath,ok,text))
+                self.__lfh.write("+CvsSandBoxAdmin(updateList) process %s project %s path %s status %r diagnostics:\n%s\n" % (procName,pDir,relPath,ok,text))
                 self.__lfh.write("\n+CvsSandBoxAdmin(updateList) current diagnostics length %d\n" % len(diagTextList))                
                 self.__lfh.flush()
             if ok:
                 retList.append(dTup)
-        return retList,diagTextList
+        return retList,retList,diagTextList
     
     def update(self,projectDir,relProjectPath='.',prune=False,fetchErrorLog=True,appendErrors=False):
         """ Update CVS sandbox working copy of the input project path.   The project path must
