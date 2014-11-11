@@ -31,7 +31,7 @@ class FileStatus(object):
         self.__lfh=log
         self.__topCachePath=topCachePath
 
-    def check(self,dataList,procName):
+    def check(self,dataList,procName,optionsD,workingDir):
         """  Performs a file system check on the input dataList of directory keys
              within the chemical component repository sandbox.
 

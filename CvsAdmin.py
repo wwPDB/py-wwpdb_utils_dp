@@ -376,7 +376,7 @@ class  CvsSandBoxAdmin(CvsWrapperBase):
         
         return (ok,text)
 
-    def updateList(self, dataList,procName):
+    def updateList(self, dataList,procName,optionsD,workingDir):
         """  Implements an interface for multiprocessing module -- 
 
              input is [(CvsProjectDir, relativePath, pruneFlag),...]

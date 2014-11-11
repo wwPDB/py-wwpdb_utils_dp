@@ -5,10 +5,11 @@
 # Version: 0.001
 #
 # Updates:
-# 9-Nov-2014  extend API to include variable number of result lists computed by each worker.  
+# 9-Nov-2014  extend API to include variable number of result lists computed by each worker.
+# 11-Nov-2014 extend API with additiona options and working directory configuration
 ##
 """
-Multiprocessing execuction wrapper --   
+Multiprocessing execuction wrapper supporting tasks with list of inputs and a variable number of output lists.    
 
 """
 
@@ -25,9 +26,9 @@ class MultiProcWorker(multiprocessing.Process):
 
          Worker method must support the following prototype -
     
-         sucessList,resultList,diagList=self.__workerFunc(dataList=nextList)            
+         sucessList,resultList,diagList=workerFunc(runList=nextList,procName, optionsD, workingDir)          
     """
-    def __init__(self,taskQueue,successQueue,resultQueueList,diagQueue,workerFunc,verbose=False,log=sys.stderr):
+    def __init__(self,taskQueue,successQueue,resultQueueList,diagQueue,workerFunc,verbose=False,log=sys.stderr,optionsD=None,workingDir='.'):
         multiprocessing.Process.__init__(self)
         self.__taskQueue=taskQueue
         self.__successQueue=successQueue        
@@ -36,8 +37,11 @@ class MultiProcWorker(multiprocessing.Process):
         #
         self.__lfh=log
         self.__verbose=verbose
+        self.__debug=False
         self.__workerFunc=workerFunc
-
+        #
+        self.__optionsD=optionsD if optionsD is not None else {}
+        self.__workingDir=workingDir
         
     def run(self):
         processName=self.name
@@ -50,8 +54,9 @@ class MultiProcWorker(multiprocessing.Process):
                     self.__lfh.flush()
                 break
             # 
-            rTup=self.__workerFunc(dataList=nextList,procName=processName)
-            self.__lfh.write("+MultiProcWorker(run) task list length %d rTup length %d\n" % (len(nextList),len(rTup)))
+            rTup=self.__workerFunc(dataList=nextList,procName=processName,optionsD=self.__optionsD,workingDir=self.__workingDir)
+            if self.__debug:
+                self.__lfh.write("+MultiProcWorker(run) task list length %d rTup length %d\n" % (len(nextList),len(rTup)))
             self.__lfh.flush
             self.__successQueue.put(rTup[0])
             for ii,rq in  enumerate(self.__resultQueueList):
@@ -65,20 +70,31 @@ class MultiProcUtil(object):
         self.__lfh=log
         self.__verbose=verbose
         self.__workFunc=None
+        self.__optionsD={}
+        self.__workingDir='.'
 
+    def setOptions(self,optionsD):
+        """ A dictionary of options that is passed as an argument to the worker function
+        """
+        self.__optionsD=optionsD
+
+    def setWorkingDir(self,workingDir):
+        """ A working directory option that is passed as an argument to the worker function.
+        """        
+        self.__workingDir=workingDir
         
     def set(self,workerObj=None,workerMethod=None):
         """  WorkerObject is the instance of object with method named workerMethod() 
 
              Worker method must support the following prototype - 
 
-             retList=self.__workerFunc(runList=nextList)            
+             sucessList,resultList,diagList=workerFunc(runList=nextList,procName, optionsD, workingDir) 
         """  
         try:
             self.__workerFunc = getattr(workerObj, workerMethod)
             return True
         except AttributeError:
-            self.__lfh.write("+MultiProcWorker.set() object/attribute error\n")
+            self.__lfh.write("+MultiProcUtil.set() object/attribute error\n")
             return False
         
     ##
@@ -99,7 +115,7 @@ class MultiProcUtil(object):
         subLists=[dataList[i::numProc] for i in range(numProc)]
         #
         if (self.__verbose):
-            self.__lfh.write("+MultiProcUtil.runMulti() numProc %d subList length %d\n" % (numProc,len(subLists)))
+            self.__lfh.write("+MultiProcUtil.runMulti() with numProc %d subtask length ~ %d\n" % (numProc,len(subLists[0])))
             self.__lfh.flush()
         #
         taskQueue=multiprocessing.Queue()
@@ -115,7 +131,7 @@ class MultiProcUtil(object):
         #
         # Create list of worker processes
         #
-        workers=[MultiProcWorker(taskQueue,successQueue,rqList,diagQueue,self.__workerFunc,verbose=self.__verbose,log=self.__lfh) for i in xrange(numProc) ]
+        workers=[MultiProcWorker(taskQueue,successQueue,rqList,diagQueue,self.__workerFunc,verbose=self.__verbose,log=self.__lfh,optionsD=self.__optionsD,workingDir=self.__workingDir) for i in xrange(numProc) ]
         for w in workers:
             w.start()
 
@@ -150,13 +166,16 @@ class MultiProcUtil(object):
             np -= 1
         #
         diagList=list(set(tL))
-        self.__lfh.write("+MultiProcUtil(runMulti() inpput task length %d success length %d\n"  % (len(dataList),len(successList)))
+        if self.__verbose:
+            self.__lfh.write("+MultiProcUtil.runMulti() input task length %d success length %d\n"  % (len(dataList),len(successList)))
         if len(dataList) == len(successList):
-            self.__lfh.write("+MultiProcUtil(runMulti) all tasks completed\n")
-            self.__lfh.flush()
+            if self.__verbose:
+                self.__lfh.write("+MultiProcUtil.runMulti() all tasks completed\n")
+                self.__lfh.flush()
             return True,[],retLists,diagList
         else:
             failList=list(set(dataList)-set(successList))
-            self.__lfh.write("+MultiProcUtil(runMulti) incomplete run\n")
-            self.__lfh.flush()
+            if self.__verbose:
+                self.__lfh.write("+MultiProcUtil.runMulti() incomplete run\n")
+                self.__lfh.flush()
             return False,failList,retLists,diagList
