@@ -1209,6 +1209,6 @@ if __name__ == '__main__':
     else:
         pass
 
-    #mySuite=suiteArchiveValidationXrayTests()
+    mySuite=suiteArchiveValidationXrayTests()
     mySuite=suiteArchiveValidationNmrTests()
     unittest.TextTestRunner(verbosity=2).run(mySuite)        
