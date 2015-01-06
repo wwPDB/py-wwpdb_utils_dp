@@ -9,6 +9,7 @@
 #  08-Mar-2013 jdw add method to separately set path for 'session' storage.
 #  29-Jun-2014 jdw refactor add getVersionFileList() and getPartitionFileList()
 #   5-Jul-2014 jdw  getContentTypeFileList() and getMiscFileList()
+#   5-Jan-2015 jdw add siteId as an optional argument to the constructor - 
 ##
 """
  Implements common data exchange operations including: moving annotation data files between session
@@ -36,7 +37,7 @@ class DataExchange(object):
      and routine file maintenance operations.
      
     """
-    def __init__(self,reqObj=None, depDataSetId=None, wfInstanceId=None, fileSource='archive', verbose=False,log=sys.stderr):
+    def __init__(self,reqObj=None, depDataSetId=None, wfInstanceId=None, fileSource='archive', siteId=None, verbose=False,log=sys.stderr):
 
         self.__reqObj=reqObj
         self.__depDataSetId=depDataSetId
@@ -47,13 +48,20 @@ class DataExchange(object):
         #
         self.__debug=False
         #
+        self.__setup(siteId=siteId)
+
+    def __setup(self,siteId=None):
+        if siteId is not None:
+            self.__siteId=siteId            
+        else:
+            self.__siteId=self.__reqObj.getValue("WWPDB_SITE_ID")
+        
         self.__sessionObj  = self.__reqObj.getSessionObj()
         self.__sessionPath = self.__sessionObj.getPath()
-        self.__siteId=self.__reqObj.getValue("WWPDB_SITE_ID")
+
         self.__cI = ConfigInfo(self.__siteId)
         self.__pI = PathInfo(siteId=self.__siteId, sessionPath=self.__sessionPath, verbose=self.__verbose, log=self.__lfh)
 
-        
         #
         if (self.__debug):
             self.__lfh.write("+DataExchange.__setup() - session id   %s\n" % (self.__sessionObj.getId()))
