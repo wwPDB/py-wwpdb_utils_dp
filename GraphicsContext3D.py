@@ -21,8 +21,8 @@ __version__   = "V0.01"
 
 import sys,time,os,traceback
 
-from pdbx.persist.PdbxPersist       import PdbxPersist
-from pdbx.reader.PdbxContainers     import *
+from pdbx_v2.persist.PdbxPersist       import PdbxPersist
+from pdbx_v2.reader.PdbxContainers     import *
 
 class GraphicsContext3D(object):
     """ Construct a 3D graphics context from selected rows in PDBx/mmCIF data catagories.
