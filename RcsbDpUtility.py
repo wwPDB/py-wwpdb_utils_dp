@@ -86,6 +86,7 @@
 # 21-Sep-2014 jdw update annot-wwpdb-validate-test  
 # 26-Sep-2014 jdw update annot-pdbx2nmrstar (prior version retired to annot-pdbx2nmrstar-bmrb)
 #  1-Oct-2014 jdw add "annot-chem-shifts-update"
+# 16-Jan-2015 jdw update validation-report-test for NMR
 ##
 """
 Wrapper class for data processing and chemical component utilities.
@@ -942,7 +943,8 @@ class RcsbDpUtility(object):
 
         elif (op == "annot-wwpdb-validate-test"):
             # 
-            #  This is in all respects the same as "annot-wwpdb-validate-alt" except that it uses a test version of the launch script Vpack-test.
+            #  This is in all respects the same as "annot-wwpdb-validate-alt" except that it uses chemical shift files and entry_id and
+            #   launches a test version of the launch script Vpack-test.
             #
             # This parameter permits overriding the 
             #
