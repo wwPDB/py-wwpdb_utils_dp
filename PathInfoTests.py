@@ -7,95 +7,88 @@
 #   28-Jun-2014  jdw add template examples
 ##
 """
-Test cases for creating standard file names for sequence resources and data files.
+Skeleton examples for creating standard file names for sequence resources and data files.
+
+ **** A file source must be created to support these examples  ****
 
 """
 __docformat__ = "restructuredtext en"
-__author__    = "John Westbrook"
-__email__     = "jwest@rcsb.rutgers.edu"
-__license__   = "Creative Commons Attribution 3.0 Unported"
-__version__   = "V0.07"
+__author__ = "John Westbrook"
+__email__ = "jwest@rcsb.rutgers.edu"
+__license__ = "Creative Commons Attribution 3.0 Unported"
+__version__ = "V0.07"
 
 
-import sys, unittest, traceback
-import time, os, os.path
+import sys
+import unittest
+import traceback
 
-from wwpdb.api.facade.ConfigInfo          import ConfigInfo,getSiteId
+from wwpdb.api.facade.ConfigInfo import getSiteId
 from wwpdb.utils.rcsb.PathInfo import PathInfo
 
+
 class PathInfoTests(unittest.TestCase):
+
     def setUp(self):
         #
-        self.__verbose=True
-        self.__lfh=sys.stdout
-        self.__siteId=getSiteId(defaultSiteId='WWPDB_DEPLOY_TEST')
-        
+        self.__verbose = True
+        self.__lfh = sys.stdout
+        self.__siteId = getSiteId(defaultSiteId='WWPDB_DEPLOY_TEST')
+
     def tearDown(self):
         pass
-    
-    def testGetStandardPaths(self): 
+
+    def testGetStandardPaths(self):
         """ Test getting standard file names within session paths.
         """
         self.__lfh.write("\n------------------------ ")
         self.__lfh.write("Starting test function  %s" % sys._getframe().f_code.co_name)
-        self.__lfh.write(" -------------------------\n")        
+        self.__lfh.write(" -------------------------\n")
         try:
-            # fileSource, id, eId, wfInst
-            oldtests=[('session', "1abc", '1', None, 'latest'), 
-                   ('session', 'e1', '1', None, 'latest'),
-                   ('archive', 'D_000111', '1', None, '1'), 
-                   ('archive', 'D_000111', '1', 'W_010','1'),
-                   ('wf-instance', 'D_000111', '1', 'W_010','1')]
-
-            tests=[('archive', "D_1000000000", None, 1,          'latest'), 
-                   ('archive', "D_1000000000", None, 'latest',   'latest'), 
-                   ('archive', "D_1000000000", None, 'next',     'latest'), 
-                   ('archive', "D_1000000000", None, 'previous', 'latest')]
-
-            dataSetId="1abc"
+            # fileSource, id, partionId, versionId
+            tests = [('archive', "D_1000000000", None, 1, 'latest'),
+                     ('archive', "D_1000000000", None, 'latest', 'latest'),
+                     ('archive', "D_1000000000", None, 'next', 'latest'),
+                     ('archive', "D_1000000000", None, 'previous', 'latest')]
             eId='1'
-            fileSourceList=['session']
-            wfInst=None
-
-            for (fs, dataSetId, wfInst, pId, vId) in tests: 
+            for (fs, dataSetId, wfInst, pId, vId) in tests:
                 self.__lfh.write("\n\n----------------------------------\n")
-                self.__lfh.write("File source %s dataSetId %s  partno  %s wfInst %s version %s\n" % (fs,dataSetId,pId,wfInst,vId))
+                self.__lfh.write("File source %s dataSetId %s  partno  %s wfInst %s version %s\n" % (fs, dataSetId, pId, wfInst, vId))
 
-                pI=PathInfo(siteId=self.__siteId,sessionPath=".",verbose=self.__verbose,log=self.__lfh)
+                pI = PathInfo(siteId=self.__siteId, sessionPath=".", verbose=self.__verbose, log=self.__lfh)
                 #
-                fp=pI.getModelPdbxFilePath(dataSetId,wfInstanceId=wfInst, fileSource=fs, versionId=vId)
+                fp = pI.getModelPdbxFilePath(dataSetId, wfInstanceId=wfInst, fileSource=fs, versionId=vId)
                 self.__lfh.write("Model path (PDBx):   %s\n" % fp)
 
-                fp=pI.getModelPdbxFilePath(dataSetId,wfInstanceId=wfInst, fileSource=fs, versionId=vId, mileStone='deposit')
+                fp = pI.getModelPdbxFilePath(dataSetId, wfInstanceId=wfInst, fileSource=fs, versionId=vId, mileStone='deposit')
                 self.__lfh.write("Model path (deposit) (PDBx):   %s\n" % fp)
 
-                fp=pI.getModelPdbxFilePath(dataSetId,wfInstanceId=wfInst, fileSource=fs, versionId=vId, mileStone='upload')
+                fp = pI.getModelPdbxFilePath(dataSetId, wfInstanceId=wfInst, fileSource=fs, versionId=vId, mileStone='upload')
                 self.__lfh.write("Model path (upload) (PDBx):   %s\n" % fp)
 
-                fp=pI.getModelPdbFilePath(dataSetId,wfInstanceId=wfInst,fileSource=fs, versionId=vId)
+                fp = pI.getModelPdbFilePath(dataSetId, wfInstanceId=wfInst, fileSource=fs, versionId=vId)
                 self.__lfh.write("Model path (PDB):    %s\n" % fp)
 
-                fp=pI.getPolyLinkFilePath(dataSetId,wfInstanceId=wfInst,fileSource=fs, versionId=vId)
+                fp = pI.getPolyLinkFilePath(dataSetId, wfInstanceId=wfInst, fileSource=fs, versionId=vId)
                 self.__lfh.write("Link dist  (PDBx):   %s\n" % fp)
 
-                fp=pI.getSequenceStatsFilePath(dataSetId,wfInstanceId=wfInst,fileSource=fs, versionId=vId)
+                fp = pI.getSequenceStatsFilePath(dataSetId, wfInstanceId=wfInst, fileSource=fs, versionId=vId)
                 self.__lfh.write("Sequence stats (PIC):   %s\n" % fp)
-                
 
-                fp=pI.getReferenceSequenceFilePath(dataSetId,entityId=eId,wfInstanceId=wfInst,fileSource=fs, versionId=vId)
-                self.__lfh.write("Reference match entity %s (PDBx):   %s\n" % (eId,fp))
-                
-                fp=pI.getSequenceAssignmentFilePath(dataSetId,wfInstanceId=wfInst,fileSource=fs, versionId=vId)
+                fp = pI.getReferenceSequenceFilePath(dataSetId, entityId=eId, wfInstanceId=wfInst, fileSource=fs, versionId=vId)
+                self.__lfh.write("Reference match entity %s (PDBx):   %s\n" % (eId, fp))
+
+                fp = pI.getSequenceAssignmentFilePath(dataSetId, wfInstanceId=wfInst, fileSource=fs, versionId=vId)
                 self.__lfh.write("Sequence assignment (PDBx):   %s\n" % fp)
 
-                fp=pI.getFilePath(dataSetId,wfInstanceId=wfInst,contentType='seqdb-match',formatType='pdbx',fileSource=fs,versionId=vId,partNumber=pId,mileStone=None)
+                fp = pI.getFilePath(dataSetId, wfInstanceId=wfInst, contentType='seqdb-match', formatType='pdbx', fileSource=fs, versionId=vId, partNumber=pId, mileStone=None)
                 self.__lfh.write("Sequence match (getFilePath) (PDBx):   %s\n" % fp)
                 #
 
-                ft=pI.getFilePathVersionTemplate(dataSetId,wfInstanceId=wfInst,contentType='em-volume',formatType='map',fileSource="archive",partNumber=pId,mileStone=None)
+                ft = pI.getFilePathVersionTemplate(dataSetId, wfInstanceId=wfInst, contentType='em-volume', formatType='map', fileSource="archive", partNumber=pId, mileStone=None)
                 self.__lfh.write("EM volume version template:   %r\n" % ft)
-                ft=pI.getFilePathPartitionTemplate(dataSetId,wfInstanceId=wfInst,contentType='em-mask',formatType='map',fileSource="archive",mileStone=None)
-                self.__lfh.write("EM mask partition template:   %r\n" % ft)                   
+                ft = pI.getFilePathPartitionTemplate(dataSetId, wfInstanceId=wfInst, contentType='em-mask', formatType='map', fileSource="archive", mileStone=None)
+                self.__lfh.write("EM mask partition template:   %r\n" % ft)
         except:
             traceback.print_exc(file=self.__lfh)
             self.fail()
@@ -109,6 +102,5 @@ def suiteStandardPathTests():
 
 if __name__ == '__main__':
     if (True):
-        mySuite=suiteStandardPathTests()
+        mySuite = suiteStandardPathTests()
         unittest.TextTestRunner(verbosity=2).run(mySuite)
-
