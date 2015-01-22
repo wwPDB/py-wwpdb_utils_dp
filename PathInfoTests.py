@@ -50,7 +50,7 @@ class PathInfoTests(unittest.TestCase):
                      ('archive', "D_1000000000", None, 'latest', 'latest'),
                      ('archive', "D_1000000000", None, 'next', 'latest'),
                      ('archive', "D_1000000000", None, 'previous', 'latest')]
-            eId='1'
+            eId = '1'
             for (fs, dataSetId, wfInst, pId, vId) in tests:
                 self.__lfh.write("\n\n----------------------------------\n")
                 self.__lfh.write("File source %s dataSetId %s  partno  %s wfInst %s version %s\n" % (fs, dataSetId, pId, wfInst, vId))
