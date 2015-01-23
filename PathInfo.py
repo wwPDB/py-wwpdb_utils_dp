@@ -36,6 +36,8 @@ import sys
 import os
 import os.path
 import traceback
+import glob
+import shutil
 from wwpdb.api.facade.ConfigInfo import ConfigInfo
 from wwpdb.api.facade.DataReference import DataFileReference, ReferenceFileComponents
 
@@ -237,7 +239,7 @@ class PathInfo(object):
                                       mileStone=mileStone)
 
     def getMapfofcFilePath(self, dataSetId, wfInstanceId=None, fileSource="archive", versionId="latest", mileStone=None):
-        return self.__getStandardPath(dataSetId=entityId,
+        return self.__getStandardPath(dataSetId=dataSetId,
                                       wfInstanceId=wfInstanceId,
                                       fileSource=fileSource,
                                       versionId=versionId,
@@ -257,7 +259,7 @@ class PathInfo(object):
                                       mileStone=mileStone)
 
     def getOmitMapfofcFilePath(self, dataSetId, wfInstanceId=None, fileSource="archive", versionId="latest", mileStone=None):
-        return self.__getStandardPath(dataSetId=entityId,
+        return self.__getStandardPath(dataSetId=dataSetId,
                                       wfInstanceId=wfInstanceId,
                                       fileSource=fileSource,
                                       versionId=versionId,
@@ -268,7 +270,7 @@ class PathInfo(object):
     #
 
     def getEmVolumeFilePath(self, dataSetId, wfInstanceId=None, fileSource="archive", versionId="latest", mileStone=None):
-        return self.__getStandardPath(dataSetId=entityId,
+        return self.__getStandardPath(dataSetId=dataSetId,
                                       wfInstanceId=wfInstanceId,
                                       fileSource=fileSource,
                                       versionId=versionId,
@@ -500,11 +502,11 @@ class PathInfo(object):
                                  (fileSource, dataSetId, wfInstanceId, contentType))
                 traceback.print_exc(file=self.__lfh)
             return None, None, None, None
+    #
 
-    ###
     def __getcopyContentType(self, sourcePath, sourcePattern, destPath):
-      """  internal method  -- not used --
-      """
+        """  internal method  -- not used --
+        """
         fpattern = os.path.join(sourcePath, sourcePattern)
         pthList = []
         pthList = glob.glob(fpattern)

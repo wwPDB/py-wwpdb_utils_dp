@@ -2087,11 +2087,13 @@ class RcsbDpUtility(object):
             # java -Xms256m -Xmx256m -jar /wwpdb_da/da_top/tools-macosx-108/packages/mapFix/mapFixDep.jar -h
             #  -in  <filename>           : input map
             # -out <filename>           : output map
-            # -cell <x> <y> <z>         : set x/y/z-length x/y/z
             # -label <DepCode>          : write new label
-            # -gridsampling <x> <y> <z> : set x/y/z- grid sampling
+            # -voxel <x> <y> <z>        : set x/y/z-length values to N[X/Y/Z]-length            #
             # -gridstart <x> <y> <z>    : set x/y/z- grid start point
-            # -voxel <x> <y> <z>        : set x/y/z-length values to N[X/Y/Z]-length
+            #
+            # -cell <x> <y> <z>         : set x/y/z-length x/y/z
+            # -gridsampling <x> <y> <z> : set x/y/z- grid sampling
+            # -all ---
             #  Recommend : java -Xms256m -Xmx256m -jar mapFixDep.jar -in <filein> -out <fileout> -all
 
             # use references for input and output file paths -
@@ -2128,10 +2130,11 @@ class RcsbDpUtility(object):
             if 'options' in self.__inputParamDict:
                 argVal = self.__inputParamDict['options']
                 cmd += " " + argVal
-
+            if 'auto' in self.__inputParamDict:
+                cmd += " -all "
             #
             # these dummy arguments required to run this code --
-            #cmd  += " -voxel 1.0 1.0 1.0 -label test "
+            # cmd  += " -voxel 1.0 1.0 1.0 -label test "
             # oPath here will be the JSON  output containing may header details --
             #
             cmd += " ; } 2> " + ePath + " 1> " + oPath
