@@ -87,6 +87,7 @@
 # 26-Sep-2014 jdw update annot-pdbx2nmrstar (prior version retired to annot-pdbx2nmrstar-bmrb)
 #  1-Oct-2014 jdw add "annot-chem-shifts-update"
 # 16-Jan-2015 jdw update validation-report-test for NMR
+# 23-Jan-2015 jdw add autocorrect option to method 'annot-update-map-header-in-place'
 ##
 """
 Wrapper class for data processing and chemical component utilities.

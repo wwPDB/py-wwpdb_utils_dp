@@ -95,6 +95,10 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
         self.__testValidateXrayIdList=['1cbs']
         self.__testValidateNmrIdList=['2MM4','2MMZ']
 
+
+        self.__testDccModelId='4wpo'
+
+
     def tearDown(self):
         pass
 
@@ -856,6 +860,27 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             traceback.print_exc(file=self.__lfh)
             self.fail()
 
+    def testAnnotDccRsrReport(self): 
+        """  Test create DCC report -
+        """
+        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        try:
+            ofn="dcc-rsr-report.cif"
+            dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
+            
+            xyzPath=os.path.join(self.__testFilePath,  self.__testDccModelId+'.cif')
+            sfPath=os.path.join(self.__testFilePath,   self.__testDccModelId+'-sf.cif')
+            dp.imp(xyzPath)
+            dp.addInput(name="sf_file_path",value=sfPath)
+            dp.addInput(name="dcc_arguments", value=" -rsr -refmac ")
+            dp.op("annot-dcc-report")
+            dp.expLog("dcc-rsr-report.log")
+            dp.exp(ofn)
+            #dp.cleanup()
+        except:
+            traceback.print_exc(file=self.__lfh)
+            self.fail()
+            
     def testAnnotDccReport(self): 
         """  Test create DCC report -
         """
@@ -1114,6 +1139,10 @@ def suiteMapCalcTests():
     #suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotLigandMapCalc"))
     return suiteSelect    
 
+def suiteRsrCalcTests():
+    suiteSelect = unittest.TestSuite()
+    suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotDccRsrReport"))
+    return suiteSelect    
 
 def suiteFormatCheckTests():
     suiteSelect = unittest.TestSuite()
@@ -1206,10 +1235,12 @@ if __name__ == '__main__':
         mySuite=suiteArchiveValidationNmrTests()
         unittest.TextTestRunner(verbosity=2).run(mySuite)        
 
+        mySuite=suiteArchiveValidationXrayTests() 
+        unittest.TextTestRunner(verbosity=2).run(mySuite)                   
     else:
         pass
 
-    mySuite=suiteArchiveValidationXrayTests() 
-    unittest.TextTestRunner(verbosity=2).run(mySuite)           
-    #mySuite=suiteArchiveValidationNmrTests()
-    #unittest.TextTestRunner(verbosity=2).run(mySuite)        
+
+
+    mySuite=suiteRsrCalcTests()
+    unittest.TextTestRunner(verbosity=2).run(mySuite)               
