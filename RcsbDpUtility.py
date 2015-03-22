@@ -938,6 +938,11 @@ class RcsbDpUtility(object):
                 sfPath = "none"
                 sfPathFull = "none"
 
+            if 'entry_id' in self.__inputParamDict:
+                entryId = self.__inputParamDict['entry_id']
+            else:
+                entryId = "2abc"
+
             #
             xmlPath = os.path.join(self.__wrkPath, "out.xml")
             pdfPath = os.path.join(self.__wrkPath, "out.pdf")
@@ -951,7 +956,9 @@ class RcsbDpUtility(object):
             else:
                 cleanOpt = "none"
             #
-            cmd += thisCmd + " 1abc " + iPathFull + " " + sfPathFull + " " + pdfPath + " " + xmlPath + " " + pdfFullPath + " " + pngPath + " " + svgPath + " " + cleanOpt
+            # cmd += thisCmd + " 1abc " + iPathFull + " " + sfPathFull + " " + pdfPath + " " + xmlPath + " " + pdfFullPath + " " + pngPath + " " + svgPath + " " + cleanOpt
+            cmd += thisCmd + " " + entryId + " " + iPathFull + " " + sfPathFull + " " + pdfPath + " " + \
+                xmlPath + " " + pdfFullPath + " " + pngPath + " " + svgPath + " " + cleanOpt            #
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
             cmd += " ; cp  -f " + pdfPath + " " + oPath
 
