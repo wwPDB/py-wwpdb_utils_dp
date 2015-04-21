@@ -6,7 +6,8 @@
 #
 # Updates:
 # 9-Nov-2014  extend API to include variable number of result lists computed by each worker.
-# 11-Nov-2014 extend API with additiona options and working directory configuration
+# 11-Nov-2014 extend API with additional options and working directory configuration
+# 21-Apr-2015 jdw change the termination and reaping protocol.
 ##
 """
 Multiprocessing execuction wrapper supporting tasks with list of inputs and a variable number of output lists.
@@ -183,13 +184,22 @@ class MultiProcUtil(object):
         diagList = list(set(tL))
         if self.__verbose:
             self.__lfh.write("+MultiProcUtil.runMulti() input task length %d success length %d\n" % (len(dataList), len(successList)))
+        try:
+            for w in workers:
+                w.terminate()
+                w.join(1)
+        except:
+            if self.__verbose:
+                self.__lfh.write("+MultiProcUtil.runMulti() termination/reaping failing\n")
+                traceback.print_exc(file=self.__lfh)
+
         if len(dataList) == len(successList):
             if self.__verbose:
                 self.__lfh.write("+MultiProcUtil.runMulti() all tasks completed\n")
                 self.__lfh.flush()
             return True, [], retLists, diagList
         else:
-            failList = list(set(dataList) - set(successList))
+            failList=list(set(dataList) - set(successList))
             if self.__verbose:
                 self.__lfh.write("+MultiProcUtil.runMulti() incomplete run\n")
                 self.__lfh.flush()
