@@ -491,9 +491,12 @@ class PathInfo(object):
                     self.__lfh.write("+PathInfo.__getPathworker() content type search path: %s\n" % ctT)
             else:
                 dP = dfRef.getDirPathReference()
-                ctT = os.path.join(dP, dfRef.getContentTypeSearchTarget())
-                if (self.__debug):
-                    self.__lfh.write("+PathInfo.__getPathworker() content type search path: %s\n" % ctT)
+                try:
+                    ctT = os.path.join(dP, dfRef.getContentTypeSearchTarget())
+                except:
+                    ctT = None
+                    if (self.__verbose):
+                        self.__lfh.write("+PathInfo.__getPathworker() failing content type search path: %s\n" % ctT)
                 #
             return fP, vT, pT, ctT
         except:

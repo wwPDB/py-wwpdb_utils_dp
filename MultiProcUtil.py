@@ -199,7 +199,7 @@ class MultiProcUtil(object):
                 self.__lfh.flush()
             return True, [], retLists, diagList
         else:
-            failList=list(set(dataList) - set(successList))
+            failList = list(set(dataList) - set(successList))
             if self.__verbose:
                 self.__lfh.write("+MultiProcUtil.runMulti() incomplete run\n")
                 self.__lfh.flush()
