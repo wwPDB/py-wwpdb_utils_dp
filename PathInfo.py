@@ -496,7 +496,7 @@ class PathInfo(object):
                 except:
                     ctT = None
                     if (self.__verbose):
-                        self.__lfh.write("+PathInfo.__getPathworker() failing content type search path: %s\n" % ctT)
+                        self.__lfh.write("+PathInfo.__getPathworker() failing with content type search template construction\n")
                 #
             return fP, vT, pT, ctT
         except:
