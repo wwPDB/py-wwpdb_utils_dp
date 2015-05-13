@@ -2013,20 +2013,20 @@ class RcsbDpUtility(object):
             lib_path = os.path.join(system_path, "lib")
             schema = os.path.join(self.__emDictPath, "emdb_fsc.xsd")
             cmd += "export LD_LIBRARY_PATH=" + lib_path + "; "
-            cmd += xmllint + " --noout --schema " + schema + " " + iPath
+            cmd += xmllint + " --format --schema " + schema + " " + iPath
             #
             if 'options' in self.__inputParamDict:
                 options = self.__inputParamDict['options']
                 if options != 'None':  # Unbelievable!
                     cmd += " " + options
             #
-            cmd += " ; } 2> " + lPath
+            cmd += " ; } 2> " + lPath + " 1>" + oPath
 
         elif (op == "img-convert"):
-            #system_path = os.path.join(self.__packagePath, "..")
-            #convert = os.path.join(system_path, "bin", "convert")
-            #lib_path = os.path.join(system_path, "lib")
-            #cmd += "export LD_LIBRARY_PATH=" + lib_path+ "; "
+            system_path = os.path.join(self.__packagePath, "..")
+            convert = os.path.join(system_path, "bin", "convert")
+            lib_path = os.path.join(system_path, "lib")
+            cmd += "export LD_LIBRARY_PATH=" + lib_path+ "; "
             convert = "convert"
             cmd += convert + " -resize x400 "
             #
