@@ -2035,7 +2035,7 @@ class RcsbDpUtility(object):
                 if options != 'None':  # Unbelievable!
                     cmd += " " + options
             #
-            cmd += iPath + " " + oPath
+            cmd += iPath + " png:" + oPath
             cmd += " ; } 2> " + lPath
         #
         # Annotation tasks ----
