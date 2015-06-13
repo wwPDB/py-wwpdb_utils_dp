@@ -61,7 +61,9 @@ class PathInfo(object):
         self.__debug = False
         self.__siteId = siteId
         self.__sessionPath = sessionPath
-        self.__sessionDownloadPath = os.path.join(self.__sessionPath, "downloads")
+        self.__sessionDownloadPath = None
+        if self.__sessionPath is not None:
+            self.__sessionDownloadPath = os.path.join(self.__sessionPath, "downloads")
         self.__cI = ConfigInfo(siteId=self.__siteId, verbose=self.__verbose, log=self.__lfh)
 
     def setDebugFlag(self, flag):
