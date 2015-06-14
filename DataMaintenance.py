@@ -154,6 +154,57 @@ class DataMaintenance(object):
                 traceback.print_exc(file=self.__lfh)
             return False
 
+    def getPurgeCandidates(self, dataSetId, wfInstanceId=None, fileSource="archive",
+                           contentType="model", formatType="pdbx", partitionNumber='1', mileStone=None, purgeType='exp'):
+        '''  Return the latest version, and candidates for removal and compression.
+
+             purgeType = 'exp'    use strategy for experimental and model fileSource V<last>, V2, V1
+                         'other'  use strategy for other file types -- V<last> & V1
+
+        '''
+        latestV = None
+        rmL = []
+        gzL = []
+        vtL = self.getVersionFileList(
+            dataSetId,
+            wfInstanceId=wfInstanceId,
+            fileSource=fileSource,
+            contentType=contentType,
+            formatType=formatType,
+            partitionNumber=partitionNumber,
+            mileStone=mileStone)
+        n = len(vtL)
+        if n > 0:
+            latestV = vtL[0][0]
+        if purgeType in ['exp']:
+            if n < 2:
+                return latestV, rmL, gzL
+            elif n == 2:
+                gzL.append(vtL[1][0])
+            elif n == 3:
+                gzL.append(vtL[1][0])
+                gzL.append(vtL[2][0])
+            elif n > 3:
+                gzL.append(vtL[n - 2][0])
+                gzL.append(vtL[n - 1][0])
+                for i in range(1, n - 2):
+                    rmL.append(vtL[i][0])
+            else:
+                pass
+        elif purgeType in ['report', 'other']:
+            if n < 2:
+                return latestV, rmL, gzL
+            elif n == 2:
+                gzL.append(vtL[1][0])
+            elif n > 2:
+                gzL.append(vtL[n - 1][0])
+                for i in range(1, n - 1):
+                    rmL.append(vtL[i][0])
+            else:
+                pass
+
+        return latestV, rmL, gzL
+
     ##
     def getVersionFileList(self, dataSetId, wfInstanceId=None, fileSource="archive", contentType="model", formatType="pdbx", partitionNumber='1', mileStone=None):
         """
