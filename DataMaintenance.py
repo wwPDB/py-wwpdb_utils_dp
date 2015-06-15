@@ -154,6 +154,18 @@ class DataMaintenance(object):
                 traceback.print_exc(file=self.__lfh)
             return False
 
+    def getLogFiles(self, dataSetId, fileSource='archive'):
+        pL = []
+        if fileSource in ['archive']:
+            dirPath = self.__pI.getArchivePath(dataSetId)
+        elif fileSource in ['deposit']:
+            dirPath = self.__pI.getDepositPath(dataSetId)
+        else:
+            return pL
+        fpattern = os.path.join(dirPath, "*.log")
+        pthList = glob.glob(fpattern)
+        return pthList
+
     def getPurgeCandidates(self, dataSetId, wfInstanceId=None, fileSource="archive",
                            contentType="model", formatType="pdbx", partitionNumber='1', mileStone=None, purgeType='exp'):
         '''  Return the latest version, and candidates for removal and compression.

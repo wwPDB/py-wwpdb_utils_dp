@@ -108,7 +108,15 @@ class DataMaintenanceTests(unittest.TestCase):
                             rL.append({'fileSource': fs, 'contentType': ct, 'formatType': fm, 'mileStone': milestone, 'purgeType': 'other'})
         return rL
 
-    def testPurgeProductionList(self):
+    def __removePathList(self, pthList):
+        #
+        for pth in pthList:
+            try:
+                os.remove(pth)
+            except:
+                pass
+
+    def testCreatePurgeProductionList(self):
         """
         """
         self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
@@ -116,6 +124,7 @@ class DataMaintenanceTests(unittest.TestCase):
             idList = self.__getIdList(self.__idList)
             dm = DataMaintenance(siteId=self.__siteId, verbose=self.__verbose, log=self.__lfh)
             for id in idList:
+                rmLL = []
                 for pType in ['exp', 'other']:
                     pTL = self.__getPurgeInfo(purgeType=pType)
                     for pT in pTL:
@@ -134,6 +143,57 @@ class DataMaintenanceTests(unittest.TestCase):
                             self.__lfh.write("+testPurgeCandidateList- %4d  rm - %r\n" % (ii, p))
                         for ii, p in enumerate(gzL):
                             self.__lfh.write("+testPurgeCandidateList- %4d  gz - %r\n" % (ii, p))
+                        if len(rmL) > 0:
+                            rmLL.extend(rmL)
+
+                rmLL.extend(dm.getLogFiles(id, fileSource='deposit'))
+                rmLL.extend(dm.getLogFiles(id, fileSource='archive'))
+                if len(rmLL) > 0:
+                    for ii, p in enumerate(rmLL):
+                        self.__lfh.write("+testPurgeCandidateList- %4d  rmLL - %r\n" % (ii, p))
+
+        except:
+            traceback.print_exc(file=sys.stdout)
+            self.fail()
+
+    def testPurgeProductionList(self):
+        """
+        """
+        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        try:
+
+            idList = self.__getIdList(self.__idList)
+            dm = DataMaintenance(siteId=self.__siteId, verbose=self.__verbose, log=self.__lfh)
+            for id in idList:
+                rmLL = []
+                for pType in ['exp', 'other']:
+                    pTL = self.__getPurgeInfo(purgeType=pType)
+                    for pT in pTL:
+                        latest, rmL, gzL = dm.getPurgeCandidates(id,
+                                                                 wfInstanceId=None,
+                                                                 fileSource=pT['fileSource'],
+                                                                 contentType=pT['contentType'],
+                                                                 formatType=pT['formatType'],
+                                                                 partitionNumber='1',
+                                                                 mileStone=pT['mileStone'],
+                                                                 purgeType=pT['purgeType'])
+                        if latest is None:
+                            continue
+                        self.__lfh.write("\n+testPurgeCandidatesList - id %13s cType %s LATEST version %s\n" % (id, pT['contentType'], latest))
+                        for ii, p in enumerate(rmL):
+                            self.__lfh.write("+testPurgeCandidateList- %4d  rm - %r\n" % (ii, p))
+                        for ii, p in enumerate(gzL):
+                            self.__lfh.write("+testPurgeCandidateList- %4d  gz - %r\n" % (ii, p))
+                        if len(rmL) > 0:
+                            rmLL.extend(rmL)
+
+                rmLL.extend(dm.getLogFiles(id, fileSource='deposit'))
+                rmLL.extend(dm.getLogFiles(id, fileSource='archive'))
+                if len(rmLL) > 0:
+                    for ii, p in enumerate(rmLL):
+                        self.__lfh.write("+testPurgeCandidateList- %4d  rmLL - %r\n" % (ii, p))
+                    self.__removePathList(rmLL)
+
         except:
             traceback.print_exc(file=sys.stdout)
             self.fail()
@@ -184,7 +244,13 @@ def suiteMiscTests():
     return suiteSelect
 
 
-def suiteProductionTests():
+def suiteProductionPurgeListTests():
+    suiteSelect = unittest.TestSuite()
+    suiteSelect.addTest(DataMaintenanceTests("testCreatePurgeProductionList"))
+    return suiteSelect
+
+
+def suiteProductionPurgeTests():
     suiteSelect = unittest.TestSuite()
     suiteSelect.addTest(DataMaintenanceTests("testPurgeProductionList"))
     return suiteSelect
@@ -197,8 +263,11 @@ if __name__ == '__main__':
         mySuite = suiteMiscTests()
         unittest.TextTestRunner(verbosity=2).run(mySuite)
 
-        mySuite = suiteProductionTests()
+        mySuite = suiteProductionPurgeListTests()
         unittest.TextTestRunner(verbosity=2).run(mySuite)
 
-    mySuite = suiteProductionTests()
+        mySuite = suiteProductionPurgeTests()
+        unittest.TextTestRunner(verbosity=2).run(mySuite)
+
+    mySuite = suiteProductionPurgeTests()
     unittest.TextTestRunner(verbosity=2).run(mySuite)
