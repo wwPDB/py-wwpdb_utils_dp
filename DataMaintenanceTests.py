@@ -135,12 +135,12 @@ class DataMaintenanceTests(unittest.TestCase):
 
                         self.__lfh.write("\n+testRecoverProductionList - id %13s cType %s\n" % (id, pT['contentType']))
                         for ii, p in enumerate(vfL):
-                            self.__lfh.write("+testRecoverProductionList- %4d  recover - %r\n" % (ii, p))
+                            self.__lfh.write("+testRecoverProductionList- %4d  pair - %r\n" % (ii, p))
                         recL.extend(vfL)
 
                 if len(recL) > 0:
                     for ii, p in enumerate(recL):
-                        self.__lfh.write("+testRecoverProductionList- %4d  rmLL - %r\n" % (ii, p))
+                        self.__lfh.write("+testRecoverProductionList- %4d  pairL - %r\n" % (ii, p))
 
         except:
             traceback.print_exc(file=sys.stdout)

@@ -225,6 +225,7 @@ class DataMaintenance(object):
               List of [(file path, modification date string,size),...]
 
         """
+        pairL=[]
         basePath = '/net/wwpdb_da_data_archive/.snapshot/nightly.1/data'
         try:
             if fileSource == 'archive':
@@ -243,7 +244,15 @@ class DataMaintenance(object):
                                                             mileStone=mileStone)
             dir, fn = os.path.split(fPattern)
             altPattern = os.path.join(snPth, fn)
-            return self.__getFileListWithVersion([altPattern], sortFlag=True)
+            srcL = self.__getFileListWithVersion([altPattern], sortFlag=True)
+            for src in srcL:
+                d,f = os.path.split(src)
+                dst = os.path.join(pth,f)
+                if not os.access(dst,os.F_OK):
+                    pairL.append((src,dst))
+
+            return pairL
+
         except:
             if self.__verbose:
                 self.__lfh.write("+DataMaintenance.getVersionFileList() failing for data set %s instance %s file source %s\n" %
