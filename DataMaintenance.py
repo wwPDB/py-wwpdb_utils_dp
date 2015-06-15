@@ -217,7 +217,41 @@ class DataMaintenance(object):
 
         return latestV, rmL, gzL
 
+    def getVersionFileListAlt(self, dataSetId, wfInstanceId=None, fileSource="archive", contentType="model", formatType="pdbx", partitionNumber='1', mileStone=None):
+        """
+        For the input content object return a list of file versions sorted by modification time.
+
+        Return:
+              List of [(file path, modification date string,size),...]
+
+        """
+        basePath = '/net/wwpdb_da_data_archive/.snapshot/nightly.1/data'
+        try:
+            if fileSource == 'archive':
+                pth = self.__pI.getArchivePath(dataSetId)
+                snPth = os.path.join(basePath, 'archive', dataSetId)
+            elif fileSource == 'deposit':
+                pth = self.__pI.getDepositPath(dataSetId)
+                snPth = os.path.join(basePath, 'deposit', dataSetId)
+
+            fPattern = self.__pI.getFilePathVersionTemplate(dataSetId=dataSetId,
+                                                            wfInstanceId=wfInstanceId,
+                                                            contentType=contentType,
+                                                            formatType=formatType,
+                                                            fileSource=fileSource,
+                                                            partNumber=partitionNumber,
+                                                            mileStone=mileStone)
+            dir, fn = os.path.split(fPattern)
+            altPattern = os.path.join(snPth, fn)
+            return self.__getFileListWithVersion([altPattern], sortFlag=True)
+        except:
+            if self.__verbose:
+                self.__lfh.write("+DataMaintenance.getVersionFileList() failing for data set %s instance %s file source %s\n" %
+                                 (dataSetId, wfInstanceId, fileSource))
+                traceback.print_exc(file=self.__lfh)
+            return []
     ##
+
     def getVersionFileList(self, dataSetId, wfInstanceId=None, fileSource="archive", contentType="model", formatType="pdbx", partitionNumber='1', mileStone=None):
         """
         For the input content object return a list of file versions sorted by modification time.

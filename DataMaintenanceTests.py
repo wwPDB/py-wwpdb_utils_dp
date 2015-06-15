@@ -83,6 +83,69 @@ class DataMaintenanceTests(unittest.TestCase):
         ifh.close()
         return fL
 
+    def __getRecoveryInfo(self, purgeType='exp'):
+        ''' Return the list of content type data to be purged -
+
+            return [{fileSource,contentType,formatType,mileStone,purgeType},]
+        '''
+        rL = []
+        if purgeType in ['exp']:
+            for ct in ['model']:
+                for fs in ['archive', 'deposit']:
+                    for fm in ['pdbx', 'pdb']:
+                        for milestone in self.__milestoneL:
+                            if milestone in ['release', 'annotate', 'review']:
+                                rL.append({'fileSource': fs, 'contentType': ct, 'formatType': fm, 'mileStone': milestone, 'purgeType': 'exp'})
+            for ct in ['structure-factors']:
+                for fs in ['archive', 'deposit']:
+                    for fm in ['pdbx', 'mtz']:
+                        for milestone in self.__milestoneL:
+                            if milestone in ['release', 'annotate', 'review']:
+                                rL.append({'fileSource': fs, 'contentType': ct, 'formatType': fm, 'mileStone': milestone, 'purgeType': 'exp'})
+        elif purgeType in ['other', 'report']:
+            for ct in self.__cTypesOtherL:
+                if ct not in ['validation-report', 'validation-data', 'validation-report-full']:
+                    continue
+                for fs in ['archive', 'deposit']:
+                    for fm in self.__cTD[ct][0]:
+                        for milestone in self.__milestoneL:
+                            if milestone in ['release', 'annotate', 'review']:
+                                rL.append({'fileSource': fs, 'contentType': ct, 'formatType': fm, 'mileStone': milestone, 'purgeType': 'other'})
+        return rL
+
+    def testRecoverProductionList(self):
+        """
+        """
+        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        try:
+            idList = self.__getIdList(self.__idList)
+            dm = DataMaintenance(siteId=self.__siteId, verbose=self.__verbose, log=self.__lfh)
+            for id in idList:
+                recL = []
+                for pType in ['exp', 'other']:
+                    pTL = self.__getRecoveryInfo(purgeType=pType)
+                    for pT in pTL:
+                        vfL = dm.getVersionFileListAlt(id,
+                                                       wfInstanceId=None,
+                                                       fileSource=pT['fileSource'],
+                                                       contentType=pT['contentType'],
+                                                       formatType=pT['formatType'],
+                                                       partitionNumber='1',
+                                                       mileStone=pT['mileStone'])
+
+                        self.__lfh.write("\n+testRecoverProductionList - id %13s cType %s\n" % (id, pT['contentType']))
+                        for ii, p in enumerate(vfL):
+                            self.__lfh.write("+testRecoverProductionList- %4d  recover - %r\n" % (ii, p))
+                        recL.extend(vfL)
+
+                if len(recL) > 0:
+                    for ii, p in enumerate(recL):
+                        self.__lfh.write("+testRecoverProductionList- %4d  rmLL - %r\n" % (ii, p))
+
+        except:
+            traceback.print_exc(file=sys.stdout)
+            self.fail()
+
     def __getPurgeInfo(self, purgeType='exp'):
         ''' Return the list of content type data to be purged -
 
@@ -255,6 +318,12 @@ def suiteProductionPurgeTests():
     suiteSelect.addTest(DataMaintenanceTests("testPurgeProductionList"))
     return suiteSelect
 
+
+def suiteRecoverProductionTests():
+    suiteSelect = unittest.TestSuite()
+    suiteSelect.addTest(DataMaintenanceTests("testRecoverProductionList"))
+    return suiteSelect
+
 if __name__ == '__main__':
     # Run all tests --
     # unittest.main()
@@ -269,5 +338,5 @@ if __name__ == '__main__':
         mySuite = suiteProductionPurgeTests()
         unittest.TextTestRunner(verbosity=2).run(mySuite)
 
-    mySuite = suiteProductionPurgeTests()
+    mySuite = suiteRecoverProductionTests()
     unittest.TextTestRunner(verbosity=2).run(mySuite)
