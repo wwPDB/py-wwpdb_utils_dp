@@ -11,6 +11,7 @@ import unittest
 import os
 import os.path
 import traceback
+import shutil
 
 from wwpdb.api.facade.ConfigInfo import ConfigInfo, getSiteId
 from wwpdb.utils.rcsb.DataFile import DataFile
@@ -141,6 +142,7 @@ class DataMaintenanceTests(unittest.TestCase):
                 if len(recL) > 0:
                     for ii, p in enumerate(recL):
                         self.__lfh.write("+testRecoverProductionList- %4d  pairL - %r\n" % (ii, p))
+                        shutil.copyfile(p[0], p[1])
 
         except:
             traceback.print_exc(file=sys.stdout)
