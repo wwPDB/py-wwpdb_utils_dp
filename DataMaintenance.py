@@ -3,10 +3,12 @@
 # Date:  13-Jun-2015
 #
 # Updates:
+#    15-Jun-2015  jdw added some recover features
 #
 ##
 """
-
+Collection of data maintenance utilities to support
+purging data files for released entries.
 
 """
 __docformat__ = "restructuredtext en"
@@ -17,20 +19,22 @@ __version__ = "V0.09"
 
 import sys
 import os
-import string
 import shutil
 import traceback
 import glob
 from datetime import datetime
 
 from wwpdb.api.facade.ConfigInfo import ConfigInfo
-# from wwpdb.api.facade.DataReference import DataFileReference
 from wwpdb.utils.rcsb.PathInfo import PathInfo
 
 
 class DataMaintenance(object):
 
-    """
+    """ Collection of data maintenance utilities supporting
+        purge and recovery of data files post release.
+
+        This class duplicates some methods from class DataExchange for
+        anticipated future use.
 
     """
 

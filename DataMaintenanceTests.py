@@ -5,6 +5,10 @@ Author:  jdw
 Date:    13-June-2015
 Version: 0.001
 
+        Driver routines for testing purging and recovering selected content types and milestone files.
+
+NOTE:   16-Jun-2015 - Reconfirm milestone policies before repurging ->
+
 """
 import sys
 import unittest
@@ -14,7 +18,6 @@ import traceback
 import shutil
 
 from wwpdb.api.facade.ConfigInfo import ConfigInfo, getSiteId
-from wwpdb.utils.rcsb.DataFile import DataFile
 from wwpdb.utils.rcsb.DataMaintenance import DataMaintenance
 
 
@@ -34,6 +37,7 @@ class DataMaintenanceTests(unittest.TestCase):
         self.__cTBD = self.__cI.get('CONTENT_TYPE_BASE_DICTIONARY')
         self.__cTD = self.__cI.get('CONTENT_TYPE_DICTIONARY')
         self.__cTL = sorted(self.__cTBD.keys())
+        # list of candidate content types for purging  -- this is based on system V15x for X-ray content types
         self.__cTypesOtherL = ['assembly-assign',
                                'assembly-model',
                                'assembly-model-xyz',
@@ -85,7 +89,7 @@ class DataMaintenanceTests(unittest.TestCase):
         return fL
 
     def __getRecoveryInfo(self, purgeType='exp'):
-        ''' Return the list of content type data to be purged -
+        ''' Return the list of tuple describing content type and milestones to be recovered.
 
             return [{fileSource,contentType,formatType,mileStone,purgeType},]
         '''
@@ -115,7 +119,7 @@ class DataMaintenanceTests(unittest.TestCase):
         return rL
 
     def testRecoverProductionList(self):
-        """
+        """   Test case for selected recovery of selected content types and milestone files -
         """
         self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
         try:
@@ -149,7 +153,7 @@ class DataMaintenanceTests(unittest.TestCase):
             self.fail()
 
     def __getPurgeInfo(self, purgeType='exp'):
-        ''' Return the list of content type data to be purged -
+        ''' Return a list of tuples describing content types and milestone data files to be purged -
 
             return [{fileSource,contentType,formatType,mileStone,purgeType},]
         '''
@@ -182,7 +186,7 @@ class DataMaintenanceTests(unittest.TestCase):
                 pass
 
     def testCreatePurgeProductionList(self):
-        """
+        """   Test case for generating canditate files for purge -
         """
         self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
         try:
@@ -222,7 +226,7 @@ class DataMaintenanceTests(unittest.TestCase):
             self.fail()
 
     def testPurgeProductionList(self):
-        """
+        """  Preliminary version of purge operations post release -
         """
         self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
         try:
@@ -327,8 +331,6 @@ def suiteRecoverProductionTests():
     return suiteSelect
 
 if __name__ == '__main__':
-    # Run all tests --
-    # unittest.main()
     #
     if (False):
         mySuite = suiteMiscTests()
@@ -340,5 +342,5 @@ if __name__ == '__main__':
         mySuite = suiteProductionPurgeTests()
         unittest.TextTestRunner(verbosity=2).run(mySuite)
 
-    mySuite = suiteRecoverProductionTests()
-    unittest.TextTestRunner(verbosity=2).run(mySuite)
+        mySuite = suiteRecoverProductionTests()
+        unittest.TextTestRunner(verbosity=2).run(mySuite)
