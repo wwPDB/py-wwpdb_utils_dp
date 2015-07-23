@@ -2053,7 +2053,7 @@ class RcsbDpUtility(object):
             #  Recommend : java -Xms256m -Xmx256m -jar mapFixDep.jar -in <filein> -out <fileout> -all
 
             # Export map header as JSON packet -
-            jarPath = os.path.join(self.__packagePath, "mapFix", "mapFixDep.jar")
+            jarPath = os.path.join(self.__packagePath, "mapFix", "mapFixAnot.jar")
             cmd += self.__javaPath + " -Xms256m -Xmx256m -jar " + jarPath
             # -out is a temporary file place holder --
             cmd += " -in " + iPath + " -out  dummy-out.map "
@@ -2079,7 +2079,7 @@ class RcsbDpUtility(object):
             if 'map_file_path' in self.__inputParamDict:
                 inpMapFilePath = self.__inputParamDict['map_file_path']
             # Export map header as JSON packet -
-            jarPath = os.path.join(self.__packagePath, "mapFix", "mapFixDep.jar")
+            jarPath = os.path.join(self.__packagePath, "mapFix", "mapFixAnot.jar")
             cmd += self.__javaPath + " -Xms256m -Xmx256m -jar " + jarPath
             # -out is a temporary file place holder --
             cmd += " -in " + inpMapFilePath + " -out  dummy-out.map "
@@ -2111,7 +2111,7 @@ class RcsbDpUtility(object):
             if 'output_map_file_path' in self.__inputParamDict:
                 outMapFilePath = self.__inputParamDict['output_map_file_path']
             #
-            jarPath = os.path.join(self.__packagePath, "mapFix", "mapFixDep.jar")
+            jarPath = os.path.join(self.__packagePath, "mapFix", "mapFixAnot.jar")
             cmd += self.__javaPath + " -Xms256m -Xmx256m -jar " + jarPath
             # -out is a temporary file place holder --
             cmd += " -in " + inpMapFilePath + " -out  " + outMapFilePath
