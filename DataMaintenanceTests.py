@@ -16,6 +16,7 @@ import os
 import os.path
 import traceback
 import shutil
+import scandir
 
 from wwpdb.api.facade.ConfigInfo import ConfigInfo, getSiteId
 from wwpdb.utils.rcsb.DataMaintenance import DataMaintenance
@@ -305,6 +306,66 @@ class DataMaintenanceTests(unittest.TestCase):
             traceback.print_exc(file=sys.stdout)
             self.fail()
 
+    def __makeEntryPathList(self, archivePath):
+        """ Return the list of entries in the archive directory names and paths -
+        """
+        pathList = []
+        dataList = []
+        for root, dirs, files in scandir.walk(archivePath, topdown=False):
+            for dir in dirs:
+                if dir.startswith("D_") and len(dir) == 12:
+                    pathList.append(os.path.join(root, dir))
+                    dataList.append(dir)
+        return dataList, pathList
+
+    def __splitFilePath(self, pth):
+        id = None
+        contentType = None
+        fileFormat = None
+        partNo = None
+        versionNo = None
+        try:
+            dn, fn = os.path.split(pth)
+            fFields = fn.split('.')
+            fileName = fFields[0]
+            fileFormat = fFields[1]
+            if len(fFields) > 2:
+                versionNo = int(fFields[2][1:])
+            else:
+                versionNo = int(0)
+
+            fParts = fileName.split('_')
+            id = fParts[0]+'_'+fParts[1]
+            contentType = fParts[2]
+            partNo = int(fParts[3][1:])
+            return id, contentType, fileFormat, partNo, versionNo
+        except:
+            traceback.print_exc(file=sys.stdout)
+        return id, contentType, fileFormat, partNo, versionNo
+
+    def testGetFileInventory(self):
+        """
+        """
+        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        archivePath = self.__cI.get('SITE_ARCHIVE_STORAGE_PATH')
+        try:
+            idList, pathList = self.__makeEntryPathList(archivePath)
+            dm = DataMaintenance(siteId=self.__siteId, verbose=self.__verbose, log=self.__lfh)
+            for id in idList:
+                dirPath = os.path.join(archivePath, 'archive', id, '*')
+                self.__lfh.write("+testGetFileInventoryList- inventory in directory  %s\n" % (dirPath))
+                pL = dm.getMiscFileList(fPatternList=[dirPath], sortFlag=True)
+                self.__lfh.write("\n\n+testGetFileInventoryList- id %s file list\n" % (id))
+                for ii, p in enumerate(pL):
+                    tup0 = self.__splitFilePath(p[0])
+                    retR = [t for t in tup0]
+                    retR.append(p[1])
+                    retR.append(p[2])
+                    self.__lfh.write("+testGetFileInventoryList- %r  %r\n" % (ii, retR))
+        except:
+            traceback.print_exc(file=sys.stdout)
+            self.fail()
+
 
 def suiteMiscTests():
     suiteSelect = unittest.TestSuite()
@@ -330,6 +391,12 @@ def suiteRecoverProductionTests():
     suiteSelect.addTest(DataMaintenanceTests("testRecoverProductionList"))
     return suiteSelect
 
+
+def suiteGetFileInventoryTests():
+    suiteSelect = unittest.TestSuite()
+    suiteSelect.addTest(DataMaintenanceTests("testGetFileInventory"))
+    return suiteSelect
+
 if __name__ == '__main__':
     #
     if (False):
@@ -344,3 +411,6 @@ if __name__ == '__main__':
 
         mySuite = suiteRecoverProductionTests()
         unittest.TextTestRunner(verbosity=2).run(mySuite)
+
+    mySuite = suiteGetFileInventoryTests()
+    unittest.TextTestRunner(verbosity=2).run(mySuite)
