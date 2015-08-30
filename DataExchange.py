@@ -24,14 +24,12 @@ __version__ = "V0.09"
 
 import sys
 import os
-import string
 import shutil
 import traceback
 import glob
 from datetime import datetime
 
 from wwpdb.api.facade.ConfigInfo import ConfigInfo
-from wwpdb.api.facade.DataReference import DataFileReference
 from wwpdb.utils.rcsb.PathInfo import PathInfo
 
 
@@ -77,6 +75,7 @@ class DataExchange(object):
 
             self.__lfh.write("+DataExchange.__setup() - data set %s  instance %s file source %s\n" %
                              (self.__depDataSetId, self.__wfInstanceId, self.__fileSource))
+            self.__pI.setDebugFlag(flag=self.__debug)
 
     def setInputSessionPath(self, inputSessionPath=None):
         """  Override the path to files with fileSource="session"
@@ -398,7 +397,12 @@ class DataExchange(object):
                                                               formatType=formatType,
                                                               fileSource=fileSource,
                                                               mileStone=mileStone)
-            return self.__getFileList([fPattern], sortFlag=True)
+            tL = self.__getFileList([fPattern], sortFlag=True)
+            if self.__debug:
+                self.__lfh.write("+DataExchange.getPartionFileList() pattern %r\n" % fPattern)
+                self.__lfh.write("+DataExchange.getPartionFileList() file list %r\n" % tL)
+            #
+            return tL
         except:
             if self.__verbose:
                 self.__lfh.write("+DataExchange.getVersionFileList() failing for data set %s instance %s file source %s\n" %
@@ -463,6 +467,7 @@ class DataExchange(object):
               List of [(file path, modification date string, KBytes),...]
 
         """
+        rTup = []
         try:
             files = []
             for fPattern in fPatternList:
@@ -479,17 +484,16 @@ class DataExchange(object):
             # Sort the tuple list by the modification time (recent changes first)
             if sortFlag:
                 file_date_tuple_list.sort(key=lambda x: x[1], reverse=True)
-            rTup = []
+
             for fP, mT, sZ in file_date_tuple_list:
                 tS = datetime.fromtimestamp(mT).strftime("%Y-%b-%d %H:%M:%S")
                 rTup.append((fP, tS, sZ))
             return rTup
         except:
             if self.__verbose:
-                self.__lfh.write("+DataExchange.getVersionFileList() failing for data set %s instance %s file source %s\n" %
-                                 (self.__depDataSetId, self.__wfInstanceId, self.__fileSource))
+                self.__lfh.write("+DataExchange.__getFileList() failing for patternlist %r\n" % fPatternList)
                 traceback.print_exc(file=self.__lfh)
-            return []
+        return rTup
 
     ##
     def __getArchiveFileName(self, contentType="model", formatType="pdbx", version="latest", partitionNumber='1', mileStone=None):
