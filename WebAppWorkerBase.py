@@ -163,7 +163,7 @@ class WebAppWorkerBase(object):
 
         return rC
 
-    def _getSession(self, forceNew=False, useContext=False):
+    def _getSession(self, forceNew=False, useContext=False, overWrite=True):
         """ Join existing session or create new session as required.
         """
         #
@@ -189,7 +189,7 @@ class WebAppWorkerBase(object):
                         self._lfh.write(" %30s length=%d\n" % (k, len(v)))
                     else:
                         self._lfh.write(" %30s= %r\n" % (k, v))
-            self._reqObj.setDictionary(dd, overWrite=True)
+            self._reqObj.setDictionary(dd, overWrite=overWrite)
 
     def _isFileUpload(self, fileTag='file'):
         """ Generic check for the existence of request paramenter of type "file".
