@@ -88,6 +88,7 @@
 #  1-Oct-2014 jdw add "annot-chem-shifts-update"
 # 16-Jan-2015 jdw update validation-report-test for NMR
 # 23-Jan-2015 jdw add autocorrect option to method 'annot-update-map-header-in-place'
+# 16-Sep-2015 jdw replace annot-wwpdb-validate-test with annot-wwpdb-validate-all
 ##
 """
 Wrapper class for data processing and chemical component utilities.
@@ -157,7 +158,7 @@ class RcsbDpUtility(object):
         self.__annotationOps = ["annot-secondary-structure", "annot-link-ssbond", "annot-cis-peptide", "annot-distant-solvent",
                                 "annot-merge-struct-site", "annot-reposition-solvent", "annot-base-pair-info",
                                 "annot-validation", "annot-site", "annot-rcsb2pdbx", "annot-consolidated-tasks",
-                                "annot-wwpdb-validate-test", "annot-wwpdb-validate-2", "prd-search", "annot-wwpdb-validate-alt",
+                                "annot-wwpdb-validate-all", "annot-wwpdb-validate-2", "prd-search", "annot-wwpdb-validate-alt",
                                 "annot-chem-shift-check", "annot-chem-shift-coord-check",
                                 "annot-nmrstar2pdbx", "annot-pdbx2nmrstar", "annot-pdbx2nmrstar-bmrb",
                                 "annot-reposition-solvent-add-derived", "annot-rcsb2pdbx-strip", "annot-rcsbeps2pdbx-strip",
@@ -962,12 +963,13 @@ class RcsbDpUtility(object):
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
             cmd += " ; cp  -f " + pdfPath + " " + oPath
 
-        elif (op == "annot-wwpdb-validate-test"):
+        elif (op == "annot-wwpdb-validate-all"):
             #
-            #  This is in all respects the same as "annot-wwpdb-validate-alt" except that it uses chemical shift files and entry_id and
-            #   launches a test version of the launch script Vpack-test.
+            #   "annot-wwpdb-validate-all" handles inputs for all exp methods  ---
             #
-            # This parameter permits overriding the
+            #   Launches the validation software with wrapper script vpack-all-run.sh
+            #
+            #  'request_annotation_context'  parameter to override site environment setting --
             #
             if 'request_annotation_context' in self.__inputParamDict:
                 annotContext = self.__inputParamDict['request_annotation_context']
@@ -976,13 +978,13 @@ class RcsbDpUtility(object):
 
             cmd += " ; WWPDB_SITE_ID=" + self.__siteId + " ; export WWPDB_SITE_ID "
             cmd += " ; DEPLOY_DIR=" + self.__deployPath + " ; export DEPLOY_DIR "
-            cmdPath = os.path.join(self.__packagePath, "Vpack-v2", "scripts", "vpack-test-run.sh")
+            cmdPath = os.path.join(self.__packagePath, "Vpack-v2", "scripts", "vpack-all-run.sh")
             thisCmd = " ; " + cmdPath
 
             if 'entry_id' in self.__inputParamDict:
                 entryId = self.__inputParamDict['entry_id']
             else:
-                entryId = "2abc"
+                entryId = "3abc"
 
             if 'sf_file_path' in self.__inputParamDict:
                 sfPath = self.__inputParamDict['sf_file_path']
@@ -997,6 +999,13 @@ class RcsbDpUtility(object):
             else:
                 csPath = "none"
                 csPathFull = "none"
+
+            if 'vol_file_path' in self.__inputParamDict:
+                volPath = self.__inputParamDict['vol_file_path']
+                volPathFull = os.path.abspath(csPath)
+            else:
+                volPath = "none"
+                volPathFull = "none"
 
             if 'step_list' in self.__inputParamDict:
                 stepList = self.__inputParamDict['step_list']
@@ -1015,7 +1024,7 @@ class RcsbDpUtility(object):
                 cleanOpt = "none"
             #
             cmd += thisCmd + " " + entryId + " " + iPathFull + " " + pdfPath + " " + xmlPath + " " + pdfFullPath + \
-                " " + pngPath + " " + svgPath + " " + cleanOpt + " " + sfPathFull + " " + csPathFull + " " + stepList
+                " " + pngPath + " " + svgPath + " " + cleanOpt + " " + sfPathFull + " " + csPathFull + " " + volPathFull + " " + stepList
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
             cmd += " ; cp  -f " + pdfPath + " " + oPath
 
