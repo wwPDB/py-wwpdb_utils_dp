@@ -449,6 +449,12 @@ class PathInfo(object):
                 dfRef.setContentTypeAndFormat(contentType, formatType)
                 dfRef.setPartitionNumber(partNumber)
                 dfRef.setVersionId(versionId)
+            elif (fileSource in ['tempdep']):
+                dfRef.setDepositionDataSetId(dataSetId)
+                dfRef.setStorageType('tempdep')
+                dfRef.setContentTypeAndFormat(contentType, formatType)
+                dfRef.setPartitionNumber(partNumber)
+                dfRef.setVersionId(versionId)
             elif (fileSource == 'wf-instance'):
                 dfRef.setDepositionDataSetId(dataSetId)
                 dfRef.setWorkflowInstanceId(wfInstanceId)
