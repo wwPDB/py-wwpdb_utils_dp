@@ -2036,7 +2036,7 @@ class RcsbDpUtility(object):
             system_path = os.path.join(self.__packagePath, "..")
             convert = os.path.join(system_path, "bin", "convert")
             lib_path = os.path.join(system_path, "lib")
-            cmd += "export LD_LIBRARY_PATH=" + lib_path+ "; "
+            cmd += "export LD_LIBRARY_PATH=" + lib_path + "; "
             convert = "convert"
             cmd += convert + " -resize x400 "
             #
@@ -2218,7 +2218,8 @@ class RcsbDpUtility(object):
         else:
             pass
 
-        if (op not in ("em2em-spider", "mapfix-big", "fsc_check", "img-convert", "annot-read-map-header", "annot-read-map-header-in-place", "annot-update-map-header-in-place")):
+        if (op not in ("em2em-spider", "mapfix-big", "fsc_check", "img-convert", "annot-read-map-header",
+                       "annot-read-map-header-in-place", "annot-update-map-header-in-place", "deposit-update-map-header-in-place")):
             return -1
         #
 
