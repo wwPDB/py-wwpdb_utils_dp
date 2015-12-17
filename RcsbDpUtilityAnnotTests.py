@@ -1167,6 +1167,7 @@ def suiteAnnotFormatConvertTests():
     suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotRcsbEps2Pdbx"))
     return suiteSelect
 
+
 def suiteArchiveValidationNmrTests():
     suiteSelect = unittest.TestSuite()
     suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotValidateListNmrTest"))
@@ -1243,3 +1244,6 @@ if __name__ == '__main__':
 
     else:
         pass
+
+    mySuite = suiteArchiveValidationNmrTests()
+    unittest.TextTestRunner(verbosity=2).run(mySuite)
