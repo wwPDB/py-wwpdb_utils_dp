@@ -2033,12 +2033,16 @@ class RcsbDpUtility(object):
             cmd += " ; } 2> " + lPath + " 1>" + oPath
 
         elif (op == "img-convert"):
-            system_path = os.path.join(self.__packagePath, "..")
-            convert = os.path.join(system_path, "bin", "convert")
-            lib_path = os.path.join(system_path, "lib")
-            cmd += "export LD_LIBRARY_PATH=" + lib_path + "; "
-            convert = "convert -quiet"
-            cmd += convert + " -resize x400 "
+            # ES (17 Dec 2015): commented lines that doesn't have effect. I
+            # believe at some point convert was installed in the tools folder,
+            # not any more. We rely on the one installed in the different
+            # systems and servers (it is quiet ubiquitous).
+            #system_path = os.path.join(self.__packagePath, "..")
+            #convert = os.path.join(system_path, "bin", "convert")
+            #lib_path = os.path.join(system_path, "lib")
+            #cmd += "export LD_LIBRARY_PATH=" + lib_path+ "; "
+            convert = "convert -quiet -resize x400 "
+            cmd += convert
             #
             if 'options' in self.__inputParamDict:
                 options = self.__inputParamDict['options']
