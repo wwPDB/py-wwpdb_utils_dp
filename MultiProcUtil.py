@@ -119,6 +119,10 @@ class MultiProcUtil(object):
         if numProc < 1:
             numProc = multiprocessing.cpu_count() * 2
 
+        if numProc > len(dataList):
+            numProc = len(dataList)
+        #
+
         subLists = [dataList[i::numProc] for i in range(numProc)]
         #
         if (self.__verbose):
