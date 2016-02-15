@@ -631,11 +631,13 @@ class RcsbDpUtility(object):
             # cmd += " ; DYLD_LIBRARY_PATH=" + os.path.join(self.__packagePath,"ccp4","lib","ccif") + ":" + \
             #       os.path.join(self.__packagePath,"ccp4","lib") + " ; export DYLD_LIBRARY_PATH "
 
-            cmd += " ; LD_LIBRARY_PATH=" + os.path.join(self.__packagePath, "ccp4", "lib", "ccif") + ":" + \
+            cmd += " ; LD_LIBRARY_PATH=" + os.path.join(self.__packagePath, "ccp4-ccif", "lib") + ":" + \
+                   os.path.join(self.__packagePath, "ccp4", "lib", "ccif") + ":" + \
                    os.path.join(self.__packagePath, "ccp4", "lib") + " ; export LD_LIBRARY_PATH "
 
-            cmd += " ; DYLD_LIBRARY_PATH=" + os.path.join(self.__packagePath, "ccp4", "lib") + ":" + \
-                   os.path.join(self.__packagePath, "ccp4") + " ; export DYLD_LIBRARY_PATH "
+            cmd += " ; DYLD_LIBRARY_PATH=" + os.path.join(self.__packagePath, "ccp4-ccif", "lib") + ":" + \
+                os.path.join(self.__packagePath, "ccp4", "lib") + ":" + \
+                os.path.join(self.__packagePath, "ccp4") + " ; export DYLD_LIBRARY_PATH "
 
             # setenv CIFIN 1abc.cif
             cmd += " ; CIFIN=" + iPath + " ; export CIFIN "
