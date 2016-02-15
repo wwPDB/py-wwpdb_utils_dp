@@ -1245,5 +1245,10 @@ if __name__ == '__main__':
     else:
         pass
 
-    mySuite = suiteArchiveValidationNmrTests()
+    #
+    mySuite = suiteAnnotSiteTests()
     unittest.TextTestRunner(verbosity=2).run(mySuite)
+    #
+    mySuite = suiteAnnotSiteAltTests()
+    unittest.TextTestRunner(verbosity=2).run(mySuite)
+
