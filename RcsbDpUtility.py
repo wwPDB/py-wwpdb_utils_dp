@@ -1948,7 +1948,7 @@ class RcsbDpUtility(object):
         if self.__siteId in ['WWPDB_DEPLOY_MACOSX']:
             self.__javaPath = '/usr/bin/java'
         else:
-            self.__javaPath = os.path.join(self.__packagePath, "java", "jdk1.7", "bin", "java")
+            self.__javaPath = os.path.join(self.__packagePath, "java", "jdk1.8", "bin", "java")
 
         #
         #
@@ -1973,7 +1973,7 @@ class RcsbDpUtility(object):
             cmd = "{ "
 
         def mapfix_command(input):
-            #javaPath=os.path.join(self.__packagePath, "java", "jdk1.7", "bin", "java")
+            #javaPath=os.path.join(self.__packagePath, "java", "jdk1.8", "bin", "java")
             jarPath = os.path.join(self.__packagePath, "mapFix", "mapFixDep.jar")
             out = self.__javaPath + " -Xms256m -Xmx256m -jar " + jarPath
             out += " -in " + input + " -out " + oPath
