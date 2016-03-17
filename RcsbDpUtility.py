@@ -90,6 +90,7 @@
 # 23-Jan-2015 jdw add autocorrect option to method 'annot-update-map-header-in-place'
 # 16-Sep-2015 jdw replace annot-wwpdb-validate-test with annot-wwpdb-validate-all
 # 07-Oct-2015 jdw add 'deposit-update-map-header-in-place'
+# 17-Mar-2016 jdw add "chem-comp-dict-makeindex" and "chem-comp-dict-serialize"
 ##
 """
 Wrapper class for data processing and chemical component utilities.
@@ -152,7 +153,8 @@ class RcsbDpUtility(object):
                            "cif2pdb-assembly", "pdbx2pdb-assembly", "pdbx2deriv"]
         self.__rcsbOps = ["rename-atoms", "cif2pdbx", "pdbx2xml", "pdb2dssp", "pdb2stride", "initial-version", "poly-link-dist",
                           "chem-comp-link", "chem-comp-assign", "chem-comp-assign-comp", "chem-comp-assign-skip",
-                          "chem-comp-assign-exact", "chem-comp-assign-validation", "check-cif", "check-cif-v4", "cif2pdbx-public"]
+                          "chem-comp-assign-exact", "chem-comp-assign-validation", "check-cif", "check-cif-v4", "cif2pdbx-public",
+                          "chem-comp-dict-makeindex", "chem-comp-dict-serialize"]
         self.__pisaOps = ["pisa-analysis", "pisa-assembly-report-xml", "pisa-assembly-report-text",
                           "pisa-interface-report-xml", "pisa-assembly-coordinates-pdb", "pisa-assembly-coordinates-cif",
                           "pisa-assembly-coordinates-cif", "pisa-assembly-merge-cif"]
@@ -2403,6 +2405,9 @@ class RcsbDpUtility(object):
         self.__ccDictPath = self.__getConfigPath('SITE_CC_DICT_PATH')
         self.__ccCvsPath = self.__getConfigPath('SITE_CC_CVS_PATH')
 
+        self.__resourcePath = self.__getConfigPath('SITE_RESOURCE_DIRECTORY_PATH')
+        self.__patternPath = os.path.join(self.__resourcePath, "fp_patterns.txt")
+        self.__ccDictPathCif = os.path.join(self.__ccDictPath, "Components-all-v3.cif")
         self.__ccDictPathSdb = os.path.join(self.__ccDictPath, "Components-all-v3.sdb")
         self.__ccDictPathIdx = os.path.join(self.__ccDictPath, "Components-all-v3-r4.idx")
         #
@@ -2452,6 +2457,27 @@ class RcsbDpUtility(object):
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
             cmd += " ; mv -f " + iPath + ".cif " + oPath
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
+        elif (op == "chem-comp-dict-makeindex"):
+            # -index oPath(.idx) -lib iPath (.sdb) -type makeindex -fplib $fpPatFile
+            #  ipath = dict.sdb   opath = dict.idx
+            #  #   serialized files are checked for file extension -- so adding one here --
+            lsdbPath = iPath + ".sdb"
+            cmd += " ; OE_DIR=" + self.__oeDirPath + " ; export OE_DIR "
+            cmd += " ; OE_LICENSE=" + self.__oeLicensePath + " ; export OE_LICENSE "
+            cmd += " ;  ln -s " + iPath + " " + lsdbPath
+            cmdPath = os.path.join(self.__ccAppsPath, "bin", "matchComp")
+            thisCmd = " ; " + cmdPath + "  -v -lib " + lsdbPath + " -type makeindex -fplib " + self.__patternPath
+            cmd += thisCmd + " -index " + oPath
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " > " + lPath
+            cmd += " ; cat matchComp.log  >> " + lPath
+        elif (op == "chem-comp-dict-serialize"):
+            # $binPath/checkCifUtil -i $oFileTmp  -osdb $oFileSdbTmp -op serialize
+            #
+            cmdPath = os.path.join(self.__ccAppsPath, "bin", "checkCifUtil")
+            thisCmd = " ; " + cmdPath + " -i " + iPath + " -op serialize "
+            cmd += thisCmd + " -osdb " + oPath
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " > " + lPath
+            cmd += " ; cat checkCifUtilIO.log  >> " + lPath
         elif (op == "initial-version"):
             cmdPath = os.path.join(self.__rcsbAppsPath, "bin", "cif-version")
             thisCmd = " ; " + cmdPath
