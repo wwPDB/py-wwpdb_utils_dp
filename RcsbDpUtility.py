@@ -91,6 +91,7 @@
 # 16-Sep-2015 jdw replace annot-wwpdb-validate-test with annot-wwpdb-validate-all
 # 07-Oct-2015 jdw add 'deposit-update-map-header-in-place'
 # 17-Mar-2016 jdw add "chem-comp-dict-makeindex" and "chem-comp-dict-serialize"
+# 20-Mar-2016 jdw add clear log before chem-comp-dict- operations -
 ##
 """
 Wrapper class for data processing and chemical component utilities.
@@ -2468,7 +2469,7 @@ class RcsbDpUtility(object):
             cmdPath = os.path.join(self.__ccAppsPath, "bin", "matchComp")
             thisCmd = " ; " + cmdPath + "  -v -lib " + lsdbPath + " -type makeindex -fplib " + self.__patternPath
             cmd += thisCmd + " -index " + oPath
-            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " > " + lPath
+            cmd += " > " + tPath + " 2>&1 ; rm -f " + lPath + " ; cat " + tPath + " > " + lPath
             cmd += " ; cat matchComp.log  >> " + lPath
         elif (op == "chem-comp-dict-serialize"):
             # $binPath/checkCifUtil -i $oFileTmp  -osdb $oFileSdbTmp -op serialize
@@ -2476,7 +2477,7 @@ class RcsbDpUtility(object):
             cmdPath = os.path.join(self.__ccAppsPath, "bin", "checkCifUtil")
             thisCmd = " ; " + cmdPath + " -i " + iPath + " -op serialize "
             cmd += thisCmd + " -osdb " + oPath
-            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " > " + lPath
+            cmd += " > " + tPath + " 2>&1 ; rm -f " + lPath + " ; cat " + tPath + " > " + lPath
             cmd += " ; cat checkCifUtilIO.log  >> " + lPath
         elif (op == "initial-version"):
             cmdPath = os.path.join(self.__rcsbAppsPath, "bin", "cif-version")
