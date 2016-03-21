@@ -2469,7 +2469,7 @@ class RcsbDpUtility(object):
             cmdPath = os.path.join(self.__ccAppsPath, "bin", "matchComp")
             thisCmd = " ; " + cmdPath + "  -v -lib " + lsdbPath + " -type makeindex -fplib " + self.__patternPath
             cmd += thisCmd + " -index " + oPath
-            cmd += " > " + tPath + " 2>&1 ; rm -f " + lPath + " ; cat " + tPath + " > " + lPath
+            cmd += " > " + tPath + " 2>&1 ;  cat " + tPath + " > " + lPath
             cmd += " ; cat matchComp.log  >> " + lPath
         elif (op == "chem-comp-dict-serialize"):
             # $binPath/checkCifUtil -i $oFileTmp  -osdb $oFileSdbTmp -op serialize
@@ -2477,7 +2477,7 @@ class RcsbDpUtility(object):
             cmdPath = os.path.join(self.__ccAppsPath, "bin", "checkCifUtil")
             thisCmd = " ; " + cmdPath + " -i " + iPath + " -op serialize "
             cmd += thisCmd + " -osdb " + oPath
-            cmd += " > " + tPath + " 2>&1 ; rm -f " + lPath + " ; cat " + tPath + " > " + lPath
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " > " + lPath
             cmd += " ; cat checkCifUtilIO.log  >> " + lPath
         elif (op == "initial-version"):
             cmdPath = os.path.join(self.__rcsbAppsPath, "bin", "cif-version")
