@@ -92,6 +92,7 @@
 # 07-Oct-2015 jdw add 'deposit-update-map-header-in-place'
 # 17-Mar-2016 jdw add "chem-comp-dict-makeindex" and "chem-comp-dict-serialize"
 # 20-Mar-2016 jdw add clear log before chem-comp-dict- operations -
+# 21-Mar-2016 jdw add append/copy mode option on logfile export -
 ##
 """
 Wrapper class for data processing and chemical component utilities.
@@ -3047,8 +3048,8 @@ class RcsbDpUtility(object):
         except:
             return False
 
-    def expLog(self, dstPath=None):
-        """Append a copy of the current log file to destination path.
+    def expLog(self, dstPath=None, appendMode=True):
+        """Append or copy  the current log file to destination path.
         """
         if (dstPath is not None):
             self.setLogDestination(dstPath)
@@ -3058,9 +3059,12 @@ class RcsbDpUtility(object):
         else:
             logPath = lf
         f1 = DataFile(logPath)
-        f1.append(self.__dstLogPath)
+        if appendMode:
+            f1.append(self.__dstLogPath)
+        else:
+            f1.copy(self.__dstLogPath)
 
-    def expErrLog(self, dstPath=None):
+    def expErrLog(self, dstPath=None, appendMode=True):
         """Append a copy of the current error log file to destination error path.
         """
         if (dstPath is not None):
@@ -3071,7 +3075,10 @@ class RcsbDpUtility(object):
         else:
             logPath = lf
         f1 = DataFile(logPath)
-        f1.append(self.__dstLogPath)
+        if appendMode:
+            f1.append(self.__dstLogPath)
+        else:
+            f1.copy(self.__dstLogPath)
 
     def expLogAll(self, dstPath=None):
         """Append all session logs to destination logfile path.
