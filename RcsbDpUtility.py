@@ -93,6 +93,7 @@
 # 17-Mar-2016 jdw add "chem-comp-dict-makeindex" and "chem-comp-dict-serialize"
 # 20-Mar-2016 jdw add clear log before chem-comp-dict- operations -
 # 21-Mar-2016 jdw add append/copy mode option on logfile export -
+# 04-Apr-2016 ep  update annot-dcc-report to use -auto option as validation always does
 ##
 """
 Wrapper class for data processing and chemical component utilities.
@@ -1110,7 +1111,7 @@ class RcsbDpUtility(object):
                 sfWrkPath = os.path.join(self.__wrkPath, sfFileName)
                 shutil.copyfile(sfPathFull, sfWrkPath)
                 #
-                cmd += thisCmd + dccArgs + " -cif ./" + iPath + " -sf  ./" + sfFileName + " -o " + oPath + " -diags " + lPath
+                cmd += thisCmd + dccArgs + " -auto -cif ./" + iPath + " -sf  ./" + sfFileName + " -o " + oPath + " -diags " + lPath
 
             else:
                 sfPath = "none"
