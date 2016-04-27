@@ -286,8 +286,6 @@ if __name__ == '__main__':
         idlist = ''
         filename = ''
         for opt, arg in opts:
-            print 'opt=' + opt
-            print 'arg=' + arg
             if opt in ("-i"):
                 idlist = arg
             elif opt in ("-f"):
