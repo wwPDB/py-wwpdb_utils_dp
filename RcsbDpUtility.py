@@ -1953,7 +1953,8 @@ class RcsbDpUtility(object):
         if self.__siteId in ['WWPDB_DEPLOY_MACOSX']:
             self.__javaPath = '/usr/bin/java'
         else:
-            self.__javaPath = os.path.join(self.__packagePath, "java", "jdk1.8", "bin", "java")
+            self.__javaPath = os.path.join(self.__packagePath, "java",
+                    "jre", "bin", "java")
 
         #
         #
@@ -1978,7 +1979,6 @@ class RcsbDpUtility(object):
             cmd = "{ "
 
         def mapfix_command(input):
-            #javaPath=os.path.join(self.__packagePath, "java", "jdk1.8", "bin", "java")
             jarPath = os.path.join(self.__packagePath, "mapFix", "mapFixDep.jar")
             out = self.__javaPath + " -Xms256m -Xmx256m -jar " + jarPath
             out += " -in " + input + " -out " + oPath
@@ -2062,16 +2062,16 @@ class RcsbDpUtility(object):
         # Annotation tasks ----
         #
         elif (op == "annot-read-map-header"):
-            #
-            # java -Xms256m -Xmx256m -jar /wwpdb_da/da_top/tools-macosx-108/packages/mapFix/mapFixDep.jar -h
+            # update the header of the map file avoiding a local copy -
+            # Both options -in and -out must be specified.
             #  -in  <filename>           : input map
-            # -out <filename>           : output map
-            # -cell <x> <y> <z>         : set x/y/z-length x/y/z
-            # -label <DepCode>          : write new label
-            # -gridsampling <x> <y> <z> : set x/y/z- grid sampling
-            # -gridstart <x> <y> <z>    : set x/y/z- grid start point
-            # -voxel <x> <y> <z>        : set x/y/z-length values to N[X/Y/Z]-length
-            #  Recommend : java -Xms256m -Xmx256m -jar mapFixDep.jar -in <filein> -out <fileout> -all
+            #  -out <filename>           : output map
+            #  -cell <x> <y> <z>         : set x/y/z-length x/y/z
+            #  -label <DepCode>          : write new label
+            #  -gridsampling <x> <y> <z> : set x/y/z- grid sampling
+            #  -gridstart <x> <y> <z>    : set x/y/z- grid start point
+            #  -voxel <x> <y> <z>        : set x y z pixel spacing
+            #  Recommend : java -Xms256m -Xmx256m -jar mapFixAnot.jar -in <filein> -out <fileout>
 
             # Export map header as JSON packet -
             jarPath = os.path.join(self.__packagePath, "mapFix", "mapFixAnot.jar")
@@ -2085,17 +2085,16 @@ class RcsbDpUtility(object):
             cmd += " ; cat " + ePath + " > " + lPath
 
         elif (op == "annot-read-map-header-in-place"):
-            # Read the header of the map file avoiding a local copy -
-            #
-            # java -Xms256m -Xmx256m -jar /wwpdb_da/da_top/tools-macosx-108/packages/mapFix/mapFixDep.jar -h
+            # update the header of the map file avoiding a local copy -
+            # Both options -in and -out must be specified.
             #  -in  <filename>           : input map
-            # -out <filename>           : output map
-            # -cell <x> <y> <z>         : set x/y/z-length x/y/z
-            # -label <DepCode>          : write new label
-            # -gridsampling <x> <y> <z> : set x/y/z- grid sampling
-            # -gridstart <x> <y> <z>    : set x/y/z- grid start point
-            # -voxel <x> <y> <z>        : set x/y/z-length values to N[X/Y/Z]-length
-            #  Recommend : java -Xms256m -Xmx256m -jar mapFixDep.jar -in <filein> -out <fileout> -all
+            #  -out <filename>           : output map
+            #  -cell <x> <y> <z>         : set x/y/z-length x/y/z
+            #  -label <DepCode>          : write new label
+            #  -gridsampling <x> <y> <z> : set x/y/z- grid sampling
+            #  -gridstart <x> <y> <z>    : set x/y/z- grid start point
+            #  -voxel <x> <y> <z>        : set x y z pixel spacing
+            #  Recommend : java -Xms256m -Xmx256m -jar mapFixAnot.jar -in <filein> -out <fileout>
 
             if 'map_file_path' in self.__inputParamDict:
                 inpMapFilePath = self.__inputParamDict['map_file_path']
@@ -2112,18 +2111,15 @@ class RcsbDpUtility(object):
 
         elif (op == "annot-update-map-header-in-place"):
             # update the header of the map file avoiding a local copy -
-            #
-            # java -Xms256m -Xmx256m -jar /wwpdb_da/da_top/tools-macosx-108/packages/mapFix/mapFixDep.jar -h
+            # Both options -in and -out must be specified.
             #  -in  <filename>           : input map
-            # -out <filename>           : output map
-            # -label <DepCode>          : write new label
-            # -voxel <x> <y> <z>        : set x/y/z-length values to N[X/Y/Z]-length            #
-            # -gridstart <x> <y> <z>    : set x/y/z- grid start point
-            #
-            # -cell <x> <y> <z>         : set x/y/z-length x/y/z
-            # -gridsampling <x> <y> <z> : set x/y/z- grid sampling
-            # -all ---
-            #  Recommend : java -Xms256m -Xmx256m -jar mapFixDep.jar -in <filein> -out <fileout> -all
+            #  -out <filename>           : output map
+            #  -cell <x> <y> <z>         : set x/y/z-length x/y/z
+            #  -label <DepCode>          : write new label
+            #  -gridsampling <x> <y> <z> : set x/y/z- grid sampling
+            #  -gridstart <x> <y> <z>    : set x/y/z- grid start point
+            #  -voxel <x> <y> <z>        : set x y z pixel spacing
+            #  Recommend : java -Xms256m -Xmx256m -jar mapFixAnot.jar -in <filein> -out <fileout>
 
             # use references for input and output file paths -
             if 'input_map_file_path' in self.__inputParamDict:
@@ -2140,6 +2136,7 @@ class RcsbDpUtility(object):
             if 'voxel' in self.__inputParamDict:
                 argVal = self.__inputParamDict['voxel']
                 cmd += " -voxel " + argVal
+
             if 'cell' in self.__inputParamDict:
                 argVal = self.__inputParamDict['cell']
                 cmd += " -cell " + argVal
@@ -2155,33 +2152,21 @@ class RcsbDpUtility(object):
             if 'gridstart' in self.__inputParamDict:
                 argVal = self.__inputParamDict['gridstart']
                 cmd += " -gridstart " + argVal
+
             # any options ---
             if 'options' in self.__inputParamDict:
                 argVal = str(self.__inputParamDict['options']).strip()
                 cmd += " " + argVal
-            if 'auto' in self.__inputParamDict:
-                cmd += " -all "
-            #
-            # these dummy arguments required to run this code --
-            # cmd  += " -voxel 1.0 1.0 1.0 -label test "
-            # oPath here will be the JSON  output containing may header details --
-            #
+
             cmd += " ; } 2> " + ePath + " 1> " + oPath
             cmd += " ; cat " + ePath + " > " + lPath
         elif (op == "deposit-update-map-header-in-place"):
-            # update the header of the map file avoiding a local copy -
-            #
-            # java -Xms256m -Xmx256m -jar /wwpdb_da/da_top/tools-macosx-108/packages/mapFix/mapFixDep.jar -h
+            # Both options -in and -out must be specified.
             #  -in  <filename>           : input map
-            # -out <filename>           : output map
-            # -label <DepCode>          : write new label
-            # -voxel <x> <y> <z>        : set x/y/z-length values to N[X/Y/Z]-length            #
-            # -gridstart <x> <y> <z>    : set x/y/z- grid start point
-            #
-            # -cell <x> <y> <z>         : set x/y/z-length x/y/z
-            # -gridsampling <x> <y> <z> : set x/y/z- grid sampling
-            # -all ---
-            #  Recommend : java -Xms256m -Xmx256m -jar mapFixDep.jar -in <filein> -out <fileout> -all
+            #  -out <filename>           : output map
+            #  -label <DepCode>          : write new label
+            #  -voxel <x> <y> <z>        : set x y z pixel spacing
+            #  Recommend : java -Xms256m -Xmx256m -jar mapFixDep.jar -in <filein> -out <fileout> -voxel X Y Z -label 'D_120001'
 
             # use references for input and output file paths -
             if 'input_map_file_path' in self.__inputParamDict:
@@ -2198,32 +2183,14 @@ class RcsbDpUtility(object):
             if 'voxel' in self.__inputParamDict:
                 argVal = self.__inputParamDict['voxel']
                 cmd += " -voxel " + argVal
-            if 'cell' in self.__inputParamDict:
-                argVal = self.__inputParamDict['cell']
-                cmd += " -cell " + argVal
-
-            if 'label' in self.__inputParamDict:
                 argVal = self.__inputParamDict['label']
                 cmd += " -label " + argVal
 
-            if 'gridsampling' in self.__inputParamDict:
-                argVal = self.__inputParamDict['gridsampling']
-                cmd += " -gridsampling " + argVal
-
-            if 'gridstart' in self.__inputParamDict:
-                argVal = self.__inputParamDict['gridstart']
-                cmd += " -gridstart " + argVal
             # any options ---
             if 'options' in self.__inputParamDict:
                 argVal = str(self.__inputParamDict['options']).strip()
                 cmd += " " + argVal
-            if 'auto' in self.__inputParamDict:
-                cmd += " -all "
-            #
-            # these dummy arguments required to run this code --
-            # cmd  += " -voxel 1.0 1.0 1.0 -label test "
-            # oPath here will be the JSON  output containing may header details --
-            #
+
             cmd += " ; } 2> " + ePath + " 1> " + oPath
             cmd += " ; cat " + ePath + " > " + lPath
         else:
