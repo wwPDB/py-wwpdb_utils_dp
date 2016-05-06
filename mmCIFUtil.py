@@ -24,6 +24,7 @@ class mmCIFUtil:
         self.__lfh       = log
         self.__filePath  = filePath
         self.__dataList  = []
+        self.__dataMap   = {}
         self.__container = None
         self.__blockID   = None
         self.__read()
@@ -38,43 +39,53 @@ class mmCIFUtil:
             if self.__dataList:
                 self.__container = self.__dataList[0]
                 self.__blockID = self.__container.getName()
+                idx = 0
+                for container in self.__dataList:
+                    self.__dataMap[container.getName()] = idx
+                    idx += 1
+                #
+            #
         except:
             self.__lfh.write("Read %s failed.\n" % self.__filePath)
         #
 
     def GetBlockID(self):
+        """Return first block ID
+        """
         return self.__blockID
+
+    def GetValueAndItemByBlock(self, blockName, catName):
+        """Get category values and item names
+        """
+        dList = []
+        iList = []
+        if not self.__dataMap.has_key(blockName):
+            return dList,iList
         #
+        catObj = self.__dataList[self.__dataMap[blockName]].getObj(catName)
+        if not catObj:
+            return dList,iList
+        #
+        iList = catObj.getAttributeList()
+        rowList = catObj.getRowList()
+        for row in rowList:
+            tD = {}
+            for idxIt, itName in enumerate(iList):
+                if row[idxIt] != '?' and row[idxIt] != '.':
+                    tD[itName] = row[idxIt]
+            #
+            if tD:
+                dList.append(tD)
+            #
+        #
+        return dList,iList
 
     def GetValue(self, catName):
         """Get category values based on category name 'catName'. The results are stored
            in a list of dictionaries with item name as key
         """
-        dList = [] 
-        if not self.__container:
-            return dList
-        #
-        catObj = self.__container.getObj(catName)
-        if not catObj:
-            return dList
-        #
-        # Get column name index
-        #
-        itNameList = catObj.getItemNameList()
-        #
-        rowList = catObj.getRowList()
-        for row in rowList:
-            tD = {}
-            for idxIt, itName in enumerate(itNameList):
-                if row[idxIt] != '?' and row[idxIt] != '.':
-                    tlist = itName.split('.')
-                    tD[tlist[1]] = row[idxIt]
-            #
-            if tD:
-                dList.append(tD)
-        #
+        dList,iList = self.GetValueAndItemByBlock(self.__blockID, catName)
         return dList
-        #
 
     def GetSingleValue(self, catName, itemName):
         """Get the first value of item name 'itemName' from 'itemName' item in 'catName' category.
