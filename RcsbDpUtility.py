@@ -403,7 +403,7 @@ class RcsbDpUtility(object):
         #
         self.__annotAppsPath = self.__getConfigPath('SITE_ANNOT_TOOLS_PATH')
         self.__localAppsPath = self.__getConfigPath('SITE_LOCAL_APPS_PATH')
-        self.__packagePath = self.__getConfigPath('SITE_TOOLS_PATH')
+        self.__packagePath = self.__getConfigPath('SITE_PACKAGES_PATH')
         self.__deployPath = self.__getConfigPath('SITE_DEPLOY_PATH')
         self.__ccDictPath = self.__getConfigPath('SITE_CC_DICT_PATH')
         self.__ccCvsPath = self.__getConfigPath('SITE_CC_CVS_PATH')
@@ -1850,7 +1850,7 @@ class RcsbDpUtility(object):
         # Set application specific path details here -
         #
         self.__localAppsPath = self.__getConfigPath('SITE_LOCAL_APPS_PATH')
-        self.__packagePath = self.__getConfigPath('SITE_TOOLS_PATH')
+        self.__packagePath = self.__getConfigPath('SITE_PACKAGES_PATH')
         self.__deployPath = self.__getConfigPath('SITE_DEPLOY_PATH')
         self.__ccDictPath = self.__getConfigPath('SITE_CC_DICT_PATH')
         self.__ccCvsPath = self.__getConfigPath('SITE_CC_CVS_PATH')
@@ -1947,7 +1947,7 @@ class RcsbDpUtility(object):
         #
         # Set application specific path details here -
         #
-        self.__packagePath = self.__getConfigPath('SITE_TOOLS_PATH')
+        self.__packagePath = self.__getConfigPath('SITE_PACKAGES_PATH')
         self.__deployPath = self.__getConfigPath('SITE_DEPLOY_PATH')
         self.__emDictPath = self.__getConfigPath('SITE_EM_DICT_PATH')
         if self.__siteId in ['WWPDB_DEPLOY_MACOSX']:
@@ -2364,7 +2364,7 @@ class RcsbDpUtility(object):
         if self.__localAppsPath is None:
             self.__localAppsPath = self.__getConfigPath('SITE_LOCAL_APPS_PATH')
 
-        self.__packagePath = self.__getConfigPath('SITE_TOOLS_PATH')
+        self.__packagePath = self.__getConfigPath('SITE_PACKAGES_PATH')
 
         #
         self.__ccAppsPath = self.__getConfigPath('SITE_CC_APPS_PATH')
@@ -2807,7 +2807,7 @@ class RcsbDpUtility(object):
 
         """
         #
-        packagePath = self.__getConfigPath('SITE_TOOLS_PATH')
+        packagePath = self.__getConfigPath('SITE_PACKAGES_PATH')
         seqDbPath = self.__getConfigPath('SITE_REFDATA_SEQUENCE_DB_PATH')
         ncbiToolsPath = os.path.join(packagePath, 'ncbi-blast+')
 
