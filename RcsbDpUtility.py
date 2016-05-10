@@ -94,6 +94,7 @@
 # 20-Mar-2016 jdw add clear log before chem-comp-dict- operations -
 # 21-Mar-2016 jdw add append/copy mode option on logfile export -
 # 04-Apr-2016 ep  update annot-dcc-report to use -auto option as validation always does
+# 10-May-2016 jdw update environment: SITE_TOOLS_PATH replaced by SITE_PACKAGES_PATH
 ##
 """
 Wrapper class for data processing and chemical component utilities.
