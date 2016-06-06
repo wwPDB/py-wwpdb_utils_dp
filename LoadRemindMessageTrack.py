@@ -271,7 +271,9 @@ class LoadRemindMessageTrack(object):
                 #
                 if map.has_key(message['message_id']) and map[message['message_id']] == 'validation-report-annotate':
                     trackMap['last_validation_sent_date'] = message['timestamp'][0:10]
-                    last_validation_report = message['message_text']
+                    if message.has_key('message_text'):
+                        last_validation_report = message['message_text']
+                    #
                 #
             #
             if last_validation_report and re.search('Some major issues', last_validation_report) != None:

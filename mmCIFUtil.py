@@ -12,6 +12,7 @@ __version__ = "V0.001"
 
 import sys
 
+from pdbx_v2.reader.DataCategory       import DataCategory
 from pdbx_v2.reader.PdbxContainers     import *
 from pdbx_v2.reader.PdbxReader         import PdbxReader
 from pdbx_v2.writer.PdbxWriter         import PdbxWriter
@@ -31,6 +32,9 @@ class mmCIFUtil:
         #
 
     def __read(self):
+        if not self.__filePath:
+            return
+        #
         try:
             ifh = open(self.__filePath, 'r')
             pRd = PdbxReader(ifh)
@@ -117,6 +121,34 @@ class mmCIFUtil:
         rowNo = catObj.getRowCount()
         for row in xrange(0, rowNo):
             catObj.setValue(value, itemName, row)
+        #
+
+    def AddBlock(self, blockID):
+        """Add Data Block
+        """
+        self.__container = DataContainer(blockID)
+        self.__blockID = blockID
+        self.__dataMap[blockID] = len(self.__dataList)
+        self.__dataList.append(self.__container)
+
+    def AddCategory(self, categoryID, items):
+        """Add Category
+        """
+        category = DataCategory(categoryID)
+        for item in items:
+            category.appendAttribute(item)
+        #
+        self.__container.append(category)
+
+    def InsertData(self, categoryID, dataList):
+        """
+        """
+        catObj = self.__container.getObj(categoryID)
+        if catObj == None:
+            return
+        #
+        for data in dataList:
+            catObj.append(data)
         #
 
     def WriteCif(self, outputFilePath=None):
