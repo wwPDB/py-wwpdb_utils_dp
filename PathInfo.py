@@ -443,6 +443,12 @@ class PathInfo(object):
                 dfRef.setContentTypeAndFormat(contentType, formatType)
                 dfRef.setPartitionNumber(partNumber)
                 dfRef.setVersionId(versionId)
+            elif (fileSource in ['autogroup']):
+                dfRef.setDepositionDataSetId(dataSetId)
+                dfRef.setStorageType('autogroup')
+                dfRef.setContentTypeAndFormat(contentType, formatType)
+                dfRef.setPartitionNumber(partNumber)
+                dfRef.setVersionId(versionId)
             elif (fileSource in ['deposit']):
                 dfRef.setDepositionDataSetId(dataSetId)
                 dfRef.setStorageType('deposit')
