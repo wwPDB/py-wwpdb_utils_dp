@@ -95,6 +95,7 @@
 # 21-Mar-2016 jdw add append/copy mode option on logfile export -
 # 04-Apr-2016 ep  update annot-dcc-report to use -auto option as validation always does
 # 10-May-2016 jdw update environment: SITE_TOOLS_PATH replaced by SITE_PACKAGES_PATH
+# 14-Jul-2016 jdw add support for validation mode setting - 'request_validation_mode'
 ##
 """
 Wrapper class for data processing and chemical component utilities.
@@ -978,9 +979,17 @@ class RcsbDpUtility(object):
             #
             #   Launches the validation software with wrapper script vpack-all-run.sh
             #
+            #  'request_validation_mode'    override site and other presentation settings -
+            #
+            #                      - The following is for legacy support -
             #  'request_annotation_context'  parameter to override site environment setting --
             #
-            if 'request_annotation_context' in self.__inputParamDict:
+            validation_mode = 'legacy'
+            if 'request_validation_mode' in self.__inputParamDict:
+                validation_mode = str(self.__inputParamDict['request_annotation_context']).lower()
+                if validation_mode not in ['server', 'deposit', 'release', 'annotate']:
+                    validation_mode = 'legacy'
+            elif 'request_annotation_context' in self.__inputParamDict:
                 annotContext = self.__inputParamDict['request_annotation_context']
                 if annotContext in ["yes", "no"]:
                     cmd += " ; REQUEST_ANNOTATION_CONTEXT=" + annotContext + " ; export REQUEST_ANNOTATION_CONTEXT "
@@ -993,7 +1002,7 @@ class RcsbDpUtility(object):
             if 'entry_id' in self.__inputParamDict:
                 entryId = self.__inputParamDict['entry_id']
             else:
-                entryId = "3abc"
+                entryId = "4abc"
 
             if 'sf_file_path' in self.__inputParamDict:
                 sfPath = self.__inputParamDict['sf_file_path']
@@ -1033,7 +1042,8 @@ class RcsbDpUtility(object):
                 cleanOpt = "none"
             #
             cmd += thisCmd + " " + entryId + " " + iPathFull + " " + pdfPath + " " + xmlPath + " " + pdfFullPath + \
-                " " + pngPath + " " + svgPath + " " + cleanOpt + " " + sfPathFull + " " + csPathFull + " " + volPathFull + " " + stepList
+                " " + pngPath + " " + svgPath + " " + cleanOpt + " " + sfPathFull + " " + csPathFull + \
+                " " + volPathFull + " " + stepList + " " + validation_mode
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
             cmd += " ; cp  -f " + pdfPath + " " + oPath
 
