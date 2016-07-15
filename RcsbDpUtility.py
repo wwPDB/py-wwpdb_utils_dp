@@ -986,7 +986,7 @@ class RcsbDpUtility(object):
             #
             validation_mode = 'legacy'
             if 'request_validation_mode' in self.__inputParamDict:
-                validation_mode = str(self.__inputParamDict['request_annotation_context']).lower()
+                validation_mode = str(self.__inputParamDict['request_validation_mode']).lower()
                 if validation_mode not in ['server', 'deposit', 'release', 'annotate']:
                     validation_mode = 'legacy'
             elif 'request_annotation_context' in self.__inputParamDict:
