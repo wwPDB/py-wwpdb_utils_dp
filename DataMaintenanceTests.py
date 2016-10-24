@@ -7,7 +7,9 @@ Version: 0.001
 
         Driver routines for testing purging and recovering selected content types and milestone files.
 
-NOTE:   16-Jun-2015 - Reconfirm milestone policies before repurging ->
+Updates:
+
+  24-Oct-2016  jdw add test mode -
 
 """
 import sys
@@ -27,18 +29,22 @@ class DataMaintenanceTests(unittest.TestCase):
     def setUp(self):
         self.__lfh = sys.stderr
         self.__verbose = True
-        self.__siteId = getSiteId(defaultSiteId='WWPDB_DEPLOY_TEST')
-        self.__lfh.write("\nTesting with site environment for:  %s\n" % self.__siteId)
-        self.__cI = ConfigInfo(self.__siteId)
-        # must be set --
-        self.__idList = "RELEASED.LIST"
+        # Get siteId from the environment -
+        self.__siteId = getSiteId()
+        self.__cI = ConfigInfo(siteId=self.__siteId)
+        # In test mode, no deletions are performed -
+        self.__testMode = True
+        #
+        #  An data set ID list must be set --
+        self.__idListPath = "RELEASED.LIST"
+        #
         self.__milestoneL = []
         self.__milestoneL.append(None)
         self.__milestoneL.extend(self.__cI.get('CONTENT_MILESTONE_LIST'))
         self.__cTBD = self.__cI.get('CONTENT_TYPE_BASE_DICTIONARY')
         self.__cTD = self.__cI.get('CONTENT_TYPE_DICTIONARY')
         self.__cTL = sorted(self.__cTBD.keys())
-        # list of candidate content types for purging  -- this is based on system V15x for X-ray content types
+        # Example list of candidate content types for purging  -- this is based on system V15x for X-ray content types
         self.__cTypesOtherL = ['assembly-assign',
                                'assembly-model',
                                'assembly-model-xyz',
@@ -74,11 +80,18 @@ class DataMaintenanceTests(unittest.TestCase):
                                'validation-report-full',
                                'validation-report-slider'
                                ]
+        #
+        # Test snapshot directory required for recovery tests -
+        self.__snapShotPath = '/net/wwpdb_da_data_archive/.snapshot/nightly.1/data'
 
     def tearDown(self):
         pass
 
     def __getIdList(self, fPath):
+        if not os.access(fPath, os.R_OK):
+            self.__lfh.write("__getIdList() Missing data set ID list file %s\n" % fPath)
+            self.fail()
+        #
         ifh = open(fPath, 'r')
         fL = []
         #  D_10 00 00 00 01
@@ -120,24 +133,25 @@ class DataMaintenanceTests(unittest.TestCase):
         return rL
 
     def testRecoverProductionList(self):
-        """   Test case for selected recovery of selected content types and milestone files -
+        """   Test case for selected recovery of selected content types and milestone files from snapshot directory
         """
         self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
         try:
-            idList = self.__getIdList(self.__idList)
-            dm = DataMaintenance(siteId=self.__siteId, verbose=self.__verbose, log=self.__lfh)
+            idList = self.__getIdList(self.__idListPath)
+            dm = DataMaintenance(siteId=self.__siteId, testMode=self.__testMode, verbose=self.__verbose, log=self.__lfh)
             for id in idList:
                 recL = []
                 for pType in ['exp', 'other']:
                     pTL = self.__getRecoveryInfo(purgeType=pType)
                     for pT in pTL:
-                        vfL = dm.getVersionFileListAlt(id,
-                                                       wfInstanceId=None,
-                                                       fileSource=pT['fileSource'],
-                                                       contentType=pT['contentType'],
-                                                       formatType=pT['formatType'],
-                                                       partitionNumber='1',
-                                                       mileStone=pT['mileStone'])
+                        vfL = dm.getVersionFileListSnapshot(basePath=self.__snapShotPath,
+                                                            dataSetId=id,
+                                                            wfInstanceId=None,
+                                                            fileSource=pT['fileSource'],
+                                                            contentType=pT['contentType'],
+                                                            formatType=pT['formatType'],
+                                                            partitionNumber='1',
+                                                            mileStone=pT['mileStone'])
 
                         self.__lfh.write("\n+testRecoverProductionList - id %13s cType %s\n" % (id, pT['contentType']))
                         for ii, p in enumerate(vfL):
@@ -165,9 +179,19 @@ class DataMaintenanceTests(unittest.TestCase):
                     for fm in ['pdbx', 'pdb']:
                         for milestone in self.__milestoneL:
                             rL.append({'fileSource': fs, 'contentType': ct, 'formatType': fm, 'mileStone': milestone, 'purgeType': 'exp'})
-            for ct in ['structure-factors']:
+            for ct in ['structure-factors', 'em-structure-factors']:
                 for fs in ['archive', 'deposit']:
                     for fm in ['pdbx', 'mtz']:
+                        for milestone in self.__milestoneL:
+                            rL.append({'fileSource': fs, 'contentType': ct, 'formatType': fm, 'mileStone': milestone, 'purgeType': 'exp'})
+            for ct in ['nmr-chemical-shifts', 'nmr-chemical-shifts-raw', 'nmr-chemical-shifts-auth']:
+                for fs in ['archive', 'deposit']:
+                    for fm in ['pdbx', 'nmr-star']:
+                        for milestone in self.__milestoneL:
+                            rL.append({'fileSource': fs, 'contentType': ct, 'formatType': fm, 'mileStone': milestone, 'purgeType': 'exp'})
+            for ct in ['em-volume', 'em-mask-volume', 'em-additional-volume']:
+                for fs in ['archive', 'deposit']:
+                    for fm in ['map', 'ccp4', 'mrc2000']:
                         for milestone in self.__milestoneL:
                             rL.append({'fileSource': fs, 'contentType': ct, 'formatType': fm, 'mileStone': milestone, 'purgeType': 'exp'})
         elif purgeType in ['other', 'report']:
@@ -176,13 +200,17 @@ class DataMaintenanceTests(unittest.TestCase):
                     for fm in self.__cTD[ct][0]:
                         for milestone in self.__milestoneL:
                             rL.append({'fileSource': fs, 'contentType': ct, 'formatType': fm, 'mileStone': milestone, 'purgeType': 'other'})
+
         return rL
 
     def __removePathList(self, pthList):
         #
         for pth in pthList:
             try:
-                os.remove(pth)
+                if self.__testMode:
+                    self.__lfh.write("__removePathList() TEST MODE skip removing path %s\n" % pth)
+                else:
+                    os.remove(pth)
             except:
                 pass
 
@@ -191,8 +219,8 @@ class DataMaintenanceTests(unittest.TestCase):
         """
         self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
         try:
-            idList = self.__getIdList(self.__idList)
-            dm = DataMaintenance(siteId=self.__siteId, verbose=self.__verbose, log=self.__lfh)
+            idList = self.__getIdList(self.__idListPath)
+            dm = DataMaintenance(siteId=self.__siteId, testMode=self.__testMode, verbose=self.__verbose, log=self.__lfh)
             for id in idList:
                 rmLL = []
                 for pType in ['exp', 'other']:
@@ -232,8 +260,8 @@ class DataMaintenanceTests(unittest.TestCase):
         self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
         try:
 
-            idList = self.__getIdList(self.__idList)
-            dm = DataMaintenance(siteId=self.__siteId, verbose=self.__verbose, log=self.__lfh)
+            idList = self.__getIdList(self.__idListPath)
+            dm = DataMaintenance(siteId=self.__siteId, testMode=self.__testMode, verbose=self.__verbose, log=self.__lfh)
             for id in idList:
                 rmLL = []
                 for pType in ['exp', 'other']:
@@ -273,8 +301,8 @@ class DataMaintenanceTests(unittest.TestCase):
         """
         self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
         try:
-            idList = self.__getIdList(self.__idList)
-            dm = DataMaintenance(siteId=self.__siteId, verbose=self.__verbose, log=self.__lfh)
+            idList = self.__getIdList(self.__idListPath)
+            dm = DataMaintenance(siteId=self.__siteId, testMode=self.__testMode, verbose=self.__verbose, log=self.__lfh)
             for id in idList:
                 latest, rmL, gzL = dm.getPurgeCandidates(id, wfInstanceId=None, fileSource="archive",
                                                          contentType="model", formatType="pdbx", partitionNumber='1', mileStone=None)
@@ -294,8 +322,8 @@ class DataMaintenanceTests(unittest.TestCase):
         """
         self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
         try:
-            idList = self.__getIdList(self.__idList)
-            dm = DataMaintenance(siteId=self.__siteId, verbose=self.__verbose, log=self.__lfh)
+            idList = self.__getIdList(self.__idListPath)
+            dm = DataMaintenance(siteId=self.__siteId, testMode=self.__testMode, verbose=self.__verbose, log=self.__lfh)
             for id in idList:
                 pL = dm.getVersionFileList(id, wfInstanceId=None, fileSource="archive",
                                            contentType="model", formatType="pdbx", partitionNumber='1', mileStone=None)
@@ -335,9 +363,20 @@ class DataMaintenanceTests(unittest.TestCase):
                 versionNo = int(0)
 
             fParts = fileName.split('_')
-            id = fParts[0]+'_'+fParts[1]
-            contentType = fParts[2]
-            partNo = int(fParts[3][1:])
+            if len(fParts) == 4:
+                id = fParts[0] + '_' + fParts[1]
+                contentType = fParts[2]
+                partNo = int(fParts[3][1:])
+            else:
+                if len(fParts) > 2:
+                    id = fParts[0] + '_' + fParts[1]
+                else:
+                    id = fileName
+                if len(fParts) > 3:
+                    contentType = fParts[2]
+                else:
+                    contentType = None
+                partNo = None
             return id, contentType, fileFormat, partNo, versionNo
         except:
             traceback.print_exc(file=sys.stdout)
@@ -350,7 +389,7 @@ class DataMaintenanceTests(unittest.TestCase):
         archivePath = self.__cI.get('SITE_ARCHIVE_STORAGE_PATH')
         try:
             idList, pathList = self.__makeEntryPathList(archivePath)
-            dm = DataMaintenance(siteId=self.__siteId, verbose=self.__verbose, log=self.__lfh)
+            dm = DataMaintenance(siteId=self.__siteId, testMode=self.__testMode, verbose=self.__verbose, log=self.__lfh)
             for id in idList:
                 dirPath = os.path.join(archivePath, 'archive', id, '*')
                 self.__lfh.write("+testGetFileInventoryList- inventory in directory  %s\n" % (dirPath))
@@ -397,9 +436,10 @@ def suiteGetFileInventoryTests():
     suiteSelect.addTest(DataMaintenanceTests("testGetFileInventory"))
     return suiteSelect
 
+
 if __name__ == '__main__':
     #
-    if (False):
+    if (True):
         mySuite = suiteMiscTests()
         unittest.TextTestRunner(verbosity=2).run(mySuite)
 
@@ -409,8 +449,9 @@ if __name__ == '__main__':
         mySuite = suiteProductionPurgeTests()
         unittest.TextTestRunner(verbosity=2).run(mySuite)
 
-        mySuite = suiteRecoverProductionTests()
+        mySuite = suiteGetFileInventoryTests()
         unittest.TextTestRunner(verbosity=2).run(mySuite)
 
-    mySuite = suiteGetFileInventoryTests()
-    unittest.TextTestRunner(verbosity=2).run(mySuite)
+    if (False):
+        mySuite = suiteRecoverProductionTests()
+        unittest.TextTestRunner(verbosity=2).run(mySuite)

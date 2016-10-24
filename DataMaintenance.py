@@ -4,6 +4,7 @@
 #
 # Updates:
 #    15-Jun-2015  jdw added some recover features
+#    24-Oct-2016  jdw add test mode
 #
 ##
 """
@@ -38,12 +39,13 @@ class DataMaintenance(object):
 
     """
 
-    def __init__(self, siteId=None, verbose=False, log=sys.stderr):
+    def __init__(self, siteId=None, testMode=False, verbose=False, log=sys.stderr):
 
         self.__verbose = verbose
         self.__lfh = log
         self.__siteId = siteId
-        #
+        # In test mode no deletions are performed -
+        self.__testMode = testMode
         self.__debug = False
         #
         self.__setup(siteId=siteId)
@@ -76,7 +78,10 @@ class DataMaintenance(object):
             #
             for pth in pthList:
                 try:
-                    os.remove(pth)
+                    if self.__testMode:
+                        self.__lfh.write("+DataMaintenance.purgeLogs() TEST MODE skip remove %s\n" % pth)
+                    else:
+                        os.remove(pth)
                 except:
                     pass
             #
@@ -107,7 +112,10 @@ class DataMaintenance(object):
 
         for pth in fList:
             try:
-                os.remove(pth)
+                if self.__testMode:
+                    self.__lfh.write("+DataMaintenance.reversePurge() TEST MODE skip remove %s\n" % pth)
+                else:
+                    os.remove(pth)
             except:
                 pass
             #
@@ -118,44 +126,14 @@ class DataMaintenance(object):
             workflowPath = self.__cI.get('SITE_WORKFLOW_STORAGE_PATH')
             dirPath = os.path.join(workflowPath, 'workflow', dataSetId)
             if (os.access(dirPath, os.W_OK)):
-                shutil.rmtree(dirPath)
+                if self.__testMode:
+                    self.__lfh.write("+DataMaintenance.removeWorkflowDir() TEST MODE skip remove %s\n" % dirPath)
+                else:
+                    shutil.rmtree(dirPath)
                 return True
             else:
                 return False
         else:
-            return False
-
-    def createArchiveDir(self, dataSetId, purgeFlag=True):
-        """ Create new the archive directory if this is needed.
-
-        """
-
-        if (self.__verbose):
-            self.__lfh.write("+DataMaintenance.export() creating archive directory for data set %s\n" % dataSetId)
-
-        try:
-            archivePath = self.__cI.get('SITE_ARCHIVE_STORAGE_PATH')
-            dirPath = os.path.join(archivePath, 'archive', dataSetId)
-
-            if (not os.access(dirPath, os.W_OK)):
-                if (self.__verbose):
-                    self.__lfh.write("+DataMaintenance.createArchiveDir() creating archive directory path %s\n" % dirPath)
-                os.makedirs(dirPath)
-                return True
-            else:
-                if purgeFlag:
-                    if (self.__verbose):
-                        self.__lfh.write("+DataMaintenance.export() existing archive directory path purged: %s\n" % dirPath)
-                    shutil.rmtree(dirPath)
-                    os.makedirs(dirPath)
-                    return True
-                else:
-                    if (self.__verbose):
-                        self.__lfh.write("+DataMaintenance.export() archive directory exists: %s\n" % dirPath)
-                    return False
-        except:
-            if self.__verbose:
-                traceback.print_exc(file=self.__lfh)
             return False
 
     def getLogFiles(self, dataSetId, fileSource='archive'):
@@ -221,16 +199,16 @@ class DataMaintenance(object):
 
         return latestV, rmL, gzL
 
-    def getVersionFileListAlt(self, dataSetId, wfInstanceId=None, fileSource="archive", contentType="model", formatType="pdbx", partitionNumber='1', mileStone=None):
+    def getVersionFileListSnapshot(self, basePath, dataSetId, wfInstanceId=None, fileSource="archive", contentType="model", formatType="pdbx", partitionNumber='1', mileStone=None):
         """
-        For the input content object return a list of file versions sorted by modification time.
+        For the input content object return a list of file versions in a snapshot directory (recovery mode).
 
         Return:
               List of [(file path, modification date string,size),...]
 
         """
         pairL = []
-        basePath = '/net/wwpdb_da_data_archive/.snapshot/nightly.1/data'
+        # basePath = '/net/wwpdb_da_data_archive/.snapshot/nightly.1/data'
         try:
             if fileSource == 'archive':
                 pth = self.__pI.getArchivePath(dataSetId)
@@ -360,7 +338,10 @@ class DataMaintenance(object):
                 tL = f.split('.')
                 vId = tL[-1]
                 if vId.startswith('V'):
-                    file_ver_tuple_list.append((f, int(vId[1:])))
+                    if vId[-1] not in ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']:
+                        file_ver_tuple_list.append((f, int(vId[1:-1])))
+                    else:
+                        file_ver_tuple_list.append((f, int(vId[1:])))
 
             # Sort the tuple list by version id
             #
@@ -413,42 +394,36 @@ class DataMaintenance(object):
 
     ##
     def __getArchiveFileName(self, dataSetId, wfInstanceId=None, contentType="model", formatType="pdbx", version="latest", partitionNumber='1', mileStone=None):
-        (fp,
-         d,
-         f) = self.__targetFilePath(dataSetId=dataSetId,
-                                    wfInstanceId=wfInstanceId,
-                                    fileSource="archive",
-                                    contentType=contentType,
-                                    formatType=formatType,
-                                    version=version,
-                                    partitionNumber=partitionNumber,
-                                    mileStone=mileStone)
+        (fp, d, f) = self.__targetFilePath(dataSetId=dataSetId,
+                                           wfInstanceId=wfInstanceId,
+                                           fileSource="archive",
+                                           contentType=contentType,
+                                           formatType=formatType,
+                                           version=version,
+                                           partitionNumber=partitionNumber,
+                                           mileStone=mileStone)
         return f
 
     def __getInstanceFileName(self, dataSetId, wfInstanceId=None, contentType="model", formatType="pdbx", version="latest", partitionNumber='1', mileStone=None):
-        (fp,
-         d,
-         f) = self.__targetFilePath(dataSetId=dataSetId,
-                                    wfInstanceId=wfInstanceId,
-                                    fileSource="wf-instance",
-                                    contentType=contentType,
-                                    formatType=formatType,
-                                    version=version,
-                                    partitionNumber=partitionNumber,
-                                    mileStone=mileStone)
+        (fp, d, f) = self.__targetFilePath(dataSetId=dataSetId,
+                                           wfInstanceId=wfInstanceId,
+                                           fileSource="wf-instance",
+                                           contentType=contentType,
+                                           formatType=formatType,
+                                           version=version,
+                                           partitionNumber=partitionNumber,
+                                           mileStone=mileStone)
         return f
 
     def __getFilePath(self, dataSetId, wfInstanceId=None, fileSource="archive", contentType="model", formatType="pdbx", version="latest", partitionNumber='1', mileStone=None):
-        (fp,
-         d,
-         f) = self.__targetFilePath(dataSetId=dataSetId,
-                                    wfInstanceId=wfInstanceId,
-                                    fileSource=fileSource,
-                                    contentType=contentType,
-                                    formatType=formatType,
-                                    version=version,
-                                    partitionNumber=partitionNumber,
-                                    mileStone=mileStone)
+        (fp, d, f) = self.__targetFilePath(dataSetId=dataSetId,
+                                           wfInstanceId=wfInstanceId,
+                                           fileSource=fileSource,
+                                           contentType=contentType,
+                                           formatType=formatType,
+                                           version=version,
+                                           partitionNumber=partitionNumber,
+                                           mileStone=mileStone)
         return fp
 
     def __targetFilePath(self, dataSetId, wfInstanceId=None, fileSource="archive", contentType="model", formatType="pdbx", version="latest", partitionNumber='1', mileStone=None):
