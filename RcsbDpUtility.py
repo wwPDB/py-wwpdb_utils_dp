@@ -2059,7 +2059,7 @@ class RcsbDpUtility(object):
             #convert = os.path.join(system_path, "bin", "convert")
             #lib_path = os.path.join(system_path, "lib")
             #cmd += "export LD_LIBRARY_PATH=" + lib_path+ "; "
-            convert = "convert -quiet -resize x400 "
+            convert = "convert +repage -quiet -resize x400 "
             cmd += convert
             #
             if 'options' in self.__inputParamDict:
