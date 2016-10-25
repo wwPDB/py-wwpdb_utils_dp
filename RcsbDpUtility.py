@@ -1,4 +1,4 @@
-##
+,##
 # File: RcsbDpUtility.py
 # Date: 09-Sep-2010
 #
@@ -96,6 +96,7 @@
 # 04-Apr-2016 ep  update annot-dcc-report to use -auto option as validation always does
 # 10-May-2016 jdw update environment: SITE_TOOLS_PATH replaced by SITE_PACKAGES_PATH
 # 14-Jul-2016 jdw add support for validation mode setting - 'request_validation_mode'
+# 24-Oct-2015 esg for img-convert add +repage argument
 ##
 """
 Wrapper class for data processing and chemical component utilities.
