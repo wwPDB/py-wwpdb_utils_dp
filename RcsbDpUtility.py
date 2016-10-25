@@ -1,4 +1,4 @@
-,##
+##
 # File: RcsbDpUtility.py
 # Date: 09-Sep-2010
 #
