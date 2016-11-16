@@ -97,6 +97,7 @@
 # 10-May-2016 jdw update environment: SITE_TOOLS_PATH replaced by SITE_PACKAGES_PATH
 # 14-Jul-2016 jdw add support for validation mode setting - 'request_validation_mode'
 # 24-Oct-2015 esg for img-convert add +repage argument
+# 16-Nov-2016 ep  Add xml-header-check for EMDB header file
 ##
 """
 Wrapper class for data processing and chemical component utilities.
@@ -186,8 +187,12 @@ class RcsbDpUtility(object):
                                 "annot-chem-shifts-atom-name-check", "annot-chem-shifts-upload-check", "annot-reorder-models", "annot-chem-shifts-update"]
         self.__sequenceOps = ['seq-blastp', 'seq-blastn']
         self.__validateOps = ['validate-geometry']
-        self.__emOps = ['mapfix-big', 'em2em-spider', 'fsc_check', 'img-convert', 'annot-read-map-header',
-                        'annot-read-map-header-in-place', 'annot-update-map-header-in-place', 'deposit-update-map-header-in-place']
+        self.__emOps = ['mapfix-big', 'em2em-spider', 'fsc_check', 
+                        'img-convert', 'annot-read-map-header',
+                        'annot-read-map-header-in-place', 
+                        'annot-update-map-header-in-place',
+                        'deposit-update-map-header-in-place',
+                        'xml-header-check']
 
         #
         # Source, destination and logfile path details
@@ -1962,6 +1967,8 @@ class RcsbDpUtility(object):
         self.__packagePath = self.__getConfigPath('SITE_PACKAGES_PATH')
         self.__deployPath = self.__getConfigPath('SITE_DEPLOY_PATH')
         self.__emDictPath = self.__getConfigPath('SITE_EM_DICT_PATH')
+        self.__localAppsPath = self.__getConfigPath('SITE_LOCAL_APPS_PATH')
+
         if self.__siteId in ['WWPDB_DEPLOY_MACOSX']:
             self.__javaPath = '/usr/bin/java'
         else:
@@ -2205,11 +2212,24 @@ class RcsbDpUtility(object):
 
             cmd += " ; } 2> " + ePath + " 1> " + oPath
             cmd += " ; cat " + ePath + " > " + lPath
+        elif (op == "xml-header-check"):
+            xmllint = os.path.join(self.__localAppsPath, "bin", "xmllint")
+            schema = os.path.join(self.__emDictPath, "emdb_da.xsd")
+            cmd += xmllint + " --noout --schema " + schema + " " + iPath
+            #
+            if 'options' in self.__inputParamDict:
+                cmd += " " + self.__inputParamDict['options']
+            #
+            cmd += " ; } > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
         else:
             pass
 
-        if (op not in ("em2em-spider", "mapfix-big", "fsc_check", "img-convert", "annot-read-map-header",
-                       "annot-read-map-header-in-place", "annot-update-map-header-in-place", "deposit-update-map-header-in-place")):
+        if (op not in ("em2em-spider", "mapfix-big", "fsc_check", 
+                       "img-convert", "annot-read-map-header",
+                       "annot-read-map-header-in-place", 
+                       "annot-update-map-header-in-place", 
+                       "deposit-update-map-header-in-place", 
+                       "xml-header-check")):
             return -1
         #
 

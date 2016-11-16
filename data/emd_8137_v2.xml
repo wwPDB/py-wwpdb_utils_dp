@@ -1,0 +1,837 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<emd emdb_id="EMD-8137" version="2.0">
+    <admin>
+        <current_status>
+            <code>REL</code>
+        </current_status>
+        <sites>
+            <deposition>RCSB</deposition>
+            <last_processing>RCSB</last_processing>
+        </sites>
+        <key_dates>
+            <deposition>2016-05-02</deposition>
+            <header_release>2016-05-18</header_release>
+            <map_release>2016-05-18</map_release>
+            <update>2016-06-22</update>
+        </key_dates>
+        <title>Human core-PIC in the initial transcribing state</title>
+        <authors_list>
+            <author>He Y</author>
+            <author>Yan C</author>
+        </authors_list>
+    </admin>
+    <crossreferences>
+        <citation_list>
+            <primary_citation>
+                <journal_citation published="true">
+                    <author order="1">He Y</author>
+                    <author order="2">Yan C</author>
+                    <author order="3">Fang J</author>
+                    <author order="4">Inouye C</author>
+                    <author order="5">Tjian R</author>
+                    <author order="6">Ivanov I</author>
+                    <author order="7">Nogales E</author>
+                    <title>Near-atomic resolution visualization of human transcription promoter opening.</title>
+                    <journal_abbreviation>Nature</journal_abbreviation>
+                    <country>UK</country>
+                    <volume>533</volume>
+                    <first_page>359</first_page>
+                    <last_page>365</last_page>
+                    <year>2016</year>
+                    <external_references type="pubmed">27193682</external_references>
+                    <external_references type="doi">doi:10.1038/nature17970</external_references>
+                    <external_references type="issn">1476-4687</external_references>
+                    <external_references type="astm">NATUAS</external_references>
+                </journal_citation>
+            </primary_citation>
+        </citation_list>
+        <emdb_list>
+            <emdb_reference>
+                <emdb_id>EMD-3307</emdb_id>
+                <relationship>
+                    <other>other EM volume</other>
+                </relationship>
+            </emdb_reference>
+            <emdb_reference>
+                <emdb_id>EMD-8135</emdb_id>
+                <relationship>
+                    <other>other EM volume</other>
+                </relationship>
+            </emdb_reference>
+            <emdb_reference>
+                <emdb_id>EMD-8132</emdb_id>
+                <relationship>
+                    <other>other EM volume</other>
+                </relationship>
+            </emdb_reference>
+            <emdb_reference>
+                <emdb_id>EMD-8133</emdb_id>
+                <relationship>
+                    <other>other EM volume</other>
+                </relationship>
+            </emdb_reference>
+            <emdb_reference>
+                <emdb_id>EMD-8134</emdb_id>
+                <relationship>
+                    <other>other EM volume</other>
+                </relationship>
+            </emdb_reference>
+            <emdb_reference>
+                <emdb_id>EMD-8136</emdb_id>
+                <relationship>
+                    <other>other EM volume</other>
+                </relationship>
+            </emdb_reference>
+            <emdb_reference>
+                <emdb_id>EMD-8138</emdb_id>
+                <relationship>
+                    <other>other EM volume</other>
+                </relationship>
+            </emdb_reference>
+            <emdb_reference>
+                <emdb_id>EMD-8131</emdb_id>
+                <relationship>
+                    <other>other EM volume</other>
+                </relationship>
+            </emdb_reference>
+        </emdb_list>
+        <pdb_list>
+            <pdb_reference id="1">
+                <pdb_id>5iyc</pdb_id>
+                <relationship>
+                    <in_frame>fullOverlap</in_frame>
+                </relationship>
+            </pdb_reference>
+        </pdb_list>
+    </crossreferences>
+    <sample>
+        <supramolecule_list>
+            <supramolecule id="1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="complex">
+                <name>Human core-PIC in the initial transcribing state</name>
+                <parent>0</parent>
+                <macromolecule_list>
+                    <macromolecule>
+                        <id>1</id>
+                    </macromolecule>
+                    <macromolecule>
+                        <id>2</id>
+                    </macromolecule>
+                    <macromolecule>
+                        <id>3</id>
+                    </macromolecule>
+                    <macromolecule>
+                        <id>4</id>
+                    </macromolecule>
+                    <macromolecule>
+                        <id>5</id>
+                    </macromolecule>
+                    <macromolecule>
+                        <id>6</id>
+                    </macromolecule>
+                    <macromolecule>
+                        <id>7</id>
+                    </macromolecule>
+                    <macromolecule>
+                        <id>8</id>
+                    </macromolecule>
+                    <macromolecule>
+                        <id>9</id>
+                    </macromolecule>
+                    <macromolecule>
+                        <id>10</id>
+                    </macromolecule>
+                    <macromolecule>
+                        <id>11</id>
+                    </macromolecule>
+                    <macromolecule>
+                        <id>12</id>
+                    </macromolecule>
+                    <macromolecule>
+                        <id>13</id>
+                    </macromolecule>
+                    <macromolecule>
+                        <id>14</id>
+                    </macromolecule>
+                    <macromolecule>
+                        <id>15</id>
+                    </macromolecule>
+                    <macromolecule>
+                        <id>16</id>
+                    </macromolecule>
+                    <macromolecule>
+                        <id>17</id>
+                    </macromolecule>
+                    <macromolecule>
+                        <id>18</id>
+                    </macromolecule>
+                    <macromolecule>
+                        <id>19</id>
+                    </macromolecule>
+                    <macromolecule>
+                        <id>20</id>
+                    </macromolecule>
+                    <macromolecule>
+                        <id>21</id>
+                    </macromolecule>
+                    <macromolecule>
+                        <id>22</id>
+                    </macromolecule>
+                    <macromolecule>
+                        <id>23</id>
+                    </macromolecule>
+                </macromolecule_list>
+                <natural_source database="ncbi">
+                    <organism ncbi="9606">Homo sapiens</organism>
+                </natural_source>
+                <molecular_weight>
+                    <theoretical units="MDa">0.90</theoretical>
+                </molecular_weight>
+            </supramolecule>
+            <supramolecule id="2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="complex">
+                <name>RNA polymerase II</name>
+                <parent>1</parent>
+                <macromolecule_list>
+                    <macromolecule>
+                        <id>1</id>
+                    </macromolecule>
+                    <macromolecule>
+                        <id>2</id>
+                    </macromolecule>
+                    <macromolecule>
+                        <id>3</id>
+                    </macromolecule>
+                    <macromolecule>
+                        <id>4</id>
+                    </macromolecule>
+                    <macromolecule>
+                        <id>5</id>
+                    </macromolecule>
+                    <macromolecule>
+                        <id>6</id>
+                    </macromolecule>
+                    <macromolecule>
+                        <id>7</id>
+                    </macromolecule>
+                    <macromolecule>
+                        <id>8</id>
+                    </macromolecule>
+                    <macromolecule>
+                        <id>9</id>
+                    </macromolecule>
+                    <macromolecule>
+                        <id>10</id>
+                    </macromolecule>
+                    <macromolecule>
+                        <id>11</id>
+                    </macromolecule>
+                    <macromolecule>
+                        <id>12</id>
+                    </macromolecule>
+                </macromolecule_list>
+                <natural_source database="ncbi">
+                    <organism ncbi="9606">Homo sapiens</organism>
+                </natural_source>
+                <molecular_weight>
+                    <theoretical units="MDa">0.52</theoretical>
+                </molecular_weight>
+            </supramolecule>
+            <supramolecule id="3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="complex">
+                <name>General transcription factors</name>
+                <parent>1</parent>
+                <macromolecule_list>
+                    <macromolecule>
+                        <id>13</id>
+                    </macromolecule>
+                    <macromolecule>
+                        <id>14</id>
+                    </macromolecule>
+                    <macromolecule>
+                        <id>15</id>
+                    </macromolecule>
+                    <macromolecule>
+                        <id>16</id>
+                    </macromolecule>
+                    <macromolecule>
+                        <id>17</id>
+                    </macromolecule>
+                    <macromolecule>
+                        <id>18</id>
+                    </macromolecule>
+                    <macromolecule>
+                        <id>19</id>
+                    </macromolecule>
+                    <macromolecule>
+                        <id>20</id>
+                    </macromolecule>
+                    <macromolecule>
+                        <id>21</id>
+                    </macromolecule>
+                </macromolecule_list>
+                <natural_source database="ncbi">
+                    <organism ncbi="9606">Homo sapiens</organism>
+                </natural_source>
+                <recombinant_expression database="ncbi">
+                    <organism ncbi="562">Escherichia coli</organism>
+                </recombinant_expression>
+                <molecular_weight>
+                    <theoretical units="MDa">0.33</theoretical>
+                </molecular_weight>
+            </supramolecule>
+            <supramolecule id="4" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="complex">
+                <name>Super core promoter</name>
+                <parent>1</parent>
+                <macromolecule_list>
+                    <macromolecule>
+                        <id>22</id>
+                    </macromolecule>
+                    <macromolecule>
+                        <id>23</id>
+                    </macromolecule>
+                </macromolecule_list>
+                <natural_source database="ncbi">
+                    <organism ncbi="9606">Homo sapiens</organism>
+                </natural_source>
+                <recombinant_expression database="ncbi">
+                    <organism ncbi="562">Escherichia coli</organism>
+                </recombinant_expression>
+                <molecular_weight>
+                    <theoretical units="MDa">0.06</theoretical>
+                </molecular_weight>
+            </supramolecule>
+        </supramolecule_list>
+        <macromolecule_list>
+            <macromolecule id="1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="protein_or_peptide">
+                <name>DNA-directed RNA polymerase II subunit RPB1</name>
+                <natural_source database="ncbi">
+                    <organism ncbi="9606">Homo sapiens</organism>
+                </natural_source>
+                <molecular_weight>
+                    <theoretical units="MDa">0.217420047</theoretical>
+                </molecular_weight>
+                <enantiomer>levo</enantiomer>
+                <sequence>
+                    <string>MHGGGPPSGDSACPLRTIKRVQFGVLSPDELKRMSVTEGGIKYPETTEGGRPKLGGLMDPRQGVIERTGRCQTCAGNMTE
+CPGHFGHIELAKPVFHVGFLVKTMKVLRCVCFFCSKLLVDSNNPKIKDILAKSKGQPKKRLTHVYDLCKGKNICEGGEEM
+DNKFGVEQPEGDEDLTKEKGHGGCGRYQPRIRRSGLELYAEWKHVNEDSQEKKILLSPERVHEIFKRISDEECFVLGMEP
+RYARPEWMIVTVLPVPPLSVRPAVVMQGSARNQDDLTHKLADIVKINNQLRRNEQNGAAAHVIAEDVKLLQFHVATMVDN
+ELPGLPRAMQKSGRPLKSLKQRLKGKEGRVRGNLMGKRVDFSARTVITPDPNLSIDQVGVPRSIAANMTFAEIVTPFNID
+RLQELVRRGNSQYPGAKYIIRDNGDRIDLRFHPKPSDLHLQTGYKVERHMCDGDIVIFNRQPTLHKMSMMGHRVRILPWS
+TFRLNLSVTTPYNADFDGDEMNLHLPQSLETRAEIQELAMVPRMIVTPQSNRPVMGIVQDTLTAVRKFTKRDVFLERGEV
+MNLLMFLSTWDGKVPQPAILKPRPLWTGKQIFSLIIPGHINCIRTHSTHPDDEDSGPYKHISPGDTKVVVENGELIMGIL
+CKKSLGTSAGSLVHISYLEMGHDITRLFYSNIQTVINNWLLIEGHTIGIGDSIADSKTYQDIQNTIKKAKQDVIEVIEKA
+HNNELEPTPGNTLRQTFENQVNRILNDARDKTGSSAQKSLSEYNNFKSMVVSGAKGSKINISQVIAVVGQQNVEGKRIPF
+GFKHRTLPHFIKDDYGPESRGFVENSYLAGLTPTEFFFHAMGGREGLIDTAVKTAETGYIQRRLIKSMESVMVKYDATVR
+NSINQVVQLRYGEDGLAGESVEFQNLATLKPSNKAFEKKFRFDYTNERALRRTLQEDLVKDVLSNAHIQNELEREFERMR
+EDREVLRVIFPTGDSKVVLPCNLLRMIWNAQKIFHINPRLPSDLHPIKVVEGVKELSKKLVIVNGDDPLSRQAQENATLL
+FNIHLRSTLCSRRMAEEFRLSGEAFDWLLGEIESKFNQAIAHPGEMVGALAAQSLGEPATQMTLNTFHYAGVSAKNVTLG
+VPRLKELINISKKPKTPSLTVFLLGQSARDAERAKDILCRLEHTTLRKVTANTAIYYDPNPQSTVVAEDQEWVNVYYEMP
+DFDVARISPWLLRVELDRKHMTDRKLTMEQIAEKINAGFGDDLNCIFNDDNAEKLVLRIRIMNSDENKMQEEEEVVDKMD
+DDVFLRCIESNMLTDMTLQGIEQISKVYMHLPQTDNKKKIIITEDGEFKALQEWILETDGVSLMRVLSEKDVDPVRTTSN
+DIVEIFTVLGIEAVRKALERELYHVISFDGSYVNYRHLALLCDTMTCRGHLMAITRHGVNRQDTGPLMKCSFEETVDVLM
+EAAAHGESDPMKGVSENIMLGQLAPAGTGCFDLLLDAEKCKYGMEIPTNIPGLGAAGPTGMFFGSAPSPMGGISPAMTPW
+NQGATPAYGAWSPSVGSGMTPGAAGFSPSAASDASGFSPGYSPAWSPTPGSPGSPGPSSPYIPSPGGAMSPSYSPTSPAY
+EPRSPGGYTPQSPSYSPTSPSYSPTSPSYSPTSPNYSPTSPSYSPTSPSYSPTSPSYSPTSPSYSPTSPSYSPTSPSYSP
+TSPSYSPTSPSYSPTSPSYSPTSPSYSPTSPSYSPTSPSYSPTSPSYSPTSPSYSPTSPSYSPTSPNYSPTSPNYTPTSP
+SYSPTSPSYSPTSPNYTPTSPNYSPTSPSYSPTSPSYSPTSPSYSPSSPRYTPQSPTYTPSSPSYSPSSPSYSPASPKYT
+PTSPSYSPSSPEYTPTSPKYSPTSPKYSPTSPKYSPTSPTYSPTTPKYSPTSPTYSPTSPVYTPTSPKYSPTSPTYSPTS
+PKYSPTSPTYSPTSPKGSTYSPTSPGYSPTSPTYSLTSPAISPDDSDEEN</string>
+                </sequence>
+                <ec_number>2.7.7.6,2.7.7.48</ec_number>
+            </macromolecule>
+            <macromolecule id="2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="protein_or_peptide">
+                <name>DNA-directed RNA polymerase II subunit RPB2</name>
+                <natural_source database="ncbi">
+                    <organism ncbi="9606">Homo sapiens</organism>
+                </natural_source>
+                <molecular_weight>
+                    <theoretical units="MDa">0.134071453</theoretical>
+                </molecular_weight>
+                <enantiomer>levo</enantiomer>
+                <sequence>
+                    <string>MYDADEDMQYDEDDDEITPDLWQEACWIVISSYFDEKGLVRQQLDSFDEFIQMSVQRIVEDAPPIDLQAEAQHASGEVEE
+PPRYLLKFEQIYLSKPTHWERDGAPSPMMPNEARLRNLTYSAPLYVDITKTVIKEGEEQLQTQHQKTFIGKIPIMLRSTY
+CLLNGLTDRDLCELNECPLDPGGYFIINGSEKVLIAQEKMATNTVYVFAKKDSKYAYTGECRSCLENSSRPTSTIWVSML
+ARGGQGAKKSAIGQRIVATLPYIKQEVPIIIVFRALGFVSDRDILEHIIYDFEDPEMMEMVKPSLDEAFVIQEQNVALNF
+IGSRGAKPGVTKEKRIKYAKEVLQKEMLPHVGVSDFCETKKAYFLGYMVHRLLLAALGRRELDDRDHYGNKRLDLAGPLL
+AFLFRGMFKNLLKEVRIYAQKFIDRGKDFNLELAIKTRIISDGLKYSLATGNWGDQKKAHQARAGVSQVLNRLTFASTLS
+HLRRLNSPIGRDGKLAKPRQLHNTLWGMVCPAETPEGHAVGLVKNLALMAYISVGSQPSPILEFLEEWSMENLEEISPAA
+IADATKIFVNGCWVGIHKDPEQLMNTLRKLRRQMDIIVSEVSMIRDIREREIRIYTDAGRICRPLLIVEKQKLLLKKRHI
+DQLKEREYNNYSWQDLVASGVVEYIDTLEEETVMLAMTPDDLQEKEVAYCSTYTHCEIHPSMILGVCASIIPFPDHNQSP
+RNTYQSAMGKQAMGVYITNFHVRMDTLAHVLYYPQKPLVTTRSMEYLRFRELPAGINSIVAIASYTGYNQEDSVIMNRSA
+VDRGFFRSVFYRSYKEQESKKGFDQEEVFEKPTRETCQGMRHAIYDKLDDDGLIAPGVRVSGDDVIIGKTVTLPENEDEL
+ESTNRRYTKRDCSTFLRTSETGIVDQVMVTLNQEGYKFCKIRVRSVRIPQIGDKFASRHGQKGTCGIQYRQEDMPFTCEG
+ITPDIIINPHAIPSRMTIGHLIECLQGKVSANKGEIGDATPFNDAVNVQKISNLLSDYGYHLRGNEVLYNGFTGRKITSQ
+IFIGPTYYQRLKHMVDDKIHSRARGPIQILNRQPMEGRSRDGGLRFGEMERDCQIAHGAAQFLRERLFEASDPYQVHVCN
+LCGIMAIANTRTHTYECRGCRNKTQISLVRMPYACKLLFQELMSMSIAPRMMSV</string>
+                </sequence>
+                <ec_number>2.7.7.6</ec_number>
+            </macromolecule>
+            <macromolecule id="3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="protein_or_peptide">
+                <name>DNA-directed RNA polymerase II subunit RPB3</name>
+                <natural_source database="ncbi">
+                    <organism ncbi="9606">Homo sapiens</organism>
+                </natural_source>
+                <molecular_weight>
+                    <theoretical units="MDa">0.031478148</theoretical>
+                </molecular_weight>
+                <enantiomer>levo</enantiomer>
+                <sequence>
+                    <string>MPYANQPTVRITELTDENVKFIIENTDLAVANSIRRVFIAEVPIIAIDWVQIDANSSVLHDEFIAHRLGLIPLISDDIVD
+KLQYSRDCTCEEFCPECSVEFTLDVRCNEDQTRHVTSRDLISNSPRVIPVTSRNRDNDPNDYVEQDDILIVKLRKGQELR
+LRAYAKKGFGKEHAKWNPTAGVAFEYDPDNALRHTVYPKPEEWPKSEYSELDEDESQAPYDPNGKPERFYYNVESCGSLR
+PETIVLSALSGLKKKLSDLQTQLSHEIQSDVLTIN</string>
+                </sequence>
+            </macromolecule>
+            <macromolecule id="4" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="protein_or_peptide">
+                <name>DNA-directed RNA polymerase II subunit RPB4</name>
+                <natural_source database="ncbi">
+                    <organism ncbi="9606">Homo sapiens</organism>
+                </natural_source>
+                <molecular_weight>
+                    <theoretical units="MDa">0.016331255</theoretical>
+                </molecular_weight>
+                <enantiomer>levo</enantiomer>
+                <sequence>
+                    <string>MAAGGSDPRAGDVEEDASQLIFPKEFETAETLLNSEVHMLLEHRKQQNESAEDEQELSEVFMKTLNYTARFSRFKNRETI
+ASVRSLLLQKKLHKFELACLANLCPETAEESKALIPSLEGRFEDEELQQILDDIQTKRSFQY</string>
+                </sequence>
+            </macromolecule>
+            <macromolecule id="5" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="protein_or_peptide">
+                <name>DNA-directed RNA polymerase II subunit RPB5</name>
+                <natural_source database="ncbi">
+                    <organism ncbi="9606">Homo sapiens</organism>
+                </natural_source>
+                <molecular_weight>
+                    <theoretical units="MDa">0.024584223</theoretical>
+                </molecular_weight>
+                <enantiomer>levo</enantiomer>
+                <sequence>
+                    <string>MDDEEETYRLWKIRKTIMQLCHDRGYLVTQDELDQTLEEFKAQSGDKPSEGRPRRTDLTVLVAHNDDPTDQMFVFFPEEP
+KVGIKTIKVYCQRMQEENITRALIVVQQGMTPSAKQSLVDMAPKYILEQFLQQELLINITEHELVPEHVVMTKEEVTELL
+ARYKLRENQLPRIQAGDPVARYFGIKRGQVVKIIRPSETAGRYITYRLVQ</string>
+                </sequence>
+            </macromolecule>
+            <macromolecule id="6" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="protein_or_peptide">
+                <name>DNA-directed RNA polymerase II subunit RPB6</name>
+                <natural_source database="ncbi">
+                    <organism ncbi="9606">Homo sapiens</organism>
+                </natural_source>
+                <molecular_weight>
+                    <theoretical units="MDa">0.014491026</theoretical>
+                </molecular_weight>
+                <enantiomer>levo</enantiomer>
+                <sequence>
+                    <string>MSDNEDNFDGDDFDDVEEDEGLDDLENAEEEGQENVEILPSGERPQANQKRITTPYMTKYERARVLGTRALQIAMCAPVM
+VELEGETDPLLIAMKELKARKIPIIIRRYLPDGSYEDWGVDELIITD</string>
+                </sequence>
+            </macromolecule>
+            <macromolecule id="7" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="protein_or_peptide">
+                <name>DNA-directed RNA polymerase II subunit RPB7</name>
+                <natural_source database="ncbi">
+                    <organism ncbi="9606">Homo sapiens</organism>
+                </natural_source>
+                <molecular_weight>
+                    <theoretical units="MDa">0.019314283</theoretical>
+                </molecular_weight>
+                <enantiomer>levo</enantiomer>
+                <sequence>
+                    <string>MFYHISLEHEILLHPRYFGPNLLNTVKQKLFTEVEGTCTGKYGFVIAVTTIDNIGAGVIQPGRGFVLYPVKYKAIVFRPF
+KGEVVDAVVTQVNKVGLFTEIGPMSCFISRHSIPSEMEFDPNSNPPCYKTMDEDIVIQQDDEIRLKIVGTRVDKNDIFAI
+GSLMDDYLGLVS</string>
+                </sequence>
+            </macromolecule>
+            <macromolecule id="8" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="protein_or_peptide">
+                <name>DNA-directed RNA polymerase II subunit RPB8</name>
+                <natural_source database="ncbi">
+                    <organism ncbi="9606">Homo sapiens</organism>
+                </natural_source>
+                <molecular_weight>
+                    <theoretical units="MDa">0.017162273</theoretical>
+                </molecular_weight>
+                <enantiomer>levo</enantiomer>
+                <sequence>
+                    <string>MAGILFEDIFDVKDIDPEGKKFDRVSRLHCESESFKMDLILDVNIQIYPVDLGDKFRLVIASTLYEDGTLDDGEYNPTDD
+RPSRADQFEYVMYGKVYRIEGDETSTEAATRLSAYVSYGGLLMRLQGDANNLHGFEVDSRVYLLMKKLAF</string>
+                </sequence>
+            </macromolecule>
+            <macromolecule id="9" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="protein_or_peptide">
+                <name>DNA-directed RNA polymerase II subunit RPB9</name>
+                <natural_source database="ncbi">
+                    <organism ncbi="9606">Homo sapiens</organism>
+                </natural_source>
+                <molecular_weight>
+                    <theoretical units="MDa">0.014541221</theoretical>
+                </molecular_weight>
+                <enantiomer>levo</enantiomer>
+                <sequence>
+                    <string>MEPDGTYEPGFVGIRFCQECNNMLYPKEDKENRILLYACRNCDYQQEADNSCIYVNKITHEVDELTQIIADVSQDPTLPR
+TEDHPCQKCGHKEAVFFQSHSARAEDAMRLYYVCTAPHCGHRWTE</string>
+                </sequence>
+            </macromolecule>
+            <macromolecule id="10" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="protein_or_peptide">
+                <name>DNA-directed RNA polymerase II subunit RPB10</name>
+                <natural_source database="ncbi">
+                    <organism ncbi="9606">Homo sapiens</organism>
+                </natural_source>
+                <molecular_weight>
+                    <theoretical units="MDa">0.007655123</theoretical>
+                </molecular_weight>
+                <enantiomer>levo</enantiomer>
+                <sequence>
+                    <string>MIIPVRCFTCGKIVGNKWEAYLGLLQAEYTEGDALDALGLKRYCCRRMLLAHVDLIEKLLNYAPLEK</string>
+                </sequence>
+            </macromolecule>
+            <macromolecule id="11" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="protein_or_peptide">
+                <name>DNA-directed RNA polymerase II subunit RPB11-a</name>
+                <natural_source database="ncbi">
+                    <organism ncbi="9606">Homo sapiens</organism>
+                </natural_source>
+                <molecular_weight>
+                    <theoretical units="MDa">0.013310284</theoretical>
+                </molecular_weight>
+                <enantiomer>levo</enantiomer>
+                <sequence>
+                    <string>MNAPPAFESFLLFEGEKKITINKDTKVPNACLFTINKEDHTLGNIIKSQLLKDPQVLFAGYKVPHPLEHKIIIRVQTTPD
+YSPQEAFTNAITDLISELSLLEERFRVAIKDKQEGIE</string>
+                </sequence>
+            </macromolecule>
+            <macromolecule id="12" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="protein_or_peptide">
+                <name>DNA-directed RNA polymerase II subunit RPB12</name>
+                <natural_source database="ncbi">
+                    <organism ncbi="9606">Homo sapiens</organism>
+                </natural_source>
+                <molecular_weight>
+                    <theoretical units="MDa">0.007018244</theoretical>
+                </molecular_weight>
+                <enantiomer>levo</enantiomer>
+                <sequence>
+                    <string>MDTQKDVQPPKQQPMIYICGECHTENEIKSRDPIRCRECGYRIMYKKRTKRLVVFDAR</string>
+                </sequence>
+            </macromolecule>
+            <macromolecule id="13" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="protein_or_peptide">
+                <name>Transcription initiation factor IIB</name>
+                <molecular_weight>
+                    <theoretical units="MDa">0.034877949</theoretical>
+                </molecular_weight>
+                <recombinant_expression database="ncbi">
+                    <organism ncbi="9606">Homo sapiens</organism>
+                </recombinant_expression>
+                <enantiomer>levo</enantiomer>
+                <sequence>
+                    <string>MASTSRLDALPRVTCPNHPDAILVEDYRAGDMICPECGLVVGDRVIDVGSEWRTFSNDKATKDPSRVGDSQNPLLSDGDL
+STMIGKGTGAASFDEFGNSKYQNRRTMSSSDRAMMNAFKEITTMADRINLPRNIVDRTNNLFKQVYEQKSLKGRANDAIA
+SACLYIACRQEGVPRTFKEICAVSRISKKEIGRCFKLILKALETSVDLITTGDFMSRFCSNLCLPKQVQMAATHIARKAV
+ELDLVPGRSPISVAAAAIYMASQASAEKRTQKEIGDIAGVADVTIRQSYRLIYPRAPDLFPTDFKFDTPVDKLPQL</string>
+                </sequence>
+            </macromolecule>
+            <macromolecule id="14" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="protein_or_peptide">
+                <name>Transcription initiation factor IIA subunit 1</name>
+                <molecular_weight>
+                    <theoretical units="MDa">0.041544551</theoretical>
+                </molecular_weight>
+                <recombinant_expression database="ncbi">
+                    <organism ncbi="9606">Homo sapiens</organism>
+                </recombinant_expression>
+                <enantiomer>levo</enantiomer>
+                <sequence>
+                    <string>MANSANTNTVPKLYRSVIEDVINDVRDIFLDDGVDEQVLMELKTLWENKLMQSRAVDGFHSEEQQLLLQVQQQHQPQQQQ
+HHHHHHHQQAQPQQTVPQQAQTQQVLIPASQQATAPQVIVPDSKLIQHMNASNMSAAATAATLALPAGVTPVQQILTNSG
+QLLQVVRAANGAQYIFQPQQSVVLQQQVIPQMQPGGVQAPVIQQVLAPLPGGISPQTGVIIQPQQILFTGNKTQVIPTTV
+AAPTPAQAQITATGQQQPQAQPAQTQAPLVLQVDGTGDTSSEEDEDEEEDYDDDEEEDKEKDGAEDGQVEEEPLNSEDDV
+SDEEGQELFDTENVVVCQYDKIHRSKNKWKFHLKDGIMNLNGRDYIFSKAIGDAEW</string>
+                </sequence>
+            </macromolecule>
+            <macromolecule id="15" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="protein_or_peptide">
+                <name>Transcription initiation factor IIA subunit 2</name>
+                <molecular_weight>
+                    <theoretical units="MDa">0.012469091</theoretical>
+                </molecular_weight>
+                <recombinant_expression database="ncbi">
+                    <organism ncbi="9606">Homo sapiens</organism>
+                </recombinant_expression>
+                <enantiomer>levo</enantiomer>
+                <sequence>
+                    <string>MAYQLYRNTTLGNSLQESLDELIQSQQITPQLALQVLLQFDKAINAALAQRVRNRVNFRGSLNTYRFCDNVWTFVLNDVE
+FREVTELIKVDKVKIVACDGKNTGSNTTE</string>
+                </sequence>
+            </macromolecule>
+            <macromolecule id="16" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="protein_or_peptide">
+                <name>TATA-box-binding protein</name>
+                <molecular_weight>
+                    <theoretical units="MDa">0.037729938</theoretical>
+                </molecular_weight>
+                <recombinant_expression database="ncbi">
+                    <organism ncbi="9606">Homo sapiens</organism>
+                </recombinant_expression>
+                <enantiomer>levo</enantiomer>
+                <sequence>
+                    <string>MDQNNSLPPYAQGLASPQGAMTPGIPIFSPMMPYGTGLTPQPIQNTNSLSILEEQQRQQQQQQQQQQQQQQQQQQQQQQQ
+QQQQQQQQQQQQQQQAVAAAAVQQSTSQQATQGTSGQAPQLFHSQTLTTAPLPGTTPLYPSPMTPMTPITPATPASESSG
+IVPQLQNIVSTVNLGCKLDLKTIALRARNAEYNPKRFAAVIMRIREPRTTALIFSSGKMVCTGAKSEEQSRLAARKYARV
+VQKLGFPAKFLDFKIQNMVGSCDVKFPIRLEGLVLTHQQFSSYEPELFPGLIYRMIKPRIVLLIFVSGKVVLTGAKVRAE
+IYEAFENIYPILKGFRKTT</string>
+                </sequence>
+            </macromolecule>
+            <macromolecule id="17" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="protein_or_peptide">
+                <name>General transcription factor IIE subunit 1</name>
+                <molecular_weight>
+                    <theoretical units="MDa">0.049516094</theoretical>
+                </molecular_weight>
+                <recombinant_expression database="ncbi">
+                    <organism ncbi="9606">Homo sapiens</organism>
+                </recombinant_expression>
+                <enantiomer>levo</enantiomer>
+                <sequence>
+                    <string>MADPDVLTEVPAALKRLAKYVIRGFYGIEHALALDILIRNSCVKEEDMLELLKFDRKQLRSVLNNLKGDKFIKCRMRVET
+AADGKTTRHNYYFINYRTLVNVVKYKLDHMRRRIETDERDSTNRASFKCPVCSSTFTDLEANQLFDPMTGTFRCTFCHTE
+VEEDESAMPKKDARTLLARFNEQIEPIYALLRETEDVNLAYEILEPEPTEIPALKQSKDHAATTAGAASLAGGHHREAWA
+TKGPSYEDLYTQNVVINMDDQEDLHRASLEGKSAKERPIWLRESTVQGAYGSEDMKEGGIDMDAFQEREEGHAGPDDNEE
+VMRALLIHEKKTSSAMAGSVGAAAPVTAANGSDSESETSESDDDSPPRPAAVAVHKREEDEEEDDEFEEVADDPIVMVAG
+RPFSYSEVSQRPELVAQMTPEEKEAYIAMGQRMFEDLFE</string>
+                </sequence>
+            </macromolecule>
+            <macromolecule id="18" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="protein_or_peptide">
+                <name>Transcription initiation factor IIE subunit beta</name>
+                <molecular_weight>
+                    <theoretical units="MDa">0.033106824</theoretical>
+                </molecular_weight>
+                <recombinant_expression database="ncbi">
+                    <organism ncbi="9606">Homo sapiens</organism>
+                </recombinant_expression>
+                <enantiomer>levo</enantiomer>
+                <sequence>
+                    <string>MDPSLLRERELFKKRALSTPVVEKRSASSESSSSSSKKKKTKVEHGGSSGSKQNSDHSNGSFNLKALSGSSGYKFGVLAK
+IVNYMKTRHQRGDTHPLTLDEILDETQHLDIGLKQKQWLMTEALVNNPKIEVIDGKYAFKPKYNVRDKKALLRLLDQHDQ
+RGLGGILLEDIEEALPNSQKAVKALGDQILFVNRPDKKKILFFNDKSCQFSVDEEFQKLWRSVTVDSMDEEKIEEYLKRQ
+GISSMQESGPKKVAPIQRRKKPASQKKRRFKTHNEHLAGVLKDYSDITSSK</string>
+                </sequence>
+            </macromolecule>
+            <macromolecule id="19" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="protein_or_peptide">
+                <name>General transcription factor IIF subunit 1</name>
+                <molecular_weight>
+                    <theoretical units="MDa">0.058343578</theoretical>
+                </molecular_weight>
+                <recombinant_expression database="ncbi">
+                    <organism ncbi="9606">Homo sapiens</organism>
+                </recombinant_expression>
+                <enantiomer>levo</enantiomer>
+                <sequence>
+                    <string>MAALGPSSQNVTEYVVRVPKNTTKKYNIMAFNAADKVNFATWNQARLERDLSNKKIYQEEEMPESGAGSEFNRKLREEAR
+RKKYGIVLKEFRPEDQPWLLRVNGKSGRKFKGIKKGGVTENTSYYIFTQCPDGAFEAFPVHNWYNFTPLARHRTLTAEEA
+EEEWERRNKVLNHFSIMQQRRLKDQDQDEDEEEKEKRGRRKASELRIHDLEDDLEMSSDASDASGEEGGRVPKAKKKAPL
+AKGGRKKKKKKGSDDEAFEDSDDGDFEGQEVDYMSDGSSSSQEEPESKAKAPQQEEGPKGVDEQSDSSEESEEEKPPEED
+KEEEEEKKAPTPQEKKRRKDSSEESDSSEESDIDSEASSALFMAKKKTPPKRERKPSGGSSRGNSRPGTPSAEGGSTSST
+LRAAASKLEQGKRVSEMPAAKRLRLDTGPQSLSGKSTPQPPSGKTTPNSGDVQVTEDAVRRYLTRKPMTTKDLLKKFQTK
+KTGLSSEQTVNVLAQILKRLNPERKMINDKMHFSLKE</string>
+                </sequence>
+            </macromolecule>
+            <macromolecule id="20" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="protein_or_peptide">
+                <name>General transcription factor IIF subunit 2</name>
+                <molecular_weight>
+                    <theoretical units="MDa">0.028427309</theoretical>
+                </molecular_weight>
+                <recombinant_expression database="ncbi">
+                    <organism ncbi="9606">Homo sapiens</organism>
+                </recombinant_expression>
+                <enantiomer>levo</enantiomer>
+                <sequence>
+                    <string>MAERGELDLTGAKQNTGVWLVKVPKYLSQQWAKASGRGEVGKLRIAKTQGRTEVSFTLNEDLANIHDIGGKPASVSAPRE
+HPFVLQSVGGQTLTVFTESSSDKLSLEGIVVQRAECRPAASENYMRLKRLQIEESSKPVRLSQQLDKVVTTNYKPVANHQ
+YNIEYERKKKEDGKRARADKQHVLDMLFSAFEKHQYYNLKDLVDITKQPVVYLKEILKEIGVQNVKGIHKNTWELKPEYR
+HYQGEEKSD</string>
+                </sequence>
+                <ec_number>3.6.4.12</ec_number>
+            </macromolecule>
+            <macromolecule id="21" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="protein_or_peptide">
+                <name>Transcription elongation factor A protein 1</name>
+                <molecular_weight>
+                    <theoretical units="MDa">0.034022723</theoretical>
+                </molecular_weight>
+                <recombinant_expression database="ncbi">
+                    <organism ncbi="9606">Homo sapiens</organism>
+                </recombinant_expression>
+                <enantiomer>levo</enantiomer>
+                <sequence>
+                    <string>MEDEVVRFAKKMDKMVQKKNAAGALDLLKELKNIPMTLELLQSTRIGMSVNAIRKQSTDEEVTSLAKSLIKSWKKLLDGP
+STEKDLDEKKKEPAITSQNSPEAREESTSSGNVSNRKDETNARDTYVSSFPRAPSTSDSVRLKCREMLAAALRTGDDYIA
+IGADEEELGSQIEEAIYQEIRNTDMKYKNRVRSRISNLKDAKNPNLRKNVLCGNIPPDLFARMTAEEMASDELKEMRKNL
+TKEAIREHQMAKTGGTQTDLFTCGKCKKKNCTYTQVQTRSADEPMTTFVVCNECGNRWKFC</string>
+                </sequence>
+            </macromolecule>
+            <macromolecule id="22" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="dna">
+                <name>SCP-X</name>
+                <molecular_weight>
+                    <theoretical units="MDa">0.024800826</theoretical>
+                </molecular_weight>
+                <sequence>
+                    <string>(DG)(DA)(DA)(DG)(DG)(DG)(DC)(DG)(DC)(DC)(DT)(DA)(DT)(DA)(DA)(DA)(DA)(DG)(DG)(DG)
+(DG)(DG)(DT)(DG)(DG)(DG)(DG)(DG)(DC)(DG)(DT)(DT)(DT)(DT)(DT)(DT)(DT)(DT)(DT)(DT)
+(DT)(DT)(DT)(DT)(DT)(DT)(DT)(DT)(DT)(DT)(DC)(DG)(DA)(DA)(DC)(DA)(DC)(DT)(DC)(DG)
+(DA)(DG)(DC)(DC)(DG)(DA)(DG)(DC)(DA)(DG)(DA)(DC)(DG)(DT)(DG)(DC)(DC)(DT)(DA)(DC)</string>
+                </sequence>
+            </macromolecule>
+            <macromolecule id="23" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="dna">
+                <name>SCP-Y</name>
+                <molecular_weight>
+                    <theoretical units="MDa">0.024513598</theoretical>
+                </molecular_weight>
+                <sequence>
+                    <string>(DG)(DT)(DA)(DG)(DG)(DC)(DA)(DC)(DG)(DT)(DC)(DT)(DG)(DC)(DT)(DC)(DG)(DG)(DC)(DT)
+(DC)(DG)(DA)(DG)(DT)(DG)(DT)(DT)(DC)(DG)(DA)(DT)(DC)(DG)(DC)(DG)(DA)(DC)(DT)(DG)
+(DA)(DG)(DG)(DA)(DC)(DG)(DA)(DA)(DC)(DG)(DC)(DG)(DC)(DC)(DC)(DC)(DC)(DA)(DC)(DC)
+(DC)(DC)(DC)(DT)(DT)(DT)(DT)(DA)(DT)(DA)(DG)(DG)(DC)(DG)(DC)(DC)(DC)(DT)(DT)(DC)</string>
+                </sequence>
+            </macromolecule>
+            <macromolecule id="24" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ligand">
+                <name>MAGNESIUM ION</name>
+                <molecular_weight>
+                    <theoretical units="MDa">2.4305e-05</theoretical>
+                </molecular_weight>
+                <number_of_copies>2</number_of_copies>
+                <formula>MG</formula>
+            </macromolecule>
+            <macromolecule id="25" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ligand">
+                <name>ZINC ION</name>
+                <molecular_weight>
+                    <theoretical units="MDa">6.5409e-05</theoretical>
+                </molecular_weight>
+                <number_of_copies>11</number_of_copies>
+                <formula>ZN</formula>
+            </macromolecule>
+        </macromolecule_list>
+    </sample>
+    <structure_determination_list>
+        <structure_determination>
+            <method>singleParticle</method>
+            <aggregation_state>particle</aggregation_state>
+            <specimen_preparation_list>
+                <specimen_preparation id="1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="base_preparation_type">
+                    <concentration units="mg/mL">0.3</concentration>
+                    <buffer>
+                        <ph>7.9</ph>
+                    </buffer>
+                    <vitrification>
+                        <cryogen_name>ETHANE</cryogen_name>
+                        <chamber_humidity>100.0</chamber_humidity>
+                        <instrument>FEI VITROBOT MARK IV</instrument>
+                        <details>Blot for 4 seconds before plunging into liquid ethane (FEI VITROBOT MARK IV).</details>
+                    </vitrification>
+                </specimen_preparation>
+            </specimen_preparation_list>
+            <microscopy_list>
+                <microscopy id="1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="base_microscopy_type">
+                    <microscope>FEI TITAN KRIOS</microscope>
+                    <illumination_mode>FLOOD BEAM</illumination_mode>
+                    <imaging_mode>BRIGHT FIELD</imaging_mode>
+                    <electron_source>FIELD EMISSION GUN</electron_source>
+                    <acceleration_voltage>300</acceleration_voltage>
+                    <nominal_cs>2.7</nominal_cs>
+                    <nominal_defocus_min>2000.0</nominal_defocus_min>
+                    <nominal_defocus_max>4000.0</nominal_defocus_max>
+                    <nominal_magnification>27500.</nominal_magnification>
+                    <specimen_holder_model>GATAN 626 SINGLE TILT LIQUID NITROGEN CRYO TRANSFER HOLDER</specimen_holder_model>
+                    <image_recording_list>
+                        <image_recording id="1">
+                            <film_or_detector_model>GATAN K2 SUMMIT (4k x 4k)</film_or_detector_model>
+                            <detector_mode>COUNTING</detector_mode>
+                            <digitization_details>
+                                <frames_per_image>30</frames_per_image>
+                            </digitization_details>
+                            <average_electron_dose_per_image>42.0</average_electron_dose_per_image>
+                        </image_recording>
+                    </image_recording_list>
+                </microscopy>
+            </microscopy_list>
+            <image_processing id="1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="singleparticle_processing_type">
+                <image_recording_id>1</image_recording_id>
+                <ctf_correction>
+                    <correction_operation>PHASE FLIPPING AND AMPLITUDE CORRECTION</correction_operation>
+                </ctf_correction>
+                <startup_model>
+                    <other>OTHER</other>
+                    <details>Negative-stain reconstruction of a similar complex, low-pass filtered to 60 Angstrom resolution</details>
+                </startup_model>
+                <initial_angle_assignment>
+                    <type>PROJECTION MATCHING</type>
+                    <projection_matching_processing/>
+                </initial_angle_assignment>
+                <final_reconstruction>
+                    <number_images_used>90590</number_images_used>
+                    <resolution>3.9</resolution>
+                    <resolution_method>FSC 0.143 CUT-OFF</resolution_method>
+                    <software_list>
+                        <software>
+                            <name>RELION</name>
+                            <version>1.4beta</version>
+                        </software>
+                    </software_list>
+                </final_reconstruction>
+                <final_angle_assignment>
+                    <type>PROJECTION MATCHING</type>
+                    <projection_matching_processing/>
+                </final_angle_assignment>
+            </image_processing>
+        </structure_determination>
+    </structure_determination_list>
+    <map size_kbytes="226493" format="CCP4">
+        <file>emd_8137.map.gz</file>
+        <symmetry>
+            <space_group>1</space_group>
+        </symmetry>
+        <data_type>Image stored as floating point number (4 bytes)</data_type>
+        <dimensions>
+            <col>384</col>
+            <row>384</row>
+            <sec>384</sec>
+        </dimensions>
+        <origin>
+            <col>0</col>
+            <row>0</row>
+            <sec>0</sec>
+        </origin>
+        <spacing>
+            <x>384</x>
+            <y>384</y>
+            <z>384</z>
+        </spacing>
+        <cell>
+            <a>503.03998</a>
+            <b>503.03998</b>
+            <c>503.03998</c>
+            <alpha>90.0</alpha>
+            <beta>90.0</beta>
+            <gamma>90.0</gamma>
+        </cell>
+        <axis_order>
+            <fast>x</fast>
+            <medium>y</medium>
+            <slow>z</slow>
+        </axis_order>
+        <statistics>
+            <minimum>-0.10279353</minimum>
+            <maximum>0.16405329</maximum>
+            <average>0.00008211587</average>
+            <std>0.0021512734</std>
+        </statistics>
+        <pixel_spacing>
+            <x units="Å">1.31</x>
+            <y units="Å">1.31</y>
+            <z units="Å">1.31</z>
+        </pixel_spacing>
+        <contour_list>
+            <contour primary="true">
+                <level>0.01</level>
+                <source>author</source>
+            </contour>
+        </contour_list>
+        <label>::::EMDATABANK.org::::EMD-8137::::</label>
+        <annotation_details>None</annotation_details>
+    </map>
+    <interpretation>
+        <modelling_list>
+            <modelling>
+                <refinement_protocol>FLEXIBLE FIT</refinement_protocol>
+            </modelling>
+        </modelling_list>
+    </interpretation>
+</emd>
