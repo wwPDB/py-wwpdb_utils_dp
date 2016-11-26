@@ -235,9 +235,10 @@ class RcsbDpUtilityTests(unittest.TestCase):
             dp.exp("pisa-assembly-report.xml")
             #
             cifPath=os.path.join(self.__testFilePath,self.__testFileCifPisa)
+            assignPath=os.path.join(self.__testFilePath,"3rer_assembly_assign_P1.cif")
             dp.imp(cifPath)
-            dp.addInput(name="pisa_assembly_tuple_list",value="0:0,1:0,1:1,2:0")
             dp.addInput(name="pisa_assembly_file_path",value="pisa-assembly-report.xml",type="file")
+            dp.addInput(name="pisa_assembly_assignment_file_path",value=assignPath,type="file")
             dp.op("pisa-assembly-merge-cif")
             dp.exp("3rer-updated.cif.gz")
             dp.expLog("3rer-updated.log.gz")
