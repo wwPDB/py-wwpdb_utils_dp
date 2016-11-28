@@ -98,7 +98,7 @@
 # 14-Jul-2016 jdw add support for validation mode setting - 'request_validation_mode'
 # 24-Oct-2015 esg for img-convert add +repage argument
 # 16-Nov-2016 ep  Add xml-header-check for EMDB header file
-# 28-Nov-2016 ep  Add check-cif-ext
+# 28-Nov-2016 ep  Add check-cif-ext and cif2pdbx-ext
 ##
 """
 Wrapper class for data processing and chemical component utilities.
@@ -162,7 +162,7 @@ class RcsbDpUtility(object):
         self.__rcsbOps = ["rename-atoms", "cif2pdbx", "pdbx2xml", "pdb2dssp", "pdb2stride", "initial-version", "poly-link-dist",
                           "chem-comp-link", "chem-comp-assign", "chem-comp-assign-comp", "chem-comp-assign-skip",
                           "chem-comp-assign-exact", "chem-comp-assign-validation", "check-cif", "check-cif-v4", "check-cif-ext",
-                          "cif2pdbx-public",
+                          "cif2pdbx-public", "cif2pdbx-ext", 
                           "chem-comp-dict-makeindex", "chem-comp-dict-serialize"]
         self.__pisaOps = ["pisa-analysis", "pisa-assembly-report-xml", "pisa-assembly-report-text",
                           "pisa-interface-report-xml", "pisa-assembly-coordinates-pdb", "pisa-assembly-coordinates-cif",
@@ -2533,6 +2533,23 @@ class RcsbDpUtility(object):
             cmdPath = os.path.join(self.__packagePath, "dict", "bin", "cifexch2")
             #thisCmd  = " ; " + cmdPath + " -dicSdb " + self.__pathPdbxDictSdb +  " -reorder  -strip -op in  -pdbids "
             thisCmd = " ; " + cmdPath + " -dicSdb " + self.__pathPdbxDictSdb + " -pdbxDicSdb " + self.__pathPdbxV4DictSdb + " -reorder  -strip -op in  -pdbids "
+            cmd += thisCmd + " -input " + iPath + " -output " + oPath
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
+
+        elif (op == "cif2pdbx-ext"):
+            """Extended version of cif2pdbx that supports both archive and internal"""
+            # Default archive
+            dictName = self.__inputParamDict.get('destination', 'archive')
+
+            if dictName == 'archive':
+                sDictSdb = self.__nameToDictPath('internal', '.sdb')
+                dDictSdb = self.__nameToDictPath('archive', '.sdb')
+            elif dictName == 'test':
+                sDictSdb = self.__nameToDictPath('test', '.sdb')
+                dDictSdb = self.__nameToDictPath('test', '.sdb')
+
+            cmdPath = os.path.join(self.__packagePath, "dict", "bin", "cifexch2")
+            thisCmd = " ; " + cmdPath + " -dicSdb " + sDictSdb+ " -pdbxDicSdb " + dDictSdb + " -reorder  -strip -op in  -pdbids "
             cmd += thisCmd + " -input " + iPath + " -output " + oPath
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
 
