@@ -79,7 +79,23 @@ class RcsbDpUtilityTests(unittest.TestCase):
             traceback.print_exc(file=self.__lfh)
             self.fail()
 
-
+    def testCifCheckExt(self): 
+        """
+        """
+        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        try:
+            for name in ['internal', 'archive', 'test']:
+                dp = RcsbDpUtility(tmpPath=self.__tmpPath,siteId=self.__siteId,verbose=True)
+                cifPath=os.path.join(self.__testFilePath,self.__testFileCif)
+                dp.imp(cifPath)
+                dp.addInput(name = 'dictionary', value = name)
+                dp.op("check-cif-ext")
+                dp.exp("check-cif-diags-%s.txt" % name)
+                dp.expLog("check-cif-%s.log" % name)    
+                #dp.cleanup()
+        except:
+            traceback.print_exc(file=self.__lfh)
+            self.fail()
 
     def testCifEpsToPdb(self): 
         """
@@ -296,6 +312,7 @@ def suitePisaTests():
 def suiteMiscTests():
     suiteSelect = unittest.TestSuite()
     suiteSelect.addTest(RcsbDpUtilityTests("testCifCheck"))
+    suiteSelect.addTest(RcsbDpUtilityTests("testCifCheckExt"))
     return suiteSelect
   
 

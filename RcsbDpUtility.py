@@ -98,6 +98,7 @@
 # 14-Jul-2016 jdw add support for validation mode setting - 'request_validation_mode'
 # 24-Oct-2015 esg for img-convert add +repage argument
 # 16-Nov-2016 ep  Add xml-header-check for EMDB header file
+# 28-Nov-2016 ep  Add check-cif-ext
 ##
 """
 Wrapper class for data processing and chemical component utilities.
@@ -160,7 +161,8 @@ class RcsbDpUtility(object):
                            "cif2pdb-assembly", "pdbx2pdb-assembly", "pdbx2deriv"]
         self.__rcsbOps = ["rename-atoms", "cif2pdbx", "pdbx2xml", "pdb2dssp", "pdb2stride", "initial-version", "poly-link-dist",
                           "chem-comp-link", "chem-comp-assign", "chem-comp-assign-comp", "chem-comp-assign-skip",
-                          "chem-comp-assign-exact", "chem-comp-assign-validation", "check-cif", "check-cif-v4", "cif2pdbx-public",
+                          "chem-comp-assign-exact", "chem-comp-assign-validation", "check-cif", "check-cif-v4", "check-cif-ext",
+                          "cif2pdbx-public",
                           "chem-comp-dict-makeindex", "chem-comp-dict-serialize"]
         self.__pisaOps = ["pisa-analysis", "pisa-assembly-report-xml", "pisa-assembly-report-text",
                           "pisa-interface-report-xml", "pisa-assembly-coordinates-pdb", "pisa-assembly-coordinates-cif",
@@ -2509,6 +2511,21 @@ class RcsbDpUtility(object):
             cmd += " ; cat " + iPath + "-parser.log > " + oPath
             cmd += " ; cat " + iPath + "-diag.log  >> " + oPath
             #cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
+        elif (op == "check-cif-ext"):
+            # Dictionary check with selectable dictionary
+            # Default 'internal' - v5next
+            dictName = self.__inputParamDict.get('dictionary', 'internal')
+            dictSdbPath = self.__nameToDictPath(dictName, '.sdb')
+            #
+            cmdPath = os.path.join(self.__packagePath, "dict", "bin", "CifCheck")
+            thisCmd = " ; " + cmdPath
+            cmd += thisCmd + " -f " + iPath
+            cmd += " -dictSdb " + dictSdbPath
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
+            cmd += " ; touch " + iPath + "-diag.log "
+            cmd += " ; touch " + iPath + "-parser.log "
+            cmd += " ; cat " + iPath + "-parser.log > " + oPath
+            cmd += " ; cat " + iPath + "-diag.log  >> " + oPath
 
         elif (op == "cif2pdbx-public"):
             # dict/bin/cifexch2 -dicSdb mmcif_pdbx_v5_next.sdb -reorder -strip -op in -pdbids -input D_1000200033_model_P1.cif -output 4ovr.cif
@@ -3133,6 +3150,18 @@ class RcsbDpUtility(object):
                 traceback.print_exc(file=self.__lfh)
 
         return False
+
+    def __nameToDictPath(self, name, suffix = ''):
+        """Returns the environment variable name for a particular dictionary"""
+        mapping = { 'archive' : 'SITE_PDBX_DICT_ARCHIVE',
+                    'internal' : 'SITE_PDBX_DICT_INTERNAL',
+                    'test' : 'SITE_PDBX_DICT_TEST'}
+        envName = mapping[name]
+
+        pdbxDictPath = self.__getConfigPath('SITE_PDBX_DICT_PATH')        
+        dictBase = self.__cI.get(envName)
+        fName = os.path.join(pdbxDictPath, dictBase + suffix)
+        return fName
 
     def __runTimeout(self, command, timeout, logPath=None):
         """ Execute the input command string (sh semantics) as a subprocess with a timeout.
