@@ -84,7 +84,7 @@ class RcsbDpUtilityTests(unittest.TestCase):
         """
         self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
         try:
-            for name in ['internal', 'archive', 'test']:
+            for name in ['deposit', 'archive_current', 'archive_next']:
                 dp = RcsbDpUtility(tmpPath=self.__tmpPath,siteId=self.__siteId,verbose=True)
                 cifPath=os.path.join(self.__testFilePath,self.__testFileCif)
                 dp.imp(cifPath)
@@ -102,7 +102,7 @@ class RcsbDpUtilityTests(unittest.TestCase):
         """
         self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
         try:
-            for name in ['archive', 'test']:
+            for name in ['archive_next', 'archive_current']:
                 dp = RcsbDpUtility(tmpPath=self.__tmpPath,siteId=self.__siteId,verbose=True)
                 cifPath=os.path.join(self.__testFilePath,self.__testFileCif)
                 dp.imp(cifPath)

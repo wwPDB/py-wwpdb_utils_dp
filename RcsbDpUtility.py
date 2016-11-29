@@ -2514,8 +2514,8 @@ class RcsbDpUtility(object):
         elif (op == "check-cif-ext"):
             # Dictionary check with selectable dictionary
             # Default 'internal' - v5next
-            dictName = self.__inputParamDict.get('dictionary', 'internal')
-            dictSdbPath = self.__nameToDictPath(dictName, '.sdb')
+            dictName = self.__inputParamDict.get('dictionary', 'deposit')
+            dictSdbPath = self.__nameToDictPath(dictName)
             #
             cmdPath = os.path.join(self.__packagePath, "dict", "bin", "CifCheck")
             thisCmd = " ; " + cmdPath
@@ -2539,14 +2539,14 @@ class RcsbDpUtility(object):
         elif (op == "cif2pdbx-ext"):
             """Extended version of cif2pdbx that supports both archive and internal"""
             # Default archive
-            dictName = self.__inputParamDict.get('destination', 'archive')
+            dictName = self.__inputParamDict.get('destination', 'archive_current')
 
-            if dictName == 'archive':
-                sDictSdb = self.__nameToDictPath('internal', '.sdb')
-                dDictSdb = self.__nameToDictPath('archive', '.sdb')
-            elif dictName == 'test':
-                sDictSdb = self.__nameToDictPath('test', '.sdb')
-                dDictSdb = self.__nameToDictPath('test', '.sdb')
+            if dictName == 'archive_current':
+                sDictSdb = self.__nameToDictPath('deposit')
+                dDictSdb = self.__nameToDictPath('archive_current')
+            elif dictName == 'archive_next':
+                sDictSdb = self.__nameToDictPath('archive_next')
+                dDictSdb = self.__nameToDictPath('archive_next')
 
             cmdPath = os.path.join(self.__packagePath, "dict", "bin", "cifexch2")
             thisCmd = " ; " + cmdPath + " -dicSdb " + sDictSdb+ " -pdbxDicSdb " + dDictSdb + " -reorder  -strip -op in  -pdbids "
@@ -3168,15 +3168,15 @@ class RcsbDpUtility(object):
 
         return False
 
-    def __nameToDictPath(self, name, suffix = ''):
+    def __nameToDictPath(self, name, suffix = '.sdb'):
         """Returns the environment variable name for a particular dictionary"""
-        mapping = { 'archive' : 'SITE_PDBX_DICT_ARCHIVE',
-                    'internal' : 'SITE_PDBX_DICT_INTERNAL',
-                    'test' : 'SITE_PDBX_DICT_TEST'}
+        mapping = { 'archive_current' : 'ARCHIVE_CURRENT',
+                    'deposit' : 'DEPOSIT',
+                    'archive_next' : 'ARCHIVE_NEXT'}
         envName = mapping[name]
 
         pdbxDictPath = self.__getConfigPath('SITE_PDBX_DICT_PATH')        
-        dictBase = self.__cI.get(envName)
+        dictBase = self.__cI.get('SITE_PDBX_DICTIONARY_NAME_DICT')[envName]
         fName = os.path.join(pdbxDictPath, dictBase + suffix)
         return fName
 
