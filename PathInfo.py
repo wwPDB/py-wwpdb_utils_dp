@@ -20,6 +20,7 @@
 # 23-Aug-2014   jdw   add method getEmDepositVolumeParamsFilePath()
 # 14-Sep-2014   jdw   add isValidFileName(fileName, requireVersion=True) and splitFileName(fileName)
 # 24-Sep-2014   jdw   add getFileExtension(formatType)
+# 13-Dec-2016   jdw   add getStructureFactorsPdbxFilePath()
 ##
 """
 Common methods for finding path information for resource and data files in the wwPDB data processing
@@ -153,6 +154,15 @@ class PathInfo(object):
                                       versionId=versionId,
                                       contentTypeBase='model',
                                       formatType='pdb',
+                                      mileStone=mileStone)
+
+    def getStructureFactorsPdbxFilePath(self, dataSetId, wfInstanceId=None, fileSource="archive", versionId="latest", mileStone=None):
+        return self.__getStandardPath(dataSetId=dataSetId,
+                                      wfInstanceId=wfInstanceId,
+                                      fileSource=fileSource,
+                                      versionId=versionId,
+                                      contentTypeBase='structure-factors',
+                                      formatType='pdbx',
                                       mileStone=mileStone)
 
     def getPolyLinkFilePath(self, dataSetId, wfInstanceId=None, fileSource="archive", versionId="latest", mileStone=None):
