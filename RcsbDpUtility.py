@@ -99,6 +99,7 @@
 # 24-Oct-2015 esg for img-convert add +repage argument
 # 16-Nov-2016 ep  Add xml-header-check for EMDB header file
 # 28-Nov-2016 ep  Add check-cif-ext and cif2pdbx-ext
+# 18-Dec-2016 ep  Update annot-wwpdb-validate-all to remove Vpackv2. Remove old annot-wwpdb-validate-alt, annot-wwpdb-validate-2
 ##
 """
 Wrapper class for data processing and chemical component utilities.
@@ -120,6 +121,7 @@ import socket
 import shlex
 import stat
 import logging
+import random
 
 from wwpdb.utils.rcsb.DataFile import DataFile
 from wwpdb.api.facade.ConfigInfo import ConfigInfo
@@ -170,7 +172,7 @@ class RcsbDpUtility(object):
         self.__annotationOps = ["annot-secondary-structure", "annot-link-ssbond", "annot-cis-peptide", "annot-distant-solvent",
                                 "annot-merge-struct-site", "annot-reposition-solvent", "annot-base-pair-info",
                                 "annot-validation", "annot-site", "annot-rcsb2pdbx", "annot-consolidated-tasks",
-                                "annot-wwpdb-validate-all", "annot-wwpdb-validate-2", "prd-search", "annot-wwpdb-validate-alt",
+                                "annot-wwpdb-validate-all", "prd-search", 
                                 "annot-chem-shift-check", "annot-chem-shift-coord-check",
                                 "annot-nmrstar2pdbx", "annot-pdbx2nmrstar", "annot-pdbx2nmrstar-bmrb",
                                 "annot-reposition-solvent-add-derived", "annot-rcsb2pdbx-strip", "annot-rcsbeps2pdbx-strip",
@@ -415,10 +417,13 @@ class RcsbDpUtility(object):
         self.__localAppsPath = self.__getConfigPath('SITE_LOCAL_APPS_PATH')
         self.__packagePath = self.__getConfigPath('SITE_PACKAGES_PATH')
         self.__deployPath = self.__getConfigPath('SITE_DEPLOY_PATH')
+        self.__topPythonDir = self.__getConfigPath('TOP_WWPDB_PYTHON_DIR')
+        self.__siteLoc = self.__cI.get('WWPDB_SITE_LOC')
         self.__ccDictPath = self.__getConfigPath('SITE_CC_DICT_PATH')
         self.__ccCvsPath = self.__getConfigPath('SITE_CC_CVS_PATH')
         self.__prdccCvsPath = self.__getConfigPath('SITE_PRDCC_CVS_PATH')
         self.__prdDictPath = os.path.join(self.__getConfigPath('SITE_DEPLOY_PATH'), 'reference', 'components', 'prd-dict')
+        self.__siteWebAppsSessionsPath = self.__cI.get('SITE_WEB_APPS_SESSIONS_PATH')
 
         # if self.__rcsbAppsPath is None:
         #            self.__rcsbAppsPath  =  self.__getConfigPath('SITE_RCSB_APPS_PATH')
@@ -890,153 +895,65 @@ class RcsbDpUtility(object):
 
             logging.warning(cmd)
 
-        elif (op == "annot-wwpdb-validate-2"):
-            # For the second version of the validation package --
-            #
-            # The validation package is currently set to self configure in a wrapper
-            # shell script.  See the environment in this file for details --
-            #
-
-            # This parameter permits overriding the
-            #
-            if 'request_annotation_context' in self.__inputParamDict:
-                annotContext = self.__inputParamDict['request_annotation_context']
-                if annotContext in ["yes", "no"]:
-                    cmd += " ; REQUEST_ANNOTATION_CONTEXT=" + annotContext + " ; export REQUEST_ANNOTATION_CONTEXT "
-
-            cmd += " ; WWPDB_SITE_ID=" + self.__siteId + " ; export WWPDB_SITE_ID "
-            cmd += " ; DEPLOY_DIR=" + self.__deployPath + " ; export DEPLOY_DIR "
-            cmdPath = os.path.join(self.__packagePath, "Vpack-v2", "scripts", "vpack-run.sh")
-            thisCmd = " ; " + cmdPath
-
-            if 'sf_file_path' in self.__inputParamDict:
-                sfPath = self.__inputParamDict['sf_file_path']
-                sfPathFull = os.path.abspath(sfPath)
-            else:
-                sfPath = "none"
-                sfPathFull = "none"
-
-            #
-            xmlPath = os.path.join(self.__wrkPath, "out.xml")
-            pdfPath = os.path.join(self.__wrkPath, "out.pdf")
-            pdfFullPath = os.path.join(self.__wrkPath, "out_full.pdf")
-            pngPath = os.path.join(self.__wrkPath, "out.png")
-            svgPath = os.path.join(self.__wrkPath, "out.svg")
-            if (not self.__verbose):
-                cleanOpt = "cleanup"
-            else:
-                cleanOpt = "none"
-            #
-            cmd += thisCmd + " 1abc " + iPathFull + " " + sfPathFull + " " + pdfPath + " " + xmlPath + " " + cleanOpt
-            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
-            cmd += " ; cp  -f " + pdfPath + " " + oPath
-
-        elif (op == "annot-wwpdb-validate-alt"):
-            # For the second version of the validation package --
-            #
-            # The validation package is currently set to self configure in a wrapper
-            # shell script.  See the environment in this file for details --
-            #
-
-            # This parameter permits overriding the
-            #
-            if 'request_annotation_context' in self.__inputParamDict:
-                annotContext = self.__inputParamDict['request_annotation_context']
-                if annotContext in ["yes", "no"]:
-                    cmd += " ; REQUEST_ANNOTATION_CONTEXT=" + annotContext + " ; export REQUEST_ANNOTATION_CONTEXT "
-
-            cmd += " ; WWPDB_SITE_ID=" + self.__siteId + " ; export WWPDB_SITE_ID "
-            cmd += " ; DEPLOY_DIR=" + self.__deployPath + " ; export DEPLOY_DIR "
-            cmdPath = os.path.join(self.__packagePath, "Vpack-v2", "scripts", "vpack-alt-run.sh")
-            thisCmd = " ; " + cmdPath
-
-            if 'sf_file_path' in self.__inputParamDict:
-                sfPath = self.__inputParamDict['sf_file_path']
-                sfPathFull = os.path.abspath(sfPath)
-            else:
-                sfPath = "none"
-                sfPathFull = "none"
-
-            if 'entry_id' in self.__inputParamDict:
-                entryId = self.__inputParamDict['entry_id']
-            else:
-                entryId = "2abc"
-
-            #
-            xmlPath = os.path.join(self.__wrkPath, "out.xml")
-            pdfPath = os.path.join(self.__wrkPath, "out.pdf")
-            #
-            pdfFullPath = os.path.join(self.__wrkPath, "out_full.pdf")
-            pngPath = os.path.join(self.__wrkPath, "out.png")
-            svgPath = os.path.join(self.__wrkPath, "out.svg")
-            #
-            if (not self.__verbose):
-                cleanOpt = "cleanup"
-            else:
-                cleanOpt = "none"
-            #
-            # cmd += thisCmd + " 1abc " + iPathFull + " " + sfPathFull + " " + pdfPath + " " + xmlPath + " " + pdfFullPath + " " + pngPath + " " + svgPath + " " + cleanOpt
-            cmd += thisCmd + " " + entryId + " " + iPathFull + " " + sfPathFull + " " + pdfPath + " " + \
-                xmlPath + " " + pdfFullPath + " " + pngPath + " " + svgPath + " " + cleanOpt            #
-            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
-            cmd += " ; cp  -f " + pdfPath + " " + oPath
-
         elif (op == "annot-wwpdb-validate-all"):
             #
             #   "annot-wwpdb-validate-all" handles inputs for all exp methods  ---
             #
-            #   Launches the validation software with wrapper script vpack-all-run.sh
+            #   Launches the validation software
             #
             #  'request_validation_mode'    override site and other presentation settings -
             #
             #                      - The following is for legacy support -
-            #  'request_annotation_context'  parameter to override site environment setting --
+            #  'request_annotation_context'  parameter to override site environment setting -- can force annotation
             #
-            validation_mode = 'legacy'
+            validation_mode = 'release'
             if 'request_validation_mode' in self.__inputParamDict:
                 validation_mode = str(self.__inputParamDict['request_validation_mode']).lower()
                 if validation_mode not in ['server', 'deposit', 'release', 'annotate']:
-                    validation_mode = 'legacy'
+                    validation_mode = 'release'
             elif 'request_annotation_context' in self.__inputParamDict:
                 annotContext = self.__inputParamDict['request_annotation_context']
-                if annotContext in ["yes", "no"]:
-                    cmd += " ; REQUEST_ANNOTATION_CONTEXT=" + annotContext + " ; export REQUEST_ANNOTATION_CONTEXT "
+                if annotContext == 'yes':
+                    validation_mode = 'annotate'
 
-            cmd += " ; WWPDB_SITE_ID=" + self.__siteId + " ; export WWPDB_SITE_ID "
-            cmd += " ; DEPLOY_DIR=" + self.__deployPath + " ; export DEPLOY_DIR "
-            cmdPath = os.path.join(self.__packagePath, "Vpack-v2", "scripts", "vpack-all-run.sh")
-            thisCmd = " ; " + cmdPath
+            runDir = None
+            if 'run_dir' in self.__inputParamDict:
+                runDir =  self.__inputParamDict['run_dir']
+            else:
+                if self.__siteWebAppsSessionsPath:
+                    if os.access(self.__siteWebAppsSessionsPath, os.W_OK):
+                        runDir = os.path.join(self.__siteWebAppsSessionsPath, "validation_%s" %random.randrange(9999999))
 
+            kind = None
+            if 'kind' in self.__inputParamDict:
+                kind =  self.__inputParamDict['kind']
+
+            entryId = None
             if 'entry_id' in self.__inputParamDict:
                 entryId = self.__inputParamDict['entry_id']
-            else:
-                entryId = "4abc"
-
+                
             if 'sf_file_path' in self.__inputParamDict:
                 sfPath = self.__inputParamDict['sf_file_path']
                 sfPathFull = os.path.abspath(sfPath)
             else:
-                sfPath = "none"
-                sfPathFull = "none"
+                sfPathFull = None
 
             if 'cs_file_path' in self.__inputParamDict:
                 csPath = self.__inputParamDict['cs_file_path']
                 csPathFull = os.path.abspath(csPath)
             else:
-                csPath = "none"
-                csPathFull = "none"
+                csPathFull = None
 
             if 'vol_file_path' in self.__inputParamDict:
                 volPath = self.__inputParamDict['vol_file_path']
-                volPathFull = os.path.abspath(csPath)
+                volPathFull = os.path.abspath(volPath)
             else:
-                volPath = "none"
-                volPathFull = "none"
+                volPathFull = None
 
             if 'step_list' in self.__inputParamDict:
                 stepList = self.__inputParamDict['step_list']
             else:
-                stepList = "none"
+                stepList = None
 
             #
             xmlPath = os.path.abspath(os.path.join(self.__wrkPath, "out.xml"))
@@ -1044,16 +961,52 @@ class RcsbDpUtility(object):
             pdfFullPath = os.path.abspath(os.path.join(self.__wrkPath, "out_full.pdf"))
             pngPath = os.path.abspath(os.path.join(self.__wrkPath, "out.png"))
             svgPath = os.path.abspath(os.path.join(self.__wrkPath, "out.svg"))
-            if (not self.__verbose):
-                cleanOpt = "cleanup"
-            else:
-                cleanOpt = "none"
-            #
-            cmd += thisCmd + " " + entryId + " " + iPathFull + " " + pdfPath + " " + xmlPath + " " + pdfFullPath + \
-                " " + pngPath + " " + svgPath + " " + cleanOpt + " " + sfPathFull + " " + csPathFull + \
-                " " + volPathFull + " " + stepList + " " + validation_mode
+
+            cmd += " ; WWPDB_SITE_ID=" + self.__siteId + " ; export WWPDB_SITE_ID "
+            cmd += " ; DEPLOY_DIR=" + self.__deployPath + " ; export DEPLOY_DIR "
+            # Needed for some setup - should we source site-config for general purpose - or is this sufficient?
+            #cmd += " ; . %s/../site-config/init/env.sh -s %s -l %s " % (self.__deployPath, self.__siteId, self.__siteLoc)
+            cmd += " ; PACKAGE_DIR=" + self.__packagePath + " ; export PACKAGE_DIR "
+            # Web environment python_path does not include
+            cmd += ' ; export PYTHONPATH="$PYTHONPATH:$PACKAGE_DIR/openbabel/lib"'
+            cmd += ' ; export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$PACKAGE_DIR/openbabel/lib"'
+            cmd += " ; . %s/../site-config/init/env.sh -s %s -l %s --validation " % (self.__deployPath, self.__siteId, self.__siteLoc)
+
+            cmdPath = os.path.join(self.__topPythonDir, 'wwpdb/apps/validation', 'src/python/validator.py')
+            thisCmd = " ; python " + cmdPath
+
+            cmd += thisCmd + " --mmciffile %s --xml %s --pdf %s --fullpdf %s --png %s --svg %s" % (iPathFull, xmlPath, pdfPath,
+                                                                                                   pdfFullPath, pngPath, svgPath)
+            print "VALIDATION_MODE %s" % validation_mode
+
+            cmd += " --mode " + validation_mode
+
+            # For deposit or validation server - provide a PDB id. Otherwise for annotation would be bad
+            if validation_mode in ['server', 'deposit']:
+                if not entryId:
+                    entryId = '4abc'
+                cmd += " --pdbid " + entryId
+
+            if sfPathFull:
+                cmd += " --reflectionsfile " + sfPathFull
+
+            if csPathFull:
+                cmd += " --shiftsfiles " + csPathFull
+
+            if volPathFull:
+                cmd += " --mapfile " + volPathFull
+
+            if stepList:
+                cmd += " --steps " + stepList
+
+            if runDir and runDir != 'none':
+                cmd += " --rundir " + runDir
+
+            if kind:
+                cmd += " --kind " + kind
+            
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
-            cmd += " ; cp  -f " + pdfPath + " " + oPath
+
 
         elif (op == "annot-make-ligand-maps"):
             # The sf-valid package is currently set to self configure in a wrapper
@@ -1724,7 +1677,7 @@ class RcsbDpUtility(object):
             strpCt = PdbxStripCategory(verbose=self.__verbose, log=self.__lfh)
             strpCt.strip(oPath2Full, oPathFull, stripList)
 
-        if ((op == "annot-wwpdb-validate-2") or (op == "annot-wwpdb-validate-alt") or (op == "annot-wwpdb-validate-all")):
+        if (op == "annot-wwpdb-validate-all"):
             self.__resultPathList = []
             #
             # Push the output pdf and xml files onto the resultPathList.

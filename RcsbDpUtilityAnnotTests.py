@@ -19,8 +19,9 @@
 #    Jun 26, 2013 jdw -  add tests for annot-format-check-pdbx
 #    Jun 27, 2013 jdw -  add tests for annot-sf-mtz2pdbx and annot-dcc-report
 #    Aug 15, 2013 jdw -  change annot-sf-mtz2pdbx to annot-sf-convert change file format of diag file to cif
-#    Feb 10, 2014 jdw    add em test cases
-#    Mar 20  2014 jdw    set execution of test cases for dcc & sf-convert
+#    Feb 10, 2014 jdw -  add em test cases
+#    Mar 20  2014 jdw -  set execution of test cases for dcc & sf-convert
+#    Dec 19  2016 ep  -  remove old validation test cases - use annot-wwpdb-validate-all only
 ##
 """
 Test cases from
@@ -528,109 +529,12 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             traceback.print_exc(file=self.__lfh)
             self.fail()
 
-    def testAnnotValidate1(self):
-        """  Test create validation report
-        """
-        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
-        try:
-            ofpdf = "1cbs-valrpt.pdf"
-            ofxml = "1cbs-valdata.xml"
-            dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
-            xyzPath = os.path.join(self.__testFilePath, self.__testFileValidateXyz)
-            sfPath = os.path.join(self.__testFilePath, self.__testFileValidateSf)
-            dp.imp(xyzPath)
-            dp.addInput(name="sf_file_path", value=sfPath)
-            dp.op("annot-wwpdb-validate-1")
-            dp.expLog("annot-validate-1.log")
-            # dp.exp(ofpdf)
-            dp.expList(dstPathList=[ofpdf, ofxml])
-            dp.cleanup()
-        except:
-            traceback.print_exc(file=self.__lfh)
-            self.fail()
-
-    def testAnnotValidateList(self):
-        """  Test create validation report for the test list of example PDB ids
-        """
-        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
-        try:
-            for pdbId in self.__testValidateIdList:
-                ofpdf = pdbId + "-valrpt.pdf"
-                ofxml = pdbId + "-valdata.xml"
-                testFileValidateXyz = pdbId + ".cif"
-                testFileValidateSf = pdbId + "-sf.cif"
-                dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
-                xyzPath = os.path.join(self.__testFilePath, testFileValidateXyz)
-                sfPath = os.path.join(self.__testFilePath, testFileValidateSf)
-                dp.imp(xyzPath)
-                dp.addInput(name="sf_file_path", value=sfPath)
-                dp.op("annot-wwpdb-validate-1")
-                dp.expLog(pdbId + "-annot-validate.log")
-                dp.expList(dstPathList=[ofpdf, ofxml])
-                dp.cleanup()
-        except:
-            traceback.print_exc(file=self.__lfh)
-            self.fail()
-
-    def testAnnotValidateListV2(self):
-        """  Test create validation report for the test list of example PDB ids
-        """
-        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
-        try:
-            for pdbId in self.__testValidateIdList:
-                ofpdf = pdbId + "-valrpt.pdf"
-                ofxml = pdbId + "-valdata.xml"
-                testFileValidateXyz = pdbId + ".cif"
-                testFileValidateSf = pdbId + "-sf.cif"
-                dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
-
-                xyzPath = os.path.join(self.__testFilePath, testFileValidateXyz)
-                sfPath = os.path.join(self.__testFilePath, testFileValidateSf)
-                dp.addInput(name="request_annotation_context", value="no")
-                dp.imp(xyzPath)
-                dp.addInput(name="sf_file_path", value=sfPath)
-                dp.op("annot-wwpdb-validate-2")
-                dp.expLog(pdbId + "-annot-validate-v2.log")
-                dp.expList(dstPathList=[ofpdf, ofxml])
-                dp.cleanup()
-        except:
-            traceback.print_exc(file=self.__lfh)
-            self.fail()
-
-    def testAnnotValidateListV2Alt(self):
-        """  Test create validation report for the test list of example PDB ids
-        """
-        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
-        try:
-            for pdbId in self.__testValidateIdList:
-                ofpdf = pdbId + "-valrpt.pdf"
-                ofxml = pdbId + "-valdata.xml"
-                offullpdf = pdbId + "-valrpt_full.pdf"
-                ofpng = pdbId + "-val-slider.png"
-                ofsvg = pdbId + "-val-slider.svg"
-                #
-                testFileValidateXyz = pdbId + ".cif"
-                testFileValidateSf = pdbId + "-sf.cif"
-                dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
-
-                xyzPath = os.path.join(self.__testFilePath, testFileValidateXyz)
-                sfPath = os.path.join(self.__testFilePath, testFileValidateSf)
-                dp.addInput(name="request_annotation_context", value="yes")
-                dp.imp(xyzPath)
-                dp.addInput(name="sf_file_path", value=sfPath)
-                dp.op("annot-wwpdb-validate-alt")
-                dp.expLog(pdbId + "-annot-validate-v2.log")
-                dp.expList(dstPathList=[ofpdf, ofxml, offullpdf, ofpng, ofsvg])
-                dp.cleanup()
-        except:
-            traceback.print_exc(file=self.__lfh)
-            self.fail()
-
     def testAnnotValidateListNmrTest(self):
         """  Test create validation report for the test list of example PDB ids (NMR examples)
         """
         self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
         try:
+            count = 0
             for pdbId in self.__testValidateNmrIdList:
                 ofpdf = pdbId + "-valrpt.pdf"
                 ofxml = pdbId + "-valdata.xml"
@@ -646,7 +550,10 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
                 csPath = os.path.abspath(os.path.join(self.__testFilePath, testFileValidateCs))
                 dp.addInput(name="request_annotation_context", value="yes")
                 # adding explicit selection of steps --
-                dp.addInput(name="step_list", value=" coreclust,chemicalshifts,writexml,writepdf ")
+                # Alternate
+                if count % 2 == 0:
+                    dp.addInput(name="step_list", value=" coreclust,chemicalshifts,writexml,writepdf ")
+                count += 1
                 dp.imp(xyzPath)
                 dp.addInput(name="cs_file_path", value=csPath)
                 dp.op("annot-wwpdb-validate-all")
@@ -676,67 +583,17 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
                 xyzPath = os.path.abspath(os.path.join(self.__testFilePath, testFileValidateXyz))
                 sfPath = os.path.abspath(os.path.join(self.__testFilePath, testFileValidateSf))
                 dp.addInput(name="request_annotation_context", value="yes")
+                # dp.addInput(name="request_validation_mode", value="annotate")
                 dp.imp(xyzPath)
                 dp.addInput(name="sf_file_path", value=sfPath)
                 dp.op("annot-wwpdb-validate-all")
                 dp.expLog(pdbId + "-annot-validate-test.log")
                 dp.expList(dstPathList=[ofpdf, ofxml, offullpdf, ofpng, ofsvg])
-                dp.cleanup()
+                #dp.cleanup()
         except:
             traceback.print_exc(file=self.__lfh)
             self.fail()
 
-    def testArchiveValidateListV2(self):
-        """  Test create validation report for the test list of example dep dataset ids
-        """
-        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
-        try:
-            for (depId, pdbId) in self.__testArchiveIdList:
-                ofpdf = depId + "-valrpt.pdf"
-                ofxml = depId + "-valdata.xml"
-
-                wfo1 = WfDataObject()
-                wfo1.setDepositionDataSetId(depId)
-                wfo1.setStorageType('archive')
-                wfo1.setContentTypeAndFormat('model', 'pdbx')
-                wfo1.setVersionId('latest')
-                if (wfo1.isReferenceValid()):
-                    dP = wfo1.getDirPathReference()
-                    fP = wfo1.getFilePathReference()
-                    self.__lfh.write("Directory path: %s\n" % dP)
-                    self.__lfh.write("File      path: %s\n" % fP)
-                else:
-                    self.__lfh.write("Bad archival reference\n")
-
-                testFileValidateXyz = fP
-
-                wfo2 = WfDataObject()
-                wfo2.setDepositionDataSetId(depId)
-                wfo2.setStorageType('archive')
-                wfo2.setContentTypeAndFormat('structure-factors', 'pdbx')
-                wfo2.setVersionId('latest')
-                if (wfo2.isReferenceValid()):
-                    dP = wfo2.getDirPathReference()
-                    fP = wfo2.getFilePathReference()
-                    self.__lfh.write("Directory path: %s\n" % dP)
-                    self.__lfh.write("File      path: %s\n" % fP)
-                else:
-                    self.__lfh.write("Bad archival reference\n")
-
-                testFileValidateSf = fP
-                #
-                dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
-                xyzPath = os.path.join(self.__testFilePath, testFileValidateXyz)
-                sfPath = os.path.join(self.__testFilePath, testFileValidateSf)
-                dp.imp(xyzPath)
-                dp.addInput(name="sf_file_path", value=sfPath)
-                dp.op("annot-wwpdb-validate-2")
-                dp.expLog(depId + "-annot-validate-v2.log")
-                dp.expList(dstPathList=[ofpdf, ofxml])
-                dp.cleanup()
-        except:
-            traceback.print_exc(file=self.__lfh)
-            self.fail()
 
     def testAnnotConsolidatedTasksWithTopology(self):
         """  Calculate annotation tasks in a single step including supporting topology data.
@@ -1054,32 +911,6 @@ def suiteAnnotNMRTests():
     return suiteSelect
 
 
-def suiteAnnotValidationTests():
-    suiteSelect = unittest.TestSuite()
-    # suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotValidate1"))
-    suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotValidateList"))
-    return suiteSelect
-
-
-def suiteAnnotValidationV2Tests():
-    suiteSelect = unittest.TestSuite()
-    # suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotValidate1"))
-    suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotValidateListV2"))
-    return suiteSelect
-
-
-def suiteAnnotValidationV2AltTests():
-    suiteSelect = unittest.TestSuite()
-    suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotValidateListV2Alt"))
-    return suiteSelect
-
-
-def suiteArchiveValidationV2Tests():
-    suiteSelect = unittest.TestSuite()
-    suiteSelect.addTest(RcsbDpUtilityAnnotTests("testArchiveValidateListV2"))
-    return suiteSelect
-
-
 def suiteArchiveValidationXrayTests():
     suiteSelect = unittest.TestSuite()
     suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotValidateListXrayTest"))
@@ -1178,6 +1009,7 @@ if __name__ == '__main__':
     # unittest.main()
     #
     doAll = False
+    doAll = True
     if (doAll):
         mySuite = suiteAnnotTests()
         unittest.TextTestRunner(verbosity=2).run(mySuite)
@@ -1192,12 +1024,6 @@ if __name__ == '__main__':
         unittest.TextTestRunner(verbosity=2).run(mySuite)
         #
         mySuite = suiteAnnotNMRTests()
-        unittest.TextTestRunner(verbosity=2).run(mySuite)
-
-        mySuite = suiteAnnotValidationTests()
-        unittest.TextTestRunner(verbosity=2).run(mySuite)
-
-        mySuite = suiteAnnotValidationV2Tests()
         unittest.TextTestRunner(verbosity=2).run(mySuite)
 
         mySuite = suiteAnnotConsolidatedTests()
@@ -1224,9 +1050,6 @@ if __name__ == '__main__':
         mySuite = suiteValidateGeometryCheckTests()
         unittest.TextTestRunner(verbosity=2).run(mySuite)
 
-        mySuite = suiteAnnotValidationV2AltTests()
-        unittest.TextTestRunner(verbosity=2).run(mySuite)
-
         mySuite = suiteAnnotEmTests()
         unittest.TextTestRunner(verbosity=2).run(mySuite)
 
@@ -1245,10 +1068,15 @@ if __name__ == '__main__':
     else:
         pass
 
-    #
-    mySuite = suiteAnnotSiteTests()
+    mySuite = suiteArchiveValidationXrayTests()
     unittest.TextTestRunner(verbosity=2).run(mySuite)
     #
-    mySuite = suiteAnnotSiteAltTests()
+    mySuite = suiteArchiveValidationNmrTests()
     unittest.TextTestRunner(verbosity=2).run(mySuite)
+    #
+    #mySuite = suiteAnnotSiteTests()
+    #unittest.TextTestRunner(verbosity=2).run(mySuite)
+    #
+    #mySuite = suiteAnnotSiteAltTests()
+    #unittest.TextTestRunner(verbosity=2).run(mySuite)
 
