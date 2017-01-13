@@ -22,6 +22,7 @@
 #    Feb 10, 2014 jdw -  add em test cases
 #    Mar 20  2014 jdw -  set execution of test cases for dcc & sf-convert
 #    Dec 19  2016 ep  -  remove old validation test cases - use annot-wwpdb-validate-all only
+#    Jan 13  2017 ep  -  Add tests for special positions and correction of such as well as updating with with depositor assembly
 ##
 """
 Test cases from
@@ -101,6 +102,8 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
         self.__testValidateNmrIdList = ['2MM4', '2MMZ']
 
         self.__testDccModelId = '4wpo'
+
+        self.__testSpecialPosition = 'D_1000225739_model_P1.cif.V4'
 
     def tearDown(self):
         pass
@@ -833,6 +836,111 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             traceback.print_exc(file=self.__lfh)
             self.fail()
 
+    def testSpecialPosition(self):
+        """  Test for atom on special position
+        """
+        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        try:
+
+            dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
+            #
+            #dp.setDebugMode(True)
+            #
+            inpPath = os.path.join(self.__testFilePath, self.__testFileValidateXyz)
+            dp.imp(inpPath)
+            ret = dp.op("annot-dcc-special-position")
+            dp.expLog("special-position.log")
+            dp.exp("special-position-output.log")
+            f = open('special-position-output.log', 'r')
+            lines = f.read()
+            f.close()
+            self.assertIn('No atoms sit on special position', lines)
+            dp.cleanup()
+        except:
+            traceback.print_exc(file=self.__lfh)
+            self.fail()
+
+        # This case has atoms on special position that needs correction
+        try:
+
+            dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
+            #
+            #dp.setDebugMode(True)
+            #
+            inpPath = os.path.join(self.__testFilePath, self.__testSpecialPosition)
+            dp.imp(inpPath)
+            ret = dp.op("annot-dcc-special-position")
+            dp.expLog("special-position2.log")
+            dp.exp("special-position-output2.log")
+            f = open('special-position-output2.log', 'r')
+            lines = f.read()
+            f.close()
+            self.assertIn('Error: Wrong occupancy of 1.00 for atom (O : id=D_HOH_1)', lines)
+            dp.cleanup()
+        except:
+            traceback.print_exc(file=self.__lfh)
+            self.fail()
+
+
+    def testFixSpecialPosition(self):
+        """  Test for fixing atoms on special position
+        """
+        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        try:
+
+            dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
+            #
+            inpPath = os.path.join(self.__testFilePath, self.__testFileValidateXyz)
+            dp.imp(inpPath)
+            ret = dp.op("annot-dcc-fix-special-position")
+            dp.expLog("special-position-fix.log")
+            dp.exp("special-position-output-fix.log")
+
+            # No output - none on special
+            self.assertEqual(['missing'], dp.getResultPathList())
+
+            f = open('special-position-output-fix.log', 'r')
+            lines = f.read()
+            f.close()
+            self.assertIn('No atoms sit on special position', lines)
+            dp.cleanup()
+        except:
+            traceback.print_exc(file=self.__lfh)
+            self.fail()
+
+        # This case has atoms on special position that needs correction
+        try:
+
+            dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
+            #
+            #dp.setDebugMode(True)
+            #
+            inpPath = os.path.join(self.__testFilePath, self.__testSpecialPosition)
+            dp.imp(inpPath)
+            ret = dp.op("annot-dcc-fix-special-position")
+            dp.expLog("special-position-fix2.log")
+            dp.exp("special-position-output-fix2.log")
+
+            print dp.getResultPathList()
+
+            # We expect output
+            self.assertNotEqual(['missing'], dp.getResultPathList())
+
+            dp.expList(dstPathList=['special-position-out-fix2.cif'])
+            # Check output - for differences...
+
+            f = open('special-position-output-fix2.log', 'r')
+            lines = f.read()
+            f.close()
+            self.assertIn('Error: Wrong occupancy of 1.00 for atom (O : id=D_HOH_1)', lines)
+            dp.cleanup()
+        except:
+            traceback.print_exc(file=self.__lfh)
+            self.fail()
+
+
+
+
     def testEm2EmSpider(self):
         """  Test mapfix utility
         """
@@ -873,6 +981,23 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             dp.expLog("prd-search-execution.log")
             dp.exp(ofn)
             # dp.cleanup()
+        except:
+            traceback.print_exc(file=self.__lfh)
+            self.fail()
+
+    def testAnnotUpdateDepositorAssembly(self):
+        """  Update deposition provided assembly info into model (need better test example)
+        """
+        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        try:
+            of = "annot-update-assembly-" + self.__testFileAnnotSolvent + ".gz"
+            dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
+            inpPath = os.path.join(self.__testFilePath, self.__testFileAnnotSolvent)
+            dp.imp(inpPath)
+            dp.op("annot-update-dep-assembly-info")
+            dp.expLog("annot-update-dep-assembly.log")
+            dp.exp(of)
+            dp.cleanup()
         except:
             traceback.print_exc(file=self.__lfh)
             self.fail()
@@ -939,6 +1064,7 @@ def suiteAnnotTests():
     suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotRepositionSolvent"))
     suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotBasePair"))
     suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotValidation"))
+    suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotUpdateDepositorAssembly"))
     return suiteSelect
 
 
@@ -959,6 +1085,12 @@ def suiteMapCalcTests():
     suiteSelect = unittest.TestSuite()
     suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotMapCalc"))
     # suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotLigandMapCalc"))
+    return suiteSelect
+
+def suiteSpecialPositionTests():
+    suiteSelect = unittest.TestSuite()
+    #suiteSelect.addTest(RcsbDpUtilityAnnotTests("testSpecialPosition"))
+    suiteSelect.addTest(RcsbDpUtilityAnnotTests("testFixSpecialPosition"))
     return suiteSelect
 
 
@@ -1009,7 +1141,8 @@ if __name__ == '__main__':
     # unittest.main()
     #
     doAll = False
-    doAll = True
+#    doAll = True
+
     if (doAll):
         mySuite = suiteAnnotTests()
         unittest.TextTestRunner(verbosity=2).run(mySuite)
@@ -1050,6 +1183,9 @@ if __name__ == '__main__':
         mySuite = suiteValidateGeometryCheckTests()
         unittest.TextTestRunner(verbosity=2).run(mySuite)
 
+        mySuite = suiteSpecialPositionTests()
+        unittest.TextTestRunner(verbosity=2).run(mySuite)
+
         mySuite = suiteAnnotEmTests()
         unittest.TextTestRunner(verbosity=2).run(mySuite)
 
@@ -1068,11 +1204,14 @@ if __name__ == '__main__':
     else:
         pass
 
-    mySuite = suiteArchiveValidationXrayTests()
+    mySuite = suiteSpecialPositionTests()
     unittest.TextTestRunner(verbosity=2).run(mySuite)
+
+    mySuite = suiteArchiveValidationXrayTests()
+    #unittest.TextTestRunner(verbosity=2).run(mySuite)
     #
     mySuite = suiteArchiveValidationNmrTests()
-    unittest.TextTestRunner(verbosity=2).run(mySuite)
+    #unittest.TextTestRunner(verbosity=2).run(mySuite)
     #
     #mySuite = suiteAnnotSiteTests()
     #unittest.TextTestRunner(verbosity=2).run(mySuite)

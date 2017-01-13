@@ -100,6 +100,7 @@
 # 16-Nov-2016 ep  Add xml-header-check for EMDB header file
 # 28-Nov-2016 ep  Add check-cif-ext and cif2pdbx-ext
 # 18-Dec-2016 ep  Update annot-wwpdb-validate-all to remove Vpackv2. Remove old annot-wwpdb-validate-alt, annot-wwpdb-validate-2
+# 13-Jan-2017 ep  Add annot-dcc-fix-special-position and annot-update-dep-assembly-info
 ##
 """
 Wrapper class for data processing and chemical component utilities.
@@ -182,12 +183,12 @@ class RcsbDpUtility(object):
                                 "annot-make-omit-maps",
                                 "annot-cif2cif-dep", "annot-pdb2cif-dep", "annot-format-check-pdbx", "annot-format-check-pdb",
                                 "annot-dcc-report", "annot-sf-convert", "annot-dcc-refine-report", "annot-dcc-biso-full",
-                                "annot-dcc-special-position", "annot-dcc-reassign-alt-ids",
+                                "annot-dcc-special-position", "annot-dcc-fix-special-position", "annot-dcc-reassign-alt-ids",
                                 "annot-rcsb2pdbx-withpdbid",
                                 "annot-rcsb2pdbx-withpdbid-singlequote", "annot-rcsb2pdbx-alt",
                                 "annot-move-xyz-by-matrix", "annot-move-xyz-by-symop", "annot-extra-checks",
                                 "annot-update-terminal-atoms", "annot-merge-xyz", "annot-gen-assem-pdbx", "annot-cif2pdbx-withpdbid",
-                                "annot-validate-geometry",
+                                "annot-validate-geometry", "annot-update-dep-assembly-info",
                                 "annot-chem-shifts-atom-name-check", "annot-chem-shifts-upload-check", "annot-reorder-models", "annot-chem-shifts-update"]
         self.__sequenceOps = ['seq-blastp', 'seq-blastn']
         self.__validateOps = ['validate-geometry']
@@ -1165,6 +1166,26 @@ class RcsbDpUtility(object):
             cmd += thisCmd + dccArgs + " -occ ./" + iPath + " -o " + oPath
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
 
+        elif (op == "annot-dcc-fix-special-position"):
+            # The sf-valid package is currently set to self configure in a wrapper
+            # shell script.  PACKAGE_DIR and TOOLS_DIR only need to be set here.
+            #
+            cmd += " ; WWPDB_SITE_ID=" + self.__siteId + " ; export WWPDB_SITE_ID "
+            cmd += " ; DEPLOY_DIR=" + self.__deployPath + " ; export DEPLOY_DIR "
+            cmd += " ; TOOLS_DIR=" + os.path.join(self.__localAppsPath, 'bin') + " ; export TOOLS_DIR "
+            cmd += " ; PACKAGE_DIR=" + self.__packagePath + " ; export PACKAGE_DIR "
+            cmd += " ; DCCPY_DIR=" + os.path.join(self.__packagePath, 'sf-valid') + " ; export DCCPY_DIR "
+
+            #
+            cmdPath = os.path.join(self.__packagePath, "sf-valid", "bin", "tool.sh")
+            thisCmd = " ; " + cmdPath
+            #
+            # new model file will not be created if nothing to fix
+            newModelFile = os.path.abspath(os.path.join(self.__wrkPath, "special-fixed.cif"))
+
+            cmd += thisCmd + " -occ ./" + iPath + " -oxyz " + newModelFile + " -o " + oPath
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
+
         elif (op == "annot-dcc-reassign-alt-ids"):
             # The sf-valid package is currently set to self configure in a wrapper
             # shell script.  PACKAGE_DIR and TOOLS_DIR only need to be set here.
@@ -1439,6 +1460,15 @@ class RcsbDpUtility(object):
             #
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
             cmd += " ; cat annot-step.log " + " >> " + lPath
+
+        elif (op == "annot-update-dep-assembly-info"):
+            cmdPath = os.path.join(self.__annotAppsPath, "bin", "UpdateDepositorAssemblyInfo")
+            thisCmd = " ; " + cmdPath
+            cmd += thisCmd + " -input " + iPath + " -output " + oPath + " -log annot-step.log "
+            #
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
+            cmd += " ; cat annot-step.log " + " >> " + lPath
+
         elif (op == "annot-gen-assem-pdbx"):
             #
             #    GenBioCIFFile -input model_ciffile -depid depositionID -index output_index_file [-log logfile]
@@ -1740,6 +1770,17 @@ class RcsbDpUtility(object):
 
             if os.access(mapfofcPath, os.F_OK):
                 self.__resultPathList.append(mapfofcPath)
+            else:
+                self.__resultPathList.append("missing")
+
+        elif (op == "annot-dcc-fix-special-position"):
+            #
+            self.__resultPathList = []
+            #
+            # Push the output model file if present or "missing"
+            #
+            if os.access(newModelFile, os.F_OK):
+                self.__resultPathList.append(newModelFile)
             else:
                 self.__resultPathList.append("missing")
 
