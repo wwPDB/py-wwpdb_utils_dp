@@ -104,6 +104,8 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
         self.__testDccModelId = '4wpo'
 
         self.__testSpecialPosition = 'D_1000225739_model_P1.cif.V4'
+        self.__testDepAssembly = "testassem.cif"
+
 
     def tearDown(self):
         pass
@@ -990,9 +992,10 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
         """
         self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
         try:
-            of = "annot-update-assembly-" + self.__testFileAnnotSolvent + ".gz"
+            of = "annot-update-assembly-" + self.__testDepAssembly
+
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
-            inpPath = os.path.join(self.__testFilePath, self.__testFileAnnotSolvent)
+            inpPath = os.path.join(self.__testFilePath, self.__testDepAssembly)
             dp.imp(inpPath)
             dp.op("annot-update-dep-assembly-info")
             dp.expLog("annot-update-dep-assembly.log")
