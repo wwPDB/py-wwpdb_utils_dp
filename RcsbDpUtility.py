@@ -962,16 +962,21 @@ class RcsbDpUtility(object):
             pdfFullPath = os.path.abspath(os.path.join(self.__wrkPath, "out_full.pdf"))
             pngPath = os.path.abspath(os.path.join(self.__wrkPath, "out.png"))
             svgPath = os.path.abspath(os.path.join(self.__wrkPath, "out.svg"))
+            site_config_command = "%s/init/env.sh --host `hostname`" % os.environ['TOP_WWPDB_SITE_CONFIG_DIR']
+            
+            cmd += " ; %s "  % site_config_command
+            cmd += " ; %s --validation " % site_config_command
+            #cmd += " ; env "
 
-            cmd += " ; WWPDB_SITE_ID=" + self.__siteId + " ; export WWPDB_SITE_ID "
-            cmd += " ; DEPLOY_DIR=" + self.__deployPath + " ; export DEPLOY_DIR "
+            #cmd += " ; WWPDB_SITE_ID=" + self.__siteId + " ; export WWPDB_SITE_ID "
+            #cmd += " ; DEPLOY_DIR=" + self.__deployPath + " ; export DEPLOY_DIR "
             # Needed for some setup - should we source site-config for general purpose - or is this sufficient?
             #cmd += " ; . %s/../site-config/init/env.sh -s %s -l %s " % (self.__deployPath, self.__siteId, self.__siteLoc)
-            cmd += " ; PACKAGE_DIR=" + self.__packagePath + " ; export PACKAGE_DIR "
+            #cmd += " ; PACKAGE_DIR=" + self.__packagePath + " ; export PACKAGE_DIR "
             # Web environment python_path does not include
-            cmd += ' ; export PYTHONPATH="$PYTHONPATH:$PACKAGE_DIR/openbabel/lib"'
-            cmd += ' ; export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$PACKAGE_DIR/openbabel/lib"'
-            cmd += " ; . %s/../site-config/init/env.sh -s %s -l %s --validation " % (self.__deployPath, self.__siteId, self.__siteLoc)
+            #cmd += ' ; export PYTHONPATH="$PYTHONPATH:$PACKAGE_DIR/openbabel/lib"'
+            #cmd += ' ; export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$PACKAGE_DIR/openbabel/lib"'
+            #cmd += " ; . %s/../site-config/init/env.sh -s %s -l %s --validation " % (self.__deployPath, self.__siteId, self.__siteLoc)
 
             cmdPath = os.path.join(self.__topPythonDir, 'wwpdb/apps/validation', 'src/python/validator.py')
             thisCmd = " ; python " + cmdPath
@@ -1947,7 +1952,7 @@ class RcsbDpUtility(object):
             ofh.close()
 
         if self.__timeout > 0:
-            iret = self.__runTimeout(cmd, self.__timeout, lPathFull)
+            iret = self.__runTieout(cmd, self.__timeout, lPathFull)
         else:
             iret = self.__run(cmd)
 
