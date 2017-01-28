@@ -4,7 +4,7 @@
 #
 # Updates:
 # 9-Sep-2010  jdw  Imported from RcsbDpUtils.py to avoid possible problems with existing code.
-# 9-Sep-2010  jdw  Extension of RcsbDpUtil generalizing configuratin information.
+# 9-Sep-2010  jdw  Extension of RcsbDpUtil generalizing configuration information.
 # 10-Sep-2010 jdw  Added new chemical component applications.
 #                  Added methods of set additional input files and parameters.
 # 14-Sep-2010 jdw  Clarify the roles of tmpDir and wrkDir.
