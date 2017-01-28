@@ -965,26 +965,21 @@ class RcsbDpUtility(object):
             svgPath = os.path.abspath(os.path.join(self.__wrkPath, "out.svg"))
             site_config_command = ". %s/init/env.sh -s %s -l %s"  % (self.__siteConfigDir, self.__siteId, self.__siteLoc)
             
-            #cmd += " ; WWPDB_SITE_ID=" + self.__siteId + " ; export WWPDB_SITE_ID "
-            #cmd += " ; DEPLOY_DIR=" + self.__deployPath + " ; export DEPLOY_DIR "
             cmd += " ; %s "  % site_config_command
-            #cmd += " ; PACKAGE_DIR=" + self.__packagePath + " ; export PACKAGE_DIR "
-            # Web environment python_path does not include
-            #cmd += ' ; export PYTHONPATH="$PYTHONPATH:$PACKAGE_DIR/openbabel/lib"'
-            #cmd += ' ; export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$PACKAGE_DIR/openbabel/lib"'
+            # Web environment python_path does not include -- needed anymore?
+            # cmd += ' ; export PYTHONPATH="$PYTHONPATH:$PACKAGE_DIR/openbabel/lib"'
+            # cmd += ' ; export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$PACKAGE_DIR/openbabel/lib"'
             cmd += " ; %s --validation " % site_config_command
-            #cmd += " ; env "
+            # cmd += " ; env "
 
             cmdPath = os.path.join(self.__topPythonDir, 'wwpdb/apps/validation', 'src/python/validator.py')
             thisCmd = " ; python " + cmdPath
 
             cmd += thisCmd + " --mmciffile %s --xml %s --pdf %s --fullpdf %s --png %s --svg %s" % (iPathFull, xmlPath, pdfPath,
                                                                                                    pdfFullPath, pngPath, svgPath)
-            print "VALIDATION_MODE %s" % validation_mode
-
             cmd += " --mode " + validation_mode
 
-            # For deposit or validation server - provide a PDB id. Otherwise for annotation would be bad
+            # For deposit or validation server - provide a PDB id. Otherwise for annotation incorrect id would be used
             if validation_mode in ['server', 'deposit']:
                 if not entryId:
                     entryId = '4abc'

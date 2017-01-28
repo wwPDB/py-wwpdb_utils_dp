@@ -584,12 +584,13 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
                 testFileValidateXyz = pdbId + ".cif"
                 testFileValidateSf = pdbId + "-sf.cif"
                 dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
-                dp.setDebugMode(True)
+                #dp.setDebugMode(True)
 
                 xyzPath = os.path.abspath(os.path.join(self.__testFilePath, testFileValidateXyz))
                 sfPath = os.path.abspath(os.path.join(self.__testFilePath, testFileValidateSf))
-                dp.addInput(name="request_annotation_context", value="yes")
-                # dp.addInput(name="request_validation_mode", value="annotate")
+                #dp.addInput(name="request_annotation_context", value="yes")
+                dp.addInput(name="request_validation_mode", value="annotate")
+                #dp.addInput(name="request_validation_mode", value="server")
                 dp.imp(xyzPath)
                 dp.addInput(name="sf_file_path", value=sfPath)
                 dp.op("annot-wwpdb-validate-all")
@@ -1146,9 +1147,6 @@ if __name__ == '__main__':
     #
     doAll = False
 #    doAll = True
-
-    mySuite = suiteArchiveValidationXrayTests()
-    unittest.TextTestRunner(verbosity=2).run(mySuite)
 
     if (doAll):
         mySuite = suiteAnnotTests()
