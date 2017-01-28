@@ -425,6 +425,7 @@ class RcsbDpUtility(object):
         self.__prdccCvsPath = self.__getConfigPath('SITE_PRDCC_CVS_PATH')
         self.__prdDictPath = os.path.join(self.__getConfigPath('SITE_DEPLOY_PATH'), 'reference', 'components', 'prd-dict')
         self.__siteWebAppsSessionsPath = self.__cI.get('SITE_WEB_APPS_SESSIONS_PATH')
+        self.__siteConfigDir = self.__getConfigPath('TOP_WWPDB_SITE_CONFIG_DIR')
 
         # if self.__rcsbAppsPath is None:
         #            self.__rcsbAppsPath  =  self.__getConfigPath('SITE_RCSB_APPS_PATH')
@@ -962,21 +963,17 @@ class RcsbDpUtility(object):
             pdfFullPath = os.path.abspath(os.path.join(self.__wrkPath, "out_full.pdf"))
             pngPath = os.path.abspath(os.path.join(self.__wrkPath, "out.png"))
             svgPath = os.path.abspath(os.path.join(self.__wrkPath, "out.svg"))
-            site_config_command = "%s/init/env.sh --host `hostname`" % os.environ['TOP_WWPDB_SITE_CONFIG_DIR']
+            site_config_command = ". %s/init/env.sh -s %s -l %s"  % (self.__siteConfigDir, self.__siteId, self.__siteLoc)
             
-            cmd += " ; %s "  % site_config_command
-            cmd += " ; %s --validation " % site_config_command
-            #cmd += " ; env "
-
             #cmd += " ; WWPDB_SITE_ID=" + self.__siteId + " ; export WWPDB_SITE_ID "
             #cmd += " ; DEPLOY_DIR=" + self.__deployPath + " ; export DEPLOY_DIR "
-            # Needed for some setup - should we source site-config for general purpose - or is this sufficient?
-            #cmd += " ; . %s/../site-config/init/env.sh -s %s -l %s " % (self.__deployPath, self.__siteId, self.__siteLoc)
+            cmd += " ; %s "  % site_config_command
             #cmd += " ; PACKAGE_DIR=" + self.__packagePath + " ; export PACKAGE_DIR "
             # Web environment python_path does not include
             #cmd += ' ; export PYTHONPATH="$PYTHONPATH:$PACKAGE_DIR/openbabel/lib"'
             #cmd += ' ; export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$PACKAGE_DIR/openbabel/lib"'
-            #cmd += " ; . %s/../site-config/init/env.sh -s %s -l %s --validation " % (self.__deployPath, self.__siteId, self.__siteLoc)
+            cmd += " ; %s --validation " % site_config_command
+            #cmd += " ; env "
 
             cmdPath = os.path.join(self.__topPythonDir, 'wwpdb/apps/validation', 'src/python/validator.py')
             thisCmd = " ; python " + cmdPath

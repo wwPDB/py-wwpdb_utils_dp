@@ -584,6 +584,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
                 testFileValidateXyz = pdbId + ".cif"
                 testFileValidateSf = pdbId + "-sf.cif"
                 dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
+                dp.setDebugMode(True)
 
                 xyzPath = os.path.abspath(os.path.join(self.__testFilePath, testFileValidateXyz))
                 sfPath = os.path.abspath(os.path.join(self.__testFilePath, testFileValidateSf))
@@ -1145,6 +1146,9 @@ if __name__ == '__main__':
     #
     doAll = False
 #    doAll = True
+
+    mySuite = suiteArchiveValidationXrayTests()
+    unittest.TextTestRunner(verbosity=2).run(mySuite)
 
     if (doAll):
         mySuite = suiteAnnotTests()
