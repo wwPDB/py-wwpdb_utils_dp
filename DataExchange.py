@@ -10,6 +10,7 @@
 #  29-Jun-2014 jdw refactor add getVersionFileList() and getPartitionFileList()
 #   5-Jul-2014 jdw  getContentTypeFileList() and getMiscFileList()
 #   5-Jan-2015 jdw add siteId as an optional argument to the constructor -
+#  16-Feb-2017 jdw add setFileSource() method ...
 ##
 """
  Implements common data exchange operations including: moving annotation data files between session
@@ -76,6 +77,11 @@ class DataExchange(object):
             self.__lfh.write("+DataExchange.__setup() - data set %s  instance %s file source %s\n" %
                              (self.__depDataSetId, self.__wfInstanceId, self.__fileSource))
             self.__pI.setDebugFlag(flag=self.__debug)
+
+    def setFileSource(self, fileSource):
+        """  Override fileSource="archive"
+        """
+        self.__fileSource = fileSource
 
     def setInputSessionPath(self, inputSessionPath=None):
         """  Override the path to files with fileSource="session"
