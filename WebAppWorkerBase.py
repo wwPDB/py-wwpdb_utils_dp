@@ -163,6 +163,38 @@ class WebAppWorkerBase(object):
 
         return rC
 
+    def _verifySessionContext(self, apikyfn, overWrite=True):
+        try:
+            self._sObj = self._reqObj.getSessionObj()
+            pth = self._sObj.getPath()
+            if pth is None:
+                return False
+            self._sessionId = self._sObj.getId()
+            self._sessionPath = self._sObj.getPath()
+            self._rltvSessionPath = self._sObj.getRelativePath()
+            uds = UtilDataStore(reqObj=self._reqObj, prefix=self._udsPrefix, verbose=self._verbose, log=self._lfh)
+            dd = uds.getDictionary()
+            if (self.__debug):
+                self._lfh.write("+%s.%s -  importing persisted general session parameters:\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+                for k, v in dd.items():
+                    if isinstance(v, list) or isinstance(v, dict):
+                        self._lfh.write(" %30s length=%d\n" % (k, len(v)))
+                    else:
+                        self._lfh.write(" %30s= %r\n" % (k, v))
+            self._reqObj.setDictionary(dd, overWrite=overWrite)
+            #
+            # Now check for a valid key --
+            #
+            reqApiKey = self._reqObj.getValue("apikey")
+            ok = apikyfn(reqApiKey)
+            return ok
+        except:
+            if (self._verbose):
+                self._lfh.write("+%s.%s - failed\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+            if (self._verbose):
+                traceback.print_exc(file=self._lfh)
+        return False
+
     def _getSession(self, forceNew=False, useContext=False, overWrite=True):
         """ Join existing session or create new session as required.
         """
@@ -202,13 +234,10 @@ class WebAppWorkerBase(object):
     def _uploadFile(self, fileTag='file'):
         """  Copying uploaded file to the session directory.  Return file name or None.
         """
-
-        if (self._verbose):
-            self._lfh.write("+%s.%s - file param tag  %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name, fileTag))
-
         try:
             fs = self._reqObj.getRawValue(fileTag)
             fNameInput = str(fs.filename)
+
             #
             # Need to deal with some platform issues -
             #
@@ -222,7 +251,10 @@ class WebAppWorkerBase(object):
             # Store upload file in session directory -
             #
             fPathAbs = os.path.join(self._sessionPath, fName)
-            ofh = open(fPathAbs, 'w')
+            if (self._verbose):
+                self._lfh.write("+%s.%s - starting upload of %r to path %r\n" % (self.__class__.__name__, sys._getframe().f_code.co_name, fNameInput, fPathAbs))
+
+            ofh = open(fPathAbs, 'wb')
             ofh.write(fs.file.read())
             ofh.close()
 
