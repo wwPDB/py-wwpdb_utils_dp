@@ -106,7 +106,7 @@ class mmCIFUtil:
         """Update value in single row
         """  
         catObj = self.__container.getObj(catName)
-        if not catObj:
+        if catObj == None:
             return
         #
         catObj.setValue(value, itemName, row)
@@ -115,7 +115,7 @@ class mmCIFUtil:
         """Update value in multiple rows
         """  
         catObj = self.__container.getObj(catName)
-        if not catObj:
+        if catObj == None:
             return
         #
         rowNo = catObj.getRowCount()
