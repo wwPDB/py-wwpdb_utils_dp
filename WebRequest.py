@@ -38,9 +38,32 @@ import os
 import traceback
 import gzip
 import mimetypes
-from simplejson import loads, dumps
+try:
+    from json import loads, dumps
+except:
+    from simplejson import loads, dumps
 
 from wwpdb.utils.rcsb.SessionManager import SessionManager
+from datetime import datetime
+
+
+def json_serializer_helper(obj):
+    """ Helper function to handle = objects not serializable by default json code
+
+        Current -  handling datetime objects and falling back to str()
+    """
+
+    if isinstance(obj, datetime):
+        serial = obj.isoformat()
+        return serial
+    else:
+        try:
+            serial = str(obj)
+            return serial
+        except Exception as e:
+            raise TypeError("Could not convert object to string %r %r " % (obj, e.message))
+    #
+    raise TypeError("Type not serializable %r " % obj)
 
 
 class WebRequest(object):
@@ -289,8 +312,15 @@ class ResponseContent(object):
     def setData(self, dataObj=None):
         self._cD['datacontent'] = dataObj
 
-    def set(self, key, val):
-        self._cD[key] = val
+    def set(self, key, val, asJson=False):
+        if asJson:
+            try:
+                self._cD[key] = dumps(val, default=json_serializer_helper)
+            except Exception as e:
+                self.__lfh.write("+set() failed %s\n" % e.message)
+                traceback.print_exc(file=self.__lfh)
+        else:
+            self._cD[key] = val
 
     def setHtmlList(self, htmlList=[]):
         self._cD['htmlcontent'] = '\n'.join(htmlList)
