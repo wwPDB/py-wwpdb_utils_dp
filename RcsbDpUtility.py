@@ -165,15 +165,15 @@ class RcsbDpUtility(object):
         self.__rcsbOps = ["rename-atoms", "cif2pdbx", "pdbx2xml", "pdb2dssp", "pdb2stride", "initial-version", "poly-link-dist",
                           "chem-comp-link", "chem-comp-assign", "chem-comp-assign-comp", "chem-comp-assign-skip",
                           "chem-comp-assign-exact", "chem-comp-assign-validation", "check-cif", "check-cif-v4", "check-cif-ext",
-                          "cif2pdbx-public", "cif2pdbx-ext", 
-                          "chem-comp-dict-makeindex", "chem-comp-dict-serialize"]
+                          "cif2pdbx-public", "cif2pdbx-ext",
+                          "chem-comp-dict-makeindex", "chem-comp-dict-serialize", "chem-comp-annotate-comp"]
         self.__pisaOps = ["pisa-analysis", "pisa-assembly-report-xml", "pisa-assembly-report-text",
                           "pisa-interface-report-xml", "pisa-assembly-coordinates-pdb", "pisa-assembly-coordinates-cif",
                           "pisa-assembly-coordinates-cif", "pisa-assembly-merge-cif"]
         self.__annotationOps = ["annot-secondary-structure", "annot-link-ssbond", "annot-cis-peptide", "annot-distant-solvent",
                                 "annot-merge-struct-site", "annot-reposition-solvent", "annot-base-pair-info",
                                 "annot-validation", "annot-site", "annot-rcsb2pdbx", "annot-consolidated-tasks",
-                                "annot-wwpdb-validate-all", "prd-search", 
+                                "annot-wwpdb-validate-all", "prd-search",
                                 "annot-chem-shift-check", "annot-chem-shift-coord-check",
                                 "annot-nmrstar2pdbx", "annot-pdbx2nmrstar", "annot-pdbx2nmrstar-bmrb",
                                 "annot-reposition-solvent-add-derived", "annot-rcsb2pdbx-strip", "annot-rcsbeps2pdbx-strip",
@@ -192,9 +192,9 @@ class RcsbDpUtility(object):
                                 "annot-chem-shifts-atom-name-check", "annot-chem-shifts-upload-check", "annot-reorder-models", "annot-chem-shifts-update"]
         self.__sequenceOps = ['seq-blastp', 'seq-blastn']
         self.__validateOps = ['validate-geometry']
-        self.__emOps = ['mapfix-big', 'em2em-spider', 'fsc_check', 
+        self.__emOps = ['mapfix-big', 'em2em-spider', 'fsc_check',
                         'img-convert', 'annot-read-map-header',
-                        'annot-read-map-header-in-place', 
+                        'annot-read-map-header-in-place',
                         'annot-update-map-header-in-place',
                         'deposit-update-map-header-in-place',
                         'xml-header-check']
@@ -920,20 +920,20 @@ class RcsbDpUtility(object):
 
             runDir = None
             if 'run_dir' in self.__inputParamDict:
-                runDir =  self.__inputParamDict['run_dir']
+                runDir = self.__inputParamDict['run_dir']
             else:
                 if self.__siteWebAppsSessionsPath:
                     if os.access(self.__siteWebAppsSessionsPath, os.W_OK):
-                        runDir = os.path.join(self.__siteWebAppsSessionsPath, "validation_%s" %random.randrange(9999999))
+                        runDir = os.path.join(self.__siteWebAppsSessionsPath, "validation_%s" % random.randrange(9999999))
 
             kind = None
             if 'kind' in self.__inputParamDict:
-                kind =  self.__inputParamDict['kind']
+                kind = self.__inputParamDict['kind']
 
             entryId = None
             if 'entry_id' in self.__inputParamDict:
                 entryId = self.__inputParamDict['entry_id']
-                
+
             if 'sf_file_path' in self.__inputParamDict:
                 sfPath = self.__inputParamDict['sf_file_path']
                 sfPathFull = os.path.abspath(sfPath)
@@ -963,9 +963,9 @@ class RcsbDpUtility(object):
             pdfFullPath = os.path.abspath(os.path.join(self.__wrkPath, "out_full.pdf"))
             pngPath = os.path.abspath(os.path.join(self.__wrkPath, "out.png"))
             svgPath = os.path.abspath(os.path.join(self.__wrkPath, "out.svg"))
-            site_config_command = ". %s/init/env.sh -s %s -l %s"  % (self.__siteConfigDir, self.__siteId, self.__siteLoc)
-            
-            cmd += " ; %s "  % site_config_command
+            site_config_command = ". %s/init/env.sh -s %s -l %s" % (self.__siteConfigDir, self.__siteId, self.__siteLoc)
+
+            cmd += " ; %s " % site_config_command
             # Web environment python_path does not include -- needed anymore?
             # cmd += ' ; export PYTHONPATH="$PYTHONPATH:$PACKAGE_DIR/openbabel/lib"'
             # cmd += ' ; export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$PACKAGE_DIR/openbabel/lib"'
@@ -1002,9 +1002,8 @@ class RcsbDpUtility(object):
 
             if kind:
                 cmd += " --kind " + kind
-            
-            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
 
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
 
         elif (op == "annot-make-ligand-maps"):
             # The sf-valid package is currently set to self configure in a wrapper
@@ -1966,7 +1965,7 @@ class RcsbDpUtility(object):
             self.__javaPath = '/usr/bin/java'
         else:
             self.__javaPath = os.path.join(self.__packagePath, "java",
-                    "jre", "bin", "java")
+                                           "jre", "bin", "java")
 
         #
         #
@@ -2217,11 +2216,11 @@ class RcsbDpUtility(object):
         else:
             pass
 
-        if (op not in ("em2em-spider", "mapfix-big", "fsc_check", 
+        if (op not in ("em2em-spider", "mapfix-big", "fsc_check",
                        "img-convert", "annot-read-map-header",
-                       "annot-read-map-header-in-place", 
-                       "annot-update-map-header-in-place", 
-                       "deposit-update-map-header-in-place", 
+                       "annot-read-map-header-in-place",
+                       "annot-update-map-header-in-place",
+                       "deposit-update-map-header-in-place",
                        "xml-header-check")):
             return -1
         #
@@ -2377,6 +2376,7 @@ class RcsbDpUtility(object):
 
     def __rcsbStep(self, op):
         """ Internal method that performs a single rcsb application operation.
+
         """
         #
         # Set application specific path details here -
@@ -2418,6 +2418,10 @@ class RcsbDpUtility(object):
         self.__babelDirPath = self.__getConfigPath('SITE_CC_BABEL_DIR')
         self.__babelDataDirPath = self.__getConfigPath('SITE_CC_BABEL_DATADIR')
         self.__cactvsDirPath = self.__getConfigPath('SITE_CC_CACTVS_DIR')
+        #
+        self.__acdDirPath = self.__getConfigPath('SITE_CC_ACD_DIR')
+        self.__corinaDirPath = os.path.join(self.__getConfigPath('SITE_CC_CORINA_DIR'), 'bin')
+        self.__inchiDirPath = self.__getConfigPath('SITE_CC_INCHI_DIR')
 
         # -------------
         #
@@ -2452,6 +2456,25 @@ class RcsbDpUtility(object):
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
             cmd += " ; mv -f " + iPath + ".cif " + oPath
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
+
+        elif (op == "chem-comp-annotate-comp"):
+            opAnnot = "'stereo-cactvs|aro-cactvs|descriptor-oe|descriptor-cactvs|descriptor-inchi|name-oe|name-acd|xyz-ideal-corina|xyz-model-h-oe|rename|fix'"
+            cmd += " ; CC_TOOLS=" + os.path.join(self.__ccAppsPath, 'bin') + " ; export CC_TOOLS "
+            cmd += " ; ACD_DIR=" + self.__acdDirPath + " ; export ACD_DIR "
+            cmd += " ; CACTVS_DIR=" + self.__cactvsDirPath + " ; export CACTVS_DIR "
+            cmd += " ; CORINA_DIR=" + self.__corinaDirPath + " ; export CORINA_DIR "
+            cmd += " ; INCHI_DIR=" + self.__inchiDirPath + " ; export INCHI_DIR "
+            cmd += " ; OE_DIR=" + self.__oeDirPath + " ; export OE_DIR "
+            cmd += " ; OE_LICENSE=" + self.__oeLicensePath + " ; export OE_LICENSE "
+            cmd += " ; BABEL_DIR=" + self.__babelDirPath + " ; export BABEL_DIR "
+            cmd += " ; BABEL_DATADIR=" + self.__babelDataDirPath + " ; export BABEL_DATADIR "
+            cmd += " ; CACTVS_DIR=" + self.__cactvsDirPath + " ; export CACTVS_DIR "
+            cmd += " ; LD_LIBRARY_PATH=" + self.__babelLibPath + ":" + os.path.join(self.__localAppsPath, "lib") + ":" + self.__acdDirPath + " ; export LD_LIBRARY_PATH "
+            cmdPath = os.path.join(self.__ccAppsPath, "bin", "annotateComp")
+            thisCmd = " ; " + cmdPath + " -i " + iPath + " -op " + opAnnot + " -o " + oPath + " -export_format pdbx "
+            cmd += thisCmd
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " > " + lPath
+
         elif (op == "chem-comp-dict-makeindex"):
             # -index oPath(.idx) -lib iPath (.sdb) -type makeindex -fplib $fpPatFile
             #  ipath = dict.sdb   opath = dict.idx
@@ -2540,7 +2563,7 @@ class RcsbDpUtility(object):
                 dDictSdb = self.__nameToDictPath('archive_next')
 
             cmdPath = os.path.join(self.__packagePath, "dict", "bin", "cifexch2")
-            thisCmd = " ; " + cmdPath + " -dicSdb " + sDictSdb+ " -pdbxDicSdb " + dDictSdb + " -reorder  -strip -op in  -pdbids "
+            thisCmd = " ; " + cmdPath + " -dicSdb " + sDictSdb + " -pdbxDicSdb " + dDictSdb + " -reorder  -strip -op in  -pdbids "
             cmd += thisCmd + " -input " + iPath + " -output " + oPath
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
 
@@ -3159,14 +3182,14 @@ class RcsbDpUtility(object):
 
         return False
 
-    def __nameToDictPath(self, name, suffix = '.sdb'):
+    def __nameToDictPath(self, name, suffix='.sdb'):
         """Returns the environment variable name for a particular dictionary"""
-        mapping = { 'archive_current' : 'ARCHIVE_CURRENT',
-                    'deposit' : 'DEPOSIT',
-                    'archive_next' : 'ARCHIVE_NEXT'}
+        mapping = {'archive_current': 'ARCHIVE_CURRENT',
+                   'deposit': 'DEPOSIT',
+                   'archive_next': 'ARCHIVE_NEXT'}
         envName = mapping[name]
 
-        pdbxDictPath = self.__getConfigPath('SITE_PDBX_DICT_PATH')        
+        pdbxDictPath = self.__getConfigPath('SITE_PDBX_DICT_PATH')
         dictBase = self.__cI.get('SITE_PDBX_DICTIONARY_NAME_DICT')[envName]
         fName = os.path.join(pdbxDictPath, dictBase + suffix)
         return fName
