@@ -536,7 +536,7 @@ class DataExchange(object):
         return fp
 
     def __targetFilePath(self, fileSource="archive", contentType="model", formatType="pdbx", version="latest", partitionNumber='1', mileStone=None):
-        """ Return the file path, directory path, and filen ame  for the input content object if this object is valid.
+        """ Return the file path, directory path, and filename  for the input content object if this object is valid.
 
             If the file path cannot be verified return None for all values
         """
