@@ -70,6 +70,9 @@ class DbApiUtil(object):
         #
         if rowExists:
             sql = "update " + str(table) + " set " + ','.join(["%s = '%s'" % (k, v.replace("'", "\\'")) for k, v in data.iteritems()])
+            if not data.has_key('major_issue'):
+                sql += ',major_issue = NULL'
+            #
             if where:
                 sql += ' where ' + ' and '.join(["%s = '%s'" % (k, v.replace("'", "\\'")) for k, v in where.iteritems()])
             #
