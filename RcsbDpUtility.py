@@ -189,7 +189,7 @@ class RcsbDpUtility(object):
                                 "annot-move-xyz-by-matrix", "annot-move-xyz-by-symop", "annot-extra-checks",
                                 "annot-update-terminal-atoms", "annot-merge-xyz", "annot-gen-assem-pdbx", "annot-cif2pdbx-withpdbid",
                                 "annot-validate-geometry", "annot-update-dep-assembly-info",
-                                "annot-chem-shifts-atom-name-check", "annot-chem-shifts-upload-check", "annot-reorder-models", "annot-chem-shifts-update"]
+                                "annot-chem-shifts-atom-name-check", "annot-chem-shifts-upload-check", "annot-reorder-models", "annot-chem-shifts-update", "annot-get-corres-info"]
         self.__sequenceOps = ['seq-blastp', 'seq-blastn']
         self.__validateOps = ['validate-geometry']
         self.__emOps = ['mapfix-big', 'em2em-spider', 'fsc_check',
@@ -547,6 +547,14 @@ class RcsbDpUtility(object):
             if 'site_info_file_path' in self.__inputParamDict:
                 topFilePath = self.__inputParamDict['site_info_file_path']
                 cmd += " -site " + topFilePath
+            #
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
+            cmd += " ; cat annot-step.log " + " >> " + lPath
+
+        elif (op == "annot-get-corres-info"):
+            cmdPath = os.path.join(self.__annotAppsPath, "bin", "GetCorresInfo")
+            thisCmd = " ; " + cmdPath
+            cmd += thisCmd + " -input " + iPath + " -output " + oPath + " -log annot-step.log "
             #
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
             cmd += " ; cat annot-step.log " + " >> " + lPath
