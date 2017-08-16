@@ -34,6 +34,7 @@ import unittest
 import os
 import os.path
 import traceback
+import tempfile
 
 from wwpdb.api.facade.ConfigInfo import ConfigInfo, getSiteId
 from wwpdb.utils.rcsb.DataFile import DataFile
@@ -51,6 +52,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
         self.__lfh.write("\nTesting with site environment for:  %s\n" % self.__siteId)
         #
         self.__tmpPath = './rcsb-tmp-dir'
+        self.__tmpPath = tempfile.mkdtemp()
         cI = ConfigInfo(self.__siteId)
 
         self.__testFilePath = './data'
@@ -145,6 +147,26 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
         except:
             traceback.print_exc(file=self.__lfh)
             self.fail()
+
+    def testAnnotGetCorresInfo(self):
+        """  Test running GetCorresInfo to get correspondance info -
+        """
+        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        try:
+            of = os.path.join(self.__tmpPath, "annot-get-corres-info-check.cif")
+            dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
+            dp.setDebugMode(True)
+            inpPath = os.path.join(self.__testFilePath, self.__testFileAnnotSite)
+            dp.imp(inpPath)
+            dp.op("annot-get-corres-info")
+            dp.expLog(os.path.join(self.__tmpPath,"annot-get-corres-info-check-pdbx.log"))
+            dp.exp(of)
+            # dp.cleanup()
+
+        except:
+            traceback.print_exc(file=self.__lfh)
+            self.fail()
+
 
     def testAnnotFormatCheck(self):
         """  Test format sanity check for pdbx
@@ -1117,6 +1139,12 @@ def suiteValidateGeometryCheckTests():
     suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotValidateGeometryCheck"))
     return suiteSelect
 
+def suiteGetCorresInfoTests():
+    suiteSelect = unittest.TestSuite()
+    # suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotGetCorresInfo"))
+    suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotGetCorresInfo"))
+    return suiteSelect
+
 
 def suiteAnnotDccTests():
     suiteSelect = unittest.TestSuite()
@@ -1209,18 +1237,19 @@ if __name__ == '__main__':
     else:
         pass
 
-    mySuite = suiteSpecialPositionTests()
-    unittest.TextTestRunner(verbosity=2).run(mySuite)
+    #mySuite = suiteSpecialPositionTests()
+    #unittest.TextTestRunner(verbosity=2).run(mySuite)
 
     mySuite = suiteArchiveValidationXrayTests()
-    #unittest.TextTestRunner(verbosity=2).run(mySuite)
+    unittest.TextTestRunner(verbosity=2).run(mySuite)
     #
     mySuite = suiteArchiveValidationNmrTests()
-    #unittest.TextTestRunner(verbosity=2).run(mySuite)
+    unittest.TextTestRunner(verbosity=2).run(mySuite)
     #
     #mySuite = suiteAnnotSiteTests()
     #unittest.TextTestRunner(verbosity=2).run(mySuite)
     #
     #mySuite = suiteAnnotSiteAltTests()
     #unittest.TextTestRunner(verbosity=2).run(mySuite)
-
+    mySuite = suiteGetCorresInfoTests()
+    unittest.TextTestRunner(verbosity=2).run(mySuite)
