@@ -926,13 +926,18 @@ class RcsbDpUtility(object):
                 if annotContext == 'yes':
                     validation_mode = 'annotate'
 
+            # If user requests a run_dir - they cleanup
+            # If not - and we create - we cleanup
+            # If not specified at all - validation code will delete
             runDir = None
+            deleteRunDir = False
             if 'run_dir' in self.__inputParamDict:
                 runDir = self.__inputParamDict['run_dir']
             else:
                 if self.__siteWebAppsSessionsPath:
                     if os.access(self.__siteWebAppsSessionsPath, os.W_OK):
                         runDir = os.path.join(self.__siteWebAppsSessionsPath, "validation_%s" % random.randrange(9999999))
+                        deleteRunDir = True
 
             kind = None
             if 'kind' in self.__inputParamDict:
@@ -1740,6 +1745,17 @@ class RcsbDpUtility(object):
                 self.__resultPathList.append(svgPath)
             else:
                 self.__resultPathList.append("missing")
+
+            # Cleanup workdir
+            if deleteRunDir:
+                try:
+                    self.__lfh.write("+RcsbDpUtility.__annotationStep() removing working path %s\n" % runDir)
+                    shutil.rmtree(runDir, ignore_errors=True)
+                    return True
+                except:
+                    self.__lfh.write("+RcsbDpUtility.__annotationStep() removal failed for working path %s\n" % runDir)
+
+
 
         elif (op == "annot-sf-convert"):
             self.__resultPathList = []
