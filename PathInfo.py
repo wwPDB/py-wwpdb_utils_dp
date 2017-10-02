@@ -116,7 +116,11 @@ class PathInfo(object):
 
     def getArchivePath(self, dataSetId):
         try:
-            return os.path.join(self.__cI.get('SITE_ARCHIVE_STORAGE_PATH'), 'archive', dataSetId)
+            if dataSetId.startswith('G_'):
+                return os.path.join(self.__cI.get('SITE_ARCHIVE_STORAGE_PATH'), 'autogroup', dataSetId)
+            else:
+                return os.path.join(self.__cI.get('SITE_ARCHIVE_STORAGE_PATH'), 'archive', dataSetId)
+            #
         except:
             return None
 
