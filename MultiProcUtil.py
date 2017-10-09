@@ -110,8 +110,8 @@ class MultiProcUtil(object):
     def runMulti(self, dataList=None, numProc=0, numResults=1, chunkSize=0):
         """ Start 'numProc' worker methods consuming the input dataList -
 
-            Divide the dataList into sublists/chunks of 'chunkSize'
-            if chunkSize == 0 use chunkSize = numProc
+            Divide the dataList into sublists/chunks of size 'chunkSize'
+            if chunkSize <= 0 use chunkSize = numProc
 
             Returns,   successFlag true|false
                        successList (data from the inut list that succeed)
@@ -126,7 +126,7 @@ class MultiProcUtil(object):
         if numProc > len(dataList):
             numProc = len(dataList)
         #
-        if chunkSize <= 0:
+        if chunkSize <= numProc:
             numLists = numProc
         else:
             numLists = int(len(dataList) / int(chunkSize))
