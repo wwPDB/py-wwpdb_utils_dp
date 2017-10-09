@@ -8,6 +8,8 @@
 # 9-Nov-2014  extend API to include variable number of result lists computed by each worker.
 # 11-Nov-2014 extend API with additional options and working directory configuration
 # 21-Apr-2015 jdw change the termination and reaping protocol.
+#  9-Oct-2017 jdw add chunkSize option such that the input dataList to provide more granular distribution
+#                 data among the works.  Defaults to numProc if unspecified.
 ##
 """
 Multiprocessing execuction wrapper supporting tasks with list of inputs and a variable number of output lists.
@@ -43,7 +45,7 @@ class MultiProcWorker(multiprocessing.Process):
         #
         self.__lfh = log
         self.__verbose = verbose
-        self.__debug = False
+        self.__debug = True
         self.__workerFunc = workerFunc
         #
         self.__optionsD = optionsD if optionsD is not None else {}
@@ -62,7 +64,7 @@ class MultiProcWorker(multiprocessing.Process):
             #
             rTup = self.__workerFunc(dataList=nextList, procName=processName, optionsD=self.__optionsD, workingDir=self.__workingDir)
             if self.__debug:
-                self.__lfh.write("+MultiProcWorker(run) task list length %d rTup length %d\n" % (len(nextList), len(rTup)))
+                self.__lfh.write("+MultiProcWorker(run) %s task list length %d rTup length %d\n" % (processName, len(nextList), len(rTup)))
             self.__lfh.flush
             self.__successQueue.put(rTup[0])
             for ii, rq in enumerate(self.__resultQueueList):
@@ -105,14 +107,16 @@ class MultiProcUtil(object):
             return False
 
     ##
-    def runMulti(self, dataList=None, numProc=0, numResults=1):
+    def runMulti(self, dataList=None, numProc=0, numResults=1, chunkSize=0):
         """ Start 'numProc' worker methods consuming the input dataList -
+
+            Divide the dataList into sublists/chunks of 'chunkSize'
+            if chunkSize == 0 use chunkSize = numProc
 
             Returns,   successFlag true|false
                        successList (data from the inut list that succeed)
                        resultLists[numResults] --  numResults result lists
                        diagList --  unique list of diagnostics --
-
 
         """
         #
@@ -122,11 +126,15 @@ class MultiProcUtil(object):
         if numProc > len(dataList):
             numProc = len(dataList)
         #
-
-        subLists = [dataList[i::numProc] for i in range(numProc)]
+        if chunkSize <= 0:
+            numLists = numProc
+        else:
+            numLists = int(len(dataList) / int(chunkSize))
+        #
+        subLists = [dataList[i::numLists] for i in range(numLists)]
         #
         if (self.__verbose):
-            self.__lfh.write("+MultiProcUtil.runMulti() with numProc %d subtask length ~ %d\n" % (numProc, len(subLists[0])))
+            self.__lfh.write("+MultiProcUtil.runMulti() with numProc %d  subtask count %d subtask length ~ %d\n" % (numProc, len(subLists), len(subLists[0])))
             self.__lfh.flush()
         #
         taskQueue = multiprocessing.Queue()
@@ -152,7 +160,7 @@ class MultiProcUtil(object):
                 verbose=self.__verbose,
                 log=self.__lfh,
                 optionsD=self.__optionsD,
-                workingDir=self.__workingDir) for i in xrange(numProc)]
+                workingDir=self.__workingDir) for i in range(numProc)]
         for w in workers:
             w.start()
 
@@ -160,10 +168,11 @@ class MultiProcUtil(object):
             if len(subList) > 0:
                 taskQueue.put(subList)
 
-        for i in xrange(numProc):
+        for i in range(numProc):
             taskQueue.put(None)
 
-        np = numProc
+        # np = numProc
+        np = len(subLists)
         successList = []
         diagList = []
         tL = []

@@ -6,6 +6,7 @@
 #
 # Updates:
 #  9-Nov-2014  jdw  Update example for returned results -
+#  9-Oct-2017  jdw  added test case for limiting chunkSize of 1 -
 #
 ##
 """
@@ -79,7 +80,7 @@ class MultiProcUtilTests(unittest.TestCase):
             fS = FileStatus(topCachePath=self.__topCachePath, verbose=self.__verbose, log=self.__lfh)
             mpu = MultiProcUtil(verbose=True, log=self.__lfh)
             mpu.set(workerObj=fS, workerMethod="check")
-            ok, failList, resultList, diagList = mpu.runMulti(dataList=dataList, numProc=4, numResults=1)
+            ok, failList, resultList, diagList = mpu.runMulti(dataList=dataList, numProc=4, numResults=1, chunkSize=1)
             self.__lfh.write("Multi-proc run ended status %r failures %r" % (ok, failList))
         except:
             traceback.print_exc(file=self.__lfh)
