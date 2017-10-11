@@ -75,7 +75,7 @@ class ArchiveIoSftpTests(unittest.TestCase):
             self.fail()
 #
 
-    def testSftpOps1(self):
+    def testSftpStatOps(self):
         """Test case -  get directory list and stat details-
         """
         try:
@@ -91,11 +91,32 @@ class ArchiveIoSftpTests(unittest.TestCase):
             logger.exception("Failing with %s" % str(e))
             self.fail()
 
+    def testSftpDirOps(self):
+        """Test case -  get directory list and stat details-
+        """
+        try:
+            aio = ArchiveIoSftp()
+            ok = aio.connect(self.__hostName, self.__userName, self.__hostPort, keyFilePath=self.__keyFilePath, keyFileType=self.__keyFileType)
+            ok = aio.mkdir('test')
+            result = aio.listdir('.')
+            logger.info("listdir: %r" % result)
+            result = aio.stat('test')
+            logger.info("stat: %r" % result)
+            ok = aio.rmdir('test')
+            result = aio.listdir('.')
+            logger.info("listdir after remove: %r" % result)
+            ok = aio.close()
+            self.assertEqual(ok, True)
+        except Exception as e:
+            logger.exception("Failing with %s" % str(e))
+            self.fail()
+
 
 def suiteSftpTests():
     suiteSelect = unittest.TestSuite()
     suiteSelect.addTest(ArchiveIoSftpTests("testSftpConnect"))
-    suiteSelect.addTest(ArchiveIoSftpTests("testSftpOps1"))
+    suiteSelect.addTest(ArchiveIoSftpTests("testSftpStatOps"))
+    suiteSelect.addTest(ArchiveIoSftpTests("testSftpDirOps"))
     return suiteSelect
 
 if __name__ == '__main__':
