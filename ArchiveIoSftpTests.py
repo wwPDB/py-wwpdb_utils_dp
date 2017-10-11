@@ -53,6 +53,8 @@ class ArchiveIoSftpTests(unittest.TestCase):
         self.__keyFileType = self.__cI.get('SITE_ARCHIVE_HOST_KEY_FILE_TYPE_1')
         #
         self.__testLocalFilePath = './data/TEST-FILE.DAT'
+        self.__testLocalOutputFilePath = './JUNK.JUNK'
+        #
         self.__startTime = time.time()
         logger.debug("Starting %s at %s" % (self.id(),
                                             time.strftime("%Y %m %d %H:%M:%S", time.localtime())))
@@ -129,11 +131,14 @@ class ArchiveIoSftpTests(unittest.TestCase):
             #
             result = aio.listdir(testDirPath)
             logger.info("listdir: %r" % result)
-            #ok = aio.remove(testFilePath1)
-            #ok = aio.remove(testFilePath2)
+            ok = aio.remove(testFilePath1)
+            ok = aio.remove(testFilePath2)
             #
             result = aio.listdir(testDirPath)
             logger.info("listdir: %r" % result)
+            #
+            aio.get(testFilePath1, self.__testLocalOutputFilePath)
+            aio.get(testFilePath2, self.__testLocalOutputFilePath)
             #
             ok = aio.rmdir(testDirPath)
             result = aio.listdir(self.__rootPath)
