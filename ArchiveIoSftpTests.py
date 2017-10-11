@@ -37,8 +37,9 @@ class ArchiveIoSftpTests(unittest.TestCase):
         self.__lfh = sys.stderr
         self.__verbose = False
         #
+        self.__serverId = 'BACKUP_SERVER_RDI2'
         self.__cI = ConfigInfo(siteId=getSiteId(), verbose=self.__verbose, log=self.__lfh)
-        cD = self.__cI.get('BACKUP_SERVER_RDI2')
+        cD = self.__cI.get(self.__serverId, {})
         self.__hostName = cD.get('HOST_NAME')
         self.__userName = cD.get('HOST_USERNAME')
         self.__hostPort = int(cD.get('HOST_PORT'))
@@ -78,8 +79,8 @@ class ArchiveIoSftpTests(unittest.TestCase):
         """Test case -  get directory list and stat details-
         """
         try:
-            aio = ArchiveIoSftp()
-            ok = aio.connect(self.__hostName, self.__userName, self.__hostPort, keyFilePath=self.__keyFilePath, keyFileType=self.__keyFileType)
+            aio = ArchiveIoSftp(serverId=self.serverId)
+            ok = aio.connectToServer()
             result = aio.listdir('.')
             logger.info("listdir: %r" % result)
             result = aio.stat('.')
@@ -94,8 +95,8 @@ class ArchiveIoSftpTests(unittest.TestCase):
         """Test case -  create and remove directory -
         """
         try:
-            aio = ArchiveIoSftp()
-            ok = aio.connect(self.__hostName, self.__userName, self.__hostPort, keyFilePath=self.__keyFilePath, keyFileType=self.__keyFileType)
+            aio = ArchiveIoSftp(serverId=self.serverId)
+            ok = aio.connectToServer()
             testPath = os.path.join(self.__rootPath, 'test')
             ok = aio.mkdir(testPath)
             result = aio.listdir(self.__rootPath)
@@ -115,8 +116,8 @@ class ArchiveIoSftpTests(unittest.TestCase):
         """Test case -  transfer and remove files and directories -
         """
         try:
-            aio = ArchiveIoSftp()
-            ok = aio.connect(self.__hostName, self.__userName, self.__hostPort, keyFilePath=self.__keyFilePath, keyFileType=self.__keyFileType)
+            aio = ArchiveIoSftp(serverId=self.serverId)
+            ok = aio.connectToServer()
             testDirPath = os.path.join(self.__rootPath, 'test')
             testFilePath1 = os.path.join(testDirPath, 'TEST-FILE-1.DAT')
             testFilePath2 = os.path.join(testDirPath, 'TEST-FILE-2.DAT')
@@ -152,6 +153,7 @@ def suiteSftpTests():
     suiteSelect.addTest(ArchiveIoSftpTests("testSftpDirOps"))
     suiteSelect.addTest(ArchiveIoSftpTests("testSftpTransferOps"))
     return suiteSelect
+
 
 if __name__ == '__main__':
     if (True):
