@@ -109,7 +109,7 @@ class ArchiveIoSftp(ArchiveIoBase):
         """
         try:
             s = self.__sftpClient.stat(path)
-            d = {'mtime': s.mtime, 'size': s.size, 'mode': s.mode, 'uid': s.uid, 'gid': s.gid, 'atime': a.atime}
+            d = {'mtime': s.st_mtime, 'size': s.st_size, 'mode': s.st_mode, 'uid': s.st_uid, 'gid': s.st_gid, 'atime': s.st_atime}
             return d
         except Exception as e:
             if self._raiseExceptions:
