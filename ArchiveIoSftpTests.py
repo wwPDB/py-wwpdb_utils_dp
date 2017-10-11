@@ -76,9 +76,8 @@ class ArchiveIoSftpTests(unittest.TestCase):
 #
 
     def testSftpOps1(self):
-        """Test case - for connection-
+        """Test case -  get directory list and stat details-
         """
-
         try:
             aio = ArchiveIoSftp()
             ok = aio.connect(self.__hostName, self.__userName, self.__hostPort, keyFilePath=self.__keyFilePath, keyFileType=self.__keyFileType)
