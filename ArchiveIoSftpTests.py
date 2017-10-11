@@ -52,7 +52,7 @@ class ArchiveIoSftpTests(unittest.TestCase):
         self.__keyFilePath = self.__cI.get('SITE_ARCHIVE_HOST_KEY_FILE_PATH_1')
         self.__keyFileType = self.__cI.get('SITE_ARCHIVE_HOST_KEY_FILE_TYPE_1')
         #
-        self.__testLocalFilePath = '.data/TEST-FILE.DAT'
+        self.__testLocalFilePath = './data/TEST-FILE.DAT'
         self.__startTime = time.time()
         logger.debug("Starting %s at %s" % (self.id(),
                                             time.strftime("%Y %m %d %H:%M:%S", time.localtime())))
