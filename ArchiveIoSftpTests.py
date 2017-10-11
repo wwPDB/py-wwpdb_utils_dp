@@ -41,7 +41,7 @@ class ArchiveIoSftpTests(unittest.TestCase):
         cD = self.__cI.get('BACKUP_SERVER_RDI2')
         self.__hostName = cD.get('HOST_NAME')
         self.__userName = cD.get('HOST_USERNAME')
-        self.__hostPort = int(cD.get('SITE_ARCHIVE_HOST_PORT'))
+        self.__hostPort = int(cD.get('HOST_PORT'))
         self.__protocol = cD.get('HOST_PROTOCOL')
         self.__rootPath = cD.get('HOST_ROOT_PATH')
         self.__keyFilePath = cD.get('HOST_KEY_FILE_PATH')
