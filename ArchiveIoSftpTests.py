@@ -38,13 +38,14 @@ class ArchiveIoSftpTests(unittest.TestCase):
         self.__verbose = False
         #
         self.__cI = ConfigInfo(siteId=getSiteId(), verbose=self.__verbose, log=self.__lfh)
-        self.__hostName = self.__cI.get('SITE_ARCHIVE_HOST_NAME_1')
-        self.__userName = self.__cI.get('SITE_ARCHIVE_HOST_USERNAME_1')
-        self.__hostPort = int(self.__cI.get('SITE_ARCHIVE_HOST_PORT_1'))
-        self.__protocol = self.__cI.get('SITE_ARCHIVE_HOST_PROTOCOL_1')
-        self.__rootPath = self.__cI.get('SITE_ARCHIVE_HOST_ROOT_PATH_1')
-        self.__keyFilePath = self.__cI.get('SITE_ARCHIVE_HOST_KEY_FILE_PATH_1')
-        self.__keyFileType = self.__cI.get('SITE_ARCHIVE_HOST_KEY_FILE_TYPE_1')
+        cD = self.__cI.get('BACKUP_SERVER_RDI2')
+        self.__hostName = cD.get('HOST_NAME')
+        self.__userName = cD.get('HOST_USERNAME')
+        self.__hostPort = int(cD.get('SITE_ARCHIVE_HOST_PORT'))
+        self.__protocol = cD.get('HOST_PROTOCOL')
+        self.__rootPath = cD.get('HOST_ROOT_PATH')
+        self.__keyFilePath = cD.get('HOST_KEY_FILE_PATH')
+        self.__keyFileType = cD.get('HOST_KEY_FILE_TYPE')
         #
         self.__testLocalFilePath = './data/TEST-FILE.DAT'
         self.__testLocalOutputFilePath = './JUNK.JUNK'
