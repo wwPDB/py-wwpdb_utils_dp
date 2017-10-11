@@ -9,13 +9,7 @@
 ##
 """
 Archive data transfer operation utilities using SFTP protocol
-        site_archive_host_name_1 = rdi2-drs.rdi2.rutgers.edu
-        site_archive_host_username_1 = pdb
-        site_archive_host_port_1 = 22
-        site_archive_host_protocol_1 = sftp
-        site_archive_host_key_file_path_1 = %(top_wwpdb_site_config_dir)s/secure/rdi2_rsa
-        site_archive_host_key_file_type_1 = RSA
-        #
+
 """
 
 __docformat__ = "restructuredtext en"
@@ -96,7 +90,7 @@ class ArchiveIoSftpTests(unittest.TestCase):
             self.fail()
 
     def testSftpDirOps(self):
-        """Test case -  get directory list and stat details-
+        """Test case -  create and remove directory -
         """
         try:
             aio = ArchiveIoSftp()
@@ -104,12 +98,12 @@ class ArchiveIoSftpTests(unittest.TestCase):
             testPath = os.path.join(self.__rootPath, 'test')
             ok = aio.mkdir(testPath)
             result = aio.listdir(self.__rootPath)
-            logger.info("listdir: %r" % result)
+            logger.debug("listdir: %r" % result)
             result = aio.stat(testPath)
-            logger.info("stat: %r" % result)
+            logger.debug("stat: %r" % result)
             ok = aio.rmdir(testPath)
             result = aio.listdir(self.__rootPath)
-            logger.info("listdir after remove: %r" % result)
+            logger.debug("listdir after remove: %r" % result)
             ok = aio.close()
             self.assertEqual(ok, True)
         except Exception as e:
@@ -117,7 +111,7 @@ class ArchiveIoSftpTests(unittest.TestCase):
             self.fail()
 
     def testSftpTransferOps(self):
-        """Test case -  get directory list and stat details-
+        """Test case -  transfer and remove files and directories -
         """
         try:
             aio = ArchiveIoSftp()
@@ -133,16 +127,16 @@ class ArchiveIoSftpTests(unittest.TestCase):
             aio.get(testFilePath2, self.__testLocalOutputFilePath)
             #
             result = aio.listdir(testDirPath)
-            logger.info("listdir: %r" % result)
+            logger.debug("listdir: %r" % result)
             ok = aio.remove(testFilePath1)
             ok = aio.remove(testFilePath2)
             #
             result = aio.listdir(testDirPath)
-            logger.info("listdir: %r" % result)
+            logger.debug("listdir: %r" % result)
             #
             ok = aio.rmdir(testDirPath)
             result = aio.listdir(self.__rootPath)
-            logger.info("listdir after remove: %r" % result)
+            logger.debug("listdir after remove: %r" % result)
             ok = aio.close()
             self.assertEqual(ok, True)
         except Exception as e:
