@@ -37,7 +37,23 @@ class ArchiveIoSftp(ArchiveIoBase):
     def __init__(self, *args, **kwargs):
         super(ArchiveIoSftp, self).__init__(*args, **kwargs)
         self.__sftpClient = None
-    #
+
+    def connectToServer(self):
+        try:
+            if self._password is not None:
+                self.__sftpClient = self.__makeSftpClient(self._hostName, self._userName, port=self._hostPort, pw=self._password)
+            elif self._keyFilePath is not None:
+                self.__sftpClient = self.__makeSftpClient(self._hostName, self._userName, port=self._hostPort, keyFilePath=self._keyFilePath, keyFileType=self._keyFileType)
+            else:
+                logger.error("Failing connect for server %s with missing configuration information" % self._serverId)
+                return False
+            return True
+        except Exception as e:
+            if self._raiseExceptions:
+                raise e
+            else:
+                logger.error("Failing connect for server %s with %s" % (self._serverId, str(e)))
+                return False
 
     def connect(self, hostName, userName, port=22, pw=None, keyFilePath=None, keyFileType='RSA'):
 
