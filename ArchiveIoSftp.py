@@ -152,7 +152,8 @@ class ArchiveIoSftp(ArchiveIoBase):
 
     def rmdir(self, dirPath):
         try:
-            return self.__sftpClient.rmdir(dirPath)
+            self.__sftpClient.rmdir(dirPath)
+            return True
         except Exception as e:
             if self._raiseExceptions:
                 raise e
@@ -162,7 +163,8 @@ class ArchiveIoSftp(ArchiveIoBase):
 
     def remove(self, filePath):
         try:
-            return self.__sftpClient.remove(filePath)
+            self.__sftpClient.remove(filePath)
+            return True
         except Exception as e:
             if self._raiseExceptions:
                 raise e
