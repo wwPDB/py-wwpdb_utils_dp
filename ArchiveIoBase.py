@@ -50,5 +50,11 @@ class ArchiveIoBase(object):
     def listdir(self, path):
         raise NotImplementedError("To be implemented in subclass")
 
+    def rmdir(self, path):
+        raise NotImplementedError("To be implemented in subclass")
+
+    def remove(self, path):
+        raise NotImplementedError("To be implemented in subclass")
+
     def close(self):
         raise NotImplementedError("To be implemented in subclass")
