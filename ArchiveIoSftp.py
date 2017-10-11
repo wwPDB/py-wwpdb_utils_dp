@@ -42,7 +42,8 @@ class ArchiveIoSftp(ArchiveIoBase):
     def connect(self, hostName, userName, port=22, pw=None, keyFilePath=None, keyFileType='RSA'):
 
         try:
-            self.__makeSftpClient(hostName=hostName, port=port, userName=userName, pw=pw, keyFilePath=keyFilePath, keyFileType=keyFileType)
+            self.__sftpClient = self.__makeSftpClient(hostName=hostName, port=port, userName=userName, pw=pw, keyFilePath=keyFilePath, keyFileType=keyFileType)
+            return True
         except Exception as e:
             if self._raiseExceptions:
                 raise e
