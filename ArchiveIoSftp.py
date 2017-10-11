@@ -1,0 +1,158 @@
+##
+# File:    ArchiveIoSftp.py
+# Author:  jdw
+# Date:    10-Oct-2017
+# Version: 0.001
+#
+# Updates:
+#
+##
+"""
+Archive data transfer operation utilities using SFTP protocol
+
+"""
+
+__docformat__ = "restructuredtext en"
+__author__ = "John Westbrook"
+__email__ = "john.westbrook@rcsb.org"
+__license__ = "Apache 2.0"
+__version__ = "V0.001"
+
+#
+import paramiko
+#
+import logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger()
+
+
+from wwpdb.utils.rcsb.ArchiveIoBase import ArchiveIoBase
+
+
+class ArchiveIoSftp(ArchiveIoBase):
+    """ Python implementation of ArchiveIoBase class providing essential
+        data transfer operations for SFTP protocol
+    """
+
+    def __init__(self, *args, **kwargs):
+        super(ArchiveIoSftp, self).__init__(*args, **kwargs)
+        self.__sftpClient = None
+    #
+
+    def connect(self, hostName, userName, port=22, pw=None, keyFilePath=None, keyFileType='RSA'):
+
+        try:
+            self.__sftpClient(hostName=hostName, port=port, userName=userName, pw=pw, keyFilePath=keyFilePath, keyFileType=keyFileType)
+        except Exception as e:
+            if self._raiseExceptions:
+                raise e
+            else:
+                logger.error("Failing connect for hostname %s with %s" % (hostName, str(e)))
+                return False
+
+    def __makeClient(self, hostName, port, userName, pw=None, keyFilePath=None, keyFileType='RSA'):
+        """
+        Make SFTP client connected to the supplied host on the supplied port authenticating as the user with
+        supplied username and supplied password or with the private key in a file with the supplied path.
+        If a private key is used for authentication, the type of the keyfile needs to be specified as DSA or RSA.
+
+        :rtype: Paramiko SFTPClient object.
+
+        """
+        sftp = None
+        key = None
+        transport = None
+        try:
+            if keyFilePath is not None:
+                # Get private key used to authenticate user.
+                if keyFileType == 'DSA':
+                    # The private key is a DSA type key.
+                    key = paramiko.DSSKey.from_private_key_file(keyFilePath)
+                else:
+                    # The private key is a RSA type key.
+                    key = paramiko.RSAKey.from_private_key_file(keyFilePath)
+
+            # Create Transport object using supplied method of authentication.
+            transport = paramiko.Transport((hostName, port))
+            if pw is not None:
+                transport.connect(username=userName, password=pw)
+            else:
+                transport.connect(username=userName, pkey=key)
+
+            sftp = paramiko.SFTPClient.from_transport(transport)
+
+            return sftp
+        except Exception as e:
+            logger.exception('Error occurred creating SFTP client: %s: %s' % (e.__class__, e))
+            if sftp is not None:
+                sftp.close()
+            if transport is not None:
+                transport.close()
+            if self._raiseExceptions:
+                raise e
+
+    def mkdir(self, path, mode=511):
+
+        try:
+            self.__sftpClient.mkdir(path, mode)
+            return True
+        except Exception as e:
+            if self._raiseExceptions:
+                raise e
+            else:
+                logger.error("mkdir failing for path %s with %s" % (path, str(e)))
+                return False
+
+    def stat(self, path):
+        try:
+            return self.__sftpClient.stat(path)
+        except Exception as e:
+            if self._raiseExceptions:
+                raise e
+            else:
+                logger.error("stat failing for path %s with %s" % (path, str(e)))
+                return False
+
+    def put(self, localPath, remotePath):
+        try:
+            self.__sftpClient.put(localPath, remotePath)
+            return True
+        except Exception as e:
+            if self._raiseExceptions:
+                raise e
+            else:
+                logger.error("put failing for localPath %s  remotePath %s with %s" % (localPath, remotePath, str(e)))
+                return False
+
+    def get(self, remotePath, localPath):
+        try:
+            self.__sftpClient.get(remotePath, localPath)
+            return True
+        except Exception as e:
+            if self._raiseExceptions:
+                raise e
+            else:
+                logger.error("get failing for remotePath %s localPath %s with %s" % (remotePath, localPath, str(e)))
+                return False
+
+    def listdir(self, path):
+        try:
+            return self.__sftpClient.listdir(path)
+        except Exception as e:
+            if self._raiseExceptions:
+                raise e
+            else:
+                logger.error("listdir failing for path %s with %s" % (path, str(e)))
+                return False
+
+    def close(self):
+        try:
+            if self.__sftpClient is not None:
+                self.__sftpClient.close()
+                return True
+        except Exception as e:
+            if self._raiseExceptions:
+                raise e
+            else:
+                logger.error("Close failing with %s" % (str(e)))
+
