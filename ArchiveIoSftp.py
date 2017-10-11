@@ -42,7 +42,7 @@ class ArchiveIoSftp(ArchiveIoBase):
     def connect(self, hostName, userName, port=22, pw=None, keyFilePath=None, keyFileType='RSA'):
 
         try:
-            self.__sftpClient(hostName=hostName, port=port, userName=userName, pw=pw, keyFilePath=keyFilePath, keyFileType=keyFileType)
+            self.__makeSftpClient(hostName=hostName, port=port, userName=userName, pw=pw, keyFilePath=keyFilePath, keyFileType=keyFileType)
         except Exception as e:
             if self._raiseExceptions:
                 raise e
@@ -50,7 +50,7 @@ class ArchiveIoSftp(ArchiveIoBase):
                 logger.error("Failing connect for hostname %s with %s" % (hostName, str(e)))
                 return False
 
-    def __makeClient(self, hostName, port, userName, pw=None, keyFilePath=None, keyFileType='RSA'):
+    def __makeSftpClient(self, hostName, port, userName, pw=None, keyFilePath=None, keyFileType='RSA'):
         """
         Make SFTP client connected to the supplied host on the supplied port authenticating as the user with
         supplied username and supplied password or with the private key in a file with the supplied path.
