@@ -129,8 +129,8 @@ class ArchiveIoSftpTests(unittest.TestCase):
             #
             result = aio.listdir(testDirPath)
             logger.info("listdir: %r" % result)
-            ok = aio.remove(testFilePath1)
-            ok = aio.remove(testFilePath2)
+            #ok = aio.remove(testFilePath1)
+            #ok = aio.remove(testFilePath2)
             #
             result = aio.listdir(testDirPath)
             logger.info("listdir: %r" % result)
