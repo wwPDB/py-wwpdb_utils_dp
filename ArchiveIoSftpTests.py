@@ -82,8 +82,8 @@ class ArchiveIoSftpTests(unittest.TestCase):
         try:
             aio = ArchiveIoSftp()
             ok = aio.connect(self.__hostName, self.__userName, self.__hostPort, keyFilePath=self.__keyFilePath, keyFileType=self.__keyFileType)
-            result = aio.listdir()
-            result = aio.stat('pdb')
+            result = aio.listdir('.')
+            result = aio.stat('.')
             ok = aio.close()
             self.assertEqual(ok, True)
         except Exception as e:
