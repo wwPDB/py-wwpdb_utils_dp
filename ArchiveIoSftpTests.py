@@ -27,6 +27,7 @@ __version__ = "V0.001"
 #
 #
 import sys
+import os.path
 import time
 import unittest
 import logging
@@ -47,10 +48,11 @@ class ArchiveIoSftpTests(unittest.TestCase):
         self.__userName = self.__cI.get('SITE_ARCHIVE_HOST_USERNAME_1')
         self.__hostPort = int(self.__cI.get('SITE_ARCHIVE_HOST_PORT_1'))
         self.__protocol = self.__cI.get('SITE_ARCHIVE_HOST_PROTOCOL_1')
+        self.__rootPath = int(self.__cI.get('SITE_ARCHIVE_HOST_ROOT_PATH_1'))
         self.__keyFilePath = self.__cI.get('SITE_ARCHIVE_HOST_KEY_FILE_PATH_1')
         self.__keyFileType = self.__cI.get('SITE_ARCHIVE_HOST_KEY_FILE_TYPE_1')
         #
-
+        self.__testLocalFilePath = '.data/TEST-FILE.DAT'
         self.__startTime = time.time()
         logger.debug("Starting %s at %s" % (self.id(),
                                             time.strftime("%Y %m %d %H:%M:%S", time.localtime())))
@@ -97,13 +99,39 @@ class ArchiveIoSftpTests(unittest.TestCase):
         try:
             aio = ArchiveIoSftp()
             ok = aio.connect(self.__hostName, self.__userName, self.__hostPort, keyFilePath=self.__keyFilePath, keyFileType=self.__keyFileType)
-            ok = aio.mkdir('/pdb/test')
-            result = aio.listdir('/pdb')
+            testPath = os.path.join(self.__rootPath, 'test')
+            ok = aio.mkdir(testPath)
+            result = aio.listdir(self.__rootPath)
             logger.info("listdir: %r" % result)
-            result = aio.stat('/pdb/test')
+            result = aio.stat(testPath)
             logger.info("stat: %r" % result)
-            ok = aio.rmdir('/pdb/test')
-            result = aio.listdir('/pdb')
+            ok = aio.rmdir(testPath)
+            result = aio.listdir(self.__rootPath)
+            logger.info("listdir after remove: %r" % result)
+            ok = aio.close()
+            self.assertEqual(ok, True)
+        except Exception as e:
+            logger.exception("Failing with %s" % str(e))
+            self.fail()
+
+    def testSftpTransferOps(self):
+        """Test case -  get directory list and stat details-
+        """
+        try:
+            aio = ArchiveIoSftp()
+            ok = aio.connect(self.__hostName, self.__userName, self.__hostPort, keyFilePath=self.__keyFilePath, keyFileType=self.__keyFileType)
+            testDirPath = os.path.join(self.__rootPath, 'test')
+            testFilePath1 = os.path.join(testDirPath, 'TEST-FILE-1.DAT')
+            testFilePath2 = os.path.join(testDirPath, 'TEST-FILE-2.DAT')
+            ok = aio.mkdir(testDirPath)
+            ok = aio.put(self.__testLocalFilePath, testFilePath1)
+            ok = aio.put(self.__testLocalFilePath, testFilePath2)
+            #
+            result = aio.listdir(testDirPath)
+            logger.info("listdir: %r" % result)
+            #
+            ok = aio.rmdir(testDirPath)
+            result = aio.listdir(self.__rootPath)
             logger.info("listdir after remove: %r" % result)
             ok = aio.close()
             self.assertEqual(ok, True)
@@ -117,6 +145,7 @@ def suiteSftpTests():
     suiteSelect.addTest(ArchiveIoSftpTests("testSftpConnect"))
     suiteSelect.addTest(ArchiveIoSftpTests("testSftpStatOps"))
     suiteSelect.addTest(ArchiveIoSftpTests("testSftpDirOps"))
+    suiteSelect.addTest(ArchiveIoSftpTests("testSftpTransferOps"))
     return suiteSelect
 
 if __name__ == '__main__':
