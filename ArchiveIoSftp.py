@@ -105,14 +105,18 @@ class ArchiveIoSftp(ArchiveIoBase):
                 return False
 
     def stat(self, path):
+        """ sftp  stat attributes  = [ size=17 uid=0 gid=0 mode=040755 atime=1507723473 mtime=1506956503 ]
+        """
         try:
-            return self.__sftpClient.stat(path)
+            s = self.__sftpClient.stat(path)
+            d = {'mtime': s.mtime, 'size': s.size, 'mode': s.mode, 'uid': s.uid, 'gid': s.gid, 'atime': a.atime}
+            return d
         except Exception as e:
             if self._raiseExceptions:
                 raise e
             else:
                 logger.error("stat failing for path %s with %s" % (path, str(e)))
-                return False
+                return {}
 
     def put(self, localPath, remotePath):
         try:
@@ -146,6 +150,26 @@ class ArchiveIoSftp(ArchiveIoBase):
                 logger.error("listdir failing for path %s with %s" % (path, str(e)))
                 return False
 
+    def rmdir(self, dirPath):
+        try:
+            return self.__sftpClient.rmdir(dirPath)
+        except Exception as e:
+            if self._raiseExceptions:
+                raise e
+            else:
+                logger.error("rmdir failing for path %s with %s" % (dirPath, str(e)))
+                return False
+
+    def remove(self, filePath):
+        try:
+            return self.__sftpClient.remove(filePath)
+        except Exception as e:
+            if self._raiseExceptions:
+                raise e
+            else:
+                logger.error("remove failing for path %s with %s" % (filePath, str(e)))
+                return False
+
     def close(self):
         try:
             if self.__sftpClient is not None:
@@ -156,4 +180,3 @@ class ArchiveIoSftp(ArchiveIoBase):
                 raise e
             else:
                 logger.error("Close failing with %s" % (str(e)))
-
