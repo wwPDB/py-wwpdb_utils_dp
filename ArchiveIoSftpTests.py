@@ -45,7 +45,7 @@ class ArchiveIoSftpTests(unittest.TestCase):
         self.__cI = ConfigInfo(siteId=getSiteId(), verbose=self.__verbose, log=self.__lfh)
         self.__hostName = self.__cI.get('SITE_ARCHIVE_HOST_NAME_1')
         self.__userName = self.__cI.get('SITE_ARCHIVE_HOST_USERNAME_1')
-        self.__hostPort = self.__cI.get('SITE_ARCHIVE_HOST_PORT_1')
+        self.__hostPort = int(self.__cI.get('SITE_ARCHIVE_HOST_PORT_1'))
         self.__protocol = self.__cI.get('SITE_ARCHIVE_HOST_PROTOCOL_1')
         self.__keyFilePath = self.__cI.get('SITE_ARCHIVE_HOST_KEY_FILE_PATH_1')
         self.__keyFileType = self.__cI.get('SITE_ARCHIVE_HOST_KEY_FILE_TYPE_1')
