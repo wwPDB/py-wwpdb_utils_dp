@@ -129,6 +129,9 @@ class ArchiveIoSftpTests(unittest.TestCase):
             ok = aio.put(self.__testLocalFilePath, testFilePath1)
             ok = aio.put(self.__testLocalFilePath, testFilePath2)
             #
+            aio.get(testFilePath1, self.__testLocalOutputFilePath)
+            aio.get(testFilePath2, self.__testLocalOutputFilePath)
+            #
             result = aio.listdir(testDirPath)
             logger.info("listdir: %r" % result)
             ok = aio.remove(testFilePath1)
@@ -136,9 +139,6 @@ class ArchiveIoSftpTests(unittest.TestCase):
             #
             result = aio.listdir(testDirPath)
             logger.info("listdir: %r" % result)
-            #
-            aio.get(testFilePath1, self.__testLocalOutputFilePath)
-            aio.get(testFilePath2, self.__testLocalOutputFilePath)
             #
             ok = aio.rmdir(testDirPath)
             result = aio.listdir(self.__rootPath)
