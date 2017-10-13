@@ -102,10 +102,15 @@ class ArchiveIoSftpTests(unittest.TestCase):
             result = aio.listdir(self.__rootPath)
             logger.debug("listdir: %r" % result)
             result = aio.stat(testPath)
-            logger.debug("stat: %r" % result)
+            logger.info("stat good: %r" % result)
             ok = aio.rmdir(testPath)
             result = aio.listdir(self.__rootPath)
             logger.debug("listdir after remove: %r" % result)
+            #
+            testPathBad = os.path.join(self.__rootPath, 'test_bad')
+            result = aio.stat(testPathBad)
+            logger.info("bad stat: %r" % result)
+
             ok = aio.close()
             self.assertEqual(ok, True)
         except Exception as e:
