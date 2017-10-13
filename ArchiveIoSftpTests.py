@@ -79,7 +79,7 @@ class ArchiveIoSftpTests(unittest.TestCase):
         """Test case -  get directory list and stat details-
         """
         try:
-            aio = ArchiveIoSftp(serverId=self.serverId)
+            aio = ArchiveIoSftp(serverId=self.__serverId)
             ok = aio.connectToServer()
             result = aio.listdir('.')
             logger.info("listdir: %r" % result)
@@ -95,7 +95,7 @@ class ArchiveIoSftpTests(unittest.TestCase):
         """Test case -  create and remove directory -
         """
         try:
-            aio = ArchiveIoSftp(serverId=self.serverId)
+            aio = ArchiveIoSftp(serverId=self.__serverId)
             ok = aio.connectToServer()
             testPath = os.path.join(self.__rootPath, 'test')
             ok = aio.mkdir(testPath)
@@ -121,7 +121,7 @@ class ArchiveIoSftpTests(unittest.TestCase):
         """Test case -  transfer and remove files and directories -
         """
         try:
-            aio = ArchiveIoSftp(serverId=self.serverId)
+            aio = ArchiveIoSftp(serverId=self.__serverId)
             ok = aio.connectToServer()
             testDirPath = os.path.join(self.__rootPath, 'test')
             testFilePath1 = os.path.join(testDirPath, 'TEST-FILE-1.DAT')
