@@ -38,6 +38,9 @@ class ArchiveIoSftp(ArchiveIoBase):
         super(ArchiveIoSftp, self).__init__(*args, **kwargs)
         self.__sftpClient = None
 
+    def getRootPath(self):
+        return self._rootPath
+
     def connectToServer(self):
         try:
             if self._password is not None:
