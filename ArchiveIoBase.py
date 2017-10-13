@@ -42,7 +42,7 @@ class ArchiveIoBase(object):
         self._hostName = cD.get('HOST_NAME', None)
         self._userName = cD.get('HOST_USERNAME', None)
         self._password = cD.get('HOST_PASSWORD', None)
-        self._hostPort = int(cD.get('HOST_PORT'), None)
+        self._hostPort = int(cD.get('HOST_PORT', None))
         self._protocol = cD.get('HOST_PROTOCOL', None)
         self._rootPath = cD.get('HOST_ROOT_PATH', None)
         self._keyFilePath = cD.get('HOST_KEY_FILE_PATH', None)
