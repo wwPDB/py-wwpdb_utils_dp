@@ -108,6 +108,8 @@ class ArchiveIoSftpTests(unittest.TestCase):
             logger.debug("listdir after remove: %r" % result)
             #
             testPathBad = os.path.join(self.__rootPath, 'test_bad')
+            result = aio.listdir(testPathBad)
+            logger.debug("listdir bad : %r" % result)
             result = aio.stat(testPathBad)
             logger.info("bad stat: %r" % result)
 
