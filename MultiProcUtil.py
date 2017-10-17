@@ -126,7 +126,7 @@ class MultiProcUtil(object):
         if numProc > len(dataList):
             numProc = len(dataList)
         #
-        if chunkSize <= numProc:
+        if chunkSize <= 0:
             numLists = numProc
         else:
             numLists = int(len(dataList) / int(chunkSize))
