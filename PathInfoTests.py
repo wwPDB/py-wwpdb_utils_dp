@@ -63,7 +63,7 @@ class PathInfoTests(unittest.TestCase):
             for (fs, dataSetId, wfInst, pId, vId) in tests:
                 logger.debug("File source %s dataSetId %s  partno  %s wfInst %s version %s" % (fs, dataSetId, pId, wfInst, vId))
 
-                pI = PathInfo(siteId=self.__siteId, sessionPath=".")
+                pI = PathInfo(siteId=self.__siteId)
                 #
                 fp = pI.getModelPdbxFilePath(dataSetId, wfInstanceId=wfInst, fileSource=fs, versionId=vId)
                 logger.debug("Model path (PDBx):   %s" % fp)
