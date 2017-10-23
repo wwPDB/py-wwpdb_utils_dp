@@ -5,6 +5,7 @@
 # Updates:
 #   27-Aug-2013  jdw verify after milestone addition to api.
 #   28-Jun-2014  jdw add template examples
+#   23-Oct-2017  jdw update logging
 ##
 """
 Skeleton examples for creating standard file names for sequence resources and data files.
@@ -19,12 +20,16 @@ __license__ = "Creative Commons Attribution 3.0 Unported"
 __version__ = "V0.07"
 
 
-import sys
+import time
 import unittest
-import traceback
 
 from wwpdb.api.facade.ConfigInfo import getSiteId
 from wwpdb.utils.rcsb.PathInfo import PathInfo
+
+import logging
+FORMAT = '[%(levelname)s]-%(module)s.%(funcName)s: %(message)s'
+logging.basicConfig(format=FORMAT, level=logging.DEBUG)
+logger = logging.getLogger()
 
 
 class PathInfoTests(unittest.TestCase):
@@ -32,18 +37,22 @@ class PathInfoTests(unittest.TestCase):
     def setUp(self):
         #
         self.__verbose = True
-        self.__lfh = sys.stdout
-        self.__siteId = getSiteId(defaultSiteId='WWPDB_DEPLOY_TEST')
+        self.__siteId = getSiteId(defaultSiteId=None)
+
+        self.__startTime = time.time()
+        logger.debug("Starting %s at %s" % (self.id(),
+                                            time.strftime("%Y %m %d %H:%M:%S", time.localtime())))
 
     def tearDown(self):
-        pass
+        endTime = time.time()
+        logger.debug("Completed %s at %s (%.4f seconds)\n" % (self.id(),
+                                                              time.strftime("%Y %m %d %H:%M:%S", time.localtime()),
+                                                              endTime - self.__startTime))
 
     def testGetStandardPaths(self):
         """ Test getting standard file names within session paths.
         """
-        self.__lfh.write("\n------------------------ ")
-        self.__lfh.write("Starting test function  %s" % sys._getframe().f_code.co_name)
-        self.__lfh.write(" -------------------------\n")
+        ok = True
         try:
             # fileSource, id, partionId, versionId
             tests = [('archive', "D_1000000000", None, 1, 'latest'),
@@ -52,45 +61,45 @@ class PathInfoTests(unittest.TestCase):
                      ('archive', "D_1000000000", None, 'previous', 'latest')]
             eId = '1'
             for (fs, dataSetId, wfInst, pId, vId) in tests:
-                self.__lfh.write("\n\n----------------------------------\n")
-                self.__lfh.write("File source %s dataSetId %s  partno  %s wfInst %s version %s\n" % (fs, dataSetId, pId, wfInst, vId))
+                logger.debug("File source %s dataSetId %s  partno  %s wfInst %s version %s" % (fs, dataSetId, pId, wfInst, vId))
 
-                pI = PathInfo(siteId=self.__siteId, sessionPath=".", verbose=self.__verbose, log=self.__lfh)
+                pI = PathInfo(siteId=self.__siteId, sessionPath=".")
                 #
                 fp = pI.getModelPdbxFilePath(dataSetId, wfInstanceId=wfInst, fileSource=fs, versionId=vId)
-                self.__lfh.write("Model path (PDBx):   %s\n" % fp)
+                logger.debug("Model path (PDBx):   %s" % fp)
 
                 fp = pI.getModelPdbxFilePath(dataSetId, wfInstanceId=wfInst, fileSource=fs, versionId=vId, mileStone='deposit')
-                self.__lfh.write("Model path (deposit) (PDBx):   %s\n" % fp)
+                logger.debug("Model path (deposit) (PDBx):   %s" % fp)
 
                 fp = pI.getModelPdbxFilePath(dataSetId, wfInstanceId=wfInst, fileSource=fs, versionId=vId, mileStone='upload')
-                self.__lfh.write("Model path (upload) (PDBx):   %s\n" % fp)
+                logger.debug("Model path (upload) (PDBx):   %s" % fp)
 
                 fp = pI.getModelPdbFilePath(dataSetId, wfInstanceId=wfInst, fileSource=fs, versionId=vId)
-                self.__lfh.write("Model path (PDB):    %s\n" % fp)
+                logger.debug("Model path (PDB):    %s" % fp)
 
                 fp = pI.getPolyLinkFilePath(dataSetId, wfInstanceId=wfInst, fileSource=fs, versionId=vId)
-                self.__lfh.write("Link dist  (PDBx):   %s\n" % fp)
+                logger.debug("Link dist  (PDBx):   %s" % fp)
 
                 fp = pI.getSequenceStatsFilePath(dataSetId, wfInstanceId=wfInst, fileSource=fs, versionId=vId)
-                self.__lfh.write("Sequence stats (PIC):   %s\n" % fp)
+                logger.debug("Sequence stats (PIC):   %s" % fp)
 
                 fp = pI.getReferenceSequenceFilePath(dataSetId, entityId=eId, wfInstanceId=wfInst, fileSource=fs, versionId=vId)
-                self.__lfh.write("Reference match entity %s (PDBx):   %s\n" % (eId, fp))
+                logger.debug("Reference match entity %s (PDBx):   %s" % (eId, fp))
 
                 fp = pI.getSequenceAssignmentFilePath(dataSetId, wfInstanceId=wfInst, fileSource=fs, versionId=vId)
-                self.__lfh.write("Sequence assignment (PDBx):   %s\n" % fp)
+                logger.debug("Sequence assignment (PDBx):   %s" % fp)
 
                 fp = pI.getFilePath(dataSetId, wfInstanceId=wfInst, contentType='seqdb-match', formatType='pdbx', fileSource=fs, versionId=vId, partNumber=pId, mileStone=None)
-                self.__lfh.write("Sequence match (getFilePath) (PDBx):   %s\n" % fp)
+                logger.debug("Sequence match (getFilePath) (PDBx):   %s" % fp)
                 #
 
                 ft = pI.getFilePathVersionTemplate(dataSetId, wfInstanceId=wfInst, contentType='em-volume', formatType='map', fileSource="archive", partNumber=pId, mileStone=None)
-                self.__lfh.write("EM volume version template:   %r\n" % ft)
-                ft = pI.getFilePathPartitionTemplate(dataSetId, wfInstanceId=wfInst, contentType='em-mask', formatType='map', fileSource="archive", mileStone=None)
-                self.__lfh.write("EM mask partition template:   %r\n" % ft)
-        except:
-            traceback.print_exc(file=self.__lfh)
+                logger.debug("EM volume version template:   %r" % ft)
+                ft = pI.getFilePathPartitionTemplate(dataSetId, wfInstanceId=wfInst, contentType='em-mask-volume', formatType='map', fileSource="archive", mileStone=None)
+                logger.debug("EM mask partition template:   %r" % ft)
+            self.assertEqual(ok, True)
+        except Exception as e:
+            logger.exception("Failing with %r" % str(e))
             self.fail()
 
 
