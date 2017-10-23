@@ -21,7 +21,7 @@
 # 14-Sep-2014   jdw   add isValidFileName(fileName, requireVersion=True) and splitFileName(fileName)
 # 24-Sep-2014   jdw   add getFileExtension(formatType)
 # 13-Dec-2016   jdw   add getStructureFactorsPdbxFilePath()
-# 23-Oct-2017   jdw   config for logging -
+# 23-Oct-2017   jdw   config for logging - add parseFileName wrapper method
 ##
 """
 Common methods for finding path information for resource and data files in the wwPDB data processing
@@ -74,6 +74,13 @@ class PathInfo(object):
 
     def setDebugFlag(self, flag):
         self.__debug = flag
+
+    def parseFileName(self, fileName):
+        rfc = ReferenceFileComponents(verbose=self.__verbose, log=self.__lfh)
+        if rfc.set(fileName=fileName):
+            return rfc.get()
+        else:
+            return None, None, None, None, None
 
     def isValidFileName(self, fileName, requireVersion=True):
         """ Is the input file name project compliant ?
