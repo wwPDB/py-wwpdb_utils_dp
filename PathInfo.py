@@ -21,6 +21,7 @@
 # 14-Sep-2014   jdw   add isValidFileName(fileName, requireVersion=True) and splitFileName(fileName)
 # 24-Sep-2014   jdw   add getFileExtension(formatType)
 # 13-Dec-2016   jdw   add getStructureFactorsPdbxFilePath()
+# 23-Oct-2017   jdw   config for logging -
 ##
 """
 Common methods for finding path information for resource and data files in the wwPDB data processing
@@ -30,16 +31,18 @@ and annotation system.
 __docformat__ = "restructuredtext en"
 __author__ = "John Westbrook"
 __email__ = "jwest@rcsb.rutgers.edu"
-__license__ = "Creative Commons Attribution 3.0 Unported"
+__license__ = "Apache 2.0"
 __version__ = "V0.07"
 
-import sys
 import os
 import os.path
-import traceback
 import glob
 import shutil
-from wwpdb.api.facade.ConfigInfo import ConfigInfo
+
+import logging
+logger = logging.getLogger(__name__)
+
+from wwpdb.api.facade.ConfigInfo import ConfigInfo, getSiteId
 from wwpdb.api.facade.DataReference import DataFileReference, ReferenceFileComponents
 
 
@@ -54,17 +57,19 @@ class PathInfo(object):
 
     """
 
-    def __init__(self, siteId="WWPDB_DEPLOY_TEST", sessionPath='.', verbose=False, log=sys.stderr):
+    def __init__(self, siteId=None, sessionPath='.', verbose=False, log=None):
         """
         """
         self.__verbose = verbose
         self.__lfh = log
+        #
         self.__debug = False
-        self.__siteId = siteId
+        self.__siteId = siteId if siteId is not None else getSiteId(defaultSiteId=siteId)
         self.__sessionPath = sessionPath
         self.__sessionDownloadPath = None
         if self.__sessionPath is not None:
             self.__sessionDownloadPath = os.path.join(self.__sessionPath, "downloads")
+        #
         self.__cI = ConfigInfo(siteId=self.__siteId, verbose=self.__verbose, log=self.__lfh)
 
     def setDebugFlag(self, flag):
@@ -93,7 +98,7 @@ class PathInfo(object):
         eD = self.__cI.get('FILE_FORMAT_EXTENSION_DICTIONARY')
         try:
             return eD[formatType]
-        except:
+        except Exception as e:
             return None
 
     def splitFileName(self, fileName):
@@ -104,7 +109,7 @@ class PathInfo(object):
             rfc = ReferenceFileComponents(verbose=self.__verbose, log=self.__lfh)
             rfc.set(fileName=fileName)
             return rfc.get()
-        except:
+        except Exception as e:
             return (None, None, None, None, None)
 
     #
@@ -121,25 +126,25 @@ class PathInfo(object):
             else:
                 return os.path.join(self.__cI.get('SITE_ARCHIVE_STORAGE_PATH'), 'archive', dataSetId)
             #
-        except:
+        except Exception as e:
             return None
 
     def getInstancePath(self, dataSetId, wfInstanceId):
         try:
             return os.path.join(self.__cI.get('SITE_ARCHIVE_STORAGE_PATH'), 'workflow', dataSetId, 'instance', wfInstanceId)
-        except:
+        except Exception as e:
             return None
 
     def getInstanceTopPath(self, dataSetId):
         try:
             return os.path.join(self.__cI.get('SITE_ARCHIVE_STORAGE_PATH'), 'workflow', dataSetId, 'instance')
-        except:
+        except Exception as e:
             return None
 
     def getDepositPath(self, dataSetId):
         try:
             return os.path.join(self.__cI.get('SITE_ARCHIVE_STORAGE_PATH'), 'deposit', dataSetId)
-        except:
+        except Exception as e:
             return None
 
     def getModelPdbxFilePath(self, dataSetId, wfInstanceId=None, fileSource="archive", versionId="latest", mileStone=None):
@@ -421,6 +426,7 @@ class PathInfo(object):
         return cct
 
     def __getStandardPath(self, dataSetId, wfInstanceId=None, contentTypeBase=None, formatType=None, fileSource="archive", versionId="latest", partNumber='1', mileStone=None):
+        fP = None
         try:
             fP, vT, pT, ccT = self.__getPathWorker(dataSetId=dataSetId,
                                                    wfInstanceId=wfInstanceId,
@@ -430,9 +436,9 @@ class PathInfo(object):
                                                    versionId=versionId,
                                                    partNumber=partNumber,
                                                    mileStone=mileStone)
-        except:
-            self.__lfh.write("+PathInfo.__getStandard() failing for %s id %s wf id %s\n" % (fileSource, dataSetId, wfInstanceId))
-            traceback.print_exc(file=self.__lfh)
+        except Exception as e:
+            logger.exception("+PathInfo.__getStandard() failing for %s id %s wf id %s with %r" % (fileSource, dataSetId, wfInstanceId, str(e)))
+
         return fP
 
     def __getPathWorker(self, dataSetId, wfInstanceId=None, contentTypeBase=None, formatType=None, fileSource="archive", versionId="latest", partNumber='1', mileStone=None):
@@ -447,9 +453,8 @@ class PathInfo(object):
             else:
                 contentType = contentTypeBase
                 #
-            if (self.__debug):
-                self.__lfh.write("+PathInfo.__getPathworker() file source %s for id %s wf id %s contentType %r formatType %r partNumber %r versionId %r\n" %
-                                 (fileSource, dataSetId, wfInstanceId, contentType, formatType, partNumber, versionId))
+            logger.debug("+PathInfo.__getPathworker() file source %s for id %s wf id %s contentType %r formatType %r partNumber %r versionId %r" %
+                         (fileSource, dataSetId, wfInstanceId, contentType, formatType, partNumber, versionId))
             dfRef = DataFileReference(siteId=self.__siteId, verbose=self.__verbose, log=self.__lfh)
             if (fileSource in ['archive', 'wf-archive']):
                 dfRef.setDepositionDataSetId(dataSetId)
@@ -498,8 +503,8 @@ class PathInfo(object):
                 dfRef.setPartitionNumber(partNumber)
                 dfRef.setVersionId(versionId)
             else:
-                self.__lfh.write("+PathInfo.__getPathworker() bad file source %s for id %s wf id %s contentType %r \n" %
-                                 (fileSource, dataSetId, wfInstanceId, contentType))
+                logger.debug("+PathInfo.__getPathworker() bad file source %s for id %s wf id %s contentType %r" %
+                             (fileSource, dataSetId, wfInstanceId, contentType))
                 return None, None, None, None
 
             fP = None
@@ -512,27 +517,23 @@ class PathInfo(object):
                 pT = os.path.join(dP, dfRef.getPartitionNumberSearchTarget())
                 vT = os.path.join(dP, dfRef.getVersionIdSearchTarget())
                 ctT = os.path.join(dP, dfRef.getContentTypeSearchTarget())
-                if (self.__debug):
-                    self.__lfh.write("+PathInfo.__getPathworker() file path:                %s\n" % fP)
-                    self.__lfh.write("+PathInfo.__getPathworker() partition search path:    %s\n" % pT)
-                    self.__lfh.write("+PathInfo.__getPathworker() version search path:      %s\n" % vT)
-                    self.__lfh.write("+PathInfo.__getPathworker() content type search path: %s\n" % ctT)
+                logger.debug("+PathInfo.__getPathworker() file path:                %s" % fP)
+                logger.debug("+PathInfo.__getPathworker() partition search path:    %s" % pT)
+                logger.debug("+PathInfo.__getPathworker() version search path:      %s" % vT)
+                logger.debug("+PathInfo.__getPathworker() content type search path: %s" % ctT)
             else:
                 dP = dfRef.getDirPathReference()
                 try:
                     ctT = os.path.join(dP, dfRef.getContentTypeSearchTarget())
-                except:
+                except Exception as e:
                     ctT = None
-                    if (self.__verbose):
-                        self.__lfh.write("+PathInfo.__getPathworker() failing with content type search template construction\n")
+                    logger.exception("+PathInfo.__getPathworker() failing with content type search template construction with %r" % str(e))
                 #
             return fP, vT, pT, ctT
-        except:
-            if self.__verbose:
-                self.__lfh.write("+PathInfo.__getPathWorker() failing for source %s id %s wf id %s contentType %r\n" %
-                                 (fileSource, dataSetId, wfInstanceId, contentType))
-                traceback.print_exc(file=self.__lfh)
-            return None, None, None, None
+        except Exception as e:
+            logger.exception("Failing for source %s id %s wf id %s contentType %r with %r" %
+                             (fileSource, dataSetId, wfInstanceId, contentType, str(e)))
+        return None, None, None, None
     #
 
     def __getcopyContentType(self, sourcePath, sourcePattern, destPath):
