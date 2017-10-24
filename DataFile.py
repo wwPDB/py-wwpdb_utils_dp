@@ -324,7 +324,7 @@ class DataFile:
         """
         if (len(yyyymmdd) != 8 or not __exists(fPath)):
             return
-#
+        #
         t = datetime.datetime(int(yyyymmdd[0:4]), int(yyyymmdd[4:6]), int(yyyymmdd[6:8]))
         mtime = int(time.mktime(t.timetuple()))
         times = (mtime, mtime)
