@@ -101,6 +101,8 @@
 # 28-Nov-2016 ep  Add check-cif-ext and cif2pdbx-ext
 # 18-Dec-2016 ep  Update annot-wwpdb-validate-all to remove Vpackv2. Remove old annot-wwpdb-validate-alt, annot-wwpdb-validate-2
 # 13-Jan-2017 ep  Add annot-dcc-fix-special-position and annot-update-dep-assembly-info
+# 21-Dec-2018 ep  Add support for VALID_SCR_PATH from site-config to specify
+#                 location that validation reports should run from
 ##
 """
 Wrapper class for data processing and chemical component utilities.
@@ -425,6 +427,7 @@ class RcsbDpUtility(object):
         self.__prdccCvsPath = self.__getConfigPath('SITE_PRDCC_CVS_PATH')
         self.__prdDictPath = os.path.join(self.__getConfigPath('SITE_DEPLOY_PATH'), 'reference', 'components', 'prd-dict')
         self.__siteWebAppsSessionsPath = self.__cI.get('SITE_WEB_APPS_SESSIONS_PATH')
+        self.__validScrPath = self.__cI.get('VALID_SCR_PATH')
         self.__siteConfigDir = self.__getConfigPath('TOP_WWPDB_SITE_CONFIG_DIR')
 
         # if self.__rcsbAppsPath is None:
@@ -934,11 +937,13 @@ class RcsbDpUtility(object):
             if 'run_dir' in self.__inputParamDict:
                 runDir = self.__inputParamDict['run_dir']
             else:
-                if self.__siteWebAppsSessionsPath:
-                    if os.access(self.__siteWebAppsSessionsPath, os.W_OK):
-                        runDir = os.path.join(self.__siteWebAppsSessionsPath, "validation_%s" % random.randrange(9999999))
-                        deleteRunDir = True
-
+                # Allow site specific override
+                if self.__validScrPath and os.access(self.__validScrPath, os.W_OK):
+                    runDir = os.path.join(self.__validScrPath, "validation_%s" % random.randrange(9999999))
+                    deleteRunDir = True
+                elif self.__siteWebAppsSessionsPath and os.access(self.__siteWebAppsSessionsPath, os.W_OK):
+                    runDir = os.path.join(self.__siteWebAppsSessionsPath, "validation_%s" % random.randrange(9999999))
+                    deleteRunDir = True
             kind = None
             if 'kind' in self.__inputParamDict:
                 kind = self.__inputParamDict['kind']
