@@ -20,8 +20,9 @@ __version__   = "V0.07"
 import os, sys, time, traceback
 
 class DetachUtils(dict):
-    """ Manage detached processes.  
-
+    """ Derived dictionary class supporting automatic initialization.
+     
+        This will support pickle serialization/deserialization.
     """
     def __init__(self, reqObj=None, verbose=True, log=sys.stderr):
         self.__verbose=verbose
@@ -90,7 +91,7 @@ class DetachUtils(dict):
             # Parent returns status information only -
             #
             if (self.__verbose):
-                self.__lfh.write("+SeqModWebApp.__loadDataStart() PARENT COMPLETED parent process: pid# %s\n" % os.getpid())
+                self.__lfh.write("+DetachUtils.__runDetach() PARENT COMPLETED parent process: pid# %s\n" % os.getpid())
             return True
 
     def semaphoreExists(self,semaphore='TMP_'):
@@ -102,8 +103,6 @@ class DetachUtils(dict):
 
     def getSemaphore(self,semaphore='TMP_'):
         fPathAbs=os.path.join(self.__sessionPath,semaphore)
-        if (self.__verbose):
-            self.__lfh.write("+SeqModWebApp.__getSemaphore() - checking %s in path %s\n" % (semaphore,fPathAbs))
         try:
             fp=open(fPathAbs,'r')
             lines=fp.readlines()
@@ -111,6 +110,10 @@ class DetachUtils(dict):
             sval=lines[0][:-1]
         except:
             sval="FAIL"
+
+        if (self.__verbose):
+            self.__lfh.write("+DetachUtils.__getSemaphore() - checked %s in path %s returning %s \n" % (semaphore,fPathAbs,sval))
+
         return sval
 
     def __setSemaphore(self):
