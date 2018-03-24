@@ -22,6 +22,7 @@
 # 24-Sep-2014   jdw   add getFileExtension(formatType)
 # 13-Dec-2016   jdw   add getStructureFactorsPdbxFilePath()
 # 23-Oct-2017   jdw   config for logging - add parseFileName wrapper method
+# 24-Mar-2018   ep    add mileStone argument to getFilePathContentTypeTemplate()
 ##
 """
 Common methods for finding path information for resource and data files in the wwPDB data processing
@@ -421,7 +422,7 @@ class PathInfo(object):
                                                mileStone=mileStone)
         return pt
 
-    def getFilePathContentTypeTemplate(self, dataSetId, wfInstanceId=None, contentType=None, fileSource="archive"):
+    def getFilePathContentTypeTemplate(self, dataSetId, wfInstanceId=None, contentType=None, fileSource="archive", mileStone=None):
         fp, vt, pt, cct = self.__getPathWorker(dataSetId=dataSetId,
                                                wfInstanceId=wfInstanceId,
                                                contentTypeBase=contentType,
@@ -429,7 +430,7 @@ class PathInfo(object):
                                                fileSource=fileSource,
                                                versionId='none',
                                                partNumber='1',
-                                               mileStone=None)
+                                               mileStone=mileStone)
         return cct
 
     def __getStandardPath(self, dataSetId, wfInstanceId=None, contentTypeBase=None, formatType=None, fileSource="archive", versionId="latest", partNumber='1', mileStone=None):
