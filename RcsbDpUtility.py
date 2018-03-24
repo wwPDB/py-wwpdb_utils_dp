@@ -429,7 +429,6 @@ class RcsbDpUtility(object):
         self.__siteWebAppsSessionsPath = self.__cI.get('SITE_WEB_APPS_SESSIONS_PATH')
         self.__validScrPath = self.__cI.get('VALID_SCR_PATH')
         self.__siteConfigDir = self.__getConfigPath('TOP_WWPDB_SITE_CONFIG_DIR')
-        self.__ccDictPathIdx = os.path.join(self.__ccDictPath, "Components-all-v3-r4.idx")
 
         # if self.__rcsbAppsPath is None:
         #            self.__rcsbAppsPath  =  self.__getConfigPath('SITE_RCSB_APPS_PATH')
@@ -1593,7 +1592,7 @@ class RcsbDpUtility(object):
             cmd += " ; PRD_DICT_PATH=" + self.__prdDictPath + " ; export PRD_DICT_PATH "
             cmdPath = os.path.join(self.__annotAppsPath, "bin", "GetPrdMatch")
             cmd += " ; " + cmdPath + " -input " + iPath + " -output " + oPath \
-                + " -path . -index ${PRD_DICT_PATH}/prd_summary.sdb -cc_index " + self.__ccDictPathIdx
+                + " -path . -index ${PRD_DICT_PATH}/prd_summary.sdb"
             if 'logfile' in self.__inputParamDict:
                 cmd += " -log " + self.__inputParamDict['logfile']
             if 'firstmodel' in self.__inputParamDict:
