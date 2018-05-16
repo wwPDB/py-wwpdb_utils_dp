@@ -184,9 +184,9 @@ class RcsbDpUtility(object):
                                 "annot-merge-sequence-data", "annot-make-maps", "annot-make-ligand-maps",
                                 "annot-make-omit-maps",
                                 "annot-cif2cif-dep", "annot-pdb2cif-dep", "annot-format-check-pdbx", "annot-format-check-pdb",
-                                "annot-dcc-report", "annot-sf-convert", "annot-dcc-refine-report", "annot-dcc-biso-full",
+                                "annot-dcc-report", "annot-sf-convert", "annot-tls-range-correction", "annot-dcc-refine-report", "annot-dcc-biso-full",
                                 "annot-dcc-special-position", "annot-dcc-fix-special-position", "annot-dcc-reassign-alt-ids",
-                                "annot-rcsb2pdbx-withpdbid",
+                                "annot-rcsb2pdbx-withpdbid", "annot-merge-tls-range-data",
                                 "annot-rcsb2pdbx-withpdbid-singlequote", "annot-rcsb2pdbx-alt",
                                 "annot-move-xyz-by-matrix", "annot-move-xyz-by-symop", "annot-extra-checks",
                                 "annot-update-terminal-atoms", "annot-merge-xyz", "annot-gen-assem-pdbx", "annot-cif2pdbx-withpdbid",
@@ -322,7 +322,7 @@ class RcsbDpUtility(object):
     def op(self, op):
         if (self.__srcPath is None and len(self.__inputParamDict) < 1):
             self.__lfh.write("+RcsbDbUtility.op() ++ Error  - no input provided for operation %s\n" % op)
-            return
+            return -1
 
         if (self.__verbose):
             self.__lfh.write("\n\n+RcsbDpUtility.op() starting op %s with working path %s\n" % (op, self.__wrkPath))
@@ -361,6 +361,7 @@ class RcsbDpUtility(object):
 
         else:
             self.__lfh.write("+RcsbDpUtility.op() ++ Error  - Unknown operation %s\n" % op)
+            return -1
 
     def __getSourceWrkFileList(self, stepNo):
         """Build a file containing the current list of source files.
@@ -429,6 +430,7 @@ class RcsbDpUtility(object):
         self.__siteWebAppsSessionsPath = self.__cI.get('SITE_WEB_APPS_SESSIONS_PATH')
         self.__validScrPath = self.__cI.get('VALID_SCR_PATH')
         self.__siteConfigDir = self.__getConfigPath('TOP_WWPDB_SITE_CONFIG_DIR')
+        self.__ccDictPathIdx = os.path.join(self.__ccDictPath, "Components-all-v3-r4.idx")
 
         # if self.__rcsbAppsPath is None:
         #            self.__rcsbAppsPath  =  self.__getConfigPath('SITE_RCSB_APPS_PATH')
@@ -1262,6 +1264,39 @@ class RcsbDpUtility(object):
             cmd += " > " + tPath + " 2>&1 ; "
             #
 
+        elif (op == "annot-tls-range-correction"):
+            #
+            # Run tls_correct.py to correct various TLS problems generated from refmac/phenix/buster refinement program
+            #
+            depFilePath = ''
+            if 'depfile' in self.__inputParamDict:
+                depFilePath = self.__inputParamDict['depfile']
+            else:
+                return -1
+            #
+            cmd += " ; WWPDB_SITE_ID=" + self.__siteId + " ; export WWPDB_SITE_ID "
+            cmd += " ; PACKAGE_DIR=" + self.__packagePath + " ; export PACKAGE_DIR "
+            cmd += " ; CCP4=" + os.path.join(self.__packagePath, "ccp4") + " ; export CCP4 "
+            cmd += " ; source $CCP4/bin/ccp4.setup.sh "
+            #
+            thisCmd = " ; " + os.path.join(self.__packagePath, "sf-valid", "toolpy", "tls_correct.py")
+            #
+            cmd += thisCmd + " -dep " + depFilePath + " -pdb " + iPath + " -o " + oPath + " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
+
+        elif (op == "annot-merge-tls-range-data"):
+            #
+            # Merge tls data output from tls_correct.py program into coordinate model file
+            #
+            tlsDataFilePath = ''
+            if 'tlsfile' in self.__inputParamDict:
+                tlsDataFilePath = self.__inputParamDict['tlsfile']
+            else:
+                return -1
+            #
+            cmd += " ; " + os.path.join(self.__rcsbAppsPath, "bin", "MergeTLSData") + " -input " + iPath + " -input_tls " + tlsDataFilePath \
+                 + " -output " + oPath + " -log " + lPath + " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
+            #
+
         elif (op == "annot-make-omit-maps"):
             #
             #  -- Create full maps (2fo-fc and fo-fc) with ligands first removed from the model file --
@@ -1592,7 +1627,7 @@ class RcsbDpUtility(object):
             cmd += " ; PRD_DICT_PATH=" + self.__prdDictPath + " ; export PRD_DICT_PATH "
             cmdPath = os.path.join(self.__annotAppsPath, "bin", "GetPrdMatch")
             cmd += " ; " + cmdPath + " -input " + iPath + " -output " + oPath \
-                + " -path . -index ${PRD_DICT_PATH}/prd_summary.sdb"
+                + " -path . -index ${PRD_DICT_PATH}/prd_summary.sdb -cc_index " + self.__ccDictPathIdx
             if 'logfile' in self.__inputParamDict:
                 cmd += " -log " + self.__inputParamDict['logfile']
             if 'firstmodel' in self.__inputParamDict:
