@@ -28,7 +28,6 @@ logger = logging.getLogger()
 
 from wwpdb.utils.rcsb.ArchiveIoBase import ArchiveIoBase
 
-
 class ArchiveIoSftp(ArchiveIoBase):
     """ Python implementation of ArchiveIoBase class providing essential
         data transfer operations for SFTP protocol
@@ -37,6 +36,7 @@ class ArchiveIoSftp(ArchiveIoBase):
     def __init__(self, *args, **kwargs):
         super(ArchiveIoSftp, self).__init__(*args, **kwargs)
         self.__sftpClient = None
+        self.__transport = None
 
     def getRootPath(self):
         return self._rootPath
@@ -81,7 +81,7 @@ class ArchiveIoSftp(ArchiveIoBase):
         """
         sftp = None
         key = None
-        transport = None
+        self.__transport = None
         try:
             if keyFilePath is not None:
                 # Get private key used to authenticate user.
@@ -93,21 +93,21 @@ class ArchiveIoSftp(ArchiveIoBase):
                     key = paramiko.RSAKey.from_private_key_file(keyFilePath)
 
             # Create Transport object using supplied method of authentication.
-            transport = paramiko.Transport((hostName, port))
+            self.__transport = paramiko.Transport((hostName, port))
             if pw is not None:
-                transport.connect(username=userName, password=pw)
+                self.__transport.connect(username=userName, password=pw)
             else:
-                transport.connect(username=userName, pkey=key)
+                self.__transport.connect(username=userName, pkey=key)
 
-            sftp = paramiko.SFTPClient.from_transport(transport)
+            sftp = paramiko.SFTPClient.from_transport(self.__transport)
 
             return sftp
         except Exception as e:
             logger.exception('Error occurred creating SFTP client: %s: %s' % (e.__class__, e))
             if sftp is not None:
                 sftp.close()
-            if transport is not None:
-                transport.close()
+            if self.__transport is not None:
+                self.__transport.close()
             if self._raiseExceptions:
                 raise e
 
@@ -195,7 +195,10 @@ class ArchiveIoSftp(ArchiveIoBase):
         try:
             if self.__sftpClient is not None:
                 self.__sftpClient.close()
-                return True
+            if self.__transport is not None:
+                self.__transport.close()
+
+            return True
         except Exception as e:
             if self._raiseExceptions:
                 raise e
