@@ -103,6 +103,8 @@
 # 13-Jan-2017 ep  Add annot-dcc-fix-special-position and annot-update-dep-assembly-info
 # 21-Dec-2018 ep  Add support for VALID_SCR_PATH from site-config to specify
 #                 location that validation reports should run from
+# 20-Jul-2018 zf  Add "annot-poly-link-dist-json"
+# 20-Aug-2018 ep  For "annot-site" do not include CCP4/lib directory - as including shared libraries from there interferes with system gfortran
 ##
 """
 Wrapper class for data processing and chemical component utilities.
@@ -181,7 +183,7 @@ class RcsbDpUtility(object):
                                 "annot-reposition-solvent-add-derived", "annot-rcsb2pdbx-strip", "annot-rcsbeps2pdbx-strip",
                                 "annot-rcsb2pdbx-strip-plus-entity", "annot-rcsbeps2pdbx-strip-plus-entity",
                                 "chem-comp-instance-update", "annot-cif2cif", "annot-cif2pdb", "annot-pdb2cif", "annot-poly-link-dist",
-                                "annot-merge-sequence-data", "annot-make-maps", "annot-make-ligand-maps",
+                                "annot-merge-sequence-data", "annot-make-maps", "annot-make-ligand-maps", "annot-poly-link-dist-json",
                                 "annot-make-omit-maps",
                                 "annot-cif2cif-dep", "annot-pdb2cif-dep", "annot-format-check-pdbx", "annot-format-check-pdb",
                                 "annot-dcc-report", "annot-sf-convert", "annot-tls-range-correction", "annot-dcc-refine-report", "annot-dcc-biso-full",
@@ -667,11 +669,9 @@ class RcsbDpUtility(object):
             #       os.path.join(self.__packagePath,"ccp4","lib") + " ; export DYLD_LIBRARY_PATH "
 
             cmd += " ; LD_LIBRARY_PATH=" + os.path.join(self.__packagePath, "ccp4-ccif", "lib") + ":" + \
-                   os.path.join(self.__packagePath, "ccp4", "lib", "ccif") + ":" + \
-                   os.path.join(self.__packagePath, "ccp4", "lib") + " ; export LD_LIBRARY_PATH "
+                   os.path.join(self.__packagePath, "ccp4", "lib", "ccif") + " ; export LD_LIBRARY_PATH "
 
             cmd += " ; DYLD_LIBRARY_PATH=" + os.path.join(self.__packagePath, "ccp4-ccif", "lib") + ":" + \
-                os.path.join(self.__packagePath, "ccp4", "lib") + ":" + \
                 os.path.join(self.__packagePath, "ccp4") + " ; export DYLD_LIBRARY_PATH "
 
             # setenv CIFIN 1abc.cif
@@ -1375,6 +1375,12 @@ class RcsbDpUtility(object):
 
         elif (op == "annot-poly-link-dist"):
             cmdPath = os.path.join(self.__annotAppsPath, "bin", "cal_polymer_linkage_distance")
+            thisCmd = " ; " + cmdPath
+            cmd += thisCmd + " -i " + iPath + " -o " + oPath
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
+
+        elif (op == "annot-poly-link-dist-json"):
+            cmdPath = os.path.join(self.__annotAppsPath, "bin", "cal_polymer_linkage_distance_json")
             thisCmd = " ; " + cmdPath
             cmd += thisCmd + " -i " + iPath + " -o " + oPath
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
