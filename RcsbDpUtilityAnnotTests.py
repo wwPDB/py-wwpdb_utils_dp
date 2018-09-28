@@ -947,7 +947,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             dp.expLog("special-position-fix2.log")
             dp.exp("special-position-output-fix2.log")
 
-            print dp.getResultPathList()
+            print(dp.getResultPathList())
 
             # We expect output
             self.assertNotEqual(['missing'], dp.getResultPathList())

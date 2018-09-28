@@ -133,6 +133,7 @@ from wwpdb.api.facade.ConfigInfo import ConfigInfo
 from subprocess import call, Popen
 
 from wwpdb.utils.rcsb.PdbxStripCategory import PdbxStripCategory
+from wwpdb.utils.rcsb.RunRemote import RunRemote
 
 
 class RcsbDpUtility(object):
@@ -216,6 +217,8 @@ class RcsbDpUtility(object):
         self.__stepNoSaved = None
         self.__timeout = 0
 
+        self.__run_remote = False
+
         self.__cI = ConfigInfo(self.__siteId)
         self.__initPath()
 
@@ -252,6 +255,18 @@ class RcsbDpUtility(object):
             return True
         except:
             return False
+
+    def setRunRemote(self):
+        self.__run_remote = True
+
+    def getRunRemote(self):
+        if 'pdbe' in self.__siteId.lower():
+            try:
+                if self.__cI.get('CLUSTER_QUEUE'):
+                    return True
+            except Exception as e:
+                logging.info('unable to get cluster queue')
+        return False
 
     def setRcsbAppsPath(self, fPath):
         """ Set or overwrite the configuration setting for __rcsbAppsPath.
@@ -835,15 +850,18 @@ class RcsbDpUtility(object):
 
         elif (op == "annot-chem-shift-check"):
 
-            cmd += " ; TOOLS_PATH=" + self.__packagePath + " ; export TOOLS_PATH "
-            cmd += " ; ADIT_NMR=" + os.path.join(self.__packagePath, "aditnmr_req_shifts") + " ; export ADIT_NMR "
-            cmd += " ; LIGAND_DIR=" + self.__ccDictPath + " ; export LIGAND_DIR "
-            cmd += " ; NOMENCLATURE_MAP_FILE=" + os.path.join(self.__packagePath,
+            nomenclature_map_file = os.path.join(self.__packagePath,
                                                               "aditnmr_req_shifts",
                                                               "adit",
                                                               "config",
                                                               "bmrb-adit",
-                                                              "pseudomap.csv") + " ; export NOMENCLATURE_MAP_FILE "
+                                                              "pseudomap.csv")
+            ligand_dir = self.__ccDictPath
+
+            cmd += " ; TOOLS_PATH=" + self.__packagePath + " ; export TOOLS_PATH "
+            cmd += " ; ADIT_NMR=" + os.path.join(self.__packagePath, "aditnmr_req_shifts") + " ; export ADIT_NMR "
+            cmd += " ; LIGAND_DIR=" + ligand_dir + " ; export LIGAND_DIR "
+            cmd += " ; NOMENCLATURE_MAP_FILE=" + nomenclature_map_file + " ; export NOMENCLATURE_MAP_FILE "
             #
             # set output option -  html or star
             if 'output_format' in self.__inputParamDict:
@@ -859,7 +877,7 @@ class RcsbDpUtility(object):
             cmdPath = os.path.join(self.__packagePath, "aditnmr_req_shifts", "cgi-bin", "bmrb-adit", "upload_shifts_check")
             thisCmd = " ; " + cmdPath
 
-            cmd += thisCmd + " " + "--html --nomenclature-mapper ${NOMENCLATURE_MAP_FILE} --chem-comp-root-path ${LIGAND_DIR} "
+            cmd += thisCmd + " " + "--html --nomenclature-mapper {} --chem-comp-root-path {} ".format(nomenclature_map_file, ligand_dir)
             cmd += " --preserve-output tmp_chkd.str " + iPath
 
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
@@ -1237,6 +1255,7 @@ class RcsbDpUtility(object):
             mtzFile = iPath + ".mtz"
             mtzPath = os.path.join(self.__wrkPath, mtzFile)
             shutil.copyfile(iPathFull, mtzPath)
+            ccp4_path = os.path.join(self.__packagePath, "ccp4")
             #
             cmd += " ; WWPDB_SITE_ID=" + self.__siteId + " ; export WWPDB_SITE_ID "
             cmd += " ; DEPLOY_DIR=" + self.__deployPath + " ; export DEPLOY_DIR "
@@ -1244,8 +1263,8 @@ class RcsbDpUtility(object):
             cmd += " ; PACKAGE_DIR=" + self.__packagePath + " ; export PACKAGE_DIR "
             cmd += " ; DCCPY_DIR=" + os.path.join(self.__packagePath, 'sf-valid') + " ; export DCCPY_DIR "
             cmd += " ; DCCPY=" + os.path.join(self.__packagePath, 'sf-valid') + " ; export DCCPY "
-            cmd += " ; CCP4=" + os.path.join(self.__packagePath, "ccp4") + " ; export CCP4 "
-            cmd += " ; source $CCP4/bin/ccp4.setup.sh "
+            cmd += " ; CCP4=" + ccp4_path + " ; export CCP4 "
+            cmd += " ; source {}/bin/ccp4.setup.sh ".format(ccp4_path)
             #
             cmdPath = os.path.join(self.__packagePath, "sf-valid", "bin", "sf_convert")
             thisCmd = " ; " + cmdPath
@@ -1274,10 +1293,12 @@ class RcsbDpUtility(object):
             else:
                 return -1
             #
+            ccp4_path = os.path.join(self.__packagePath, "ccp4")
+
             cmd += " ; WWPDB_SITE_ID=" + self.__siteId + " ; export WWPDB_SITE_ID "
             cmd += " ; PACKAGE_DIR=" + self.__packagePath + " ; export PACKAGE_DIR "
-            cmd += " ; CCP4=" + os.path.join(self.__packagePath, "ccp4") + " ; export CCP4 "
-            cmd += " ; source $CCP4/bin/ccp4.setup.sh "
+            cmd += " ; CCP4=" + ccp4_path + " ; export CCP4 "
+            cmd += " ; source {}/bin/ccp4.setup.sh ".format(ccp4_path)
             #
             thisCmd = " ; " + os.path.join(self.__packagePath, "sf-valid", "toolpy", "tls_correct.py")
             #
@@ -1629,11 +1650,12 @@ class RcsbDpUtility(object):
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
 
         elif (op == "prd-search"):
+
             cmd += " ; PRDCC_PATH=" + self.__prdccCvsPath + " ; export PRDCC_PATH "
             cmd += " ; PRD_DICT_PATH=" + self.__prdDictPath + " ; export PRD_DICT_PATH "
             cmdPath = os.path.join(self.__annotAppsPath, "bin", "GetPrdMatch")
             cmd += " ; " + cmdPath + " -input " + iPath + " -output " + oPath \
-                + " -path . -index ${PRD_DICT_PATH}/prd_summary.sdb -cc_index " + self.__ccDictPathIdx
+                + " -path . -index " + self.__prdDictPath + "/prd_summary.sdb -cc_index " + self.__ccDictPathIdx
             if 'logfile' in self.__inputParamDict:
                 cmd += " -log " + self.__inputParamDict['logfile']
             if 'firstmodel' in self.__inputParamDict:
@@ -1664,10 +1686,8 @@ class RcsbDpUtility(object):
             ofh.write("\nStep command:\n%s\n-------------------------------------------------\n" % cmd.replace(";", "\n"))
             ofh.close()
 
-        if self.__timeout > 0:
-            iret = self.__runTimeout(cmd, self.__timeout, lPathFull)
-        else:
-            iret = self.__run(cmd)
+
+        iret = self.__run(cmd, lPathFull, op)
 
         #
         # After execution processing --
@@ -2012,10 +2032,8 @@ class RcsbDpUtility(object):
             ofh.write("\nStep command:\n%s\n-------------------------------------------------\n" % cmd.replace(";", "\n"))
             ofh.close()
 
-        if self.__timeout > 0:
-            iret = self.__runTimeout(cmd, self.__timeout, lPathFull)
-        else:
-            iret = self.__run(cmd)
+
+        iret = self.__run(cmd, lPathFull, op)
 
         return iret
 
@@ -2309,10 +2327,8 @@ class RcsbDpUtility(object):
             ofh.write("\nStep command:\n%s\n-------------------------------------------------\n" % cmd.replace(";", "\n"))
             ofh.close()
 
-        if self.__timeout > 0:
-            iret = self.__runTimeout(cmd, self.__timeout, lPathFull)
-        else:
-            iret = self.__run(cmd)
+
+        iret = self.__run(cmd, lPathFull, op)
 
         return iret
 
@@ -2428,10 +2444,8 @@ class RcsbDpUtility(object):
             ofh.write("\n")
             ofh.close()
 
-        if self.__timeout > 0:
-            iret = self.__runTimeout(cmd, self.__timeout, lPathFull)
-        else:
-            iret = self.__run(cmd)
+
+        iret = self.__run(cmd, lPathFull, op)
 
         #iret = os.system(cmd)
         #
@@ -2815,10 +2829,8 @@ class RcsbDpUtility(object):
             ofh.write("\nStep command:\n%s\n-------------------------------------------------\n" % cmd.replace(";", "\n"))
             ofh.close()
 
-        if self.__timeout > 0:
-            iret = self.__runTimeout(cmd, self.__timeout, lPathFull)
-        else:
-            iret = self.__run(cmd)
+
+        iret = self.__run(cmd, lPathFull, op)
 
         #iret = os.system(cmd)
         #
@@ -2854,7 +2866,7 @@ class RcsbDpUtility(object):
             tPathFull = os.path.join(self.__wrkPath, tPath)
             cmd = "(cd " + self.__wrkPath
         else:
-            iPathull = iPath
+            iPathFull = iPath
             ePathFull = ePath
             lPathFull = lPath
             tPathFull = tPath
@@ -2943,10 +2955,8 @@ class RcsbDpUtility(object):
             ofh.write("\nStep command:\n%s\n-------------------------------------------------\n" % cmd.replace(";", "\n"))
             ofh.close()
 
-        if self.__timeout > 0:
-            iret = self.__runTimeout(cmd, self.__timeout, lPathFull)
-        else:
-            iret = self.__run(cmd)
+
+        iret = self.__run(cmd, lPathFull, op)
 
         #iret = os.system(cmd)
         #
@@ -2976,7 +2986,7 @@ class RcsbDpUtility(object):
             tPathFull = os.path.join(self.__wrkPath, tPath)
             cmd = "(cd " + self.__wrkPath
         else:
-            iPathull = iPath
+            iPathFull = iPath
             ePathFull = ePath
             lPathFull = lPath
             tPathFull = tPath
@@ -3065,10 +3075,8 @@ class RcsbDpUtility(object):
             ofh.write("\nStep command:\n%s\n-------------------------------------------------\n" % cmd.replace(";", "\n"))
             ofh.close()
 
-        if self.__timeout > 0:
-            iret = self.__runTimeout(cmd, self.__timeout, lPathFull)
-        else:
-            iret = self.__run(cmd)
+
+        iret = self.__run(cmd, lPathFull, op)
 
         #iret = os.system(cmd)
         #
@@ -3303,17 +3311,27 @@ class RcsbDpUtility(object):
         self.__lfh.write("+RcsbDpUtility.__runTimeout() completed with return code %r\n" % process.stdout.read())
         return 0
 
-    def __run(self, command):
-        retcode = -1000
-        try:
-            retcode = call(command, shell=True)
-            if retcode != 0:
-                self.__lfh.write("+RcsbDpUtility.__run() operation %s completed with return code %r\n" % (self.__stepOpList, retcode))
-        except OSError as e:
-            self.__lfh.write("+RcsbDpUtility.__run() operation %s failed  with exception %r\n" % (self.__stepOpList, str(e)))
-        except:
-            self.__lfh.write("+RcsbDpUtility.__run() operation %s failed  with exception\n" % self.__stepOpList)
-        return retcode
+    def __run(self, command, lPathFull, op):
+
+        if self.getRunRemote():
+            random_suffix = random.randrange(9999999)
+            job_name = '{}_{}'.format(op, random_suffix)
+            return RunRemote(command=command, job_name=job_name, log_dir=os.path.dirname(lPathFull),
+                             timeout=self.__timeout).run()
+
+        if self.__timeout > 0:
+            return self.__runTimeout(command, self.__timeout, lPathFull).run()
+        else:
+            retcode = -1000
+            try:
+                retcode = call(command, shell=True)
+                if retcode != 0:
+                    self.__lfh.write("+RcsbDpUtility.__run() operation %s completed with return code %r\n" % (self.__stepOpList, retcode))
+            except OSError as e:
+                self.__lfh.write("+RcsbDpUtility.__run() operation %s failed  with exception %r\n" % (self.__stepOpList, str(e)))
+            except:
+                self.__lfh.write("+RcsbDpUtility.__run() operation %s failed  with exception\n" % self.__stepOpList)
+            return retcode
 
     def __runP(self, cmd):
         retcode = -1000
