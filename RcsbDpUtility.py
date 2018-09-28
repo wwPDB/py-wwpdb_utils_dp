@@ -221,6 +221,7 @@ class RcsbDpUtility(object):
 
         self.__cI = ConfigInfo(self.__siteId)
         self.__initPath()
+        self.__getRunRemote()
 
     def __getConfigPath(self, ky):
         try:
@@ -259,14 +260,12 @@ class RcsbDpUtility(object):
     def setRunRemote(self):
         self.__run_remote = True
 
-    def getRunRemote(self):
-        if 'pdbe' in self.__siteId.lower():
-            try:
-                if self.__cI.get('CLUSTER_QUEUE'):
-                    return True
-            except Exception as e:
-                logging.info('unable to get cluster queue')
-        return False
+    def __getRunRemote(self):
+        try:
+            if self.__cI.get('PDBE_CLUSTER_QUEUE'):
+                self.__run_remote = True
+        except Exception as e:
+            logging.info('unable to get cluster queue')
 
     def setRcsbAppsPath(self, fPath):
         """ Set or overwrite the configuration setting for __rcsbAppsPath.
@@ -3313,7 +3312,7 @@ class RcsbDpUtility(object):
 
     def __run(self, command, lPathFull, op):
 
-        if self.getRunRemote():
+        if self.__run_remote:
             random_suffix = random.randrange(9999999)
             job_name = '{}_{}'.format(op, random_suffix)
             return RunRemote(command=command, job_name=job_name, log_dir=os.path.dirname(lPathFull),
