@@ -24,10 +24,10 @@ class RunRemote:
         self.cI = ConfigInfo(self.siteId)
         self.bsub_source_command = self.cI.get('BSUB_SOURCE')
         self.bsub_run_command = self.cI.get('BSUB_COMMAND')
-        self.cluster_queue = self.cI.get('CLUSTER_QUEUE')
+        self.pdbe_cluster_queue = self.cI.get('PDBE_CLUSTER_QUEUE')
 
     def run(self):
-        rc = 0
+        rc = 1
         out = None
         err = None
 
@@ -111,7 +111,7 @@ class RunRemote:
         bsub_command.append('-J "{}"'.format(self.job_name))
         bsub_command.append('-oo "{}"'.format(self.bsub_log_file))
         bsub_command.append('-eo "{}/{}_error.log"'.format(self.log_dir, self.job_name))
-        bsub_command.append('-q {}'.format(self.cluster_queue))
+        bsub_command.append('-q {}'.format(self.pdbe_cluster_queue))
         bsub_command.append('-n {}'.format(self.number_of_processors))
         bsub_command.append('-W {}'.format(self.timeout))
         if self.memory_limit:
@@ -131,7 +131,7 @@ class RunRemote:
         bsub_command.append('-w "ended({})"'.format(self.job_name))
         bsub_command.append('-oo "{}/{}_wait.log"'.format(self.log_dir, self.job_name))
         bsub_command.append('-eo "{}/{}_wait_error.log"'.format(self.log_dir, self.job_name))
-        bsub_command.append('-q {}'.format(self.cluster_queue))
+        bsub_command.append('-q {}'.format(self.pdbe_cluster_queue))
         bsub_command.append('-K "uname -a; date"')
         command_string = ' '.join(bsub_command)
         rc, out, err = self.run_command(command=command_string)
