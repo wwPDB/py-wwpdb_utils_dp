@@ -257,8 +257,11 @@ class RcsbDpUtility(object):
         except:
             return False
 
-    def setRunRemote(self):
-        self.__run_remote = True
+    def setRunRemote(self, run_remote=True):
+        if run_remote:
+            self.__run_remote = True
+        else:
+            self.__run_remote = False
 
     def __getRunRemote(self):
         try:
