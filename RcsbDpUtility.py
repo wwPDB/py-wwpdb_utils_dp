@@ -193,7 +193,7 @@ class RcsbDpUtility(object):
                                 "annot-rcsb2pdbx-withpdbid-singlequote", "annot-rcsb2pdbx-alt",
                                 "annot-move-xyz-by-matrix", "annot-move-xyz-by-symop", "annot-extra-checks",
                                 "annot-update-terminal-atoms", "annot-merge-xyz", "annot-gen-assem-pdbx", "annot-cif2pdbx-withpdbid",
-                                "annot-validate-geometry", "annot-update-dep-assembly-info",
+                                "annot-validate-geometry", "annot-update-dep-assembly-info", "annot-chem-shifts-update-with-check",
                                 "annot-chem-shifts-atom-name-check", "annot-chem-shifts-upload-check", "annot-reorder-models", "annot-chem-shifts-update", "annot-get-corres-info"]
         self.__sequenceOps = ['seq-blastp', 'seq-blastn']
         self.__validateOps = ['validate-geometry']
@@ -1458,6 +1458,8 @@ class RcsbDpUtility(object):
             if 'model_number' in self.__inputParamDict:
                 model_number = self.__inputParamDict['model_number']
                 cmd += " -mol_id " + model_number
+            else:
+                cmd += " -conformer_id "
             #
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
             cmd += " ; cat annot-step.log " + " >> " + lPath
@@ -1651,6 +1653,22 @@ class RcsbDpUtility(object):
             cmd += thisCmd + ' -input ' + iPath + " -output " + oPath + " -ciffile " + xyzWrkPath + " -log " + lPath
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
 
+        elif (op == "annot-chem-shifts-update-with-check"):
+            #  iPath input is the target chemical shift file oPath is the output cs file
+            #
+            # update_chemical_shift_with_check -input input_chemical_shift_file -output output_chemical_shift_file -ciffile coord_cif_file -log logfile
+            #
+            cmdPath = os.path.join(self.__annotAppsPath, "bin", "update_chemical_shift_with_check")
+            thisCmd = " ; " + cmdPath
+            cmd += thisCmd + ' -input ' + iPath + " -output " + oPath + " -report report.cif -log " + lPath
+
+            if 'coordinate_file_path' in self.__inputParamDict:
+                xyzPath = self.__inputParamDict['coordinate_file_path']
+                xyzPathFull = os.path.abspath(xyzPath)
+                cmd += " -ciffile " + xyzPathFull
+            #
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
+
         elif (op == "prd-search"):
 
             cmd += " ; PRDCC_PATH=" + self.__prdccCvsPath + " ; export PRDCC_PATH "
@@ -1823,7 +1841,19 @@ class RcsbDpUtility(object):
                 except:
                     self.__lfh.write("+RcsbDpUtility.__annotationStep() removal failed for working path %s\n" % runDir)
 
-
+        elif (op == "annot-chem-shifts-update-with-check"):
+            outFile = os.path.join(self.__wrkPath, oPath)
+            if os.access(outFile, os.F_OK):
+                self.__resultPathList.append(outFile)
+            else:
+                self.__resultPathList.append("missing")
+            #
+            reportFile = os.path.join(self.__wrkPath, "report.cif")
+            if os.access(reportFile, os.F_OK):
+                self.__resultPathList.append(reportFile)
+            else:
+                self.__resultPathList.append("missing")
+            #
 
         elif (op == "annot-sf-convert"):
             self.__resultPathList = []
