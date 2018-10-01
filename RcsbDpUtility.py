@@ -3352,7 +3352,7 @@ class RcsbDpUtility(object):
                              timeout=self.__timeout).run()
 
         if self.__timeout > 0:
-            return self.__runTimeout(command, self.__timeout, lPathFull).run()
+            return self.__runTimeout(command, self.__timeout, lPathFull)
         else:
             retcode = -1000
             try:
