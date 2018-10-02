@@ -4,6 +4,7 @@ import os
 import os.path
 import tempfile
 import shutil
+import random
 import logging
 from wwpdb.api.facade.ConfigInfo import ConfigInfo, getSiteId
 from wwpdb.utils.rcsb.RcsbDpUtility import RcsbDpUtility
@@ -66,12 +67,18 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
 
         self.__testMapNormal = "normal.map"
         self.__testMapSpider = "testmap.spi"
+        self.__testMapLarge = "large.map"
 
         # self.__testFilePrdSearch       = '3RUN.cif'
         self.__testFilePrdSearch = 'D_1200000237_model_P1.cif.V1'
 
         self.__testValidateXrayIdList = ['1cbs', '4hea', '4u4r']
         self.__testValidateNmrIdList = ['2MM4', '2MMZ']
+
+        #self.__testValidateXrayIdList = ['1cbs']
+        #self.__testValidateXrayLargeIdList = ['4u4r']
+        #self.__testValidateNmrIdList = ['2MM4']
+        #self.__testValidateNmrLargeIdList = ['2MMZ']
 
         self.__testDccModelId = '4wpo'
 
@@ -91,11 +98,12 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
         dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
         inp_path = os.path.join(self.__testFilePath, self.__testFileAnnotSite)
         dp.imp(inp_path)
-        dp.op("annot-validate-geometry")
+        ret = dp.op("annot-validate-geometry")
         dp.expLog(os.path.join(self.__tmpPath, "annot-validate-geometry-check-pdbx.log"))
         dp.exp(of)
         # dp.cleanup()
 
+        self.assertTrue(ret == 0)
         self.assertTrue(os.path.exists(of))
 
     def test_AnnotValidateGeometryCheckRemote(self):
@@ -108,11 +116,12 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
         inp_path = os.path.join(self.__testFilePath, self.__testFileAnnotSite)
         dp.imp(inp_path)
         # dp.setRunRemote()
-        dp.op("annot-validate-geometry")
+        ret = dp.op("annot-validate-geometry")
         dp.expLog(os.path.join(self.__tmpPath, "annot-validate-geometry-check-pdbx-remote.log"))
         dp.exp(of)
         # dp.cleanup()
 
+        self.assertTrue(ret == 0)
         self.assertTrue(os.path.exists(of))
 
     def testAnnotRcsb2PdbxRemote(self):
@@ -126,11 +135,12 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
         inpPath = os.path.join(self.__testFilePath, self.__testFileAnnotRcsb)
         dp.imp(inpPath)
         # dp.setRunRemote()
-        dp.op("annot-rcsb2pdbx-withpdbid")
+        ret = dp.op("annot-rcsb2pdbx-withpdbid")
         dp.expLog(os.path.join(self.__tmpPath, "annot-rcsb2pdbx.log"))
         dp.exp(of)
         # dp.cleanup()
 
+        self.assertTrue(ret == 0)
         self.assertTrue(os.path.exists(of))
 
     def testAnnotValidateListXrayTestRemote(self):
@@ -138,6 +148,8 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
         """
         self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
         for pdbId in self.__testValidateXrayIdList:
+            self.__tmpPath = tempfile.mkdtemp(dir=self.__siteWebAppsSessionsPath)
+            self.__lfh.write("\nStarting {} in {}\n".format(pdbId, self.__tmpPath))
             ofpdf = os.path.join(self.__tmpPath, pdbId + "-valrpt.pdf")
             ofxml = os.path.join(self.__tmpPath, pdbId + "-valdata.xml")
             offullpdf = os.path.join(self.__tmpPath, pdbId + "-valrpt_full.pdf")
@@ -153,27 +165,32 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             sfPath = os.path.abspath(os.path.join(self.__testFilePath, testFileValidateSf))
             # dp.addInput(name="request_annotation_context", value="yes")
             dp.addInput(name="request_validation_mode", value="annotate")
+            dp.addInput(name='run_dir',
+                        value=os.path.join(self.__siteWebAppsSessionsPath, "validation_%s" % random.randrange(9999999)))
             # dp.addInput(name="request_validation_mode", value="server")
             dp.imp(xyzPath)
             dp.addInput(name="sf_file_path", value=sfPath)
             # dp.setRunRemote()
-            dp.op("annot-wwpdb-validate-all")
+            ret = dp.op("annot-wwpdb-validate-all")
             dp.expLog(os.path.join(self.__tmpPath, pdbId + "-annot-validate-test.log"))
             dp.expList(dstPathList=[ofpdf, ofxml, offullpdf, ofpng, ofsvg])
             # dp.cleanup()
 
+            self.assertTrue(ret == 0)
             self.assertTrue(os.path.exists(ofpdf))
             self.assertTrue(os.path.exists(ofxml))
             self.assertTrue(os.path.exists(offullpdf))
             self.assertTrue(os.path.exists(ofpng))
             self.assertTrue(os.path.exists(ofsvg))
 
+
     def testAnnotValidateListNmrTestRemote(self):
         """  Test create validation report for the test list of example PDB ids (NMR examples)
         """
         self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
-        count = 0
         for pdbId in self.__testValidateNmrIdList:
+            self.__tmpPath = tempfile.mkdtemp(dir=self.__siteWebAppsSessionsPath)
+            self.__lfh.write("\nStarting {} in {}\n".format(pdbId, self.__tmpPath))
             ofpdf = os.path.join(self.__tmpPath, pdbId + "-valrpt.pdf")
             ofxml = os.path.join(self.__tmpPath, pdbId + "-valdata.xml")
             offullpdf = os.path.join(self.__tmpPath, pdbId + "-valrpt_full.pdf")
@@ -187,24 +204,27 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             xyzPath = os.path.abspath(os.path.join(self.__testFilePath, testFileValidateXyz))
             csPath = os.path.abspath(os.path.join(self.__testFilePath, testFileValidateCs))
             dp.addInput(name="request_annotation_context", value="yes")
+            dp.addInput(name='run_dir',
+                        value=os.path.join(self.__siteWebAppsSessionsPath, "validation_%s" % random.randrange(9999999)))
             # adding explicit selection of steps --
             # Alternate
-            if count % 2 == 0:
-                dp.addInput(name="step_list", value=" coreclust,chemicalshifts,writexml,writepdf ")
-            count += 1
+            #dp.addInput(name="step_list", value=" coreclust,chemicalshifts,writexml,writepdf ")
+            dp.addInput(name='kind', value='nmr')
             dp.imp(xyzPath)
             dp.addInput(name="cs_file_path", value=csPath)
             # dp.setRunRemote()
-            dp.op("annot-wwpdb-validate-all")
+            ret = dp.op("annot-wwpdb-validate-all")
             dp.expLog(os.path.join(self.__tmpPath, pdbId + "-annot-validate-test.log"))
             dp.expList(dstPathList=[ofpdf, ofxml, offullpdf, ofpng, ofsvg])
             # dp.cleanup()
 
+            self.assertTrue(ret == 0)
             self.assertTrue(os.path.exists(ofpdf))
             self.assertTrue(os.path.exists(ofxml))
             self.assertTrue(os.path.exists(offullpdf))
             self.assertTrue(os.path.exists(ofpng))
             self.assertTrue(os.path.exists(ofsvg))
+
 
     def testMapFixRemote(self):
         """  Test mapfix utility
@@ -216,13 +236,47 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
         inpPath = os.path.join(self.__testFilePath, self.__testMapNormal)
         of = os.path.join(self.__tmpPath, self.__testMapNormal + "-fix.map")
         dp.imp(inpPath)
+        pixelSize = 2.54
+        #dp.addInput(name="pixel-spacing-x", value=pixelSize)
+        #dp.addInput(name="pixel-spacing-y", value=pixelSize)
+        #dp.addInput(name="pixel-spacing-z", value=pixelSize)
+        dp.addInput(name="input_map_file_path", value=inpPath)
+        dp.addInput(name="output_map_file_path", value=of)
+        dp.addInput(name="label", value='test')
+        dp.addInput(name="voxel", value='{0} {0} {0}'.format(pixelSize))
         # dp.setRunRemote()
-        dp.op("mapfix-big")
+        ret = dp.op("deposit-update-map-header-in-place")
         dp.expLog(os.path.join(self.__tmpPath, "mapfix-big.log"))
         dp.exp(of)
         # dp.cleanup()
 
+        self.assertTrue(ret == 0)
         self.assertTrue(os.path.exists(of))
+
+    # def testMapFixLargeMapRemote(self):
+    #     """  Test mapfix utility
+    #     """
+    #     self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+    #     self.__lfh.write("\nRunning in {}\n".format(self.__tmpPath))
+    #
+    #     dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
+    #     #
+    #     inpPath = os.path.join(self.__testFilePath, self.__testMapLarge)
+    #     of = os.path.join(self.__tmpPath, self.__testMapLarge + "-fix.map")
+    #     dp.imp(inpPath)
+    #     pixelSize = 1.327
+    #     dp.addInput(name="input_map_file_path", value=inpPath)
+    #     dp.addInput(name="output_map_file_path", value=of)
+    #     dp.addInput(name="label", value='test')
+    #     dp.addInput(name="voxel", value='{0} {0} {0}'.format(pixelSize))
+    #     # dp.setRunRemote()
+    #     ret = dp.op("deposit-update-map-header-in-place")
+    #     dp.expLog(os.path.join(self.__tmpPath, "mapfix-big.log"))
+    #     dp.exp(of)
+    #     # dp.cleanup()
+    #
+    #     self.assertTrue(ret == 0)
+    #     self.assertTrue(os.path.exists(of))
 
     def testAnnotSiteRemote(self):
         """  Calculate site environment
@@ -234,16 +288,20 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
         dp.imp(inpPath)
         dp.addInput(name="block_id", value=self.__testIdAnnotSite)
         # dp.setRunRemote()
-        dp.op("annot-site")
+        ret = dp.op("annot-site")
         dp.expLog(os.path.join(self.__tmpPath, "annot-site.log"))
         dp.exp(of)
         # dp.cleanup()
+
+        self.assertTrue(ret == 0)
+        self.assertTrue(os.path.exists(of))
 
     def test_AnnotMergeRemote(self):
         """  Test of updating geometrical validation diagnostics -
         """
         self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
         for pdbId in self.__testValidateXrayIdList:
+            self.__tmpPath = tempfile.mkdtemp(dir=self.__siteWebAppsSessionsPath)
             testFileValidateXyz = pdbId + ".cif"
             xyzPath = os.path.abspath(os.path.join(self.__testFilePath, testFileValidateXyz))
 
@@ -253,11 +311,12 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             dp.addInput(name="new_coordinate_file_path", value=xyzPath)
             dp.addInput(name="new_coordinate_format", value='cif')
             # dp.setRunRemote()
-            dp.op("annot-merge-xyz")
+            ret = dp.op("annot-merge-xyz")
             dp.expLog(os.path.join(self.__tmpPath, "annot-merge-xyz-remote.log"))
             dp.exp(of)
             # dp.cleanup()
 
+            self.assertTrue(ret == 0)
             self.assertTrue(os.path.exists(of))
 
     def testAnnotMtz2PdbxGood(self):
@@ -272,11 +331,12 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
         mtzPath = os.path.join(self.__testFilePath, self.__testFileMtzGood)
         dp.imp(mtzPath)
         dp.setTimeout(15)
-        dp.op("annot-sf-convert")
+        ret = dp.op("annot-sf-convert")
         dp.expLog(os.path.join(self.__tmpPath, "sf-convert.log"))
         dp.expList(dstPathList=[ciffn, diagfn, dmpfn])
         # dp.cleanup()
 
+        self.assertTrue(ret == 0)
         self.assertTrue(ciffn)
         self.assertTrue(diagfn)
         self.assertTrue(dmpfn)
@@ -284,14 +344,14 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
 
 def suiteAnnotDccTests():
     suiteSelect = unittest.TestSuite()
-    suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotDccReport"))
-    suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotMtz2PdbxGood"))
-    suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotMtz2PdbxBad"))
+    suiteSelect.addTest(RcsbDpUtilityAnnotTests("testMapFixLargeMapRemote"))
+    #suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotMtz2PdbxGood"))
+    #suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotMtz2PdbxBad"))
     return suiteSelect
 
 
 if __name__ == '__main__':
     unittest.main()
 
-    # mySuite = suiteAnnotDccTests()
-    # unittest.TextTestRunner(verbosity=2).run(mySuite)
+    #mySuite = suiteAnnotDccTests()
+    #unittest.TextTestRunner(verbosity=2).run(mySuite)
