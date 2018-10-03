@@ -2157,11 +2157,10 @@ class RcsbDpUtility(object):
 
         elif (op == "fsc_check"):
             system_path = os.path.join(self.__packagePath, "..")
-            xmllint = os.path.join(system_path, "bin", "xmllint")
             lib_path = os.path.join(system_path, "lib")
             schema = os.path.join(self.__emDictPath, "emdb_fsc.xsd")
             cmd += "export LD_LIBRARY_PATH=" + lib_path + "; "
-            cmd += xmllint + " --format --schema " + schema + " " + iPath
+            cmd += "xmllint --format --schema " + schema + " " + iPath
             #
             if 'options' in self.__inputParamDict:
                 options = self.__inputParamDict['options']
@@ -2325,9 +2324,8 @@ class RcsbDpUtility(object):
             cmd += " ; } 2> " + ePath + " 1> " + oPath
             cmd += " ; cat " + ePath + " > " + lPath
         elif (op == "xml-header-check"):
-            xmllint = os.path.join(self.__localAppsPath, "bin", "xmllint")
             schema = os.path.join(self.__emDictPath, "emdb_da.xsd")
-            cmd += xmllint + " --noout --schema " + schema + " " + iPath
+            cmd += "xmllint --noout --schema " + schema + " " + iPath
             #
             if 'options' in self.__inputParamDict:
                 cmd += " " + self.__inputParamDict['options']
