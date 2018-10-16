@@ -1,52 +1,52 @@
-import sys
-import unittest
-import os
-import os.path
-import tempfile
-import shutil
-import random
 import logging
-from wwpdb.api.facade.ConfigInfo import ConfigInfo, getSiteId
-from wwpdb.utils.rcsb.RcsbDpUtility import RcsbDpUtility
+import os
+import platform
+import random
+import sys
+import tempfile
+import unittest
 
+HERE = os.path.abspath(os.path.dirname(__file__))
+TOPDIR = os.path.dirname(os.path.dirname(os.path.dirname(HERE)))
+try:
+    TESTOUTPUT = os.path.join(HERE, 'test-output', platform.python_version())
+    if not os.path.exists(TESTOUTPUT):
+        os.makedirs(TESTOUTPUT)
+    mockTopPath = os.path.join(TOPDIR, 'wwpdb', 'mock-data')
+    from wwpdb.utils.testing.SiteConfigSetup import SiteConfigSetup
+    SiteConfigSetup().setupEnvironment(TESTOUTPUT, mockTopPath)
+except Exception:
+    pass
+
+from wwpdb.utils.config.ConfigInfo import ConfigInfo, getSiteId
+from wwpdb.utils.dp.RcsbDpUtility import RcsbDpUtility
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(levelname)s]-%(module)s.%(funcName)s: %(message)s')
 logger = logging.getLogger()
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
 
 
 class RcsbDpUtilityAnnotTests(unittest.TestCase):
 
     def setUp(self):
-        self.__lfh = sys.stderr
-        # Pick up site information from the environment or failover to the development site id.
-        self.__siteId = getSiteId(defaultSiteId='WWPDB_DEPLOY_TEST')
-        self.__lfh.write("\nTesting with site environment for:  %s\n" % self.__siteId)
+        self.__siteId = getSiteId(defaultSiteId=None)
+        logger.info("\nTesting with site environment for:  %s\n" % self.__siteId)
         #
-        self.FILE_ROOT = os.path.dirname(os.path.realpath(__file__))
         self.__cI = ConfigInfo(self.__siteId)
-        self.__siteWebAppsSessionsPath = self.__cI.get('SITE_WEB_APPS_SESSIONS_PATH')
-        self.__tmpPath = tempfile.mkdtemp(dir=self.__siteWebAppsSessionsPath)
-
-        self.__testFilePath = os.path.join(self.FILE_ROOT, 'data')
-        self.__testFileAnnotSS = 'rcsb070236.cif'
-        self.__testFileAnnotSSTop = 'topology.txt'
+        # self.__siteWebAppsSessionsPath = self.__cI.get('SITE_WEB_APPS_SESSIONS_PATH')
+        self.__tmpPath = os.path.join(HERE, 'test-output')
+        self.__siteWebAppsSessionsPath = self.__tmpPath
+        self.__testFilePath = os.path.join(TOPDIR, 'wwpdb', 'mock-data', 'dp-utils')
         #
         self.__testFileAnnotLink = '3rij.cif'
         self.__testFileAnnotCisPeptide = '5hoh.cif'
-        self.__testFileAnnotSolvent = 'D_900002_model_P1.cif'
         self.__testFileAnnotValidate = '3rij.cif'
         self.__testFileAnnotNA = '1o3q.cif'
         self.__testFileAnnotSite = '1xbb.cif'
         self.__testIdAnnotSite = '1xbb'
         #
-        self.__testFileAnnotSiteAlt = 'D_1000200391_model_P1.cif.V27'
-        self.__testIdAnnotSiteAlt = 'D_1000200391'
-
-        #
+        # OK
         self.__testFileAnnotRcsb = 'rcsb033781.cif'
-        self.__testFileAnnotRcsbEps = 'rcsb013067.cifeps'
-        #
-        self.__testFilePdbPisa = self.__cI.get('DP_TEST_FILE_PDB_PISA')
-        self.__testFileCifPisa = self.__cI.get('DP_TEST_FILE_CIF_PISA')
         #
         self.__testFileStarCs = "star_16703_test_2.str"
         self.__testFileCsRelatedCif = "cor_16703_test.cif"
@@ -54,11 +54,8 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
         self.__testFileValidateXyz = "1cbs.cif"
         self.__testFileValidateSf = "1cbs-sf.cif"
         self.__testValidateIdList = ["1cbs", "3of4", "3oqp"]
-        self.__testArchiveIdList = [("D_900002", "4EC0"), ("D_600000", "4F3R")]
-        #
-        self.__testFileCifSeq = "RCSB095269_model_P1.cif.V1"
-        self.__testFileSeqAssign = "RCSB095269_seq-assign_P1.cif.V1"
 
+        #
         self.__testFileMtzBad = "mtz-bad.mtz"
         self.__testFileMtzGood = "mtz-good.mtz"
 
@@ -69,21 +66,8 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
         self.__testMapSpider = "testmap.spi"
         self.__testMapLarge = "large.map"
 
-        # self.__testFilePrdSearch       = '3RUN.cif'
-        self.__testFilePrdSearch = 'D_1200000237_model_P1.cif.V1'
-
-        self.__testValidateXrayIdList = ['1cbs', '4hea', '4u4r']
+        self.__testValidateXrayIdList = ['1cbs', '4hea']
         self.__testValidateNmrIdList = ['2MM4', '2MMZ']
-
-        #self.__testValidateXrayIdList = ['1cbs']
-        #self.__testValidateXrayLargeIdList = ['4u4r']
-        #self.__testValidateNmrIdList = ['2MM4']
-        #self.__testValidateNmrLargeIdList = ['2MMZ']
-
-        self.__testDccModelId = '4wpo'
-
-        self.__testSpecialPosition = 'D_1000225739_model_P1.cif.V4'
-        self.__testDepAssembly = "testassem.cif"
 
     def tearDown(self):
         pass
@@ -93,7 +77,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
     def test_AnnotValidateGeometryCheck(self):
         """  Test of updating geometrical validation diagnostics -
         """
-        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
         of = os.path.join(self.__tmpPath, "annot-validate-geometry-check.cif")
         dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
         inp_path = os.path.join(self.__testFilePath, self.__testFileAnnotSite)
@@ -109,7 +93,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
     def test_AnnotValidateGeometryCheckRemote(self):
         """  Test of updating geometrical validation diagnostics -
         """
-        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
 
         of = os.path.join(self.__tmpPath, "annot-validate-geometry-check-remote.cif")
         dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
@@ -129,7 +113,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
 
              Converting to RCSB to PDB id in _entry.id and related items.
         """
-        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
         of = os.path.join(self.__tmpPath, "annot-rcsb2pdbx-withpdbid-" + self.__testFileAnnotRcsb)
         dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
         inpPath = os.path.join(self.__testFilePath, self.__testFileAnnotRcsb)
@@ -146,10 +130,10 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
     def testAnnotValidateListXrayTestRemote(self):
         """  Test create validation report for the test list of example PDB ids (x-ray examples)
         """
-        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
         for pdbId in self.__testValidateXrayIdList:
             self.__tmpPath = tempfile.mkdtemp(dir=self.__siteWebAppsSessionsPath)
-            self.__lfh.write("\nStarting {} in {}\n".format(pdbId, self.__tmpPath))
+            logger.info("\nStarting {} in {}\n".format(pdbId, self.__tmpPath))
             ofpdf = os.path.join(self.__tmpPath, pdbId + "-valrpt.pdf")
             ofxml = os.path.join(self.__tmpPath, pdbId + "-valdata.xml")
             offullpdf = os.path.join(self.__tmpPath, pdbId + "-valrpt_full.pdf")
@@ -183,14 +167,13 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             self.assertTrue(os.path.exists(ofpng))
             self.assertTrue(os.path.exists(ofsvg))
 
-
     def testAnnotValidateListNmrTestRemote(self):
         """  Test create validation report for the test list of example PDB ids (NMR examples)
         """
-        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
         for pdbId in self.__testValidateNmrIdList:
             self.__tmpPath = tempfile.mkdtemp(dir=self.__siteWebAppsSessionsPath)
-            self.__lfh.write("\nStarting {} in {}\n".format(pdbId, self.__tmpPath))
+            logger.info("\nStarting {} in {}\n".format(pdbId, self.__tmpPath))
             ofpdf = os.path.join(self.__tmpPath, pdbId + "-valrpt.pdf")
             ofxml = os.path.join(self.__tmpPath, pdbId + "-valdata.xml")
             offullpdf = os.path.join(self.__tmpPath, pdbId + "-valrpt_full.pdf")
@@ -225,11 +208,10 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             self.assertTrue(os.path.exists(ofpng))
             self.assertTrue(os.path.exists(ofsvg))
 
-
     def testMapFixRemote(self):
         """  Test mapfix utility
         """
-        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
 
         dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
         #
@@ -256,8 +238,8 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
     # def testMapFixLargeMapRemote(self):
     #     """  Test mapfix utility
     #     """
-    #     self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
-    #     self.__lfh.write("\nRunning in {}\n".format(self.__tmpPath))
+    #     logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+    #     logger.info("\nRunning in {}\n".format(self.__tmpPath))
     #
     #     dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
     #     #
@@ -281,7 +263,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
     def testAnnotSiteRemote(self):
         """  Calculate site environment
         """
-        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
         of = os.path.join(self.__tmpPath, "annot-site-" + self.__testFileAnnotSite)
         dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
         inpPath = os.path.join(self.__testFilePath, self.__testFileAnnotSite)
@@ -299,7 +281,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
     def test_AnnotMergeRemote(self):
         """  Test of updating geometrical validation diagnostics -
         """
-        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
         for pdbId in self.__testValidateXrayIdList:
             self.__tmpPath = tempfile.mkdtemp(dir=self.__siteWebAppsSessionsPath)
             testFileValidateXyz = pdbId + ".cif"
@@ -322,7 +304,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
     def testAnnotMtz2PdbxGood(self):
         """  Test mtz to pdbx conversion  (good mtz)
         """
-        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
         diagfn = os.path.join(self.__tmpPath, "sf-convert-diags.cif")
         ciffn = os.path.join(self.__tmpPath, "sf-convert-datafile.cif")
         dmpfn = os.path.join(self.__tmpPath, "sf-convert-mtzdmp.log")
@@ -342,16 +324,5 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
         self.assertTrue(dmpfn)
 
 
-def suiteAnnotDccTests():
-    suiteSelect = unittest.TestSuite()
-    suiteSelect.addTest(RcsbDpUtilityAnnotTests("testMapFixLargeMapRemote"))
-    #suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotMtz2PdbxGood"))
-    #suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotMtz2PdbxBad"))
-    return suiteSelect
-
-
 if __name__ == '__main__':
     unittest.main()
-
-    #mySuite = suiteAnnotDccTests()
-    #unittest.TextTestRunner(verbosity=2).run(mySuite)

@@ -1,10 +1,7 @@
 # File: setup.py
-# Date: 9-Mar-2018
+# Date: 15-Oct-2018
 #
 # Update:
-#   3-Jul-2018  jdw update CLI entry points and dependencies
-#  21-Aug-2018  jdw version adjustments
-#  22-Aug-2018  jdw adjust for namespace packaging
 #
 import re
 
@@ -12,9 +9,9 @@ from setuptools import find_packages
 from setuptools import setup
 
 packages = []
-thisPackage = 'rcsb.utils.io'
+thisPackage = 'wwpdb.utils.dp'
 
-with open('rcsb/utils/io/__init__.py', 'r') as fd:
+with open('wwpdb/utils/dp/__init__.py', 'r') as fd:
     version = re.search(r'^__version__\s*=\s*[\'"]([^\'"]*)[\'"]',
                         fd.read(), re.MULTILINE).group(1)
 
@@ -24,11 +21,11 @@ if not version:
 setup(
     name=thisPackage,
     version=version,
-    description='RCSB Python I/O Utility Classes',
+    description='API for Common Data Processing Operations',
     long_description="See:  README.md",
     author='John Westbrook',
     author_email='john.westbrook@rcsb.org',
-    url='https://github.com/rcsb/py-rcsb_utils_io',
+    url='https://github.com/wwpdb/py-wwpdb_utils_dp',
     #
     license='Apache 2.0',
     classifiers=(
@@ -47,15 +44,15 @@ setup(
         'console_scripts': []
     },
     #
-    install_requires=['future', 'mmcif; python_version >= "0.18"'],
-    packages=find_packages(exclude=['rcsb.mock-data', 'rcsb.utils.tests-io', 'rcsb.utils.tests-*', 'tests.*']),
+    install_requires=['future', 'mmcif; python_version >= "0.18"', 'wwpdb.utils.config >= "0.10"', 'wwpdb.utils.testing>= "0.10"'],
+    packages=find_packages(exclude=['wwpdb.mock-data', 'wwpdb.utils.tests-dp', 'tests.*']),
     package_data={
         # If any package contains *.md or *.rst ...  files, include them:
         '': ['*.md', '*.rst', "*.txt", "*.cfg"],
     },
     #
     # These basic tests require no database services -
-    test_suite="rcsb.utils.tests-io",
+    test_suite="wwpdb.utils.tests-dp",
     tests_require=['tox'],
     #
     # Not configured ...

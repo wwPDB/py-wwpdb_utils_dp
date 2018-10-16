@@ -7,81 +7,104 @@
 #
 # Update:
 # 20-Apr-2013 jdw working on osx for blastp and blastn
+# 16-Oct-2018  jdw   adapt for Py2/3 and Python packaging
 ##
 """
-Test cases for sequence search  and entry fetch/extract operations -- 
+Test cases for sequence search  and entry fetch/extract operations --
 """
 
-import sys, unittest, os, os.path, traceback
+import logging
+import os
+import platform
+import sys
+import unittest
 
-from wwpdb.api.facade.ConfigInfo          import ConfigInfo,getSiteId
-from wwpdb.utils.rcsb.DataFile            import DataFile
-from wwpdb.utils.rcsb.RcsbDpUtility       import RcsbDpUtility
+HERE = os.path.abspath(os.path.dirname(__file__))
+TOPDIR = os.path.dirname(os.path.dirname(os.path.dirname(HERE)))
+try:
+    TESTOUTPUT = os.path.join(HERE, 'test-output', platform.python_version())
+    if not os.path.exists(TESTOUTPUT):
+        os.makedirs(TESTOUTPUT)
+    mockTopPath = os.path.join(TOPDIR, 'wwpdb', 'mock-data')
+    from wwpdb.utils.testing.SiteConfigSetup import SiteConfigSetup
+    SiteConfigSetup().setupEnvironment(TESTOUTPUT, mockTopPath)
+except Exception:
+    pass
+
+from wwpdb.utils.config.ConfigInfo import ConfigInfo, getSiteId
+from wwpdb.utils.dp.RcsbDpUtility import RcsbDpUtility
+
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(levelname)s]-%(module)s.%(funcName)s: %(message)s')
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 
 
 class RcsbDpUtilityTests(unittest.TestCase):
+
     def setUp(self):
-        self.__lfh=sys.stderr        
-        # Pick up site information from the environment or failover to the development site id.
-        self.__siteId=getSiteId(defaultSiteId='WWPDB_DEPLOY_TEST')
-        self.__lfh.write("\nTesting with site environment for:  %s\n" % self.__siteId)
+
+        self.__siteId = getSiteId(defaultSiteId='WWPDB_DEPLOY_TEST')
+        logger.info("\nTesting with site environment for:  %s\n" % self.__siteId)
         #
-        cI=ConfigInfo(self.__siteId)
-        self.__tmpPath         = './rcsb-tmp-dir'
+        self.__cI = ConfigInfo(self.__siteId)
+        self.__tmpPath = os.path.join(HERE, 'test-output')
         #
-        self.__testFileFastaP     = os.path.join('./data','RCSB078488.fasta')
-        #self.__testFileFastaP     = os.path.join('./data','1KIP.fasta')
-        self.__testFileFastaN     = os.path.join('./data','2WDK.fasta')
+        self.__testFilePath = os.path.join(TOPDIR, 'wwpdb', 'mock-data', 'dp-utils')
+        self.__testFileFastaP = os.path.join(self.__testFilePath, '1KIP.fasta')
+        self.__testFileFastaN = os.path.join(self.__testFilePath, '2WDK.fasta')
         #
-        self.__lfh.write("\nTest fasta protein file path %s\n" % (self.__testFileFastaP))
-        self.__lfh.write("\nTest fasta RNA     file path %s\n" % (self.__testFileFastaN))
-            
+        logger.info("\nTest fasta protein file path %s\n" % (self.__testFileFastaP))
+        logger.info("\nTest fasta RNA     file path %s\n" % (self.__testFileFastaN))
+
     def tearDown(self):
         pass
 
-    def testProteinSequenceSearch(self): 
+    def testProteinSequenceSearch(self):
         """
         """
-        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
         try:
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
             dp.imp(self.__testFileFastaP)
-            dp.addInput(name="db_name",value="my_uniprot_all")
-            dp.addInput(name="num_threads",value="4")
-            dp.addInput(name="evalue",value="0.001")
+            dp.addInput(name="db_name", value="my_uniprot_all")
+            dp.addInput(name="num_threads", value="4")
+            dp.addInput(name="evalue", value="0.001")
             dp.op("seq-blastp")
             dp.expLog("seq-blastp.log")
             dp.exp("seq-blastp.xml")
             dp.cleanup()
-        except:
-            traceback.print_exc(file=self.__lfh)
+        except Exception as e:
+            logger.exception("Failing with %s" % str(e))
             self.fail()
 
-    def testRnaSequenceSearch(self): 
+    def testRnaSequenceSearch(self):
         """
         """
-        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
         try:
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
             dp.imp(self.__testFileFastaN)
-            dp.addInput(name="db_name",value="my_ncbi_nt")
-            dp.addInput(name="num_threads",value="4")
-            dp.addInput(name="evalue",value="0.001")
+            dp.addInput(name="db_name", value="my_ncbi_nt")
+            dp.addInput(name="num_threads", value="4")
+            dp.addInput(name="evalue", value="0.001")
             dp.op("seq-blastn")
             dp.expLog("seq-blastn.log")
             dp.exp("seq-blastn.xml")
             dp.cleanup()
-        except:
-            traceback.print_exc(file=self.__lfh)
+        except Exception as e:
+            logger.exception("Failing with %s" % str(e))
             self.fail()
+
 
 def suiteSequenceSearchTests():
     suiteSelect = unittest.TestSuite()
     suiteSelect.addTest(RcsbDpUtilityTests("testProteinSequenceSearch"))
     suiteSelect.addTest(RcsbDpUtilityTests("testRnaSequenceSearch"))
-    return suiteSelect    
+    return suiteSelect
+
 
 if __name__ == '__main__':
     #
-    mySuite=suiteSequenceSearchTests()
-    unittest.TextTestRunner(verbosity=2).run(mySuite)    
+    mySuite = suiteSequenceSearchTests()
+    unittest.TextTestRunner(verbosity=2).run(mySuite)

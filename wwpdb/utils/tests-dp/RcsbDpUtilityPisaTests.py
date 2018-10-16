@@ -7,89 +7,102 @@
 #
 # Update:
 #   28-Aug-2012  jdw   test with latest tools deployment using site_id WWPDB_DEPLOY_TEST
+#   16-Oct-2018  jdw   adapt for Py2/3 and Python packaging
 ##
 """
-Test cases for assembly calculation using both PDBx/mmCIF and PDB form input data files - 
+Test cases for assembly calculation using both PDBx/mmCIF and PDB form input data files -
 
 """
+import logging
+import os
+import platform
+import sys
+import unittest
 
-import sys, unittest, os, os.path, traceback
+HERE = os.path.abspath(os.path.dirname(__file__))
+TOPDIR = os.path.dirname(os.path.dirname(os.path.dirname(HERE)))
+try:
+    TESTOUTPUT = os.path.join(HERE, 'test-output', platform.python_version())
+    if not os.path.exists(TESTOUTPUT):
+        os.makedirs(TESTOUTPUT)
+    mockTopPath = os.path.join(TOPDIR, 'wwpdb', 'mock-data')
+    from wwpdb.utils.testing.SiteConfigSetup import SiteConfigSetup
+    SiteConfigSetup().setupEnvironment(TESTOUTPUT, mockTopPath)
+except Exception:
+    pass
 
-from wwpdb.api.facade.ConfigInfo          import ConfigInfo,getSiteId
-from wwpdb.utils.rcsb.DataFile            import DataFile
-from wwpdb.utils.rcsb.RcsbDpUtility       import RcsbDpUtility
+from wwpdb.utils.config.ConfigInfo import ConfigInfo, getSiteId
+from wwpdb.utils.dp.RcsbDpUtility import RcsbDpUtility
+
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(levelname)s]-%(module)s.%(funcName)s: %(message)s')
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 
 
 class RcsbDpUtilityTests(unittest.TestCase):
-    def setUp(self):
-        self.__lfh=sys.stderr        
-        # Pick up site information from the environment or failover to the development site id.
-        self.__siteId=getSiteId(defaultSiteId='WWPDB_DEPLOY_TEST')
-        self.__lfh.write("\nTesting with site environment for:  %s\n" % self.__siteId)
-        #
-        cI=ConfigInfo(self.__siteId)
-        self.__testFilePath    =cI.get('DP_TEST_FILE_PATH')
 
-        #self.__testFileCif     =cI.get('DP_TEST_FILE_CIF')
-        #self.__testFileCifEps1 =cI.get('DP_TEST_FILE_CIFEPS')
-        #self.__testFileCifEps2 =cI.get('DP_TEST_FILE_CIFEPS_2')
-        #self.__tmpPath        =cI.get('TMP_PATH')
-        
-        self.__tmpPath         = './rcsb-tmp-dir'
+    def setUp(self):
+        # Pick up site information from the environment or failover to the development site id.
+        self.__siteId = getSiteId(defaultSiteId=None)
+        logger.info("\nTesting with site environment for:  %s\n" % self.__siteId)
         #
-        self.__testFilePdbPisa    =cI.get('DP_TEST_FILE_PDB_PISA')
-        #self.__testFileCifPisa    =cI.get('DP_TEST_FILE_CIF_PISA')
-        self.__testFileCifPisa    = '1j59.cif'
+        self.__cI = ConfigInfo(self.__siteId)
+        self.__testFilePath = os.path.join(TOPDIR, 'wwpdb', 'mock-data', 'dp-utils')
+        self.__tmpPath = os.path.join(HERE, 'test-output')
         #
-        self.__lfh.write("\nTest file path %s\n" % (self.__testFilePath))
-        self.__lfh.write("\nCIF  file path %s\n" % (self.__testFileCifPisa))
-            
+        self.__testFilePdbPisa = '3rer.pdb'
+        self.__testFileCifPisa = '3rer.cif'
+        #
+        logger.info("\nTest file path %s\n" % (self.__testFilePath))
+        logger.info("\nCIF  file path %s\n" % (self.__testFileCifPisa))
+
     def tearDown(self):
         pass
 
-    def testPisaAnalysisPdb(self): 
+    def testPisaAnalysisPdb(self):
         """
         """
-        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
         try:
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
-            pdbPath=os.path.join(self.__testFilePath,self.__testFilePdbPisa)
+            pdbPath = os.path.join(self.__testFilePath, self.__testFilePdbPisa)
             dp.imp(pdbPath)
-            dp.addInput(name="pisa_session_name",value="session_3re3_pdb")
+            dp.addInput(name="pisa_session_name", value="session_3re3_pdb")
             dp.op("pisa-analysis")
             dp.expLog("pisa-anal-pdb.log.gz")
             dp.cleanup()
-        except:
-            traceback.print_exc(file=self.__lfh)
+        except Exception as e:
+            logger.exception("Failing with %s" % str(e))
             self.fail()
 
-    def testPisaAnalysisCif(self): 
+    def testPisaAnalysisCif(self):
         """
         """
-        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
         try:
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
-            cifPath=os.path.join(self.__testFilePath,self.__testFileCifPisa)
+            cifPath = os.path.join(self.__testFilePath, self.__testFileCifPisa)
             dp.imp(cifPath)
-            dp.addInput(name="pisa_session_name",value="session_test_cif")
+            dp.addInput(name="pisa_session_name", value="session_test_cif")
             dp.op("pisa-analysis")
             dp.expLog("pisa-anal-cif.log.gz")
             dp.cleanup()
-        except:
-            traceback.print_exc(file=self.__lfh)
+        except Exception as e:
+            logger.exception("Failing with %s" % str(e))
             self.fail()
 
-    def testPisaAssemblyReportXmlCif(self): 
+    def testPisaAssemblyReportXmlCif(self):
         """
         """
-        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
         try:
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
-            fPath=os.path.join(self.__testFilePath,self.__testFileCifPisa)
+            fPath = os.path.join(self.__testFilePath, self.__testFileCifPisa)
             dp.imp(fPath)
-            dp.addInput(name="pisa_session_name",value="session_test_cif")            
+            dp.addInput(name="pisa_session_name", value="session_test_cif")
             dp.op("pisa-analysis")
-            dp.expLog("pisa-anal-assembly-cif.log")                        
+            dp.expLog("pisa-anal-assembly-cif.log")
             dp.op("pisa-assembly-report-xml")
             dp.exp("pisa-assembly-report-cif.xml")
             dp.expLog("pisa-report-xml-cif.log")
@@ -98,112 +111,110 @@ class RcsbDpUtilityTests(unittest.TestCase):
             dp.exp("pisa-interface-report-cif.xml")
             dp.expLog("pisa-interface-report-xml-cif.log")
             dp.cleanup()
-        except:
-            traceback.print_exc(file=self.__lfh)
+        except Exception as e:
+            logger.exception("Failing with %s" % str(e))
             self.fail()
 
-    def testPisaAssemblyReportXmlPdb(self): 
+    def testPisaAssemblyReportXmlPdb(self):
         """
         """
-        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
         try:
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
-            fPath=os.path.join(self.__testFilePath,self.__testFilePdbPisa)
+            fPath = os.path.join(self.__testFilePath, self.__testFilePdbPisa)
             dp.imp(fPath)
-            dp.addInput(name="pisa_session_name",value="session_3re3_cif")            
+            dp.addInput(name="pisa_session_name", value="session_3re3_cif")
             dp.op("pisa-analysis")
-            dp.expLog("pisa-anal-assembly-pdb.log.gz")                        
+            dp.expLog("pisa-anal-assembly-pdb.log.gz")
             dp.op("pisa-assembly-report-xml")
             dp.exp("pisa-assembly-report-pdb.xml")
-            dp.expLog("pisa-report-xml-pdb.log.gz")                                    
+            dp.expLog("pisa-report-xml-pdb.log.gz")
             dp.cleanup()
-        except:
-            traceback.print_exc(file=self.__lfh)
+        except Exception as e:
+            logger.exception("Failing with %s" % str(e))
             self.fail()
 
-
-    def testPisaAssemblyDownloadModelCif(self): 
+    def testPisaAssemblyDownloadModelCif(self):
         """
         """
-        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
         try:
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
-            fPath=os.path.join(self.__testFilePath,self.__testFileCifPisa)
+            fPath = os.path.join(self.__testFilePath, self.__testFileCifPisa)
             dp.imp(fPath)
-            dp.addInput(name="pisa_session_name",value="session_3re3_cif")            
+            dp.addInput(name="pisa_session_name", value="session_3re3_cif")
             dp.op("pisa-analysis")
-            dp.expLog("pisa-anal-assembly-cif.log.gz")                        
+            dp.expLog("pisa-anal-assembly-cif.log.gz")
             dp.op("pisa-assembly-report-xml")
             dp.exp("pisa-assembly-report-cif.xml")
             dp.expLog("pisa-report-xml-cif.log.gz")
             #
-            for assemId in ['1','2','3','4','5']:
-                dp.addInput(name="pisa_assembly_id",value=assemId)
-                oFileName='3rer-assembly-'+assemId+'.cif.gz'
-                oLogName='3rer-assembly-'+assemId+'-cif.log.gz'                
+            for assemId in ['1', '2', '3', '4', '5']:
+                dp.addInput(name="pisa_assembly_id", value=assemId)
+                oFileName = '3rer-assembly-' + assemId + '.cif.gz'
+                oLogName = '3rer-assembly-' + assemId + '-cif.log.gz'
                 dp.op("pisa-assembly-coordinates-cif")
                 dp.exp(oFileName)
                 dp.expLog(oLogName)
             dp.cleanup()
-        except:
-            traceback.print_exc(file=self.__lfh)
+        except Exception as e:
+            logger.exception("Failing with %s" % str(e))
             self.fail()
 
-
-    def testPisaAssemblyDownloadModelPdb(self): 
+    def testPisaAssemblyDownloadModelPdb(self):
         """
         """
-        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
         try:
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
-            fPath=os.path.join(self.__testFilePath,self.__testFileCifPisa)
+            fPath = os.path.join(self.__testFilePath, self.__testFileCifPisa)
             dp.imp(fPath)
-            dp.addInput(name="pisa_session_name",value="session_3re3_cif")            
+            dp.addInput(name="pisa_session_name", value="session_3re3_cif")
             dp.op("pisa-analysis")
-            dp.expLog("pisa-anal-assembly-cif.log.gz")                        
+            dp.expLog("pisa-anal-assembly-cif.log.gz")
             dp.op("pisa-assembly-report-xml")
             dp.exp("pisa-assembly-report-cif.xml")
             dp.expLog("pisa-report-xml-cif.log.gz")
             #
-            for assemId in ['1','2','3','4','5']:
-                dp.addInput(name="pisa_assembly_id",value=assemId)
-                oFileName='3rer-assembly-'+assemId+'.pdb.gz'
-                oLogName='3rer-assembly-'+assemId+'-pdb.log.gz'                
+            for assemId in ['1', '2', '3', '4', '5']:
+                dp.addInput(name="pisa_assembly_id", value=assemId)
+                oFileName = '3rer-assembly-' + assemId + '.pdb.gz'
+                oLogName = '3rer-assembly-' + assemId + '-pdb.log.gz'
                 dp.op("pisa-assembly-coordinates-pdb")
                 dp.exp(oFileName)
                 dp.expLog(oLogName)
             dp.cleanup()
-        except:
-            traceback.print_exc(file=self.__lfh)
+        except Exception as e:
+            logger.exception("Failing with %s" % str(e))
             self.fail()
 
-    def testPisaAssemblyMergeModelCif(self): 
+    def testPisaAssemblyMergeModelCif(self):
         """
         """
-        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
         try:
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
-            fPath=os.path.join(self.__testFilePath,self.__testFileCifPisa)
-            assignPath=os.path.join(self.__testFilePath,"3rer_assembly_assign_P1.cif")
+            fPath = os.path.join(self.__testFilePath, self.__testFileCifPisa)
+            assignPath = os.path.join(self.__testFilePath, "3rer_assembly_assign_P1.cif")
             dp.imp(fPath)
-            dp.addInput(name="pisa_session_name",value="session_3re3-cif")            
+            dp.addInput(name="pisa_session_name", value="session_3re3-cif")
             dp.op("pisa-analysis")
             dp.op("pisa-assembly-report-xml")
             dp.exp("pisa-assembly-report-cif.xml")
             #
-            cifPath=os.path.join(self.__testFilePath,self.__testFileCifPisa)
+            cifPath = os.path.join(self.__testFilePath, self.__testFileCifPisa)
             dp.imp(cifPath)
             #
             # assignmentFile      = self.__inputParamDict['pisa_assembly_assignment_file_path']
             #
-            dp.addInput(name="pisa_assembly_file_path",value="pisa-assembly-report-cif.xml",type="file")
-            dp.addInput(name="pisa_assembly_assignment_file_path",value=assignPath,type="file")
+            dp.addInput(name="pisa_assembly_file_path", value="pisa-assembly-report-cif.xml", type="file")
+            dp.addInput(name="pisa_assembly_assignment_file_path", value=assignPath, type="file")
             dp.op("pisa-assembly-merge-cif")
             dp.exp("3rer-updated.cif.gz")
             dp.expLog("3rer-updated-cif.log.gz")
-            #dp.cleanup()
-        except:
-            traceback.print_exc(file=self.__lfh)
+            # dp.cleanup()
+        except Exception as e:
+            logger.exception("Failing with %s" % str(e))
             self.fail()
 
 
@@ -211,24 +222,25 @@ def suitePisaTestsCif():
     suiteSelect = unittest.TestSuite()
     suiteSelect.addTest(RcsbDpUtilityTests("testPisaAnalysisCif"))
     suiteSelect.addTest(RcsbDpUtilityTests("testPisaAssemblyReportXmlCif"))
-    #suiteSelect.addTest(RcsbDpUtilityTests("testPisaAssemblyDownloadModelCif"))
-    #suiteSelect.addTest(RcsbDpUtilityTests("testPisaAssemblyMergeModelCif"))    
-    return suiteSelect    
+    suiteSelect.addTest(RcsbDpUtilityTests("testPisaAssemblyDownloadModelCif"))
+    suiteSelect.addTest(RcsbDpUtilityTests("testPisaAssemblyMergeModelCif"))
+    return suiteSelect
+
 
 def suitePisaTestsPdb():
     suiteSelect = unittest.TestSuite()
     suiteSelect.addTest(RcsbDpUtilityTests("testPisaAnalysisPdb"))
     suiteSelect.addTest(RcsbDpUtilityTests("testPisaAssemblyReportXmlPdb"))
     suiteSelect.addTest(RcsbDpUtilityTests("testPisaAssemblyDownloadModelPdb"))
-    
-    return suiteSelect    
 
-    
+    return suiteSelect
+
+
 if __name__ == '__main__':
     #
     if (False):
-        mySuite=suitePisaTestsPdb()
-        unittest.TextTestRunner(verbosity=2).run(mySuite)    
+        mySuite = suitePisaTestsPdb()
+        unittest.TextTestRunner(verbosity=2).run(mySuite)
     #
-    mySuite=suitePisaTestsCif()
-    unittest.TextTestRunner(verbosity=2).run(mySuite)    
+    mySuite = suitePisaTestsCif()
+    unittest.TextTestRunner(verbosity=2).run(mySuite)

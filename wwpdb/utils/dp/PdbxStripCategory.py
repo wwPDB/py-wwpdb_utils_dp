@@ -8,128 +8,129 @@
 #
 ##
 """  Remove selected categories from the first data container and
-     write the result. 
+     write the result.
 """
 
 __docformat__ = "restructuredtext en"
-__author__    = "John Westbrook"
-__email__     = "jwest@rcsb.rutgers.edu"
-__license__   = "Creative Commons Attribution 3.0 Unported"
-__version__   = "V0.01"
+__author__ = "John Westbrook"
+__email__ = "jwest@rcsb.rutgers.edu"
+__license__ = "Apache 2.0"
 
-import sys, traceback
-import time, os, os.path 
 
-from pdbx_v2.reader.PdbxReader import PdbxReader
-from pdbx_v2.writer.PdbxWriter import PdbxWriter
-from pdbx_v2.reader.PdbxContainers    import *
+import logging
+import sys
+
+from mmcif.api.PdbxContainers import DataContainer
+from mmcif.io.PdbxReader import PdbxReader
+from mmcif.io.PdbxWriter import PdbxWriter
+
+logger = logging.getLogger(__name__)
 
 
 class PdbxStripCategory(object):
-    def __init__(self,verbose=False,log=sys.stderr):
-        self.__lfh=log
-        self.__verbose=verbose
 
-        self.__candidateList=['atom_type',
-                              'chem_comp',
-                              'database',
-                              'diffrn_source',
-                              'entity_keywords',
-                              'entity_name_sys',
-                              'entity_poly',
-                              'entity_src_gen',
-                              'pdbx_coord',
-                              'pdbx_database_status',
-                              'pdbx_entity_nonpoly',
-                              'pdbx_inhibitor_info',
-                              'pdbx_ion_info',
-                              'pdbx_missing_residue_list',
-                              'pdbx_nonpoly_scheme',
-                              'pdbx_nonstandard_list',
-                              'pdbx_poly_seq_scheme',
-                              'pdbx_protein_info',
-                              'pdbx_solvent_info',
-                              'pdbx_struct_sheet_hbond',
-                              'pdbx_unobs_or_zero_occ_residues',
-                              'pdbx_validate_torsion',
-                              'refine_hist',
-                              'software',
-                              'struct',
-                              'struct_asym',
-                              'struct_biol_gen',
-                              'struct_conf',
-                              'struct_conf_type',
-                              'struct_mon_prot_cis',
-                              'struct_ncs_oper',
-                              'struct_sheet',
-                              'struct_sheet_order',
-                              'struct_sheet_range']
+    def __init__(self, verbose=False, log=sys.stderr):
+        self.__lfh = log
+        self.__verbose = verbose
 
-        self.__stripList=    ['pdbx_coord',
-                              # 'pdbx_entity_nonpoly',
-                              # 'pdbx_missing_residue_list',
-                              'pdbx_nonstandard_list',
-                              'pdbx_protein_info',
-                              'pdbx_solvent_info',
-                              'pdbx_struct_sheet_hbond',
-                              'pdbx_unobs_or_zero_occ_residues',
-                              'pdbx_validate_torsion',
-                              'struct_biol_gen',
-                              'struct_conf',
-                              'struct_conf_type',
-                              'struct_mon_prot_cis',
-                              'struct_sheet',
-                              'struct_sheet_order',
-                              'struct_sheet_range']
+        self.__candidateList = ['atom_type',
+                                'chem_comp',
+                                'database',
+                                'diffrn_source',
+                                'entity_keywords',
+                                'entity_name_sys',
+                                'entity_poly',
+                                'entity_src_gen',
+                                'pdbx_coord',
+                                'pdbx_database_status',
+                                'pdbx_entity_nonpoly',
+                                'pdbx_inhibitor_info',
+                                'pdbx_ion_info',
+                                'pdbx_missing_residue_list',
+                                'pdbx_nonpoly_scheme',
+                                'pdbx_nonstandard_list',
+                                'pdbx_poly_seq_scheme',
+                                'pdbx_protein_info',
+                                'pdbx_solvent_info',
+                                'pdbx_struct_sheet_hbond',
+                                'pdbx_unobs_or_zero_occ_residues',
+                                'pdbx_validate_torsion',
+                                'refine_hist',
+                                'software',
+                                'struct',
+                                'struct_asym',
+                                'struct_biol_gen',
+                                'struct_conf',
+                                'struct_conf_type',
+                                'struct_mon_prot_cis',
+                                'struct_ncs_oper',
+                                'struct_sheet',
+                                'struct_sheet_order',
+                                'struct_sheet_range']
 
-    def strip(self,inpPath,outPath,stripList=[]): 
+        self.__stripList = ['pdbx_coord',
+                            # 'pdbx_entity_nonpoly',
+                            # 'pdbx_missing_residue_list',
+                            'pdbx_nonstandard_list',
+                            'pdbx_protein_info',
+                            'pdbx_solvent_info',
+                            'pdbx_struct_sheet_hbond',
+                            'pdbx_unobs_or_zero_occ_residues',
+                            'pdbx_validate_torsion',
+                            'struct_biol_gen',
+                            'struct_conf',
+                            'struct_conf_type',
+                            'struct_mon_prot_cis',
+                            'struct_sheet',
+                            'struct_sheet_order',
+                            'struct_sheet_range']
+
+    def strip(self, inpPath, outPath, stripList=[]):
         """ Strip categories from inpPath and write to outPath
         """
         try:
-            myDataList=[]            
-            ifh = open(inpPath, "r")
-            pRd=PdbxReader(ifh)
-            pRd.read(myDataList)
-            ifh.close()            
+            myDataList = []
+            with open(inpPath, "r") as ifh:
+                pRd = PdbxReader(ifh)
+                pRd.read(myDataList)
             #
-            myBlock=myDataList[0]
-            myName=myBlock.getName()
-            newContainer=DataContainer(myName)
+            myBlock = myDataList[0]
+            myName = myBlock.getName()
+            newContainer = DataContainer(myName)
 
             for objName in myBlock.getObjNameList():
-                myObj=myBlock.getObj(objName)
+                myObj = myBlock.getObj(objName)
                 if myObj.getName() not in stripList:
                     newContainer.append(myObj)
             #
-            ofh = open(outPath, "w")
-            pWr=PdbxWriter(ofh)
-            pWr.setPreferSingleQuotes()
-            pWr.write([newContainer])        
-            ofh.close()
+            with open(outPath, "w") as ofh:
+                pWr = PdbxWriter(ofh)
+                pWr.setPreferSingleQuotes()
+                pWr.write([newContainer])
+
             return True
-        except:
-            traceback.print_exc(file=self.__lfh)
+        except Exception as e:
+            logger.exception("Failing with %s" % str(e))
             return False
 
-if __name__ == '__main__':
-    stripList=    ['pdbx_coord',
-                   # 'pdbx_entity_nonpoly',
-                   # 'pdbx_missing_residue_list',
-                   'pdbx_nonstandard_list',
-                   'pdbx_protein_info',
-                   'pdbx_solvent_info',
-                   'pdbx_struct_sheet_hbond',
-                   'pdbx_unobs_or_zero_occ_residues',
-                   'pdbx_validate_torsion',
-                   'struct_biol_gen',
-                   'struct_conf',
-                   'struct_conf_type',
-                   'struct_mon_prot_cis',
-                   'struct_sheet',
-                   'struct_sheet_order',
-                   'struct_sheet_range']
-    
-    strp=PdbxStripCategory(verbose=True,log=sys.stderr)
-    strp.strip('test-in.cif','test-out.cif',stripList)
-    
 
+if __name__ == '__main__':
+    stripList = ['pdbx_coord',
+                 # 'pdbx_entity_nonpoly',
+                 # 'pdbx_missing_residue_list',
+                 'pdbx_nonstandard_list',
+                 'pdbx_protein_info',
+                 'pdbx_solvent_info',
+                 'pdbx_struct_sheet_hbond',
+                 'pdbx_unobs_or_zero_occ_residues',
+                 'pdbx_validate_torsion',
+                 'struct_biol_gen',
+                 'struct_conf',
+                 'struct_conf_type',
+                 'struct_mon_prot_cis',
+                 'struct_sheet',
+                 'struct_sheet_order',
+                 'struct_sheet_range']
+
+    strp = PdbxStripCategory(verbose=True, log=sys.stderr)
+    strp.strip('test-in.cif', 'test-out.cif', stripList)

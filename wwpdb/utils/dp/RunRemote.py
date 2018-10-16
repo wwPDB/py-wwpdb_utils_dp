@@ -1,8 +1,9 @@
-import os
-import time
 import logging
+import os
 import subprocess
-from wwpdb.api.facade.ConfigInfo import ConfigInfo, getSiteId
+import time
+
+from wwpdb.utils.config.ConfigInfo import ConfigInfo, getSiteId
 
 
 class RunRemote:

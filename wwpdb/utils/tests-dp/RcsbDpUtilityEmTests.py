@@ -12,39 +12,54 @@ Test cases for EM map annotation tools --
 
 """
 
+import json
+import logging
+import math
+import os
+import platform
 import sys
 import unittest
-import os
-import os.path
-import traceback
-import json
-import math
 
-from wwpdb.api.facade.ConfigInfo import ConfigInfo, getSiteId
-from wwpdb.utils.rcsb.RcsbDpUtility import RcsbDpUtility
 import matplotlib
-matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 import pygal
-from pygal.style import LightStyle
-from pygal.style import LightColorizedStyle
-from pygal.style import LightGreenStyle
+from pygal.style import LightColorizedStyle, LightGreenStyle
+
+HERE = os.path.abspath(os.path.dirname(__file__))
+TOPDIR = os.path.dirname(os.path.dirname(os.path.dirname(HERE)))
+try:
+    TESTOUTPUT = os.path.join(HERE, 'test-output', platform.python_version())
+    if not os.path.exists(TESTOUTPUT):
+        os.makedirs(TESTOUTPUT)
+    mockTopPath = os.path.join(TOPDIR, 'wwpdb', 'mock-data')
+    from wwpdb.utils.testing.SiteConfigSetup import SiteConfigSetup
+    SiteConfigSetup().setupEnvironment(TESTOUTPUT, mockTopPath)
+except Exception:
+    pass
+
+from wwpdb.utils.config.ConfigInfo import ConfigInfo, getSiteId
+from wwpdb.utils.dp.RcsbDpUtility import RcsbDpUtility
+
+matplotlib.use('Agg')
+
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(levelname)s]-%(module)s.%(funcName)s: %(message)s')
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 
 
 class RcsbDpUtilityEmTests(unittest.TestCase):
 
     def setUp(self):
-        self.__lfh = sys.stderr
-        # Pick up site information from the environment or failover to the development site id.
-        self.__siteId = getSiteId(defaultSiteId='WWPDB_DEPLOY_TEST')
-        self.__lfh.write("\nTesting with site environment for:  %s\n" % self.__siteId)
+        self.__siteId = getSiteId(defaultSiteId=None)
+        logger.info("\nTesting with site environment for:  %s\n" % self.__siteId)
         #
-        self.__tmpPath = './rcsb-tmp-dir'
-        cI = ConfigInfo(self.__siteId)
+        self.__cI = ConfigInfo(self.__siteId)
+        #
+        self.__tmpPath = os.path.join(HERE, 'test-output')
+        self.__testFilePath = os.path.join(TOPDIR, 'wwpdb', 'mock-data', 'dp-utils')
 
-        self.__testFilePath = './data'
-        #self.__testMapNormal = "normal.map"
         self.__testMapSpider = "testmap.spi"
         #
         # Brian's protein dna complex 3IYD
@@ -59,7 +74,7 @@ class RcsbDpUtilityEmTests(unittest.TestCase):
     def testMapFix(self):
         """  Test mapfix utility
         """
-        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
         try:
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
             #
@@ -70,14 +85,14 @@ class RcsbDpUtilityEmTests(unittest.TestCase):
             dp.expLog("mapfix-big.log")
             dp.exp(of)
             # dp.cleanup()
-        except:
-            traceback.print_exc(file=self.__lfh)
+        except Exception as e:
+            logger.exception("Failing with %s" % str(e))
             self.fail()
 
     def testReadMapHeader(self):
         """  Test read map header -- export JSON packet and plot density distribution -
         """
-        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
         try:
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
             dp.setDebugMode(flag=True)
@@ -88,14 +103,14 @@ class RcsbDpUtilityEmTests(unittest.TestCase):
             dp.op("annot-read-map-header")
             dp.expLog("annot-read-map-header.log")
             dp.exp(of)
-            #dp.cleanup()
+            # dp.cleanup()
             #
             mD = json.load(open(of, 'r'))
-            self.__lfh.write("Map header keys: %r\n" % mD.keys())
-            self.__lfh.write("Map header: %r\n" % mD.items())
+            logger.info("Map header keys: %r\n" % mD.keys())
+            logger.info("Map header: %r\n" % mD.items())
 
-            self.__lfh.write("Input  header keys: %r\n" % mD['input_header'].keys())
-            self.__lfh.write("Output header keys: %r\n" % mD['output_header'].keys())
+            logger.info("Input  header keys: %r\n" % mD['input_header'].keys())
+            logger.info("Output header keys: %r\n" % mD['output_header'].keys())
             #
             x = mD['input_histogram_categories']
             y = mD['input_histogram_values']
@@ -109,26 +124,26 @@ class RcsbDpUtilityEmTests(unittest.TestCase):
             #
             width = float(x[-1] - x[0]) / float(len(x))
             #width = 2.0
-            self.__lfh.write("Starting plot\n")
+            logger.info("Starting plot\n")
             plt.bar(x, y, width, color="r", log=True)
-            self.__lfh.write("Loaded data\n")
+            logger.info("Loaded data\n")
             plt.title('Map density distribution')
-            self.__lfh.write("set title\n")
+            logger.info("set title\n")
             plt.ylabel('Voxels (log(10))')
             plt.xlabel('Density')
-            self.__lfh.write("set labels\n")
+            logger.info("set labels\n")
             plotFileName = "map-density-plot-mpl.svg"
             plt.savefig(plotFileName, format="svg")
-            self.__lfh.write("saved figure\n")
+            logger.info("saved figure\n")
 
-        except:
-            traceback.print_exc(file=self.__lfh)
+        except Exception as e:
+            logger.exception("Failing with %s" % str(e))
             self.fail()
 
     def testReadMapHeaderPygal(self):
         """  Test read map header -- export JSON packet and plot density distribution -
         """
-        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
         try:
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
             #
@@ -141,11 +156,11 @@ class RcsbDpUtilityEmTests(unittest.TestCase):
             dp.cleanup()
             #
             mD = json.load(open(of, 'r'))
-            self.__lfh.write("Map header keys: %r\n" % mD.keys())
-            self.__lfh.write("Map header: %r\n" % mD.items())
+            logger.info("Map header keys: %r\n" % mD.keys())
+            logger.info("Map header: %r\n" % mD.items())
 
-            self.__lfh.write("Input  header keys: %r\n" % mD['input_header'].keys())
-            self.__lfh.write("Output header keys: %r\n" % mD['output_header'].keys())
+            logger.info("Input  header keys: %r\n" % mD['input_header'].keys())
+            logger.info("Output header keys: %r\n" % mD['output_header'].keys())
             #
             x = mD['input_histogram_categories']
             y = mD['input_histogram_values']
@@ -156,13 +171,14 @@ class RcsbDpUtilityEmTests(unittest.TestCase):
                 else:
                     logy.append(math.log10(float(v)))
 
-            width = float(x[-1] - x[0]) / float(len(x))
+            # width = float(x[-1] - x[0]) / float(len(x))
             #width = 2.0
 
-            self.__lfh.write("Starting plot len x %d len y %d \n" % (len(x), len(logy)))
+            logger.info("Starting plot len x %d len y %d \n" % (len(x), len(logy)))
             nL = int(len(x) / 10)
             #
-            #bar_chart = pygal.Bar(x_label_rotation=20, show_minor_x_labels=False,style=LightColorizedStyle)
+            if False:
+                bar_chart = pygal.Bar(x_label_rotation=20, show_minor_x_labels=False, style=LightColorizedStyle)
             bar_chart = pygal.Bar(x_label_rotation=20, show_minor_x_labels=False, style=LightGreenStyle)
             bar_chart.title = 'Map density distribution'
             bar_chart.x_labels = map(str, [int(t) for t in x])
@@ -172,8 +188,8 @@ class RcsbDpUtilityEmTests(unittest.TestCase):
             plotFileName = "map-density-plot-pygal.svg"
             bar_chart.render_to_file(plotFileName)
 
-        except:
-            traceback.print_exc(file=self.__lfh)
+        except Exception as e:
+            logger.exception("Failing with %s" % str(e))
             self.fail()
 
     def myround(self, x, base=5):
@@ -182,7 +198,7 @@ class RcsbDpUtilityEmTests(unittest.TestCase):
     def testEm2EmSpider(self):
         """  Test mapfix utility
         """
-        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
         try:
 
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
@@ -198,34 +214,35 @@ class RcsbDpUtilityEmTests(unittest.TestCase):
             dp.expLog("em2em-spider.log")
             dp.exp(of)
             # dp.cleanup()
-        except:
-            traceback.print_exc(file=self.__lfh)
+        except Exception as e:
+            logger.exception("Failing with %s" % str(e))
             self.fail()
 
     def testXmlHeaderCheck(self):
-        """  Test xmllint 
+        """  Test xmllint
         """
-        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
         try:
 
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
             #
-            #dp.setDebugMode()
+            # dp.setDebugMode()
             inpPath = os.path.join(self.__testFilePath, self.__testXMLHeader)
-            of = self.__testXMLHeader + ".check"
+            # of = self.__testXMLHeader + ".check"
             dp.imp(inpPath)
             dp.op("xml-header-check")
             dp.expLog("xml-header-check.log")
             # dp.cleanup()
-        except:
-            traceback.print_exc(file=self.__lfh)
+        except Exception as e:
+            logger.exception("Failing with %s" % str(e))
             self.fail()
+
 
 def suiteAnnotEmTests():
     suiteSelect = unittest.TestSuite()
-    #suiteSelect.addTest(RcsbDpUtilityEmTests("testReadMapHeader"))
+    # suiteSelect.addTest(RcsbDpUtilityEmTests("testReadMapHeader"))
     suiteSelect.addTest(RcsbDpUtilityEmTests("testXmlHeaderCheck"))
-    #suiteSelect.addTest(RcsbDpUtilityEmTests("testReadMapHeaderPygal"))
+    # suiteSelect.addTest(RcsbDpUtilityEmTests("testReadMapHeaderPygal"))
     # suiteSelect.addTest(RcsbDpUtilityEmTests("testMapFix"))
     # suiteSelect.addTest(RcsbDpUtilityEmTests("testEm2EmSpider"))
     return suiteSelect

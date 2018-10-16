@@ -23,70 +23,79 @@
 #    Mar 20  2014 jdw -  set execution of test cases for dcc & sf-convert
 #    Dec 19  2016 ep  -  remove old validation test cases - use annot-wwpdb-validate-all only
 #    Jan 13  2017 ep  -  Add tests for special positions and correction of such as well as updating with with depositor assembly
+#    Oct 16  2018 jdw   adapt for Py2/3 and Python packaging
 ##
 """
 Test cases from
 
 """
 
+import logging
+import os
+import platform
 import sys
 import unittest
-import os
-import os.path
-import traceback
-import tempfile
 
-from wwpdb.api.facade.ConfigInfo import ConfigInfo, getSiteId
-from wwpdb.utils.rcsb.DataFile import DataFile
-from wwpdb.utils.rcsb.RcsbDpUtility import RcsbDpUtility
+HERE = os.path.abspath(os.path.dirname(__file__))
+TOPDIR = os.path.dirname(os.path.dirname(os.path.dirname(HERE)))
+try:
+    TESTOUTPUT = os.path.join(HERE, 'test-output', platform.python_version())
+    if not os.path.exists(TESTOUTPUT):
+        os.makedirs(TESTOUTPUT)
+    mockTopPath = os.path.join(TOPDIR, 'wwpdb', 'mock-data')
+    from wwpdb.utils.testing.SiteConfigSetup import SiteConfigSetup
+    SiteConfigSetup().setupEnvironment(TESTOUTPUT, mockTopPath)
+except Exception:
+    pass
 
-from wwpdb.api.facade.WfDataObject import WfDataObject
+from wwpdb.utils.config.ConfigInfo import ConfigInfo, getSiteId
+from wwpdb.utils.dp.RcsbDpUtility import RcsbDpUtility
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(levelname)s]-%(module)s.%(funcName)s: %(message)s')
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 
 
 class RcsbDpUtilityAnnotTests(unittest.TestCase):
 
     def setUp(self):
-        self.__lfh = sys.stderr
-        # Pick up site information from the environment or failover to the development site id.
-        self.__siteId = getSiteId(defaultSiteId='WWPDB_DEPLOY_TEST')
-        self.__lfh.write("\nTesting with site environment for:  %s\n" % self.__siteId)
+        self.__siteId = getSiteId(defaultSiteId=None)
+        logger.info("\nTesting with site environment for:  %s\n" % self.__siteId)
         #
-        self.__tmpPath = './rcsb-tmp-dir'
-        self.__tmpPath = tempfile.mkdtemp()
-        cI = ConfigInfo(self.__siteId)
+        self.__cI = ConfigInfo(self.__siteId)
+        #
+        self.__tmpPath = os.path.join(HERE, 'test-output')
+        self.__testFilePath = os.path.join(TOPDIR, 'wwpdb', 'mock-data', 'dp-utils')
+        self.__testFileCif = '1xbb.cif'
 
-        self.__testFilePath = './data'
-        self.__testFileAnnotSS = 'rcsb070236.cif'
+        self.__testFileAnnotSS = '4deq.cif'
         self.__testFileAnnotSSTop = 'topology.txt'
         #
         self.__testFileAnnotLink = '3rij.cif'
         self.__testFileAnnotCisPeptide = '5hoh.cif'
-        self.__testFileAnnotSolvent = 'D_900002_model_P1.cif'
+
+        self.__testFileAnnotSolvent = '4ec0.cif'
         self.__testFileAnnotValidate = '3rij.cif'
         self.__testFileAnnotNA = '1o3q.cif'
         self.__testFileAnnotSite = '1xbb.cif'
         self.__testIdAnnotSite = '1xbb'
         #
-        self.__testFileAnnotSiteAlt = 'D_1000200391_model_P1.cif.V27'
-        self.__testIdAnnotSiteAlt = 'D_1000200391'
+        self.__testFileAnnotSiteAlt = '4p00.cif'
+        self.__testIdAnnotSiteAlt = '4P00'
 
-        #
+        ## OK JDW
         self.__testFileAnnotRcsb = 'rcsb033781.cif'
-        self.__testFileAnnotRcsbEps = 'rcsb013067.cifeps'
         #
-        self.__testFilePdbPisa = cI.get('DP_TEST_FILE_PDB_PISA')
-        self.__testFileCifPisa = cI.get('DP_TEST_FILE_CIF_PISA')
+        self.__testFilePdbPisa = '1xbb.pdb'
+        self.__testFileCifPisa = '1xbb.cif'
         #
-        self.__testFileStarCs = "star_16703_test_2.str"
+        self.__testFileStarCs = "2MMZ-cs.str"
         self.__testFileCsRelatedCif = "cor_16703_test.cif"
         #
         self.__testFileValidateXyz = "1cbs.cif"
         self.__testFileValidateSf = "1cbs-sf.cif"
         self.__testValidateIdList = ["1cbs", "3of4", "3oqp"]
-        self.__testArchiveIdList = [("D_900002", "4EC0"), ("D_600000", "4F3R")]
         #
-        self.__testFileCifSeq = "RCSB095269_model_P1.cif.V1"
-        self.__testFileSeqAssign = "RCSB095269_seq-assign_P1.cif.V1"
 
         self.__testFileMtzBad = "mtz-bad.mtz"
         self.__testFileMtzGood = "mtz-good.mtz"
@@ -96,8 +105,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
 
         self.__testMapNormal = "normal.map"
         self.__testMapSpider = "testmap.spi"
-
-        #self.__testFilePrdSearch       = '3RUN.cif'
+        ## OK JDW
         self.__testFilePrdSearch = 'D_1200000237_model_P1.cif.V1'
 
         self.__testValidateXrayIdList = ['1cbs']
@@ -105,9 +113,8 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
 
         self.__testDccModelId = '4wpo'
 
-        self.__testSpecialPosition = 'D_1000225739_model_P1.cif.V4'
-        self.__testDepAssembly = "testassem.cif"
-
+        self.__testSpecialPosition = '5uee.cif'
+        self.__testDepAssembly = "1cbs.cif"
 
     def tearDown(self):
         pass
@@ -115,7 +122,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
     def testValidateGeometryCheck(self):
         """  Test format sanity check for pdbx
         """
-        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
         try:
             of = "validate-geometry-check.cif"
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
@@ -126,14 +133,14 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             dp.exp(of)
             # dp.cleanup()
 
-        except:
-            traceback.print_exc(file=self.__lfh)
+        except Exception as e:
+            logger.exception("Failing with %s" % str(e))
             self.fail()
 
     def testAnnotValidateGeometryCheck(self):
         """  Test of updating geometrical validation diagnostics -
         """
-        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
         try:
             of = "annot-validate-geometry-check.cif"
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
@@ -144,14 +151,14 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             dp.exp(of)
             # dp.cleanup()
 
-        except:
-            traceback.print_exc(file=self.__lfh)
+        except Exception as e:
+            logger.exception("Failing with %s" % str(e))
             self.fail()
 
     def testAnnotGetCorresInfo(self):
         """  Test running GetCorresInfo to get correspondance info -
         """
-        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
         try:
             of = os.path.join(self.__tmpPath, "annot-get-corres-info-check.cif")
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
@@ -159,19 +166,18 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             inpPath = os.path.join(self.__testFilePath, self.__testFileAnnotSite)
             dp.imp(inpPath)
             dp.op("annot-get-corres-info")
-            dp.expLog(os.path.join(self.__tmpPath,"annot-get-corres-info-check-pdbx.log"))
+            dp.expLog(os.path.join(self.__tmpPath, "annot-get-corres-info-check-pdbx.log"))
             dp.exp(of)
             # dp.cleanup()
 
-        except:
-            traceback.print_exc(file=self.__lfh)
+        except Exception as e:
+            logger.exception("Failing with %s" % str(e))
             self.fail()
-
 
     def testAnnotFormatCheck(self):
         """  Test format sanity check for pdbx
         """
-        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
         try:
             of = "annot-format-check.txt"
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
@@ -183,14 +189,14 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             dp.exp(of)
             # dp.cleanup()
 
-        except:
-            traceback.print_exc(file=self.__lfh)
+        except Exception as e:
+            logger.exception("Failing with %s" % str(e))
             self.fail()
 
     def testAnnotSite(self):
         """  Calculate site environment
         """
-        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
         try:
             of = "annot-site-" + self.__testFileAnnotSite + ".gz"
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
@@ -202,14 +208,14 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             dp.exp(of)
             # dp.cleanup()
 
-        except:
-            traceback.print_exc(file=self.__lfh)
+        except Exception as e:
+            logger.exception("Failing with %s" % str(e))
             self.fail()
 
     def testAnnotSiteAlt(self):
         """  Calculate site environment
         """
-        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
         try:
             of = "annot-site-" + self.__testIdAnnotSiteAlt + '.cif'
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
@@ -221,51 +227,14 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             dp.exp(of)
             # dp.cleanup()
 
-        except:
-            traceback.print_exc(file=self.__lfh)
-            self.fail()
-
-    def testAnnotSiteArchive(self):
-        """  Calculate site environment
-        """
-        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
-        try:
-            for (depId, pdbId) in self.__testArchiveIdList:
-                ofpdf = depId + "-valrpt.pdf"
-                ofxml = depId + "-valdata.xml"
-
-                wfo1 = WfDataObject()
-                wfo1.setDepositionDataSetId(depId)
-                wfo1.setStorageType('archive')
-                wfo1.setContentTypeAndFormat('model', 'pdbx')
-                wfo1.setVersionId('latest')
-                if (wfo1.isReferenceValid()):
-                    dP = wfo1.getDirPathReference()
-                    fP = wfo1.getFilePathReference()
-                    self.__lfh.write("Directory path: %s\n" % dP)
-                    self.__lfh.write("File      path: %s\n" % fP)
-                else:
-                    self.__lfh.write("Bad archival reference\n")
-
-                inpPath = fP
-
-                of = "annot-site-" + depId + ".gz"
-                dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
-                dp.imp(inpPath)
-                dp.addInput(name="block_id", value=pdbId)
-                dp.op("annot-site")
-                dp.expLog("annot-site-" + depId + ".log")
-                dp.exp(of)
-            # dp.cleanup()
-
-        except:
-            traceback.print_exc(file=self.__lfh)
+        except Exception as e:
+            logger.exception("Failing with %s" % str(e))
             self.fail()
 
     def testAnnotSiteAndMerge(self):
         """  Calculate site environment
         """
-        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
         try:
             of = "annot-site-" + self.__testFileAnnotSite  # +".gz"
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
@@ -285,14 +254,14 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
 
             # dp.cleanup()
 
-        except:
-            traceback.print_exc(file=self.__lfh)
+        except Exception as e:
+            logger.exception("Failing with %s" % str(e))
             self.fail()
 
     def testAnnotSecondaryStructureWithTopology(self):
         """  Calculate secondary structure with a supporting topology file.
         """
-        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
         try:
             of = "annot-ss-with-top-" + self.__testFileAnnotSS + ".gz"
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
@@ -304,14 +273,14 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             dp.expLog("annot-secondary-structure-w-top.log")
             dp.exp(of)
             dp.cleanup()
-        except:
-            traceback.print_exc(file=self.__lfh)
+        except Exception as e:
+            logger.exception("Failing with %s" % str(e))
             self.fail()
 
     def testAnnotSecondaryStructure(self):
         """  Calculate secondary structure for a complicated case where pro-motif will fail.
         """
-        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
         try:
             of = "annot-ss-" + self.__testFileAnnotSS + ".gz"
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
@@ -321,14 +290,14 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             dp.expLog("annot-secondary-structure.log")
             dp.exp(of)
             dp.cleanup()
-        except:
-            traceback.print_exc(file=self.__lfh)
+        except Exception as e:
+            logger.exception("Failing with %s" % str(e))
             self.fail()
 
     def testAnnotLinkSSBond(self):
         """  Calculate link and ss-bond features -
         """
-        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
         try:
             of = "annot-link-" + self.__testFileAnnotLink + ".gz"
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
@@ -338,14 +307,14 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             dp.expLog("annot-link-ssbond.log")
             dp.exp(of)
             dp.cleanup()
-        except:
-            traceback.print_exc(file=self.__lfh)
+        except Exception as e:
+            logger.exception("Failing with %s" % str(e))
             self.fail()
 
     def testAnnotCisPeptide(self):
         """  Calculate cis-peptide linkages -
         """
-        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
         try:
             of = "annot-link-" + self.__testFileAnnotCisPeptide + ".gz"
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
@@ -355,14 +324,14 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             dp.expLog("annot-cis-peptide.log")
             dp.exp(of)
             dp.cleanup()
-        except:
-            traceback.print_exc(file=self.__lfh)
+        except Exception as e:
+            logger.exception("Failing with %s" % str(e))
             self.fail()
 
     def testAnnotDistantSolvent(self):
         """  Calculate distant solvent
         """
-        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
         try:
             of = "annot-distant-" + self.__testFileAnnotSolvent + ".gz"
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
@@ -372,16 +341,15 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             dp.expLog("annot-distant-solvent.log")
             dp.exp(of)
             dp.cleanup()
-        except:
-            traceback.print_exc(file=self.__lfh)
+        except Exception as e:
+            logger.exception("Failing with %s" % str(e))
             self.fail()
 
     def testAnnotRepositionSolvent(self):
         """  Calculate distant solvent
         """
-        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
         try:
-            #of="annot-reposition-"+self.__testFileAnnotSolvent +".gz"
             of = "annot-reposition-" + self.__testFileAnnotSolvent
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
             inpPath = os.path.join(self.__testFilePath, self.__testFileAnnotSolvent)
@@ -390,14 +358,14 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             dp.expLog("annot-reposition-solvent.log")
             dp.exp(of)
             dp.cleanup()
-        except:
-            traceback.print_exc(file=self.__lfh)
+        except Exception as e:
+            logger.exception("Failing with %s" % str(e))
             self.fail()
 
     def testAnnotBasePair(self):
         """  Calculate base pairing
         """
-        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
         try:
             of = "annot-base-pair-" + self.__testFileAnnotNA + ".gz"
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
@@ -407,14 +375,14 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             dp.expLog("annot-base-pair.log")
             dp.exp(of)
             dp.cleanup()
-        except:
-            traceback.print_exc(file=self.__lfh)
+        except Exception as e:
+            logger.exception("Failing with %s" % str(e))
             self.fail()
 
     def testAnnotValidation(self):
         """  Calculate geometrical validation -
         """
-        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
         try:
             of = "annot-validation-" + self.__testFileAnnotValidate + ".gz"
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
@@ -424,8 +392,8 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             dp.expLog("annot-validation.log")
             dp.exp(of)
             dp.cleanup()
-        except:
-            traceback.print_exc(file=self.__lfh)
+        except Exception as e:
+            logger.exception("Failing with %s" % str(e))
             self.fail()
 
     def testAnnotRcsb2Pdbx(self):
@@ -433,7 +401,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
 
              Converting to RCSB to PDB id in _entry.id and related items.
         """
-        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
         try:
             of = "annot-rcsb2pdbx-withpdbid-" + self.__testFileAnnotRcsb
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
@@ -443,8 +411,8 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             dp.expLog("annot-rcsb2pdbx.log")
             dp.exp(of)
             dp.cleanup()
-        except:
-            traceback.print_exc(file=self.__lfh)
+        except Exception as e:
+            logger.exception("Failing with %s" % str(e))
             self.fail()
 
     def testAnnotRcsb2PdbxSQ(self):
@@ -452,7 +420,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
 
              Converting to RCSB to PDB id in _entry.id and related items.
         """
-        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
         try:
             of = "annot-rcsb2pdbx-withpdbid-sq-" + self.__testFileAnnotRcsb
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
@@ -462,15 +430,15 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             dp.expLog("annot-rcsb2pdbx-sq.log")
             dp.exp(of)
             dp.cleanup()
-        except:
-            traceback.print_exc(file=self.__lfh)
+        except Exception as e:
+            logger.exception("Failing with %s" % str(e))
             self.fail()
 
     def testAnnotRcsb2PdbxSQAlt(self):
         """  RCSB CIF -> PDBx conversion  (Using the smaller application in the annotation package)
              using maxit
         """
-        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
         try:
             of = "annot-rcsb2pdbx-alt-" + self.__testFileAnnotRcsb
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
@@ -480,14 +448,14 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             dp.expLog("annot-rcsb2pdbx-alt.log")
             dp.exp(of)
             dp.cleanup()
-        except:
-            traceback.print_exc(file=self.__lfh)
+        except Exception as e:
+            logger.exception("Failing with %s" % str(e))
             self.fail()
 
     def testAnnotRcsb2PdbxStrip(self):
         """  RCSB CIF -> PDBx conversion  (Using the smaller application in the annotation package)
         """
-        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
         try:
             of = "annot-rcsb2pdbx-strip-" + self.__testFileAnnotRcsb
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
@@ -497,25 +465,8 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             dp.expLog("annot-rcsb2pdbx-strip.log")
             dp.exp(of)
             dp.cleanup()
-        except:
-            traceback.print_exc(file=self.__lfh)
-            self.fail()
-
-    def testAnnotRcsbEps2Pdbx(self):
-        """  RCSB CIFEPS -> PDBx conversion (This still requires using the full maxit application)
-        """
-        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
-        try:
-            of = "annot-rcsbeps2pdbx-" + self.__testFileAnnotRcsbEps
-            dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
-            inpPath = os.path.join(self.__testFilePath, self.__testFileAnnotRcsbEps)
-            dp.imp(inpPath)
-            dp.op("annot-rcsbeps2pdbx-strip")
-            dp.expLog("annot-rcsbeps2pdbx.log")
-            dp.exp(of)
-            # dp.cleanup()
-        except:
-            traceback.print_exc(file=self.__lfh)
+        except Exception as e:
+            logger.exception("Failing with %s" % str(e))
             self.fail()
 
     def testAnnotCSCheck(self):
@@ -523,7 +474,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
                              'nmr-cs-check-report'         :  (['html'], 'nmr-cs-check-report'),
                              'nmr-cs-xyz-check-report'     :  (['html'], 'nmr-cs-xyz-check-report'),
         """
-        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
         try:
             of = "cs-file-check.html"
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
@@ -533,14 +484,14 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             dp.expLog("annot-cs-file-check.log")
             dp.exp(of)
             # dp.cleanup()
-        except:
-            traceback.print_exc(file=self.__lfh)
+        except Exception as e:
+            logger.exception("Failing with %s" % str(e))
             self.fail()
 
     def testAnnotCSCoordCheck(self):
         """  Test CS + Coordindate file check
         """
-        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
         try:
             of = "cs-coord-file-check.html"
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
@@ -552,14 +503,14 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             dp.expLog("annot-cs-coord-file-check.log")
             dp.exp(of)
             # dp.cleanup()
-        except:
-            traceback.print_exc(file=self.__lfh)
+        except Exception as e:
+            logger.exception("Failing with %s" % str(e))
             self.fail()
 
     def testAnnotValidateListNmrTest(self):
         """  Test create validation report for the test list of example PDB ids (NMR examples)
         """
-        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
         try:
             count = 0
             for pdbId in self.__testValidateNmrIdList:
@@ -587,14 +538,14 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
                 dp.expLog(pdbId + "-annot-validate-test.log")
                 dp.expList(dstPathList=[ofpdf, ofxml, offullpdf, ofpng, ofsvg])
                 dp.cleanup()
-        except:
-            traceback.print_exc(file=self.__lfh)
+        except Exception as e:
+            logger.exception("Failing with %s" % str(e))
             self.fail()
 
     def testAnnotValidateListXrayTest(self):
         """  Test create validation report for the test list of example PDB ids (NMR examples)
         """
-        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
         try:
             for pdbId in self.__testValidateXrayIdList:
                 ofpdf = pdbId + "-valrpt.pdf"
@@ -606,7 +557,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
                 testFileValidateXyz = pdbId + ".cif"
                 testFileValidateSf = pdbId + "-sf.cif"
                 dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
-                #dp.setDebugMode(True)
+                # dp.setDebugMode(True)
 
                 xyzPath = os.path.abspath(os.path.join(self.__testFilePath, testFileValidateXyz))
                 sfPath = os.path.abspath(os.path.join(self.__testFilePath, testFileValidateSf))
@@ -618,16 +569,15 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
                 dp.op("annot-wwpdb-validate-all")
                 dp.expLog(pdbId + "-annot-validate-test.log")
                 dp.expList(dstPathList=[ofpdf, ofxml, offullpdf, ofpng, ofsvg])
-                #dp.cleanup()
-        except:
-            traceback.print_exc(file=self.__lfh)
+                # dp.cleanup()
+        except Exception as e:
+            logger.exception("Failing with %s" % str(e))
             self.fail()
-
 
     def testAnnotConsolidatedTasksWithTopology(self):
         """  Calculate annotation tasks in a single step including supporting topology data.
         """
-        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
         try:
             of = "annot-consolidated-top-" + self.__testFileAnnotSS + ".gz"
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
@@ -639,14 +589,14 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             dp.expLog("annot-consolidated-w-top.log")
             dp.exp(of)
             dp.cleanup()
-        except:
-            traceback.print_exc(file=self.__lfh)
+        except Exception as e:
+            logger.exception("Failing with %s" % str(e))
             self.fail()
 
     def testAnnotRepositionSolventPlusDerived(self):
         """  Calculate distant solvent followed by computing key derived categories --
         """
-        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
         try:
             of = "annot-reposition-add-derived-" + self.__testFileAnnotSolvent
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
@@ -656,34 +606,14 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             dp.expLog("annot-reposition-solvent-plus-derived.log")
             dp.exp(of)
             dp.cleanup()
-        except:
-            traceback.print_exc(file=self.__lfh)
-            self.fail()
-
-    def testSequenceAssignMerge(self):
-        """  test sequence assignment merge
-        """
-        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
-        try:
-            dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
-            inpPath = os.path.join(self.__testFilePath, self.__testFileCifSeq)
-            dp.imp(inpPath)
-            assignPath = os.path.join(self.__testFilePath, self.__testFileSeqAssign)
-            dp.addInput(name="seqmod_assign_file_path", value=assignPath, type="file")
-            dp.op("annot-merge-sequence-data")
-            dp.exp("model-with-merged-seq-assignments.cif")
-            dp.expLog("annot-seqmod-merge.log")
-
-            # dp.cleanup()
-
-        except:
-            traceback.print_exc(file=self.__lfh)
+        except Exception as e:
+            logger.exception("Failing with %s" % str(e))
             self.fail()
 
     def testAnnotMapCalc(self):
         """  Test create density maps --
         """
-        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
         try:
             for pdbId in ['1cbs', '3of4', '3oqp']:
                 of2fofc = pdbId + "_2fofc.map"
@@ -701,14 +631,14 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
                 dp.expLog(pdbId + "-annot-make-maps.log")
                 dp.expList(dstPathList=[of2fofc, offofc])
                 # dp.cleanup()
-        except:
-            traceback.print_exc(file=self.__lfh)
+        except Exception as e:
+            logger.exception("Failing with %s" % str(e))
             self.fail()
 
     def testAnnotLigandMapCalc(self):
         """  Test create density maps --
         """
-        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
         try:
             for pdbId in ['2yn2']:
                 # of2fofc=pdbId+"_2fofc.map"
@@ -717,7 +647,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
                 testFileXyz = pdbId + ".cif"
                 testFileSf = pdbId + "-sf.cif"
 
-                dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True, log=self.__lfh)
+                dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
                 xyzPath = os.path.join(self.__testFilePath, testFileXyz)
                 sfPath = os.path.join(self.__testFilePath, testFileSf)
                 outMapPath = '.'
@@ -730,14 +660,14 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
                 dp.expLog(pdbId + "-annot-make-ligand-maps.log")
                 # dp.expList(dstPathList=[of2fofc,offofc])
                 # dp.cleanup()
-        except:
-            traceback.print_exc(file=self.__lfh)
+        except Exception as e:
+            logger.exception("Failing with %s" % str(e))
             self.fail()
 
     def testAnnotDccRsrReport(self):
         """  Test create DCC report -
         """
-        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
         try:
             ofn = "dcc-rsr-report.cif"
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
@@ -751,14 +681,14 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             dp.expLog("dcc-rsr-report.log")
             dp.exp(ofn)
             # dp.cleanup()
-        except:
-            traceback.print_exc(file=self.__lfh)
+        except Exception as e:
+            logger.exception("Failing with %s" % str(e))
             self.fail()
 
     def testAnnotDccReport(self):
         """  Test create DCC report -
         """
-        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
         try:
             ofn = "dcc-report.cif"
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
@@ -771,14 +701,14 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             dp.exp(ofn)
             # dp.expList(dstPathList=[ofpdf,ofxml])
             dp.cleanup()
-        except:
-            traceback.print_exc(file=self.__lfh)
+        except Exception as e:
+            logger.exception("Failing with %s" % str(e))
             self.fail()
 
     def testAnnotMtz2PdbxGood(self):
         """  Test mtz to pdbx conversion  (good mtz)
         """
-        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
         try:
             diagfn = "sf-convert-diags.cif"
             ciffn = "sf-convert-datafile.cif"
@@ -792,14 +722,14 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             dp.expLog("sf-convert.log")
             dp.expList(dstPathList=[ciffn, diagfn, dmpfn])
             # dp.cleanup()
-        except:
-            traceback.print_exc(file=self.__lfh)
+        except Exception as e:
+            logger.exception("Failing with %s" % str(e))
             self.fail()
 
     def testAnnotMtz2PdbxBad(self):
         """  Test mtz to pdbx conversion
         """
-        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
         try:
             diagfn = "sf-convert-diags-bad.cif"
             ciffn = "sf-convert-datafile-bad.cif"
@@ -818,14 +748,14 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             dp.expLog("sf-convert-bad.log")
             dp.expList(dstPathList=[ciffn, diagfn, dmpfn])
             # dp.cleanup()
-        except:
-            traceback.print_exc(file=self.__lfh)
+        except Exception as e:
+            logger.exception("Failing with %s" % str(e))
             self.fail()
 
     def testAnnotMtz2PdbxBadTimeout(self):
         """  Test mtz to pdbx conversion
         """
-        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
         try:
             diagfn = "sf-convert-diags-bad-runaway.cif"
             ciffn = "sf-convert-datafile-bad-runaway.cif"
@@ -839,14 +769,14 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             dp.expLog("sf-convert-runaway.log")
             dp.expList(dstPathList=[ciffn, diagfn, dmpfn])
             # dp.cleanup()
-        except:
-            traceback.print_exc(file=self.__lfh)
+        except Exception as e:
+            logger.exception("Failing with %s" % str(e))
             self.fail()
 
     def testMapFix(self):
         """  Test mapfix utility
         """
-        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
         try:
 
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
@@ -858,23 +788,23 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             dp.expLog("mapfix-big.log")
             dp.exp(of)
             # dp.cleanup()
-        except:
-            traceback.print_exc(file=self.__lfh)
+        except Exception as e:
+            logger.exception("Failing with %s" % str(e))
             self.fail()
 
     def testSpecialPosition(self):
         """  Test for atom on special position
         """
-        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
         try:
 
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
             #
-            #dp.setDebugMode(True)
+            # dp.setDebugMode(True)
             #
             inpPath = os.path.join(self.__testFilePath, self.__testFileValidateXyz)
             dp.imp(inpPath)
-            ret = dp.op("annot-dcc-special-position")
+            dp.op("annot-dcc-special-position")
             dp.expLog("special-position.log")
             dp.exp("special-position-output.log")
             f = open('special-position-output.log', 'r')
@@ -882,8 +812,8 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             f.close()
             self.assertIn('No atoms sit on special position', lines)
             dp.cleanup()
-        except:
-            traceback.print_exc(file=self.__lfh)
+        except Exception as e:
+            logger.exception("Failing with %s" % str(e))
             self.fail()
 
         # This case has atoms on special position that needs correction
@@ -891,11 +821,11 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
 
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
             #
-            #dp.setDebugMode(True)
+            # dp.setDebugMode(True)
             #
             inpPath = os.path.join(self.__testFilePath, self.__testSpecialPosition)
             dp.imp(inpPath)
-            ret = dp.op("annot-dcc-special-position")
+            dp.op("annot-dcc-special-position")
             dp.expLog("special-position2.log")
             dp.exp("special-position-output2.log")
             f = open('special-position-output2.log', 'r')
@@ -903,22 +833,21 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             f.close()
             self.assertIn('Error: Wrong occupancy of 1.00 for atom (O : id=D_HOH_1)', lines)
             dp.cleanup()
-        except:
-            traceback.print_exc(file=self.__lfh)
+        except Exception as e:
+            logger.exception("Failing with %s" % str(e))
             self.fail()
-
 
     def testFixSpecialPosition(self):
         """  Test for fixing atoms on special position
         """
-        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
         try:
 
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
             #
             inpPath = os.path.join(self.__testFilePath, self.__testFileValidateXyz)
             dp.imp(inpPath)
-            ret = dp.op("annot-dcc-fix-special-position")
+            dp.op("annot-dcc-fix-special-position")
             dp.expLog("special-position-fix.log")
             dp.exp("special-position-output-fix.log")
 
@@ -930,8 +859,8 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             f.close()
             self.assertIn('No atoms sit on special position', lines)
             dp.cleanup()
-        except:
-            traceback.print_exc(file=self.__lfh)
+        except Exception as e:
+            logger.exception("Failing with %s" % str(e))
             self.fail()
 
         # This case has atoms on special position that needs correction
@@ -939,11 +868,11 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
 
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
             #
-            #dp.setDebugMode(True)
+            # dp.setDebugMode(True)
             #
             inpPath = os.path.join(self.__testFilePath, self.__testSpecialPosition)
             dp.imp(inpPath)
-            ret = dp.op("annot-dcc-fix-special-position")
+            dp.op("annot-dcc-fix-special-position")
             dp.expLog("special-position-fix2.log")
             dp.exp("special-position-output-fix2.log")
 
@@ -960,17 +889,14 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             f.close()
             self.assertIn('Error: Wrong occupancy of 1.00 for atom (O : id=D_HOH_1)', lines)
             dp.cleanup()
-        except:
-            traceback.print_exc(file=self.__lfh)
+        except Exception as e:
+            logger.exception("Failing with %s" % str(e))
             self.fail()
-
-
-
 
     def testEm2EmSpider(self):
         """  Test mapfix utility
         """
-        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
         try:
 
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
@@ -986,14 +912,14 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             dp.expLog("em2em-spider.log")
             dp.exp(of)
             # dp.cleanup()
-        except:
-            traceback.print_exc(file=self.__lfh)
+        except Exception as e:
+            logger.exception("Failing with %s" % str(e))
             self.fail()
 
     def testAnnotPrdSearch(self):
         """  Test case for PRD Search --
         """
-        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
         try:
             ofn = "prd-search-result.cif"
             firstModelPath = os.path.abspath('firstmodel.cif')
@@ -1007,14 +933,14 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             dp.expLog("prd-search-execution.log")
             dp.exp(ofn)
             # dp.cleanup()
-        except:
-            traceback.print_exc(file=self.__lfh)
+        except Exception as e:
+            logger.exception("Failing with %s" % str(e))
             self.fail()
 
     def testAnnotUpdateDepositorAssembly(self):
         """  Update deposition provided assembly info into model (need better test example)
         """
-        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
         try:
             of = "annot-update-assembly-" + self.__testDepAssembly
 
@@ -1025,8 +951,8 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             dp.expLog("annot-update-dep-assembly.log")
             dp.exp(of)
             dp.cleanup()
-        except:
-            traceback.print_exc(file=self.__lfh)
+        except Exception as e:
+            logger.exception("Failing with %s" % str(e))
             self.fail()
 
 
@@ -1104,7 +1030,6 @@ def suiteSolventPlusDerivedTests():
 
 def suiteMergeSeqAssignTests():
     suiteSelect = unittest.TestSuite()
-    suiteSelect.addTest(RcsbDpUtilityAnnotTests("testSequenceAssignMerge"))
     return suiteSelect
 
 
@@ -1114,9 +1039,10 @@ def suiteMapCalcTests():
     # suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotLigandMapCalc"))
     return suiteSelect
 
+
 def suiteSpecialPositionTests():
     suiteSelect = unittest.TestSuite()
-    #suiteSelect.addTest(RcsbDpUtilityAnnotTests("testSpecialPosition"))
+    suiteSelect.addTest(RcsbDpUtilityAnnotTests("testSpecialPosition"))
     suiteSelect.addTest(RcsbDpUtilityAnnotTests("testFixSpecialPosition"))
     return suiteSelect
 
@@ -1139,6 +1065,7 @@ def suiteValidateGeometryCheckTests():
     suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotValidateGeometryCheck"))
     return suiteSelect
 
+
 def suiteGetCorresInfoTests():
     suiteSelect = unittest.TestSuite()
     # suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotGetCorresInfo"))
@@ -1160,7 +1087,6 @@ def suiteAnnotFormatConvertTests():
     suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotRcsb2PdbxSQ"))
     suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotRcsb2PdbxSQAlt"))
     suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotRcsb2PdbxStrip"))
-    suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotRcsbEps2Pdbx"))
     return suiteSelect
 
 
@@ -1169,11 +1095,12 @@ def suiteArchiveValidationNmrTests():
     suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotValidateListNmrTest"))
     return suiteSelect
 
+
 if __name__ == '__main__':
     # Run all tests --
     # unittest.main()
     #
-    doAll = False
+    doAll = True
 #    doAll = True
 
     if (doAll):
@@ -1199,9 +1126,6 @@ if __name__ == '__main__':
         unittest.TextTestRunner(verbosity=2).run(mySuite)
 
         mySuite = suiteAnnotFormatConvertTests()
-        unittest.TextTestRunner(verbosity=2).run(mySuite)
-
-        mySuite = suiteMergeSeqAssignTests()
         unittest.TextTestRunner(verbosity=2).run(mySuite)
 
         mySuite = suiteMapCalcTests()
@@ -1237,19 +1161,11 @@ if __name__ == '__main__':
     else:
         pass
 
-    #mySuite = suiteSpecialPositionTests()
-    #unittest.TextTestRunner(verbosity=2).run(mySuite)
-
     mySuite = suiteArchiveValidationXrayTests()
     unittest.TextTestRunner(verbosity=2).run(mySuite)
     #
     mySuite = suiteArchiveValidationNmrTests()
     unittest.TextTestRunner(verbosity=2).run(mySuite)
     #
-    #mySuite = suiteAnnotSiteTests()
-    #unittest.TextTestRunner(verbosity=2).run(mySuite)
-    #
-    #mySuite = suiteAnnotSiteAltTests()
-    #unittest.TextTestRunner(verbosity=2).run(mySuite)
     mySuite = suiteGetCorresInfoTests()
     unittest.TextTestRunner(verbosity=2).run(mySuite)
