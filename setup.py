@@ -44,7 +44,7 @@ setup(
         'console_scripts': []
     },
     #
-    install_requires=['future', 'mmcif; python_version >= "0.18"', 'wwpdb.utils.config >= "0.10"', 'wwpdb.utils.testing>= "0.10"'],
+    install_requires=['future', 'mmcif; python_version >= "0.18"', 'wwpdb.utils.config >= "0.10"', 'wwpdb.utils.testing>= "0.10"', 'wwpdb.io'],
     packages=find_packages(exclude=['wwpdb.mock-data', 'wwpdb.utils.tests-dp', 'tests.*']),
     package_data={
         # If any package contains *.md or *.rst ...  files, include them:
