@@ -1132,7 +1132,7 @@ class RcsbDpUtility(object):
                     deleteRunDir = True
                 elif self.__siteWebAppsSessionsPath and os.access(self.__siteWebAppsSessionsPath, os.W_OK):
                     runDir = os.path.join(self.__siteWebAppsSessionsPath, "validation_%s" % random.randrange(9999999))
-                    deleteRunDir = True
+                    deleteRunDir = False
             kind = None
             if 'kind' in self.__inputParamDict:
                 kind = self.__inputParamDict['kind']
@@ -1433,7 +1433,7 @@ class RcsbDpUtility(object):
             cmd += " ; DCCPY_DIR=" + os.path.join(self.__packagePath, 'sf-valid') + " ; export DCCPY_DIR "
             cmd += " ; DCCPY=" + os.path.join(self.__packagePath, 'sf-valid') + " ; export DCCPY "
             cmd += " ; CCP4=" + ccp4_path + " ; export CCP4 "
-            cmd += " ; source {}/bin/ccp4.setup.sh ".format(ccp4_path)
+            cmd += " ; source {}/bin/ccp4.setup-sh ".format(ccp4_path)
             #
             cmdPath = os.path.join(self.__packagePath, "sf-valid", "bin", "sf_convert")
             thisCmd = " ; " + cmdPath
@@ -1467,7 +1467,7 @@ class RcsbDpUtility(object):
             cmd += " ; WWPDB_SITE_ID=" + self.__siteId + " ; export WWPDB_SITE_ID "
             cmd += " ; PACKAGE_DIR=" + self.__packagePath + " ; export PACKAGE_DIR "
             cmd += " ; CCP4=" + ccp4_path + " ; export CCP4 "
-            cmd += " ; source {}/bin/ccp4.setup.sh ".format(ccp4_path)
+            cmd += " ; source {}/bin/ccp4.setup-sh ".format(ccp4_path)
             #
             thisCmd = " ; " + os.path.join(self.__packagePath, "sf-valid", "toolpy", "tls_correct.py")
             #
@@ -2821,7 +2821,8 @@ class RcsbDpUtility(object):
             # -pdbxDicSdb /whaterver/the/path/is/used/mmcif_pdbx.sdb
             cmdPath = os.path.join(self.__packagePath, "dict", "bin", "cifexch2")
             # thisCmd  = " ; " + cmdPath + " -dicSdb " + self.__pathPdbxDictSdb +  " -reorder  -strip -op in  -pdbids "
-            thisCmd = " ; " + cmdPath + " -dicSdb " + self.__pathPdbxDictSdb + " -pdbxDicSdb " + self.__pathPdbxV4DictSdb + " -reorder  -strip -op in  -pdbids "
+            #thisCmd = " ; " + cmdPath + " -dicSdb " + self.__pathPdbxDictSdb + " -pdbxDicSdb " + self.__pathPdbxV4DictSdb + " -reorder  -strip -op in  -pdbids "
+            thisCmd = " ; " + cmdPath + " -dicSdb " + self.__nameToDictPath('deposit') + " -pdbxDicSdb " + self.__nameToDictPath('archive_current') + " -reorder  -strip -op in  -pdbids "
             cmd += thisCmd + " -input " + iPath + " -output " + oPath
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
 
