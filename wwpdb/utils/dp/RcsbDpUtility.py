@@ -1179,8 +1179,7 @@ class RcsbDpUtility(object):
             cmd += " ; %s --validation " % site_config_command
             # cmd += " ; env "
 
-            cmdPath = os.path.join(self.__topPythonDir, 'wwpdb/apps/validation', 'src/python/validator.py')
-            thisCmd = " ; python " + cmdPath
+            thisCmd = " ; python -m wwpdb.apps.validation.src.validator"
 
             cmd += thisCmd + " --mmciffile %s --xml %s --pdf %s --fullpdf %s --png %s --svg %s" % (iPathFull, xmlPath, pdfPath,
                                                                                                    pdfFullPath, pngPath, svgPath)
