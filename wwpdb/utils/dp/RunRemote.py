@@ -109,9 +109,9 @@ class RunRemote:
                     break
                 else:
                     retries += 1
-                    logging.info('try {} of {}, wait for {} seconds'.format(retries, max_num_of_retries, self.bsub_retry_delay))
+                    logging.info(
+                        'try {} of {}, wait for {} seconds'.format(retries, max_num_of_retries, self.bsub_retry_delay))
                     time.sleep(int(self.bsub_retry_delay))
-
 
     def run_command(self, command, log_file=None, new_env=None):
         # command_list = shlex.split(command)
@@ -210,21 +210,23 @@ class RunRemote:
         if not os.path.exists(self.log_dir):
             os.makedirs(self.log_dir)
 
-         # if get non ok exit status from bsub then wait 30 seconds and try again.
+        # if get non ok exit status from bsub then wait 30 seconds and try again.
         i = 0
         rc, out, err = 0, None, None
 
         # error codes
         # 0 everything is ok
         # 159/153 file too large - need additional resources, trying again wont help
-        # 255 is ssh connection dropped so task is still ongoing
-        allowed_codes = (0, 153, 159, 255)
+        # 255 is ssh connection dropped so task is still ongoing - this is also when lsf is not ready
+        allowed_codes = (0, 153, 159)
 
-        while i < 3:
+        while i < 10:
             rc, out, err = self.launch_bsub()
             if rc in allowed_codes:
                 break
-            time.sleep(30)
+            delay_time = i * 2
+            logging.info('bsub return code of {}. Waiting for {}'.format(rc, delay_time))
+            time.sleep(delay_time)
             i += 1
 
         if rc not in allowed_codes:
@@ -246,9 +248,8 @@ if __name__ == '__main__':
     parser.add_argument('--memory_limit', help='starting memory limit', type=int, default=0)
     parser.add_argument('--num_processors', help='number of processors', type=int, default=1)
     parser.add_argument('--add_site_config', help='add site config to command', action='store_true')
-    parser.add_argument('--add_site_config_with_database', help='add site config with database to command', action='store_true')
-
-
+    parser.add_argument('--add_site_config_with_database', help='add site config with database to command',
+                        action='store_true')
 
     args = parser.parse_args()
     logger.setLevel(args.loglevel)
