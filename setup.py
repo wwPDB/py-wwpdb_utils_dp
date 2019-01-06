@@ -28,7 +28,7 @@ setup(
     url='https://github.com/wwpdb/py-wwpdb_utils_dp',
     #
     license='Apache 2.0',
-    classifiers=(
+    classifiers=[
         'Development Status :: 3 - Alpha',
         # 'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
@@ -39,12 +39,12 @@ setup(
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
-    ),
+    ],
     entry_points={
         'console_scripts': []
     },
     #
-    install_requires=['future', 'mmcif; python_version >= "0.18"', 'wwpdb.utils.config >= 0.1', 'wwpdb.utils.testing >= 0.4', 'wwpdb.io'],
+    install_requires=['future', 'mmcif ~= 0.18', 'wwpdb.utils.config ~= 0.1', 'wwpdb.utils.testing ~= 0.4', 'wwpdb.io'],
     packages=find_packages(exclude=['wwpdb.mock-data', 'wwpdb.utils.tests-dp', 'tests.*']),
     package_data={
         # If any package contains *.md or *.rst ...  files, include them:
