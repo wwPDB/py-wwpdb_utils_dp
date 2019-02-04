@@ -1105,6 +1105,9 @@ class RcsbDpUtility(object):
             #
             #  'request_validation_mode'    override site and other presentation settings -
             #
+            #  'always_clear_calcs'         Boolean, if set always clears validation workspace
+            #  'always_retain_calcs'        Boolean, if set always retain validation working directories
+            #
             #                      - The following is for legacy support -
             #  'request_annotation_context'  parameter to override site environment setting -- can force annotation
             #
@@ -1119,7 +1122,7 @@ class RcsbDpUtility(object):
                     validation_mode = 'annotate'
 
             # If user requests a run_dir - they cleanup
-            # If not - and we create - we cleanup
+            # If not - and we create - we cleanup if session directory.
             # If not specified at all - validation code will delete
             runDir = None
             deleteRunDir = False
@@ -1133,6 +1136,13 @@ class RcsbDpUtility(object):
                 elif self.__siteWebAppsSessionsPath and os.access(self.__siteWebAppsSessionsPath, os.W_OK):
                     runDir = os.path.join(self.__siteWebAppsSessionsPath, "validation_%s" % random.randrange(9999999))
                     deleteRunDir = False
+
+            if 'always_clear_calcs' in self.__inputParamDict:
+                deleteRunDir = True
+
+            if 'always_retain_calcs' in self.__inputParamDict:
+                deleteRunDir = False
+
             kind = None
             if 'kind' in self.__inputParamDict:
                 kind = self.__inputParamDict['kind']
