@@ -82,6 +82,13 @@ class RunRemote:
 
         return human_time
 
+    @staticmethod
+    def touch(fname):
+        if os.path.exists(fname):
+            os.utime(fname, None)
+        else:
+            open(fname, 'a').close()
+
     def get_site_config_command(self, suffix=''):
         site_config_init_path = self.cI.get('TOP_WWPDB_SITE_CONFIG_INIT')
         site_loc = self.cI.get('WWPDB_SITE_LOC')
@@ -210,6 +217,8 @@ class RunRemote:
         if not os.path.exists(self.log_dir):
             os.makedirs(self.log_dir)
 
+        temp_file = os.path.join(self.log_dir, 'bsub_temp_file.out')
+
         # if get non ok exit status from bsub then wait 30 seconds and try again.
         i = 0
         rc, out, err = 0, None, None
@@ -232,6 +241,7 @@ class RunRemote:
         if rc not in allowed_codes:
             return rc, out, err
 
+        self.touch(temp_file)
         self.check_bsub_finished()
         self.parse_bsub_log()
 
