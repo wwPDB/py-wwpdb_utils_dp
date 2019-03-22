@@ -182,7 +182,7 @@ class RcsbDpUtility(object):
         self.__annotationOps = ["annot-secondary-structure", "annot-link-ssbond", "annot-cis-peptide", "annot-distant-solvent",
                                 "annot-merge-struct-site", "annot-reposition-solvent", "annot-base-pair-info",
                                 "annot-validation", "annot-site", "annot-rcsb2pdbx", "annot-consolidated-tasks",
-                                "annot-wwpdb-validate-all", "prd-search",
+                                "annot-wwpdb-validate-all", "annot-wwpdb-validate-all-v2", "prd-search",
                                 "annot-chem-shift-check", "annot-chem-shift-coord-check",
                                 "annot-nmrstar2pdbx", "annot-pdbx2nmrstar", "annot-pdbx2nmrstar-bmrb",
                                 "annot-reposition-solvent-add-derived", "annot-rcsb2pdbx-strip", "annot-rcsbeps2pdbx-strip",
@@ -1097,9 +1097,9 @@ class RcsbDpUtility(object):
 
             logging.warning(cmd)
 
-        elif (op == "annot-wwpdb-validate-all"):
+        elif (op in ["annot-wwpdb-validate-all", "annot-wwpdb-validate-all-v2"]):
             #
-            #   "annot-wwpdb-validate-all" handles inputs for all exp methods  ---
+            #   "annot-wwpdb-validate-all" and "annot-wwpdb-validate-all-v2 "handles inputs for all exp methods  ---
             #
             #   Launches the validation software
             #
@@ -1110,6 +1110,11 @@ class RcsbDpUtility(object):
             #
             #                      - The following is for legacy support -
             #  'request_annotation_context'  parameter to override site environment setting -- can force annotation
+            #
+            #  Returned files: annot-wwpdb-validate-all: [pdf, xml, pdfFull, png, svg]
+            #
+            #  For annot-wwpdb-validate-all-v2: [pdf, xml, pdfFull, png, svg, edmapcoef]
+            #
             #
             validation_mode = 'release'
             if 'request_validation_mode' in self.__inputParamDict:
@@ -1180,6 +1185,7 @@ class RcsbDpUtility(object):
             pdfFullPath = os.path.abspath(os.path.join(self.__wrkPath, "out_full.pdf"))
             pngPath = os.path.abspath(os.path.join(self.__wrkPath, "out.png"))
             svgPath = os.path.abspath(os.path.join(self.__wrkPath, "out.svg"))
+            edmapCoefPath = os.path.abspath(os.path.join(self.__wrkPath, "out.mtz"))
             site_config_command = ". %s/init/env.sh -s %s -l %s" % (self.__siteConfigDir, self.__siteId, self.__siteLoc)
 
             cmd += " ; %s " % site_config_command
@@ -1203,6 +1209,8 @@ class RcsbDpUtility(object):
 
             if sfPathFull:
                 cmd += " --reflectionsfile " + sfPathFull
+                if op == "annot-wwpdb-validate-all-v2":
+                    cmd += " --edsmapcoef " + edmapCoefPath 
 
             if csPathFull:
                 cmd += " --shiftsfiles " + csPathFull
@@ -1977,7 +1985,7 @@ class RcsbDpUtility(object):
             strpCt = PdbxStripCategory(verbose=self.__verbose, log=self.__lfh)
             strpCt.strip(oPath2Full, oPathFull, stripList)
 
-        if (op == "annot-wwpdb-validate-all"):
+        if (op in ["annot-wwpdb-validate-all", "annot-wwpdb-validate-all-v2"]):
             self.__resultPathList = []
             #
             # Push the output pdf and xml files onto the resultPathList.
@@ -2006,6 +2014,12 @@ class RcsbDpUtility(object):
                 self.__resultPathList.append(svgPath)
             else:
                 self.__resultPathList.append("missing")
+
+            if op == "annot-wwpdb-validate-all-v2":
+                if os.access(edmapCoefPath, os.F_OK):
+                    self.__resultPathList.append(edmapCoefPath)
+                else:
+                    self.__resultPathList.append("missing")
 
             # Cleanup workdir
             if deleteRunDir:
