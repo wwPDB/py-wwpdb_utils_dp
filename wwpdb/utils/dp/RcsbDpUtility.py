@@ -107,6 +107,7 @@
 # 20-Aug-2018 ep  For "annot-site" do not include CCP4/lib directory - as including shared libraries from there interferes with system gfortran
 #
 # 16-Oct-2018 jdw Adapt for Py2/3 and new python packaging
+# 27-Mar-2019 zf  Add "prd-process-summary"
 ##
 """
 Wrapper class for data processing and chemical component utilities.
@@ -182,7 +183,7 @@ class RcsbDpUtility(object):
         self.__annotationOps = ["annot-secondary-structure", "annot-link-ssbond", "annot-cis-peptide", "annot-distant-solvent",
                                 "annot-merge-struct-site", "annot-reposition-solvent", "annot-base-pair-info",
                                 "annot-validation", "annot-site", "annot-rcsb2pdbx", "annot-consolidated-tasks",
-                                "annot-wwpdb-validate-all", "annot-wwpdb-validate-all-v2", "prd-search",
+                                "annot-wwpdb-validate-all", "annot-wwpdb-validate-all-v2", "prd-search", "prd-process-summary",
                                 "annot-chem-shift-check", "annot-chem-shift-coord-check",
                                 "annot-nmrstar2pdbx", "annot-pdbx2nmrstar", "annot-pdbx2nmrstar-bmrb",
                                 "annot-reposition-solvent-add-derived", "annot-rcsb2pdbx-strip", "annot-rcsbeps2pdbx-strip",
@@ -1865,6 +1866,26 @@ class RcsbDpUtility(object):
             if 'firstmodel' in self.__inputParamDict:
                 cmd += " -firstmodel " + self.__inputParamDict['firstmodel']
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
+
+        elif (op == "prd-process-summary"):
+            resultFilePath = None
+            if 'resultFile' in self.__inputParamDict:
+                resultFilePath =  self.__inputParamDict['resultFile']
+            #
+            logFilePath = None
+            if 'logfile' in self.__inputParamDict:
+                logFilePath = self.__inputParamDict['logfile']
+            #
+            if (not resultFilePath) or not (logFilePath):
+                return -1
+            #
+            site_config_command = ". %s/init/env.sh -s %s -l %s" % (self.__siteConfigDir, self.__siteId, self.__siteLoc)
+            cmd += " ; %s " % site_config_command
+
+            thisCmd = " ; python -m wwpdb.apps.entity_transform.depict.ProcessSummary_main"
+            cmd += thisCmd + " --input %s --path %s" % (resultFilePath, self.__tmpPath)
+            cmd += " > " + logFilePath + " 2>&1 ; "
+
         else:
 
             return -1
