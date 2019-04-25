@@ -624,12 +624,12 @@ class RcsbDpUtility(object):
         # JDW 2013-02-26
         self.__rcsbAppsPath = self.__getConfigPath('SITE_ANNOT_TOOLS_PATH')
         #
-        # These may not be needed --
-        self.__pdbxDictPath = self.__getConfigPath('SITE_PDBX_DICT_PATH')
-        self.__pdbxDictName = self.__cI.get('SITE_PDBX_DICT_NAME')
-        self.__pathDdlSdb = os.path.join(self.__pdbxDictPath, "mmcif_ddl.sdb")
-        self.__pathPdbxDictSdb = os.path.join(self.__pdbxDictPath, self.__pdbxDictName + '.sdb')
-        self.__pathPdbxDictOdb = os.path.join(self.__pdbxDictPath, self.__pdbxDictName + '.odb')
+        # These are set in the section that depends on it
+        #self.__pdbxDictPath = self.__getConfigPath('SITE_PDBX_DICT_PATH')
+        #self.__pdbxDictName = self.__cI.get('SITE_PDBX_DICT_NAME')
+        #self.__pathDdlSdb = os.path.join(self.__pdbxDictPath, "mmcif_ddl.sdb")
+        #self.__pathPdbxDictSdb = os.path.join(self.__pdbxDictPath, self.__pdbxDictName + '.sdb')
+        #self.__pathPdbxDictOdb = os.path.join(self.__pdbxDictPath, self.__pdbxDictName + '.odb')
 
         #
         #
