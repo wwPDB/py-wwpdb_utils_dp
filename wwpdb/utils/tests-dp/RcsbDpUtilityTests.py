@@ -23,17 +23,13 @@ import platform
 import sys
 import unittest
 
-HERE = os.path.abspath(os.path.dirname(__file__))
-TOPDIR = os.path.dirname(os.path.dirname(os.path.dirname(HERE)))
-try:
-    TESTOUTPUT = os.path.join(HERE, 'test-output', platform.python_version())
-    if not os.path.exists(TESTOUTPUT):
-        os.makedirs(TESTOUTPUT)
-    mockTopPath = os.path.join(TOPDIR, 'wwpdb', 'mock-data')
-    from wwpdb.utils.testing.SiteConfigSetup import SiteConfigSetup
-    SiteConfigSetup().setupEnvironment(TESTOUTPUT, mockTopPath)
-except Exception:
-    pass
+if __package__ is None or __package__ == '':
+    import sys
+    from os import path
+    sys.path.append( path.dirname( path.dirname( path.abspath(__file__) ) ) )
+    from commonsetup import TESTOUTPUT, TOPDIR
+else:
+    from .commonsetup import TESTOUTPUT, TOPDIR
 
 from wwpdb.utils.config.ConfigInfo import ConfigInfo, getSiteId
 from wwpdb.utils.dp.RcsbDpUtility import RcsbDpUtility
@@ -46,7 +42,7 @@ logger.setLevel(logging.INFO)
 class RcsbDpUtilityTests(unittest.TestCase):
 
     def setUp(self):
-        self.__tmpPath = os.path.join(HERE, 'test-output')
+        self.__tmpPath = TESTOUTPUT
         #
         self.__siteId = getSiteId(defaultSiteId=None)
         logger.info("\nTesting with site environment for:  %s\n" % self.__siteId)

@@ -7,17 +7,15 @@ import tempfile
 import shutil
 import random
 import logging
-HERE = os.path.abspath(os.path.dirname(__file__))
-TOPDIR = os.path.dirname(os.path.dirname(os.path.dirname(HERE)))
-try:
-    TESTOUTPUT = os.path.join(HERE, 'test-output', platform.python_version())
-    if not os.path.exists(TESTOUTPUT):
-        os.makedirs(TESTOUTPUT)
-    mockTopPath = os.path.join(TOPDIR, 'wwpdb', 'mock-data')
-    from wwpdb.utils.testing.SiteConfigSetup import SiteConfigSetup
-    SiteConfigSetup().setupEnvironment(TESTOUTPUT, mockTopPath)
-except Exception:
-    pass
+
+
+if __package__ is None or __package__ == '':
+    import sys
+    from os import path
+    sys.path.append( path.dirname( path.dirname( path.abspath(__file__) ) ) )
+    from commonsetup import TESTOUTPUT
+else:
+    from .commonsetup import TESTOUTPUT
 
 from wwpdb.utils.config.ConfigInfo import ConfigInfo, getSiteId
 from wwpdb.utils.dp.RcsbDpUtility import RcsbDpUtility
