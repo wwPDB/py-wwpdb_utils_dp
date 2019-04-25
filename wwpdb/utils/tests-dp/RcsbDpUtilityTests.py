@@ -27,9 +27,9 @@ if __package__ is None or __package__ == '':
     import sys
     from os import path
     sys.path.append( path.dirname( path.dirname( path.abspath(__file__) ) ) )
-    from commonsetup import TESTOUTPUT, TOPDIR
+    from commonsetup import TESTOUTPUT, TOPDIR, dictsmissing
 else:
-    from .commonsetup import TESTOUTPUT, TOPDIR
+    from .commonsetup import TESTOUTPUT, TOPDIR, dictsmissing
 
 from wwpdb.utils.config.ConfigInfo import ConfigInfo, getSiteId
 from wwpdb.utils.dp.RcsbDpUtility import RcsbDpUtility
@@ -70,6 +70,7 @@ class RcsbDpUtilityTests(unittest.TestCase):
             logger.exception("Failing with %s" % str(e))
             self.fail()
 
+    @unittest.skipIf(dictsmissing, "SITE_PDBX_DICTIONARY_NAME_DICT not in site-config")
     def testCifCheck(self):
         """
         """
@@ -86,6 +87,7 @@ class RcsbDpUtilityTests(unittest.TestCase):
             logger.exception("Failing with %s" % str(e))
             self.fail()
 
+    @unittest.skipIf(dictsmissing, "SITE_PDBX_DICTIONARY_NAME_DICT not in site-config")
     def testCifCheckExt(self):
         """
         """
@@ -104,6 +106,7 @@ class RcsbDpUtilityTests(unittest.TestCase):
             logger.exception("Failing with %s" % str(e))
             self.fail()
 
+    @unittest.skipIf(dictsmissing, "SITE_PDBX_DICTIONARY_NAME_DICT not in site-config")
     def testCif2PdbxExt(self):
         """
         """
