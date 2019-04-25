@@ -2199,11 +2199,11 @@ class RcsbDpUtility(object):
         self.__rcsbAppsPath = os.path.join(self.__packagePath, 'annotation')
         #
         # These may not be needed --
-        self.__pdbxDictPath = self.__getConfigPath('SITE_PDBX_DICT_PATH')
-        self.__pdbxDictName = self.__cI.get('SITE_PDBX_DICT_NAME')
-        self.__pathDdlSdb = os.path.join(self.__pdbxDictPath, "mmcif_ddl.sdb")
-        self.__pathPdbxDictSdb = os.path.join(self.__pdbxDictPath, self.__pdbxDictName + '.sdb')
-        self.__pathPdbxDictOdb = os.path.join(self.__pdbxDictPath, self.__pdbxDictName + '.odb')
+        #self.__pdbxDictPath = self.__getConfigPath('SITE_PDBX_DICT_PATH')
+        #self.__pdbxDictName = self.__cI.get('SITE_PDBX_DICT_NAME')
+        #self.__pathDdlSdb = os.path.join(self.__pdbxDictPath, "mmcif_ddl.sdb")
+        #self.__pathPdbxDictSdb = os.path.join(self.__pdbxDictPath, self.__pdbxDictName + '.sdb')
+        #self.__pathPdbxDictOdb = os.path.join(self.__pdbxDictPath, self.__pdbxDictName + '.odb')
 
         #
         #
@@ -2713,8 +2713,8 @@ class RcsbDpUtility(object):
         #
         self.__ccAppsPath = self.__getConfigPath('SITE_CC_APPS_PATH')
         self.__pdbxDictPath = self.__getConfigPath('SITE_PDBX_DICT_PATH')
-        self.__pdbxDictName = self.__cI.get('SITE_PDBX_DICT_NAME')
-        self.__pdbxV4DictName = self.__cI.get('SITE_PDBX_V4_DICT_NAME')
+        self.__pdbxDictName = self.__cI.get('SITE_PDBX_DICT_NAME', 'missing')
+        self.__pdbxV4DictName = self.__cI.get('SITE_PDBX_V4_DICT_NAME', 'missing')
 
         self.__ccDictPath = self.__getConfigPath('SITE_CC_DICT_PATH')
         self.__ccCvsPath = self.__getConfigPath('SITE_CC_CVS_PATH')
