@@ -34,9 +34,9 @@ if __package__ is None or __package__ == '':
     import sys
     from os import path
     sys.path.append( path.dirname( path.dirname( path.abspath(__file__) ) ) )
-    from commonsetup import TESTOUTPUT, TOPDIR
+    from commonsetup import TESTOUTPUT, TOPDIR, toolsmissing
 else:
-    from .commonsetup import TESTOUTPUT, TOPDIR
+    from .commonsetup import TESTOUTPUT, TOPDIR, toolsmissing
 
 from wwpdb.utils.config.ConfigInfo import ConfigInfo, getSiteId
 from wwpdb.utils.dp.RcsbDpUtility import RcsbDpUtility
@@ -44,6 +44,9 @@ from wwpdb.utils.dp.RcsbDpUtility import RcsbDpUtility
 if not skiptest:
     matplotlib.use('Agg')
 
+skipnodisplay = True
+if os.getenv('DISPLAY'):
+    skipnodisplay = True
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(levelname)s]-%(module)s.%(funcName)s: %(message)s')
 logger = logging.getLogger()
@@ -90,6 +93,9 @@ class RcsbDpUtilityEmTests(unittest.TestCase):
             logger.exception("Failing with %s" % str(e))
             self.fail()
 
+    @unittest.skipIf(skiptest, "Matplotlib")
+    @unittest.skipIf(toolsmissing, "Tools not available for testing")
+    @unittest.skipIf(skipnodisplay, "DISPLAY environment not set")
     def testReadMapHeader(self):
         """  Test read map header -- export JSON packet and plot density distribution -
         """
@@ -141,6 +147,8 @@ class RcsbDpUtilityEmTests(unittest.TestCase):
             logger.exception("Failing with %s" % str(e))
             self.fail()
 
+    @unittest.skipIf(skiptest, "Matplotlib")
+    @unittest.skipIf(toolsmissing, "Tools not available for testing")
     def testReadMapHeaderPygal(self):
         """  Test read map header -- export JSON packet and plot density distribution -
         """

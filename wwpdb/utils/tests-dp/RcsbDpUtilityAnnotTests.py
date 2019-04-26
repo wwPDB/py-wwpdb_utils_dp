@@ -40,9 +40,9 @@ if __package__ is None or __package__ == '':
     import sys
     from os import path
     sys.path.append( path.dirname( path.dirname( path.abspath(__file__) ) ) )
-    from commonsetup import TESTOUTPUT, TOPDIR
+    from commonsetup import TESTOUTPUT, TOPDIR, toolsmissing
 else:
-    from .commonsetup import TESTOUTPUT, TOPDIR
+    from .commonsetup import TESTOUTPUT, TOPDIR, toolsmissing
 
 from wwpdb.utils.config.ConfigInfo import ConfigInfo, getSiteId
 from wwpdb.utils.dp.RcsbDpUtility import RcsbDpUtility
@@ -50,7 +50,6 @@ from wwpdb.utils.dp.RcsbDpUtility import RcsbDpUtility
 logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(levelname)s]-%(module)s.%(funcName)s: %(message)s')
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
-
 
 class RcsbDpUtilityAnnotTests(unittest.TestCase):
 
@@ -80,7 +79,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
         self.__testIdAnnotSiteAlt = '4P00'
 
         ## OK JDW
-        self.__testFileAnnotRcsb = 'rcsb033781.cif'
+        self.__testFileAnnotRcsb = '3of4.cif'
         #
         self.__testFilePdbPisa = '1xbb.pdb'
         self.__testFileCifPisa = '1xbb.cif'
@@ -115,6 +114,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
     def tearDown(self):
         pass
 
+    @unittest.skipIf(toolsmissing, "Tools not available for testing")
     def testValidateGeometryCheck(self):
         """  Test format sanity check for pdbx
         """
@@ -133,6 +133,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             logger.exception("Failing with %s" % str(e))
             self.fail()
 
+    @unittest.skipIf(toolsmissing, "Tools not available for testing")
     def testAnnotValidateGeometryCheck(self):
         """  Test of updating geometrical validation diagnostics -
         """
@@ -151,6 +152,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             logger.exception("Failing with %s" % str(e))
             self.fail()
 
+    @unittest.skipIf(toolsmissing, "Tools not available for testing")
     def testAnnotGetCorresInfo(self):
         """  Test running GetCorresInfo to get correspondance info -
         """
@@ -170,6 +172,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             logger.exception("Failing with %s" % str(e))
             self.fail()
 
+    @unittest.skipIf(toolsmissing, "Tools not available for testing")
     def testAnnotFormatCheck(self):
         """  Test format sanity check for pdbx
         """
@@ -189,6 +192,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             logger.exception("Failing with %s" % str(e))
             self.fail()
 
+    @unittest.skipIf(toolsmissing, "Tools not available for testing")
     def testAnnotSite(self):
         """  Calculate site environment
         """
@@ -208,6 +212,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             logger.exception("Failing with %s" % str(e))
             self.fail()
 
+    @unittest.skipIf(toolsmissing, "Tools not available for testing")
     def testAnnotSiteAlt(self):
         """  Calculate site environment
         """
@@ -227,6 +232,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             logger.exception("Failing with %s" % str(e))
             self.fail()
 
+    @unittest.skipIf(toolsmissing, "Tools not available for testing")
     def testAnnotSiteAndMerge(self):
         """  Calculate site environment
         """
@@ -254,6 +260,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             logger.exception("Failing with %s" % str(e))
             self.fail()
 
+    @unittest.skipIf(toolsmissing, "Tools not available for testing")
     def testAnnotSecondaryStructureWithTopology(self):
         """  Calculate secondary structure with a supporting topology file.
         """
@@ -273,6 +280,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             logger.exception("Failing with %s" % str(e))
             self.fail()
 
+    @unittest.skipIf(toolsmissing, "Tools not available for testing")
     def testAnnotSecondaryStructure(self):
         """  Calculate secondary structure for a complicated case where pro-motif will fail.
         """
@@ -290,6 +298,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             logger.exception("Failing with %s" % str(e))
             self.fail()
 
+    @unittest.skipIf(toolsmissing, "Tools not available for testing")
     def testAnnotLinkSSBond(self):
         """  Calculate link and ss-bond features -
         """
@@ -307,6 +316,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             logger.exception("Failing with %s" % str(e))
             self.fail()
 
+    @unittest.skipIf(toolsmissing, "Tools not available for testing")
     def testAnnotCisPeptide(self):
         """  Calculate cis-peptide linkages -
         """
@@ -324,6 +334,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             logger.exception("Failing with %s" % str(e))
             self.fail()
 
+    @unittest.skipIf(toolsmissing, "Tools not available for testing")
     def testAnnotDistantSolvent(self):
         """  Calculate distant solvent
         """
@@ -341,6 +352,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             logger.exception("Failing with %s" % str(e))
             self.fail()
 
+    @unittest.skipIf(toolsmissing, "Tools not available for testing")
     def testAnnotRepositionSolvent(self):
         """  Calculate distant solvent
         """
@@ -358,6 +370,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             logger.exception("Failing with %s" % str(e))
             self.fail()
 
+    @unittest.skipIf(toolsmissing, "Tools not available for testing")
     def testAnnotBasePair(self):
         """  Calculate base pairing
         """
@@ -375,6 +388,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             logger.exception("Failing with %s" % str(e))
             self.fail()
 
+    @unittest.skipIf(toolsmissing, "Tools not available for testing")
     def testAnnotValidation(self):
         """  Calculate geometrical validation -
         """
@@ -392,6 +406,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             logger.exception("Failing with %s" % str(e))
             self.fail()
 
+    @unittest.skipIf(toolsmissing, "Tools not available for testing")
     def testAnnotRcsb2Pdbx(self):
         """  RCSB CIF -> PDBx conversion  (Using the smaller application in the annotation package)
 
@@ -411,6 +426,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             logger.exception("Failing with %s" % str(e))
             self.fail()
 
+    @unittest.skipIf(toolsmissing, "Tools not available for testing")
     def testAnnotRcsb2PdbxSQ(self):
         """  RCSB CIF -> PDBx conversion  (Using the smaller application in the annotation package)
 
@@ -430,6 +446,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             logger.exception("Failing with %s" % str(e))
             self.fail()
 
+    @unittest.skipIf(toolsmissing, "Tools not available for testing")
     def testAnnotRcsb2PdbxSQAlt(self):
         """  RCSB CIF -> PDBx conversion  (Using the smaller application in the annotation package)
              using maxit
@@ -448,6 +465,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             logger.exception("Failing with %s" % str(e))
             self.fail()
 
+    @unittest.skipIf(toolsmissing, "Tools not available for testing")
     def testAnnotRcsb2PdbxStrip(self):
         """  RCSB CIF -> PDBx conversion  (Using the smaller application in the annotation package)
         """
@@ -465,6 +483,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             logger.exception("Failing with %s" % str(e))
             self.fail()
 
+    @unittest.skipIf(toolsmissing, "Tools not available for testing")
     def testAnnotCSCheck(self):
         """  Test CS file check
                              'nmr-cs-check-report'         :  (['html'], 'nmr-cs-check-report'),
@@ -484,6 +503,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             logger.exception("Failing with %s" % str(e))
             self.fail()
 
+    @unittest.skipIf(toolsmissing, "Tools not available for testing")
     def testAnnotCSCoordCheck(self):
         """  Test CS + Coordindate file check
         """
@@ -503,6 +523,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             logger.exception("Failing with %s" % str(e))
             self.fail()
 
+    @unittest.skipIf(toolsmissing, "Tools not available for testing")
     def testAnnotValidateListNmrTest(self):
         """  Test create validation report for the test list of example PDB ids (NMR examples)
         """
@@ -538,6 +559,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             logger.exception("Failing with %s" % str(e))
             self.fail()
 
+    @unittest.skipIf(toolsmissing, "Tools not available for testing")
     def testAnnotValidateListXrayTest(self):
         """  Test create validation report for the test list of example PDB ids (NMR examples)
         """
@@ -570,6 +592,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             logger.exception("Failing with %s" % str(e))
             self.fail()
 
+    @unittest.skipIf(toolsmissing, "Tools not available for testing")
     def testAnnotConsolidatedTasksWithTopology(self):
         """  Calculate annotation tasks in a single step including supporting topology data.
         """
@@ -589,6 +612,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             logger.exception("Failing with %s" % str(e))
             self.fail()
 
+    @unittest.skipIf(toolsmissing, "Tools not available for testing")
     def testAnnotRepositionSolventPlusDerived(self):
         """  Calculate distant solvent followed by computing key derived categories --
         """
@@ -606,6 +630,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             logger.exception("Failing with %s" % str(e))
             self.fail()
 
+    @unittest.skipIf(toolsmissing, "Tools not available for testing")
     def testAnnotMapCalc(self):
         """  Test create density maps --
         """
@@ -631,12 +656,13 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             logger.exception("Failing with %s" % str(e))
             self.fail()
 
+    @unittest.skipIf(toolsmissing, "Tools not available for testing")
     def testAnnotLigandMapCalc(self):
         """  Test create density maps --
         """
         logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
         try:
-            for pdbId in ['2yn2']:
+            for pdbId in ['3of4']:
                 # of2fofc=pdbId+"_2fofc.map"
                 # offofc=pdbId+"_fofc.map"
 
@@ -660,6 +686,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             logger.exception("Failing with %s" % str(e))
             self.fail()
 
+    @unittest.skipIf(toolsmissing, "Tools not available for testing")
     def testAnnotDccRsrReport(self):
         """  Test create DCC report -
         """
@@ -681,6 +708,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             logger.exception("Failing with %s" % str(e))
             self.fail()
 
+    @unittest.skipIf(toolsmissing, "Tools not available for testing")
     def testAnnotDccReport(self):
         """  Test create DCC report -
         """
@@ -701,6 +729,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             logger.exception("Failing with %s" % str(e))
             self.fail()
 
+    @unittest.skipIf(toolsmissing, "Tools not available for testing")
     def testAnnotMtz2PdbxGood(self):
         """  Test mtz to pdbx conversion  (good mtz)
         """
@@ -722,6 +751,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             logger.exception("Failing with %s" % str(e))
             self.fail()
 
+    @unittest.skipIf(toolsmissing, "Tools not available for testing")
     def testAnnotMtz2PdbxBad(self):
         """  Test mtz to pdbx conversion
         """
@@ -748,6 +778,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             logger.exception("Failing with %s" % str(e))
             self.fail()
 
+    @unittest.skipIf(toolsmissing, "Tools not available for testing")
     def testAnnotMtz2PdbxBadTimeout(self):
         """  Test mtz to pdbx conversion
         """
@@ -769,6 +800,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             logger.exception("Failing with %s" % str(e))
             self.fail()
 
+    @unittest.skipIf(toolsmissing, "Tools not available for testing")
     def testMapFix(self):
         """  Test mapfix utility
         """
@@ -788,6 +820,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             logger.exception("Failing with %s" % str(e))
             self.fail()
 
+    @unittest.skipIf(toolsmissing, "Tools not available for testing")
     def testSpecialPosition(self):
         """  Test for atom on special position
         """
@@ -833,6 +866,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             logger.exception("Failing with %s" % str(e))
             self.fail()
 
+    @unittest.skipIf(toolsmissing, "Tools not available for testing")
     def testFixSpecialPosition(self):
         """  Test for fixing atoms on special position
         """
@@ -889,6 +923,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             logger.exception("Failing with %s" % str(e))
             self.fail()
 
+    @unittest.skipIf(toolsmissing, "Tools not available for testing")
     def testEm2EmSpider(self):
         """  Test mapfix utility
         """
@@ -912,6 +947,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             logger.exception("Failing with %s" % str(e))
             self.fail()
 
+    @unittest.skipIf(toolsmissing, "Tools not available for testing")
     def testAnnotPrdSearch(self):
         """  Test case for PRD Search --
         """
@@ -933,6 +969,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             logger.exception("Failing with %s" % str(e))
             self.fail()
 
+    @unittest.skipIf(toolsmissing, "Tools not available for testing")
     def testAnnotUpdateDepositorAssembly(self):
         """  Update deposition provided assembly info into model (need better test example)
         """

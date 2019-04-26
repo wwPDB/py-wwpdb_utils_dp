@@ -13,9 +13,9 @@ if __package__ is None or __package__ == '':
     import sys
     from os import path
     sys.path.append( path.dirname( path.dirname( path.abspath(__file__) ) ) )
-    from commonsetup import TESTOUTPUT
+    from commonsetup import TESTOUTPUT, toolsmissing
 else:
-    from .commonsetup import TESTOUTPUT
+    from .commonsetup import TESTOUTPUT, toolsmissing
 
 from wwpdb.utils.config.ConfigInfo import ConfigInfo, getSiteId
 from wwpdb.utils.dp.RcsbDpUtility import RcsbDpUtility
@@ -25,6 +25,7 @@ logger = logging.getLogger()
 logger.setLevel(logging.DEBUG)
 
 
+@unittest.skipIf(toolsmissing, "Tools not available for testing")
 class RcsbDpUtilityAnnotTests(unittest.TestCase):
 
     def setUp(self):
