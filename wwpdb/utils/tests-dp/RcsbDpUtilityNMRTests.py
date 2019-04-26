@@ -22,9 +22,9 @@ if __package__ is None or __package__ == '':
     import sys
     from os import path
     sys.path.append( path.dirname( path.dirname( path.abspath(__file__) ) ) )
-    from commonsetup import TESTOUTPUT, TOPDIR
+    from commonsetup import TESTOUTPUT, TOPDIR, toolsmissing
 else:
-    from .commonsetup import TESTOUTPUT, TOPDIR
+    from .commonsetup import TESTOUTPUT, TOPDIR, toolsmissing
 
 from wwpdb.utils.config.ConfigInfo import ConfigInfo, getSiteId
 from wwpdb.utils.dp.PdbxChemShiftReport import PdbxChemShiftReport
@@ -36,6 +36,7 @@ logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 
+@unittest.skipIf(toolsmissing, "Tools not available for testing")
 class RcsbDpUtilityNMRTests(unittest.TestCase):
 
     def setUp(self):
