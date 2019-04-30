@@ -75,6 +75,7 @@ class RcsbDpUtilityEmTests(unittest.TestCase):
     def tearDown(self):
         pass
 
+    @unittest.skipIf(toolsmissing, "Tools not available for testing")
     def testMapFix(self):
         """  Test mapfix utility
         """
@@ -204,6 +205,7 @@ class RcsbDpUtilityEmTests(unittest.TestCase):
     def myround(self, x, base=5):
         return int(base * round(float(x) / base))
 
+    @unittest.skipIf(toolsmissing, "Tools not available for testing")
     def testEm2EmSpider(self):
         """  Test mapfix utility
         """
