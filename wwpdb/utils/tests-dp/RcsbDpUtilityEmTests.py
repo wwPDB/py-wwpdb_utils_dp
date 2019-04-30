@@ -227,6 +227,7 @@ class RcsbDpUtilityEmTests(unittest.TestCase):
             logger.exception("Failing with %s" % str(e))
             self.fail()
 
+    @unittest.skipIf(toolsmissing, "Tools not available for testing")
     def testXmlHeaderCheck(self):
         """  Test xmllint
         """
