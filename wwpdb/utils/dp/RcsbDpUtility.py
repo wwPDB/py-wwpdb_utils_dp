@@ -135,6 +135,7 @@ from subprocess import Popen, call
 from wwpdb.io.file.DataFile import DataFile
 from wwpdb.utils.config.ConfigInfo import ConfigInfo
 from wwpdb.utils.dp.PdbxStripCategory import PdbxStripCategory
+from wwpdb.utils.dp.PdbxSFMapCoefficients import PdbxSFMapCoefficients
 from wwpdb.utils.dp.RunRemote import RunRemote
 
 logger = logging.getLogger(__name__)
@@ -2037,8 +2038,20 @@ class RcsbDpUtility(object):
                 self.__resultPathList.append("missing")
 
             if op == "annot-wwpdb-validate-all-v2":
+                # Additional conversion of CoefFile to fo and 2fo maps
+                foPath = os.path.abspath(os.path.join(self.__wrkPath, "fo.cif"))
+                twofoPath = os.path.abspath(os.path.join(self.__wrkPath, "2fo.cif"))
                 if os.access(edmapCoefPath, os.F_OK):
-                    self.__resultPathList.append(edmapCoefPath)
+                    psm = PdbxSFMapCoefficients(siteid=self.__siteId, tmppath=self.__tmpPath)
+                    ret = psm.read_mtz_sf(edmapCoefPath)
+                    if ret:
+                        psm.write_mmcif_coef(foPath, twofoPath)
+                if os.access(foPath, os.F_OK):
+                    self.__resultPathList.append(foPath)
+                else:
+                    self.__resultPathList.append("missing")
+                if os.access(twofoPath, os.F_OK):
+                    self.__resultPathList.append(twofoPath)
                 else:
                     self.__resultPathList.append("missing")
 
