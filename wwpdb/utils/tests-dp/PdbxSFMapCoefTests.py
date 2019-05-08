@@ -40,14 +40,18 @@ class PdbxSFTests(unittest.TestCase):
         inpfile = os.path.join(mockTopPath, 'dp-utils', 'mtz-good.mtz')
         foout = os.path.join(TESTOUTPUT, 'fo.cif')
         twofoout = os.path.join(TESTOUTPUT, '2fo.cif')
-
+        if os.path.exists(foout):
+            os.unlink(foout)
+        if os.path.exists(twofoout):
+            os.unlink(twofoout)
 
         psf = PdbxSFMapCoefficients()
         ret = psf.read_mtz_sf(inpfile)
         self.assertTrue(ret, "Error parsing mtz file")
-        ret = psf.write_mmcif_coef(fooout, twofoout, 'zyxw')
+        ret = psf.write_mmcif_coef(foout, twofoout, 'zyxw')
         self.assertTrue(ret, "Writing SF file")
-
+        self.assertTrue(os.path.exists(foout))
+        self.assertTrue(os.path.exists(twofoout))
 
 if __name__ == '__main__':
     # Run all tests --
