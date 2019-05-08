@@ -5,25 +5,33 @@
 """
 
 __docformat__ = "restructuredtext en"
-__author__ = "Ezra Peosach"
+__author__ = "Ezra Peisach"
 __email__ = "ezra.peisach@rcsb.org"
 __license__ = "Apache 2.0"
 
 import logging
 import copy
+import tempfile
+import shutil
+import os
 
 from mmcif.io.IoAdapterCore import IoAdapterCore
 from mmcif.api.PdbxContainers import DataContainer
+from wwpdb.utils.dp.RcsbDpUtility import RcsbDpUtility
+from wwpdb.utils.config.ConfigInfo import getSiteId
 
 logger = logging.getLogger(__name__)
 
 
 class PdbxSFMapCoefficients(object):
-    def __init__(self):
+    def __init__(self, siteid=None, tmppath='/tmp', cleanup=True):
         self.__sf = None
+        self.__siteid = getSiteId(siteid)
+        self.__cleanup = cleanup
+        self.__tmppath = tmppath
 
     def read_mmcif_sf(self, pathin):
-        """Reads PDBx/mmCIF structure file
+        """Reads PDBx/mmCIF structure factorfile
 
             Return True on success, otherwise False
         """
@@ -38,6 +46,41 @@ class PdbxSFMapCoefficients(object):
             self.__sf = None
             return False
 
+    def read_mtz_sf(self, pathin):
+        """Reads MTZ structure factor file 
+
+            Return True on success, otherwise False
+        """
+
+        logger.debug("Starting mtz read %s" % pathin)
+
+        suffix = '-dir'
+        prefix = 'rcsb-'
+        if self.__tmppath is not None and os.path.isdir(self.__tmppath):
+            workpath = tempfile.mkdtemp(suffix, prefix, self.__tmppath)
+        else:
+            workpath = tempfile.mkdtemp(suffix, prefix)
+
+        diagfn = os.path.join(workpath, "sf-convert-diags.cif")
+        ciffn = os.path.join(workpath, "sf-convert-datafile.cif")
+        dmpfn = os.path.join(workpath, "sf-convert-mtzdmp.log")
+        logfn = os.path.join(workpath, "sf-convert.log")
+
+        dp = RcsbDpUtility(siteId=self.__siteid, tmpPath=self.__tmppath)
+        dp.imp(pathin)
+        dp.op('annot-sf-convert')
+        dp.expLog(logfn)
+        dp.expList(dstPathList=[ciffn, diagfn, dmpfn])
+        if os.path.exists(ciffn):
+            ret = self.read_mmcif_sf(ciffn)
+        else:
+            ret = False
+
+        if self.__cleanup:
+            dp.cleanup()
+            shutil.rmtree(workpath, ignore_errors=True)
+        return ret
+
     def write_mmcif_coef(self, fopathout, twofopathout, entry_id='xxxx'):
         """Writes out two structure factor files with only fo-fc or 2fo-fc coefficients
 
@@ -45,9 +88,9 @@ class PdbxSFMapCoefficients(object):
 
             entry.id will be set to entry_id
         """
-        ret = self.__write_mmcif(fopathout, 'fo', entry_id)
-        ret = self.__write_mmcif(twofopathout, '2fo', entry_id)
-        pass
+        ret1 = self.__write_mmcif(fopathout, 'fo', entry_id)
+        ret2 = self.__write_mmcif(twofopathout, '2fo', entry_id)
+        return ret1 and ret2
 
     def __write_mmcif(self, pathout, coef, entry_id):
         """Writes out the specific map coefficients
@@ -67,8 +110,6 @@ class PdbxSFMapCoefficients(object):
             _keepattr.extend(['pdbx_DELFWT', 'pdbx_DELPHWT'])
         else:
             _keepattr.extend(['pdbx_FWT', 'pdbx_PHWT'])
-
-
 
         # Datablockname
         blkname = "{}{}".format(entry_id, coef)
@@ -98,15 +139,8 @@ class PdbxSFMapCoefficients(object):
 
             new_cont.append(modobj)
 
-
-        #new_cont.printIt()
+        # new_cont.printIt()
         io = IoAdapterCore()
         # Write out a single block
-        io.writeFile(pathout, [new_cont])
-
-
-if __name__ == '__main__':
-    psf = PdbxSFMapCoefficients()
-    ret = psf.read_mmcif_sf('eds.mtz.mmcif')
-    print("File read %s" % ret)
-    ret = psf.write_mmcif_coef('fo.cif', '2fo.cif', 'zyxw')
+        ret = io.writeFile(pathout, [new_cont])
+        return ret
