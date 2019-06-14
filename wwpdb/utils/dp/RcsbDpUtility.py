@@ -108,6 +108,7 @@
 #
 # 16-Oct-2018 jdw Adapt for Py2/3 and new python packaging
 # 27-Mar-2019 zf  Add "prd-process-summary"
+# 13-Jun-2019 zf  Add "auto_assembly_assignment" parameter for "pisa-assembly-merge-cif" operator
 ##
 """
 Wrapper class for data processing and chemical component utilities.
@@ -3195,13 +3196,22 @@ class RcsbDpUtility(object):
             #
             spgFilePath = self.__getConfigPath('SITE_SPACE_GROUP_FILE_PATH')
             # assemblyTupleList = self.__inputParamDict['pisa_assembly_tuple_list']
-            assemblyFile = self.__inputParamDict['pisa_assembly_file_path']
-            assignmentFile = self.__inputParamDict['pisa_assembly_assignment_file_path']
+            #assemblyFile = self.__inputParamDict['pisa_assembly_file_path']
+            #assignmentFile = self.__inputParamDict['pisa_assembly_assignment_file_path']
             cmdPath = os.path.join(annotToolsPath, "bin", "MergePisaData")
             #
-            cmd += " ; " + cmdPath + " -input " + iPathFull + " -xml " + assemblyFile
+            cmd += " ; " + cmdPath + " -input " + iPathFull # + " -xml " + assemblyFile
+            if "pisa_assembly_file_path" in self.__inputParamDict:
+                cmd += " -xml " + self.__inputParamDict["pisa_assembly_file_path"]
+            #
             cmd += " -spacegroup " + spgFilePath + " -log " + ePath
-            cmd += " -assign " + assignmentFile
+            #cmd += " -assign " + assignmentFile
+            if "pisa_assembly_assignment_file_path" in self.__inputParamDict:
+                cmd += " -assign " + self.__inputParamDict["pisa_assembly_assignment_file_path"]
+            #
+            if "auto_assembly_assignment" in self.__inputParamDict:
+                cmd += " -auto_assignment "
+            #
             cmd += " -output " + oPath
             # cmd   +=  " ; cp -f " + iPath + " " + oPath
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
