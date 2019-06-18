@@ -200,6 +200,7 @@ class RunRemote:
 
     def parse_bsub_log(self):
         self.bsub_exit_status = 0
+        self.memory_used = 0
         if os.path.exists(self.bsub_log_file):
             with open(self.bsub_log_file, 'r') as log_file:
                 for l in log_file:
