@@ -51,7 +51,13 @@ class RunRemote:
             bsub_try = 1
             rc, self.out, self.err = self.run_bsub()
             while self.bsub_exit_status != 0:
-                self.memory_limit = self.memory_limit + 10000
+                if self.memory_used:
+                    try:
+                        self.memory_limit = float(self.memory_used) + 10000
+                    except:
+                        self.memory_limit = self.memory_limit + 10000
+                else:
+                    self.memory_limit = self.memory_limit + 10000
                 bsub_try += 1
                 logging.info('try {}, memory {}'.format(bsub_try, self.memory_limit))
                 rc, self.out, self.err = self.run_bsub()
