@@ -53,7 +53,7 @@ class RunRemote:
             while self.bsub_exit_status != 0:
                 if self.memory_used:
                     try:
-                        self.memory_limit = float(self.memory_used) + 10000
+                        self.memory_limit = int(self.memory_used) + 10000
                     except:
                         self.memory_limit = self.memory_limit + 10000
                 else:
