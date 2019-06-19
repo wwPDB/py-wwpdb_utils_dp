@@ -212,9 +212,12 @@ class RunRemote:
             with open(self.bsub_log_file, 'r') as log_file:
                 for l in log_file:
                     if 'Max Memory :' in l:
-                        memory_used = l.split(':')[-1].strip()
-                        self.memory_unit = memory_used.split(' ')[1]
-                        self.memory_used = memory_used.split(' ')[0]
+                        try:
+                            memory_used = l.split(':')[-1].strip()
+                            self.memory_unit = memory_used.split(' ')[1]
+                            self.memory_used = memory_used.split(' ')[0]
+                        except Exception as e:
+                            logging.error(e)
 
                     if 'TERM_MEMLIMIT' in l:
                         self.bsub_exit_status = 1
