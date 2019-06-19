@@ -207,16 +207,19 @@ class RunRemote:
     def parse_bsub_log(self):
         self.bsub_exit_status = 0
         self.memory_used = 0
+        self.memory_unit = 'MB'
         if os.path.exists(self.bsub_log_file):
             with open(self.bsub_log_file, 'r') as log_file:
                 for l in log_file:
                     if 'Max Memory :' in l:
-                        self.memory_used = l.split(':')[-1].strip()
+                        memory_used = l.split(':')[-1].strip()
+                        self.memory_unit = memory_used.split(' ')[1]
+                        self.memory_used = memory_used.split(' ')[0]
 
                     if 'TERM_MEMLIMIT' in l:
                         self.bsub_exit_status = 1
 
-        logging.info('memory used: {}'.format(self.memory_used))
+        logging.info('memory used: {} {}'.format(self.memory_used, self.memory_unit))
         logging.info('bsub exit status: {}'.format(self.bsub_exit_status))
 
     def run_bsub(self):
