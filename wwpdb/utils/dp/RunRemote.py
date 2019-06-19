@@ -23,6 +23,7 @@ class RunRemote:
         self.job_name = job_name
         self.log_dir = log_dir
         self.memory_used = 0
+        self.memory_unit = 'MB'
         self.bsub_exit_status = 0
         self.siteId = getSiteId()
         self.cI = ConfigInfo(self.siteId)
