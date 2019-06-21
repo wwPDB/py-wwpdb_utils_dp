@@ -23,6 +23,7 @@ class RunRemote:
         self.job_name = job_name
         self.log_dir = log_dir
         self.memory_used = 0
+        self.memory_unit = 'MB'
         self.bsub_exit_status = 0
         self.siteId = getSiteId()
         self.cI = ConfigInfo(self.siteId)
@@ -51,7 +52,13 @@ class RunRemote:
             bsub_try = 1
             rc, self.out, self.err = self.run_bsub()
             while self.bsub_exit_status != 0:
-                self.memory_limit = self.memory_limit + 10000
+                if self.memory_used:
+                    try:
+                        self.memory_limit = int(self.memory_used) + 10000
+                    except:
+                        self.memory_limit = self.memory_limit + 10000
+                else:
+                    self.memory_limit = self.memory_limit + 10000
                 bsub_try += 1
                 logging.info('try {}, memory {}'.format(bsub_try, self.memory_limit))
                 rc, self.out, self.err = self.run_bsub()
@@ -200,16 +207,23 @@ class RunRemote:
 
     def parse_bsub_log(self):
         self.bsub_exit_status = 0
+        self.memory_used = 0
+        self.memory_unit = 'MB'
         if os.path.exists(self.bsub_log_file):
             with open(self.bsub_log_file, 'r') as log_file:
                 for l in log_file:
                     if 'Max Memory :' in l:
-                        self.memory_used = l.split(':')[-1].strip()
+                        try:
+                            memory_used = l.split(':')[-1].strip()
+                            self.memory_unit = memory_used.split(' ')[1]
+                            self.memory_used = memory_used.split(' ')[0]
+                        except Exception as e:
+                            logging.error(e)
 
                     if 'TERM_MEMLIMIT' in l:
                         self.bsub_exit_status = 1
 
-        logging.info('memory used: {}'.format(self.memory_used))
+        logging.info('memory used: {} {}'.format(self.memory_used, self.memory_unit))
         logging.info('bsub exit status: {}'.format(self.bsub_exit_status))
 
     def run_bsub(self):
