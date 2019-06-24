@@ -275,8 +275,9 @@ class RcsbDpUtility(object):
 
     def __getRunRemote(self):
         try:
-            if self.__cI.get('PDBE_CLUSTER_QUEUE'):
-                self.setRunRemote()
+            if self.__cI.get('USE_COMPUTE_CLUSTER'):
+                if self.__cI.get('PDBE_CLUSTER_QUEUE'):
+                    self.setRunRemote()
         except Exception as e:
             logging.info('unable to get cluster queue')
 
