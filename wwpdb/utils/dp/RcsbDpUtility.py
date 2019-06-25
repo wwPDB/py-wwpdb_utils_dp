@@ -108,6 +108,7 @@
 #
 # 16-Oct-2018 jdw Adapt for Py2/3 and new python packaging
 # 27-Mar-2019 zf  Add "prd-process-summary"
+# 13-Jun-2019 zf  Add "auto_assembly_assignment" parameter for "pisa-assembly-merge-cif" operator
 ##
 """
 Wrapper class for data processing and chemical component utilities.
@@ -199,7 +200,10 @@ class RcsbDpUtility(object):
                                 "annot-move-xyz-by-matrix", "annot-move-xyz-by-symop", "annot-extra-checks",
                                 "annot-update-terminal-atoms", "annot-merge-xyz", "annot-gen-assem-pdbx", "annot-cif2pdbx-withpdbid",
                                 "annot-validate-geometry", "annot-update-dep-assembly-info", "annot-chem-shifts-update-with-check",
-                                "annot-chem-shifts-atom-name-check", "annot-chem-shifts-upload-check", "annot-reorder-models", "annot-chem-shifts-update", "annot-get-corres-info"]
+                                "annot-chem-shifts-atom-name-check", "annot-chem-shifts-upload-check",
+                                "annot-reorder-models", "annot-chem-shifts-update", 
+                                "annot-get-corres-info", "prd-summary-serialize", "prd-family-mapping"]
+
         self.__sequenceOps = ['seq-blastp', 'seq-blastn']
         self.__validateOps = ['validate-geometry']
         self.__emOps = ['mapfix-big', 'em2em-spider', 'fsc_check',
@@ -1867,6 +1871,22 @@ class RcsbDpUtility(object):
                 cmd += " -firstmodel " + self.__inputParamDict['firstmodel']
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
 
+        elif (op == "prd-summary-serialize"):
+            # $binPath/get-prd-summary -ccsdb ${ccsdbin} -prdsdb ${prdsdbin} -cif ${prdsummaryout} -sdb ${prdsummarysdbout}
+            #
+            ccsdbPath = self.__inputParamDict['ccsdb_path']
+            oPath2 = oPath + "_B"
+
+            cmdPath = os.path.join(self.__annotAppsPath, "bin", "get-prd-summary")
+            thisCmd = " ; " + cmdPath 
+
+            cmd += thisCmd + " -prdsdb " + iPath + " -ccsdb " + ccsdbPath
+            cmd += " -cif " + oPath + " -sdb " + oPath2
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " > " + lPath
+
+            oPath2Full = os.path.join(self.__wrkPath, oPath2)
+            oPathFull = os.path.join(self.__wrkPath, oPath)
+
         elif (op == "prd-process-summary"):
             resultFilePath = None
             if 'resultFile' in self.__inputParamDict:
@@ -1886,6 +1906,15 @@ class RcsbDpUtility(object):
             cmd += thisCmd + " --input %s --path %s" % (resultFilePath, self.__tmpPath)
             cmd += " > " + logFilePath + " 2>&1 ; "
 
+        elif (op == "prd-family-mapping"):
+            # $binPath/get-prd-family-mapping -family ${familyfiles} -output ${familyMapping}
+            #
+            cmdPath = os.path.join(self.__annotAppsPath, "bin", "get-prd-family-mapping")
+            thisCmd = " ; " + cmdPath 
+
+            cmd += thisCmd + " -family " + iPath
+            cmd += " -output " + oPath
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " > " + lPath
         else:
 
             return -1
@@ -2109,6 +2138,17 @@ class RcsbDpUtility(object):
             #
             if os.access(newModelFile, os.F_OK):
                 self.__resultPathList.append(newModelFile)
+            else:
+                self.__resultPathList.append("missing")
+
+        elif (op == "prd-summary-serialize"):
+            self.__resultPathList = []
+            if os.access(oPathFull, os.F_OK):
+                self.__resultPathList.append(oPathFull)
+            else:
+                self.__resultPathList.append("missing")
+            if os.access(oPath2Full, os.F_OK):
+                self.__resultPathList.append(oPath2Full)
             else:
                 self.__resultPathList.append("missing")
 
@@ -3156,13 +3196,22 @@ class RcsbDpUtility(object):
             #
             spgFilePath = self.__getConfigPath('SITE_SPACE_GROUP_FILE_PATH')
             # assemblyTupleList = self.__inputParamDict['pisa_assembly_tuple_list']
-            assemblyFile = self.__inputParamDict['pisa_assembly_file_path']
-            assignmentFile = self.__inputParamDict['pisa_assembly_assignment_file_path']
+            #assemblyFile = self.__inputParamDict['pisa_assembly_file_path']
+            #assignmentFile = self.__inputParamDict['pisa_assembly_assignment_file_path']
             cmdPath = os.path.join(annotToolsPath, "bin", "MergePisaData")
             #
-            cmd += " ; " + cmdPath + " -input " + iPathFull + " -xml " + assemblyFile
+            cmd += " ; " + cmdPath + " -input " + iPathFull # + " -xml " + assemblyFile
+            if "pisa_assembly_file_path" in self.__inputParamDict:
+                cmd += " -xml " + self.__inputParamDict["pisa_assembly_file_path"]
+            #
             cmd += " -spacegroup " + spgFilePath + " -log " + ePath
-            cmd += " -assign " + assignmentFile
+            #cmd += " -assign " + assignmentFile
+            if "pisa_assembly_assignment_file_path" in self.__inputParamDict:
+                cmd += " -assign " + self.__inputParamDict["pisa_assembly_assignment_file_path"]
+            #
+            if "auto_assembly_assignment" in self.__inputParamDict:
+                cmd += " -auto_assignment "
+            #
             cmd += " -output " + oPath
             # cmd   +=  " ; cp -f " + iPath + " " + oPath
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
