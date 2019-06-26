@@ -227,7 +227,7 @@ class RcsbDpUtility(object):
         self.__stepNoSaved = None
         self.__timeout = 0
         self.__numThreads = 1
-        self.__memoryLimit = 0
+        self.__startingMemory = 0
 
         self.__run_remote = False
 
