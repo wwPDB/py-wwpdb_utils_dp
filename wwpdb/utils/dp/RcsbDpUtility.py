@@ -3296,7 +3296,7 @@ class RcsbDpUtility(object):
         if 'num_threads' in self.__inputParamDict:
             numThreads = str(self.__inputParamDict['num_threads'])
             self.__numThreads = int(numThreads)
-            self.__memoryLimit = 20000
+            self.__startingMemory = 20000
         else:
             numThreads = '1'
 
@@ -3442,12 +3442,11 @@ class RcsbDpUtility(object):
     def __run(self, command, lPathFull, op):
 
         if self.__run_remote:
-            numThreads = int(self.__inputParamDict.get('num_threads', 1))
             random_suffix = random.randrange(9999999)
             job_name = '{}_{}'.format(op, random_suffix)
             return RunRemote(command=command, job_name=job_name, log_dir=os.path.dirname(lPathFull),
                              timeout=self.__timeout, number_of_processors=self.__numThreads,
-                             memory_limit=self.__memoryLimit).run()
+                             memory_limit=self.__startingMemory).run()
 
         if self.__timeout > 0:
             return self.__runTimeout(command, self.__timeout, lPathFull)
