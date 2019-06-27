@@ -269,6 +269,18 @@ class RcsbDpUtility(object):
         except Exception:
             return False
 
+    def setNumThreads(self, numThreads=1):
+        if isinstance(numThreads, int):
+            self.__numThreads = numThreads
+        else:
+            logger.error('numThreads not set "{}" is not an integer'.format(numThreads))
+
+    def setStartMemory(self, memory=0):
+        if isinstance(memory, int):
+            self.__startingMemory = memory
+        else:
+            logger.error('memory not set "{}" is not a integer'.format(memory))
+
     def setRunRemote(self, run_remote=True):
         if run_remote:
             self.__run_remote = True
