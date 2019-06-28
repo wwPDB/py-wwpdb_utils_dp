@@ -226,6 +226,8 @@ class RcsbDpUtility(object):
         self.__stepNo = 0
         self.__stepNoSaved = None
         self.__timeout = 0
+        self.__numThreads = 1
+        self.__startingMemory = 0
 
         self.__run_remote = False
 
@@ -267,6 +269,18 @@ class RcsbDpUtility(object):
         except Exception:
             return False
 
+    def setNumThreads(self, numThreads=1):
+        if isinstance(numThreads, int):
+            self.__numThreads = numThreads
+        else:
+            logger.error('numThreads not set "{}" is not an integer'.format(numThreads))
+
+    def setStartMemory(self, memory=0):
+        if isinstance(memory, int):
+            self.__startingMemory = memory
+        else:
+            logger.error('memory not set "{}" is not a integer'.format(memory))
+
     def setRunRemote(self, run_remote=True):
         if run_remote:
             self.__run_remote = True
@@ -275,8 +289,9 @@ class RcsbDpUtility(object):
 
     def __getRunRemote(self):
         try:
-            if self.__cI.get('PDBE_CLUSTER_QUEUE'):
-                self.setRunRemote()
+            if self.__cI.get('USE_COMPUTE_CLUSTER'):
+                if self.__cI.get('PDBE_CLUSTER_QUEUE'):
+                    self.setRunRemote()
         except Exception as e:
             logging.info('unable to get cluster queue')
 
@@ -3292,6 +3307,8 @@ class RcsbDpUtility(object):
 
         if 'num_threads' in self.__inputParamDict:
             numThreads = str(self.__inputParamDict['num_threads'])
+            self.__numThreads = int(numThreads)
+            self.__startingMemory = 20000
         else:
             numThreads = '1'
 
@@ -3440,7 +3457,8 @@ class RcsbDpUtility(object):
             random_suffix = random.randrange(9999999)
             job_name = '{}_{}'.format(op, random_suffix)
             return RunRemote(command=command, job_name=job_name, log_dir=os.path.dirname(lPathFull),
-                             timeout=self.__timeout).run()
+                             timeout=self.__timeout, number_of_processors=self.__numThreads,
+                             memory_limit=self.__startingMemory).run()
 
         if self.__timeout > 0:
             return self.__runTimeout(command, self.__timeout, lPathFull)
