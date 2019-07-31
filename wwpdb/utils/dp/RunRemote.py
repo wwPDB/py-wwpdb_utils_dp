@@ -29,6 +29,7 @@ class RunRemote:
         self.bsub_source_command = self.cI.get('BSUB_SOURCE')
         self.bsub_run_command = self.cI.get('BSUB_COMMAND')
         self.pdbe_cluster_queue = self.cI.get('PDBE_CLUSTER_QUEUE')
+        self.pdbe_memory_limit = 100000
         self.bsub_login_node = self.cI.get('BSUB_LOGIN_NODE')
         self.bsub_timeout = self.cI.get('BSUB_TIMEOUT')
         self.bsub_retry_delay = self.cI.get('BSUB_RETRY_DELAY')
@@ -169,7 +170,14 @@ class RunRemote:
         bsub_command.append('-oo {}'.format(self.bsub_log_file))
         bsub_command.append('-eo {}/{}_error.log'.format(self.log_dir, self.job_name))
         bsub_command.append('-Ep "touch {}"'.format(self.bsub_out_file))
+        if self.pdbe_memory_limit and self.memory_limit > self.pdbe_memory_limit:
+            bsub_command.append('-P {}'.format('bigmem'))
+        
         bsub_command.append('-q {}'.format(self.pdbe_cluster_queue))
+        if 'LSB_JOBGROUP' in os.environ and os.environ['LSB_JOBGROUP']:
+            bsub_command.append('-g {}'.format(os.environ['LSB_JOBGROUP']))
+        
+        
         bsub_command.append('-n {}'.format(self.number_of_processors))
         bsub_command.append('-W {}'.format(self.timeout))
         if self.memory_limit:
