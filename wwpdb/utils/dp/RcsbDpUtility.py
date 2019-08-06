@@ -1174,7 +1174,13 @@ class RcsbDpUtility(object):
                 volPathFull = os.path.abspath(volPath)
             else:
                 volPathFull = None
-
+                
+            if 'author_fsc' in self.__inputParamDict:
+                authorFSCPath = self.__inputParamDict['author_fsc']
+                authorFSCFullPath = os.path.abspath(authorFSCPath)
+            else:
+                authorFSCFullPath = None
+            
             if 'step_list' in self.__inputParamDict:
                 stepList = self.__inputParamDict['step_list']
             else:
@@ -1218,7 +1224,10 @@ class RcsbDpUtility(object):
 
             if volPathFull:
                 cmd += " --mapfile " + volPathFull
-
+                
+            if authorFSCFullPath:
+                cmd += " --fscfile {}".format(authorFSCFullPath)
+            
             if stepList:
                 cmd += " --steps " + stepList
 
