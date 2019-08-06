@@ -1175,8 +1175,8 @@ class RcsbDpUtility(object):
             else:
                 volPathFull = None
                 
-            if 'author_fsc' in self.__inputParamDict:
-                authorFSCPath = self.__inputParamDict['author_fsc']
+            if 'fsc_file_path' in self.__inputParamDict:
+                authorFSCPath = self.__inputParamDict['fsc_file_path']
                 authorFSCFullPath = os.path.abspath(authorFSCPath)
             else:
                 authorFSCFullPath = None
