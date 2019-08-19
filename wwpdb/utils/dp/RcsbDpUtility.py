@@ -132,6 +132,10 @@ import sys
 import tempfile
 import time
 from subprocess import Popen, call
+try:
+    from itertools import zip_longest
+except ImportError:
+    from itertools import izip_longest as zip_longest
 
 from wwpdb.io.file.DataFile import DataFile
 from wwpdb.utils.config.ConfigInfo import ConfigInfo
@@ -463,7 +467,7 @@ class RcsbDpUtility(object):
         #
 
         ok = True
-        for f, fc in map(None, self.__resultPathList, dstPathList):
+        for f, fc in zip_longest(self.__resultPathList, dstPathList):
             if (self.__verbose):
                 logger.info("+RcsbUtility.expList exporting %s to %s\n" % (f, fc))
             f1 = DataFile(f)
