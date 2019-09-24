@@ -3321,7 +3321,7 @@ class RcsbDpUtility(object):
         else:
             maxHits = '100'
 
-        if maxHits > 0:
+        if int(maxHits) > 0:
             hOpt = " -num_alignments " + maxHits
         else:
             # use a large cutoff
@@ -3387,7 +3387,7 @@ class RcsbDpUtility(object):
 
     def __writeFasta(self, filePath, sequence, comment="myquery"):
         num_per_line = 60
-        ll = len(sequence) / num_per_line
+        ll = int(len(sequence) / num_per_line)
         x = len(sequence) % num_per_line
         m = ll
         if x:
