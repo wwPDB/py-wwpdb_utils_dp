@@ -230,7 +230,7 @@ class RunRemote:
                         try:
                             memory_used = l.split(':')[-1].strip()
                             self.memory_unit = memory_used.split(' ')[1]
-                            self.memory_used = memory_used.split(' ')[0]
+                            self.memory_used = int(memory_used.split(' ')[0])
                         except Exception as e:
                             logging.error(e)
 
