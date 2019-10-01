@@ -23,6 +23,7 @@ class RunRemote:
         self.job_name = job_name
         self.log_dir = log_dir
         self.memory_used = 0
+        self.memory_unit = 'MB'
         self.bsub_exit_status = 0
         self.siteId = getSiteId()
         self.cI = ConfigInfo(self.siteId)
@@ -177,12 +178,12 @@ class RunRemote:
         bsub_command.append('-Ep "touch {}"'.format(self.bsub_out_file))
         if self.pdbe_memory_limit and self.memory_limit > self.pdbe_memory_limit:
             bsub_command.append('-P {}'.format('bigmem'))
-        
+
         bsub_command.append('-q {}'.format(self.pdbe_cluster_queue))
         if 'LSB_JOBGROUP' in os.environ and os.environ['LSB_JOBGROUP']:
             bsub_command.append('-g {}'.format(os.environ['LSB_JOBGROUP']))
-        
-        
+
+
         bsub_command.append('-n {}'.format(self.number_of_processors))
         bsub_command.append('-W {}'.format(self.timeout))
         if self.memory_limit:
@@ -213,16 +214,23 @@ class RunRemote:
 
     def parse_bsub_log(self):
         self.bsub_exit_status = 0
+        self.memory_used = 0
+        self.memory_unit = 'MB'
         if os.path.exists(self.bsub_log_file):
             with open(self.bsub_log_file, 'r') as log_file:
                 for l in log_file:
                     if 'Max Memory :' in l:
-                        self.memory_used = l.split(':')[-1].strip()
+                        try:
+                            memory_used = l.split(':')[-1].strip()
+                            self.memory_unit = memory_used.split(' ')[1]
+                            self.memory_used = memory_used.split(' ')[0]
+                        except Exception as e:
+                            logging.error(e)
 
                     if 'TERM_MEMLIMIT' in l:
                         self.bsub_exit_status = 1
 
-        logging.info('memory used: {}'.format(self.memory_used))
+        logging.info('memory used: {} {}'.format(self.memory_used, self.memory_unit))
         logging.info('bsub exit status: {}'.format(self.bsub_exit_status))
 
     def run_bsub(self):

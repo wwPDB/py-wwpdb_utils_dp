@@ -108,6 +108,7 @@
 #
 # 16-Oct-2018 jdw Adapt for Py2/3 and new python packaging
 # 27-Mar-2019 zf  Add "prd-process-summary"
+# 13-Jun-2019 zf  Add "auto_assembly_assignment" parameter for "pisa-assembly-merge-cif" operator
 ##
 """
 Wrapper class for data processing and chemical component utilities.
@@ -131,6 +132,10 @@ import sys
 import tempfile
 import time
 from subprocess import Popen, call
+try:
+    from itertools import zip_longest
+except ImportError:
+    from itertools import izip_longest as zip_longest
 
 from wwpdb.io.file.DataFile import DataFile
 from wwpdb.utils.config.ConfigInfo import ConfigInfo
@@ -199,7 +204,10 @@ class RcsbDpUtility(object):
                                 "annot-move-xyz-by-matrix", "annot-move-xyz-by-symop", "annot-extra-checks",
                                 "annot-update-terminal-atoms", "annot-merge-xyz", "annot-gen-assem-pdbx", "annot-cif2pdbx-withpdbid",
                                 "annot-validate-geometry", "annot-update-dep-assembly-info", "annot-chem-shifts-update-with-check",
-                                "annot-chem-shifts-atom-name-check", "annot-chem-shifts-upload-check", "annot-reorder-models", "annot-chem-shifts-update", "annot-get-corres-info"]
+                                "annot-chem-shifts-atom-name-check", "annot-chem-shifts-upload-check",
+                                "annot-reorder-models", "annot-chem-shifts-update", 
+                                "annot-get-corres-info", "prd-summary-serialize", "prd-family-mapping"]
+
         self.__sequenceOps = ['seq-blastp', 'seq-blastn']
         self.__validateOps = ['validate-geometry']
         self.__emOps = ['mapfix-big', 'em2em-spider', 'fsc_check',
@@ -222,6 +230,8 @@ class RcsbDpUtility(object):
         self.__stepNo = 0
         self.__stepNoSaved = None
         self.__timeout = 0
+        self.__numThreads = 1
+        self.__startingMemory = 0
 
         self.__run_remote = False
 
@@ -264,6 +274,18 @@ class RcsbDpUtility(object):
         except Exception:
             return False
 
+    def setNumThreads(self, numThreads=1):
+        if isinstance(numThreads, int):
+            self.__numThreads = numThreads
+        else:
+            logger.error('numThreads not set "{}" is not an integer'.format(numThreads))
+
+    def setStartMemory(self, memory=0):
+        if isinstance(memory, int):
+            self.__startingMemory = memory
+        else:
+            logger.error('memory not set "{}" is not a integer'.format(memory))
+
     def setRunRemote(self, run_remote=True):
         if run_remote:
             self.__run_remote = True
@@ -272,8 +294,9 @@ class RcsbDpUtility(object):
 
     def __getRunRemote(self):
         try:
-            if self.__cI.get('PDBE_CLUSTER_QUEUE'):
-                self.setRunRemote()
+            if self.__cI.get('USE_COMPUTE_CLUSTER'):
+                if self.__cI.get('PDBE_CLUSTER_QUEUE'):
+                    self.setRunRemote()
         except Exception as e:
             logging.info('unable to get cluster queue')
 
@@ -445,7 +468,7 @@ class RcsbDpUtility(object):
         #
 
         ok = True
-        for f, fc in map(None, self.__resultPathList, dstPathList):
+        for f, fc in zip_longest(self.__resultPathList, dstPathList):
             if (self.__verbose):
                 logger.info("+RcsbUtility.expList exporting %s to %s\n" % (f, fc))
             f1 = DataFile(f)
@@ -1890,6 +1913,22 @@ class RcsbDpUtility(object):
                 cmd += " -firstmodel " + self.__inputParamDict['firstmodel']
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
 
+        elif (op == "prd-summary-serialize"):
+            # $binPath/get-prd-summary -ccsdb ${ccsdbin} -prdsdb ${prdsdbin} -cif ${prdsummaryout} -sdb ${prdsummarysdbout}
+            #
+            ccsdbPath = self.__inputParamDict['ccsdb_path']
+            oPath2 = oPath + "_B"
+
+            cmdPath = os.path.join(self.__annotAppsPath, "bin", "get-prd-summary")
+            thisCmd = " ; " + cmdPath 
+
+            cmd += thisCmd + " -prdsdb " + iPath + " -ccsdb " + ccsdbPath
+            cmd += " -cif " + oPath + " -sdb " + oPath2
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " > " + lPath
+
+            oPath2Full = os.path.join(self.__wrkPath, oPath2)
+            oPathFull = os.path.join(self.__wrkPath, oPath)
+
         elif (op == "prd-process-summary"):
             resultFilePath = None
             if 'resultFile' in self.__inputParamDict:
@@ -1909,6 +1948,15 @@ class RcsbDpUtility(object):
             cmd += thisCmd + " --input %s --path %s" % (resultFilePath, self.__tmpPath)
             cmd += " > " + logFilePath + " 2>&1 ; "
 
+        elif (op == "prd-family-mapping"):
+            # $binPath/get-prd-family-mapping -family ${familyfiles} -output ${familyMapping}
+            #
+            cmdPath = os.path.join(self.__annotAppsPath, "bin", "get-prd-family-mapping")
+            thisCmd = " ; " + cmdPath 
+
+            cmd += thisCmd + " -family " + iPath
+            cmd += " -output " + oPath
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " > " + lPath
         else:
 
             return -1
@@ -2132,6 +2180,17 @@ class RcsbDpUtility(object):
             #
             if os.access(newModelFile, os.F_OK):
                 self.__resultPathList.append(newModelFile)
+            else:
+                self.__resultPathList.append("missing")
+
+        elif (op == "prd-summary-serialize"):
+            self.__resultPathList = []
+            if os.access(oPathFull, os.F_OK):
+                self.__resultPathList.append(oPathFull)
+            else:
+                self.__resultPathList.append("missing")
+            if os.access(oPath2Full, os.F_OK):
+                self.__resultPathList.append(oPath2Full)
             else:
                 self.__resultPathList.append("missing")
 
@@ -3179,13 +3238,22 @@ class RcsbDpUtility(object):
             #
             spgFilePath = self.__getConfigPath('SITE_SPACE_GROUP_FILE_PATH')
             # assemblyTupleList = self.__inputParamDict['pisa_assembly_tuple_list']
-            assemblyFile = self.__inputParamDict['pisa_assembly_file_path']
-            assignmentFile = self.__inputParamDict['pisa_assembly_assignment_file_path']
+            #assemblyFile = self.__inputParamDict['pisa_assembly_file_path']
+            #assignmentFile = self.__inputParamDict['pisa_assembly_assignment_file_path']
             cmdPath = os.path.join(annotToolsPath, "bin", "MergePisaData")
             #
-            cmd += " ; " + cmdPath + " -input " + iPathFull + " -xml " + assemblyFile
+            cmd += " ; " + cmdPath + " -input " + iPathFull # + " -xml " + assemblyFile
+            if "pisa_assembly_file_path" in self.__inputParamDict:
+                cmd += " -xml " + self.__inputParamDict["pisa_assembly_file_path"]
+            #
             cmd += " -spacegroup " + spgFilePath + " -log " + ePath
-            cmd += " -assign " + assignmentFile
+            #cmd += " -assign " + assignmentFile
+            if "pisa_assembly_assignment_file_path" in self.__inputParamDict:
+                cmd += " -assign " + self.__inputParamDict["pisa_assembly_assignment_file_path"]
+            #
+            if "auto_assembly_assignment" in self.__inputParamDict:
+                cmd += " -auto_assignment "
+            #
             cmd += " -output " + oPath
             # cmd   +=  " ; cp -f " + iPath + " " + oPath
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
@@ -3266,6 +3334,8 @@ class RcsbDpUtility(object):
 
         if 'num_threads' in self.__inputParamDict:
             numThreads = str(self.__inputParamDict['num_threads'])
+            self.__numThreads = int(numThreads)
+            self.__startingMemory = 20000
         else:
             numThreads = '1'
 
@@ -3274,7 +3344,7 @@ class RcsbDpUtility(object):
         else:
             maxHits = '100'
 
-        if maxHits > 0:
+        if int(maxHits) > 0:
             hOpt = " -num_alignments " + maxHits
         else:
             # use a large cutoff
@@ -3340,7 +3410,7 @@ class RcsbDpUtility(object):
 
     def __writeFasta(self, filePath, sequence, comment="myquery"):
         num_per_line = 60
-        ll = len(sequence) / num_per_line
+        ll = int(len(sequence) / num_per_line)
         x = len(sequence) % num_per_line
         m = ll
         if x:
@@ -3414,7 +3484,8 @@ class RcsbDpUtility(object):
             random_suffix = random.randrange(9999999)
             job_name = '{}_{}'.format(op, random_suffix)
             return RunRemote(command=command, job_name=job_name, log_dir=os.path.dirname(lPathFull),
-                             timeout=self.__timeout).run()
+                             timeout=self.__timeout, number_of_processors=self.__numThreads,
+                             memory_limit=self.__startingMemory).run()
 
         if self.__timeout > 0:
             return self.__runTimeout(command, self.__timeout, lPathFull)
