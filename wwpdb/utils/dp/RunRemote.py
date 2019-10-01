@@ -236,7 +236,12 @@ class RunRemote:
 
                     if 'TERM_MEMLIMIT' in l:
                         self.bsub_exit_status = 1
-
+        if self.memory_unit == 'GB':
+            self.memory_unit = 'MB'
+            self.memory_used = self.memory_used * 1024
+        elif self.memory_unit == 'KB':
+            self.memory_unit = 'MB'
+            self.memory_used = int(self.memory_used / 1024)
         logging.info('memory used: {} {}'.format(self.memory_used, self.memory_unit))
         logging.info('bsub exit status: {}'.format(self.bsub_exit_status))
 
