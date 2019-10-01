@@ -61,9 +61,9 @@ class RunRemote:
                         pass
 
                 if self.memory_limit >= 100000:
-                    self.memory_limit = self.memory_limit + 80000
-                elif self.memory_limit >= 20000:
                     self.memory_limit = self.memory_limit + 40000
+                elif self.memory_limit >= 20000:
+                    self.memory_limit = self.memory_limit + 30000
                 else:
                     self.memory_limit = self.memory_limit + 10000
                 bsub_try += 1
