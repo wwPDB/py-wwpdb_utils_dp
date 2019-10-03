@@ -62,44 +62,6 @@ class RcsbDpUtilityNMRTests(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def testAnnotCSCheck(self):
-        """  Test CS file check
-                             'nmr-cs-check-report'         :  (['html'], 'nmr-cs-check-report'),
-                             'nmr-cs-xyz-check-report'     :  (['html'], 'nmr-cs-xyz-check-report'),
-        """
-        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
-        try:
-            of = "cs-file-check.html"
-            dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
-            inpPath = os.path.join(self.__testFilePath, self.__testFileStarCs)
-            dp.imp(inpPath)
-            dp.op("annot-chem-shift-check")
-            dp.expLog("annot-cs-file-check.log")
-            dp.exp(of)
-        except Exception as e:
-            logger.exception("Failing with %s" % str(e))
-            self.fail()
-
-    def testAnnotCSCoordCheck(self):
-        """  Test CS + Coordindate file check
-        """
-        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
-        try:
-            of = "cs-coord-file-check.html"
-            dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
-            inpPath = os.path.join(self.__testFilePath, self.__testFileStarCs)
-            #
-            xyzPath = os.path.abspath(os.path.join(self.__testFilePath, self.__testFileNmrModel))
-            dp.imp(inpPath)
-            dp.addInput(name="coordinate_file_path", value=xyzPath)
-            dp.op("annot-chem-shift-coord-check")
-            dp.expLog("annot-cs-coord-file-check.log")
-            dp.exp(of)
-            # dp.cleanup()
-        except Exception as e:
-            logger.exception("Failing with %s" % str(e))
-            self.fail()
-
     def testUploadShiftOneCheck(self):
         """  Test upload check of one CS file  ---   upload single file
         """
@@ -225,13 +187,6 @@ class RcsbDpUtilityNMRTests(unittest.TestCase):
             self.fail()
 
 
-def suiteAnnotBmrbNmrTests():
-    suiteSelect = unittest.TestSuite()
-    suiteSelect.addTest(RcsbDpUtilityNMRTests("testAnnotCSCheck"))
-    suiteSelect.addTest(RcsbDpUtilityNMRTests("testAnnotCSCoordCheck"))
-    return suiteSelect
-
-
 def suiteAnnotNmrTests():
     suiteSelect = unittest.TestSuite()
     suiteSelect.addTest(RcsbDpUtilityNMRTests("testUploadShiftOneCheck"))
@@ -245,9 +200,6 @@ def suiteAnnotNmrTests():
 
 if __name__ == '__main__':
     #
-
-    mySuite = suiteAnnotBmrbNmrTests()
-    unittest.TextTestRunner(verbosity=2).run(mySuite)
 
     mySuite = suiteAnnotNmrTests()
     unittest.TextTestRunner(verbosity=2).run(mySuite)

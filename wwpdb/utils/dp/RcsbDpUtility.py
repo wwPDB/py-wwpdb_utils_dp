@@ -189,8 +189,7 @@ class RcsbDpUtility(object):
                                 "annot-merge-struct-site", "annot-reposition-solvent", "annot-base-pair-info",
                                 "annot-validation", "annot-site", "annot-rcsb2pdbx", "annot-consolidated-tasks",
                                 "annot-wwpdb-validate-all", "annot-wwpdb-validate-all-v2", "prd-search", "prd-process-summary",
-                                "annot-chem-shift-check", "annot-chem-shift-coord-check",
-                                "annot-nmrstar2pdbx", "annot-pdbx2nmrstar", "annot-pdbx2nmrstar-bmrb",
+                                "annot-nmrstar2pdbx", "annot-pdbx2nmrstar",
                                 "annot-reposition-solvent-add-derived", "annot-rcsb2pdbx-strip", "annot-rcsbeps2pdbx-strip",
                                 "annot-rcsb2pdbx-strip-plus-entity", "annot-rcsbeps2pdbx-strip-plus-entity",
                                 "chem-comp-instance-update", "annot-cif2cif", "annot-cif2pdb", "annot-pdb2cif", "annot-poly-link-dist",
@@ -844,19 +843,6 @@ class RcsbDpUtility(object):
             cmd += thisCmd + " -input " + iPath + " -format pdb  -output " + oPath + nmrOpt
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
 
-        elif (op == "annot-pdbx2nmrstar-bmrb"):
-            # self.__packagePath
-            if 'data_set_id' in self.__inputParamDict:
-                dId = self.__inputParamDict['data_set_id']
-            else:
-                dId = "UNASSIGNED"
-            #
-            cmdPath = os.path.join(self.__packagePath, "aditnmr-util", "nmrstar_to_pdbx.sh")
-            thisCmd = " ; " + cmdPath
-            cmd += " ; PACKAGE_DIR=" + self.__packagePath + " ; export PACKAGE_DIR "
-            cmd += thisCmd + "  " + iPath + " " + dId + " " + oPath
-            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
-
         elif (op == "annot-validation"):
             cmdPath = os.path.join(self.__annotAppsPath, "bin", "valdation_with_cif_output")
             thisCmd = " ; " + cmdPath
@@ -1040,86 +1026,6 @@ class RcsbDpUtility(object):
             oPathFull = os.path.join(self.__wrkPath, oPath)
             #
             # see at the end for the post processing operations --
-
-        elif (op == "annot-chem-shift-check"):
-
-            nomenclature_map_file = os.path.join(self.__packagePath,
-                                                 "aditnmr_req_shifts",
-                                                 "adit",
-                                                 "config",
-                                                 "bmrb-adit",
-                                                 "pseudomap.csv")
-            ligand_dir = self.__ccDictPath
-
-            cmd += " ; TOOLS_PATH=" + self.__packagePath + " ; export TOOLS_PATH "
-            cmd += " ; ADIT_NMR=" + os.path.join(self.__packagePath, "aditnmr_req_shifts") + " ; export ADIT_NMR "
-            cmd += " ; LIGAND_DIR=" + ligand_dir + " ; export LIGAND_DIR "
-            cmd += " ; NOMENCLATURE_MAP_FILE=" + nomenclature_map_file + " ; export NOMENCLATURE_MAP_FILE "
-            #
-            # set output option -  html or star
-            #if 'output_format' in self.__inputParamDict:
-            #    outFmt = self.__inputParamDict['output_format']
-            #else:
-            #    outFmt = "html"
-
-            htmlPath = oPath
-            strPath = self.__getResultWrkFile(2)
-            logging.error(htmlPath)
-            logging.error(strPath)
-
-            cmdPath = os.path.join(self.__packagePath, "aditnmr_req_shifts", "cgi-bin", "bmrb-adit", "upload_shifts_check")
-            thisCmd = " ; " + cmdPath
-
-            cmd += thisCmd + " " + "--html --nomenclature-mapper {} --chem-comp-root-path {} ".format(nomenclature_map_file, ligand_dir)
-            cmd += " --preserve-output tmp_chkd.str " + iPath
-
-            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
-            cmd += " ; mv -f " + 'tmp_chkd.str' + " " + strPath
-            cmd += " ; mv -f " + tPath + " " + htmlPath
-
-            self.__resultPathList.append(os.path.join(self.__wrkPath, htmlPath))
-            self.__resultPathList.append(os.path.join(self.__wrkPath, strPath))
-
-            logging.warning(cmd)
-
-        elif (op == "annot-chem-shift-coord-check"):
-
-            cmd += " ; TOOLS_PATH=" + self.__packagePath + " ; export TOOLS_PATH "
-            cmd += " ; ADIT_NMR=" + os.path.join(self.__packagePath, "aditnmr_req_shifts") + " ; export ADIT_NMR "
-            cmd += " ; NOMENCLATURE_MAP_FILE=" + os.path.join(self.__packagePath,
-                                                              "aditnmr_req_shifts",
-                                                              "adit",
-                                                              "config",
-                                                              "bmrb-adit",
-                                                              "pseudomap.csv") + " ; export NOMENCLATURE_MAP_FILE "
-            cmd += " ; LIGAND_DIR=" + self.__ccDictPath + " ; export LIGAND_DIR "
-
-            #
-            # set input coordinate file path
-            if 'coordinate_file_path' in self.__inputParamDict:
-                coordFilePath = self.__inputParamDict['coordinate_file_path']
-            else:
-                coordFilePath = ""
-
-            #
-            # set output option -  html or star
-            #if 'output_format' in self.__inputParamDict:
-            #    outFmt = self.__inputParamDict['output_format']
-            #else:
-            #    outFmt = "html"
-
-            iPath2 = iPath + '-co'
-            cmd += '; cp %s %s' % (coordFilePath, iPath2)
-
-            # Now run  the check versus the coordinates using the output from the previous process
-            cmdPath = os.path.join(self.__packagePath, "aditnmr_req_shifts", "cgi-bin", "bmrb-adit", "shift_coord_check")
-            cmd += "; " + cmdPath
-            cmd += " --html --coordfile " + iPath2 + " --shiftfile " + iPath
-
-            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
-            cmd += " ; mv -f " + tPath + " " + oPath
-
-            logging.warning(cmd)
 
         elif (op in ["annot-wwpdb-validate-all", "annot-wwpdb-validate-all-v2"]):
             #
@@ -2229,8 +2135,6 @@ class RcsbDpUtility(object):
             except Exception as e:
                 logger.exception("_annotationStep() - failing return of files for operation %s with %s" % (op, str(e)))
 
-        elif (op == "annot-chem-shift-check"):
-            pass
         elif (op in ["annot-chem-shifts-atom-name-check", "annot-chem-shifts-upload-check"]):
             if os.access(lCheckPath, os.R_OK):
                 shutil.copyfile(lCheckPath, chkPath)
