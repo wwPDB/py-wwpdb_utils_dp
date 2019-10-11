@@ -1136,9 +1136,7 @@ class RcsbDpUtility(object):
             site_config_command = ". %s/init/env.sh -s %s -l %s" % (self.__siteConfigDir, self.__siteId, self.__siteLoc)
 
             cmd += " ; %s " % site_config_command
-            # Web environment python_path does not include -- needed anymore?
-            # cmd += ' ; export PYTHONPATH="$PYTHONPATH:$PACKAGE_DIR/openbabel/lib"'
-            # cmd += ' ; export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$PACKAGE_DIR/openbabel/lib"'
+            cmd += ' ; export PATH="$PATH:$PACKAGE_DIR/ChimeraX/bin"'
             cmd += " ; %s --validation " % site_config_command
             # cmd += " ; env "
 
