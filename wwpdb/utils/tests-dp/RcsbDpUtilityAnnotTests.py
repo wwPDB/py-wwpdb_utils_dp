@@ -484,46 +484,6 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             self.fail()
 
     @unittest.skipIf(toolsmissing, "Tools not available for testing")
-    def testAnnotCSCheck(self):
-        """  Test CS file check
-                             'nmr-cs-check-report'         :  (['html'], 'nmr-cs-check-report'),
-                             'nmr-cs-xyz-check-report'     :  (['html'], 'nmr-cs-xyz-check-report'),
-        """
-        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
-        try:
-            of = "cs-file-check.html"
-            dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
-            inpPath = os.path.join(self.__testFilePath, self.__testFileStarCs)
-            dp.imp(inpPath)
-            dp.op("annot-chem-shift-check")
-            dp.expLog("annot-cs-file-check.log")
-            dp.exp(of)
-            # dp.cleanup()
-        except Exception as e:
-            logger.exception("Failing with %s" % str(e))
-            self.fail()
-
-    @unittest.skipIf(toolsmissing, "Tools not available for testing")
-    def testAnnotCSCoordCheck(self):
-        """  Test CS + Coordindate file check
-        """
-        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
-        try:
-            of = "cs-coord-file-check.html"
-            dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
-            inpPath = os.path.join(self.__testFilePath, self.__testFileStarCs)
-            xyzPath = os.path.abspath(os.path.join(self.__testFilePath, self.__testFileCsRelatedCif))
-            dp.imp(inpPath)
-            dp.addInput(name="coordinate_file_path", value=xyzPath)
-            dp.op("annot-chem-shift-coord-check")
-            dp.expLog("annot-cs-coord-file-check.log")
-            dp.exp(of)
-            # dp.cleanup()
-        except Exception as e:
-            logger.exception("Failing with %s" % str(e))
-            self.fail()
-
-    @unittest.skipIf(toolsmissing, "Tools not available for testing")
     def testAnnotValidateListNmrTest(self):
         """  Test create validation report for the test list of example PDB ids (NMR examples)
         """
@@ -1015,12 +975,6 @@ def suiteAnnotSiteAltTests():
     return suiteSelect
 
 
-def suiteAnnotNMRTests():
-    suiteSelect = unittest.TestSuite()
-    suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotCSCheck"))
-    suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotCSCoordCheck"))
-    return suiteSelect
-
 
 def suiteArchiveValidationXrayTests():
     suiteSelect = unittest.TestSuite()
@@ -1149,9 +1103,6 @@ if __name__ == '__main__':
         mySuite = suiteAnnotFormatConvertTests()
         unittest.TextTestRunner(verbosity=2).run(mySuite)
         #
-        mySuite = suiteAnnotNMRTests()
-        unittest.TextTestRunner(verbosity=2).run(mySuite)
-
         mySuite = suiteAnnotConsolidatedTests()
         unittest.TextTestRunner(verbosity=2).run(mySuite)
 
