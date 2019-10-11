@@ -237,6 +237,7 @@ class RcsbDpUtility(object):
         self.__cI = ConfigInfo(self.__siteId)
         self.__initPath()
         self.__getRunRemote()
+        self.__memory = 0
 
     def __getConfigPath(self, ky):
         try:
@@ -1046,6 +1047,9 @@ class RcsbDpUtility(object):
             #  For annot-wwpdb-validate-all-v2: [pdf, xml, pdfFull, png, svg, edmapcoef]
             #
             #
+
+            # Set the initial memory for run remote use
+            self.__memory = 10000
             validation_mode = 'release'
             if 'request_validation_mode' in self.__inputParamDict:
                 validation_mode = str(self.__inputParamDict['request_validation_mode']).lower()
@@ -1103,6 +1107,19 @@ class RcsbDpUtility(object):
                 volPathFull = os.path.abspath(volPath)
             else:
                 volPathFull = None
+                
+            if 'fsc_file_path' in self.__inputParamDict:
+                authorFSCPath = self.__inputParamDict['fsc_file_path']
+                authorFSCFullPath = os.path.abspath(authorFSCPath)
+            else:
+                authorFSCFullPath = None
+
+            if 'emdb_xml_path' in self.__inputParamDict:
+                emdbXMLPath = self.__inputParamDict['emdb_xml_path']
+                emdbXMLFullPath = os.path.abspath(emdbXMLPath)
+            else:
+                emdbXMLFullPath = None
+
 
             if 'step_list' in self.__inputParamDict:
                 stepList = self.__inputParamDict['step_list']
@@ -1147,6 +1164,12 @@ class RcsbDpUtility(object):
 
             if volPathFull:
                 cmd += " --mapfile " + volPathFull
+                
+            if authorFSCFullPath:
+                cmd += " --fscfile {} ".format(authorFSCFullPath)
+
+            if emdbXMLFullPath:
+                cmd += " --emdb_xml {} ".format(emdbXMLFullPath)
 
             if stepList:
                 cmd += " --steps " + stepList

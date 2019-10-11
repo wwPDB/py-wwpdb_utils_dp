@@ -30,6 +30,7 @@ class RunRemote:
         self.bsub_source_command = self.cI.get('BSUB_SOURCE')
         self.bsub_run_command = self.cI.get('BSUB_COMMAND')
         self.pdbe_cluster_queue = self.cI.get('PDBE_CLUSTER_QUEUE')
+        self.pdbe_memory_limit = 100000
         self.bsub_login_node = self.cI.get('BSUB_LOGIN_NODE')
         self.bsub_timeout = self.cI.get('BSUB_TIMEOUT')
         self.bsub_retry_delay = self.cI.get('BSUB_RETRY_DELAY')
@@ -54,9 +55,15 @@ class RunRemote:
             while self.bsub_exit_status != 0:
                 if self.memory_used:
                     try:
-                        self.memory_limit = int(self.memory_used) + 10000
+                        if self.memory_used > self.memory_limit:
+                            self.memory_limit = int(self.memory_used)
                     except:
-                        self.memory_limit = self.memory_limit + 10000
+                        pass
+
+                if self.memory_limit >= 100000:
+                    self.memory_limit = self.memory_limit + 40000
+                elif self.memory_limit >= 20000:
+                    self.memory_limit = self.memory_limit + 30000
                 else:
                     self.memory_limit = self.memory_limit + 10000
                 bsub_try += 1
@@ -176,7 +183,14 @@ class RunRemote:
         bsub_command.append('-oo {}'.format(self.bsub_log_file))
         bsub_command.append('-eo {}/{}_error.log'.format(self.log_dir, self.job_name))
         bsub_command.append('-Ep "touch {}"'.format(self.bsub_out_file))
+        if self.pdbe_memory_limit and self.memory_limit > self.pdbe_memory_limit:
+            bsub_command.append('-P {}'.format('bigmem'))
+
         bsub_command.append('-q {}'.format(self.pdbe_cluster_queue))
+        if 'LSB_JOBGROUP' in os.environ and os.environ['LSB_JOBGROUP']:
+            bsub_command.append('-g {}'.format(os.environ['LSB_JOBGROUP']))
+
+
         bsub_command.append('-n {}'.format(self.number_of_processors))
         bsub_command.append('-W {}'.format(self.timeout))
         if self.memory_limit:
@@ -216,13 +230,18 @@ class RunRemote:
                         try:
                             memory_used = l.split(':')[-1].strip()
                             self.memory_unit = memory_used.split(' ')[1]
-                            self.memory_used = memory_used.split(' ')[0]
+                            self.memory_used = int(memory_used.split(' ')[0])
                         except Exception as e:
                             logging.error(e)
 
                     if 'TERM_MEMLIMIT' in l:
                         self.bsub_exit_status = 1
-
+        if self.memory_unit == 'GB':
+            self.memory_unit = 'MB'
+            self.memory_used = self.memory_used * 1024
+        elif self.memory_unit == 'KB':
+            self.memory_unit = 'MB'
+            self.memory_used = int(self.memory_used / 1024)
         logging.info('memory used: {} {}'.format(self.memory_used, self.memory_unit))
         logging.info('bsub exit status: {}'.format(self.bsub_exit_status))
 
