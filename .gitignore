@@ -49,3 +49,7 @@ coverage.xml
 
 # test output
 wwpdb/utils/tests-dp/test-output
+
+# IDE files
+.idea
+.vscode
