@@ -13,7 +13,7 @@ class RunRemote:
 
     def __init__(self, command, job_name, log_dir, timeout=5600, memory_limit=0, number_of_processors=1,
                  add_site_config=False, add_site_config_database=False):
-        self.command = command
+        self.command = self.escape_substitution(command)
         if timeout:
             self.timeout = timeout
         else:
@@ -40,6 +40,13 @@ class RunRemote:
         self.add_site_config_database = add_site_config_database
         self.out = None
         self.err = None
+
+    def escape_substitution(self, command):
+        """
+        Escapes dollars, stops variables being interpretted early when passed to bsub.
+        """
+        command = command.replace('$', '\$')
+        return command
 
     def run(self):
         rc = 1
