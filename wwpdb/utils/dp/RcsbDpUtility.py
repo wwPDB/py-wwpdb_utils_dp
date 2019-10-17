@@ -1090,6 +1090,11 @@ class RcsbDpUtility(object):
             if 'entry_id' in self.__inputParamDict:
                 entryId = self.__inputParamDict['entry_id']
 
+            if 'emdb_id' in self.__inputParamDict:
+                emdb_id = self.__inputParamDict['emdb_id']
+            else:
+                emdb_id = None
+
             if 'sf_file_path' in self.__inputParamDict:
                 sfPath = self.__inputParamDict['sf_file_path']
                 sfPathFull = os.path.abspath(sfPath)
@@ -1151,6 +1156,9 @@ class RcsbDpUtility(object):
                 if not entryId:
                     entryId = '4abc'
                 cmd += " --pdbid " + entryId
+
+            if emdb_id:
+                cmd += " --emdbid " + emdb_id
 
             if sfPathFull:
                 cmd += " --reflectionsfile " + sfPathFull
