@@ -1158,7 +1158,7 @@ class RcsbDpUtility(object):
                 cmd += " --pdbid " + entryId
 
             if emdb_id:
-                cmd += " --emdbid " + emdb_id
+                cmd += " --emdb_id " + emdb_id
 
             if sfPathFull:
                 cmd += " --reflectionsfile " + sfPathFull
