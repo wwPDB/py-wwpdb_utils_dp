@@ -2711,7 +2711,7 @@ class RcsbDpUtility(object):
         self.__ccDictPath = self.__getConfigPath('SITE_CC_DICT_PATH')
         self.__ccCvsPath = self.__getConfigPath('SITE_CC_CVS_PATH')
 
-        self.__patternPath = self.__getConfigPath('FP_PATTERNS_FILE_PATH')
+        self.__patternPath = os.path.join(self.__ccDictPath, "fp_patterns.txt")
         self.__ccDictPathCif = os.path.join(self.__ccDictPath, "Components-all-v3.cif")
         self.__ccDictPathSdb = os.path.join(self.__ccDictPath, "Components-all-v3.sdb")
         self.__ccDictPathIdx = os.path.join(self.__ccDictPath, "Components-all-v3-r4.idx")
