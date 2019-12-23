@@ -56,7 +56,7 @@ class RunRemote:
         if self.add_site_config:
             self.pre_pend_sourcing_site_config()
 
-        if 'pdbe' in self.siteId.lower():
+        if self.bsub_run_command:
             bsub_try = 1
             rc, self.out, self.err = self.run_bsub()
             while self.bsub_exit_status != 0:
