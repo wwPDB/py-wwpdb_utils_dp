@@ -3196,6 +3196,12 @@ class RcsbDpUtility(object):
         #
         return iret
 
+    def __locateSeqDb(self, defPath, altPathList, fName):
+        for p in altPathList:
+            if os.path.exists(os.path.join(p, fName)):
+                return p
+        return defPath
+
     def __sequenceStep(self, op):
         """ Internal method that performs sequence search and entry selection operations.
 
@@ -3203,6 +3209,13 @@ class RcsbDpUtility(object):
         #
         packagePath = self.__getConfigPath('SITE_PACKAGES_PATH')
         seqDbPath = self.__getConfigPath('SITE_REFDATA_SEQUENCE_DB_PATH')
+        altDbPaths = self.__cI.get('SITE_REFDATA_ALT_SEQUENCE_DB_PATHS')
+        
+        altPathList = []
+        if altDbPaths is not None:
+            altPathList = list(map(lambda v : os.path.abspath(v), altDbPaths.split(":")))
+
+
         ncbiToolsPath = os.path.join(packagePath, 'ncbi-blast+')
 
         #
@@ -3263,6 +3276,7 @@ class RcsbDpUtility(object):
             sequence = str(self.__inputParamDict['one_letter_code_sequence'])
             self.__writeFasta(iPathFull, sequence, comment="myQuery")
 
+
         cmd += " ; BLASTDB=" + os.path.abspath(seqDbPath) + " ; export BLASTDB "
 
         if (op == "seq-blastp"):
@@ -3275,8 +3289,11 @@ class RcsbDpUtility(object):
                 dbName = "my_uniprot_all"
 
             cmdPath = os.path.join(ncbiToolsPath, "bin", "blastp")
+
+            mySeqDbPath = self.__locateSeqDb(seqDbPath, altPathList, dbName + ".pal")
+            cmd += " ; BLASTDB=" + os.path.abspath(mySeqDbPath) + " ; export BLASTDB "
             cmd += " ; " + cmdPath + " -outfmt 5  -num_threads " + numThreads + hOpt + " -evalue " + \
-                eValue + " -db " + os.path.join(seqDbPath, dbName) + " -query " + iPathFull + " -out " + oPath
+                eValue + " -db " + os.path.join(mySeqDbPath, dbName) + " -query " + iPathFull + " -out " + oPath
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
         elif (op == "seq-blastn"):
             # -max_target_seqs
@@ -3285,8 +3302,11 @@ class RcsbDpUtility(object):
             else:
                 dbName = "my_ncbi_nt"
             cmdPath = os.path.join(ncbiToolsPath, "bin", "blastn")
+
+            mySeqDbPath = self.__locateSeqDb(seqDbPath, altPathList, dbName + ".nal")
+            cmd += " ; BLASTDB=" + os.path.abspath(mySeqDbPath) + " ; export BLASTDB "
             cmd += " ; " + cmdPath + " -outfmt 5  -num_threads " + numThreads + hOpt + " -evalue " + \
-                eValue + " -db " + os.path.join(seqDbPath, dbName) + " -query " + iPathFull + " -out " + oPath
+                eValue + " -db " + os.path.join(mySeqDbPath, dbName) + " -query " + iPathFull + " -out " + oPath
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
         else:
             return -1
