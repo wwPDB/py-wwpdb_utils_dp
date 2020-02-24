@@ -3276,9 +3276,6 @@ class RcsbDpUtility(object):
             sequence = str(self.__inputParamDict['one_letter_code_sequence'])
             self.__writeFasta(iPathFull, sequence, comment="myQuery")
 
-
-        cmd += " ; BLASTDB=" + os.path.abspath(seqDbPath) + " ; export BLASTDB "
-
         if (op == "seq-blastp"):
             #
             # $NCBI_BIN/blastp -evalue 0.001 -db $SEQUENCE_DB/$1  -num_threads 4 -query $2 -outfmt 5 -out $3
