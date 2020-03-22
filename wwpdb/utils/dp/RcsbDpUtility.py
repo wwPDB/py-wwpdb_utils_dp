@@ -109,6 +109,15 @@
 # 16-Oct-2018 jdw Adapt for Py2/3 and new python packaging
 # 27-Mar-2019 zf  Add "prd-process-summary"
 # 13-Jun-2019 zf  Add "auto_assembly_assignment" parameter for "pisa-assembly-merge-cif" operator
+# 16-Dec-2019 zf  Add "annot-nef-update-with-check"
+# 13-Mar-2020 zf  Add "annot-generte-nmr-data-str-file"
+# 16-Mar-2020 zf  Add "annot-get-symmetry-operator", "annot-depict-molecule-json", "annot-check-select-number", "annot-update-molecule"
+# 17-Mar-2020 zf  Add "annot-depict-chemical-shift", "annot-edit-chemical-shift", "annot-dcc-validation", "annot-correct-freer-set"
+# 18-Mar-2020 ep  Add "db-loader"
+# 18-Mar-2020 zf  Add "annot-misc-checking", "annot-cif-to-public-pdbx", "annot-public-pdbx-to-xml", "annot-get-pdb-bundle", "annot-get-biol-cif-file",
+#                     "annot-get-biol-pdb-file", "annot-check-cif", "annot-check-xml-xmllint", "annot-check-xml-stdinparse"
+# 19-Mar-2020 zf  Add "annot-get-pdb-file", "annot-check-pdb-file", "annot-check-sf-file", "annot-check-mr-file", "annot-check-cs-file"
+# 20-Mar-2020 zf  Add "annot-add-version-info", "annot-release-update"
 ##
 """
 Wrapper class for data processing and chemical component utilities.
@@ -203,12 +212,19 @@ class RcsbDpUtility(object):
                                 "annot-move-xyz-by-matrix", "annot-move-xyz-by-symop", "annot-extra-checks",
                                 "annot-update-terminal-atoms", "annot-merge-xyz", "annot-gen-assem-pdbx", "annot-cif2pdbx-withpdbid",
                                 "annot-validate-geometry", "annot-update-dep-assembly-info", "annot-chem-shifts-update-with-check",
-                                "annot-chem-shifts-atom-name-check", "annot-chem-shifts-upload-check",
-                                "annot-reorder-models", "annot-chem-shifts-update", 
-                                "annot-get-corres-info", "prd-summary-serialize", "prd-family-mapping"]
+                                "annot-chem-shifts-atom-name-check", "annot-chem-shifts-upload-check", "annot-nef-update-with-check",
+                                "annot-reorder-models", "annot-chem-shifts-update", "annot-generte-nmr-data-str-file",
+                                "annot-get-corres-info", "prd-summary-serialize", "prd-family-mapping",
+                                "annot-get-symmetry-operator", "annot-depict-molecule-json", "annot-check-select-number",
+                                "annot-update-molecule", "annot-depict-chemical-shift", "annot-edit-chemical-shift", "annot-misc-checking", 
+                                "annot-dcc-validation", "annot-correct-freer-set", "annot-cif-to-public-pdbx", "annot-public-pdbx-to-xml",
+                                "annot-release-update", "annot-get-pdb-bundle", "annot-get-biol-cif-file", "annot-get-biol-pdb-file", "annot-check-cif",
+                                "annot-check-xml-xmllint", "annot-check-xml-stdinparse", "annot-get-pdb-file", "annot-check-pdb-file",
+                                "annot-check-sf-file", "annot-check-mr-file", "annot-check-cs-file", "annot-add-version-info" ]
 
         self.__sequenceOps = ['seq-blastp', 'seq-blastn']
         self.__validateOps = ['validate-geometry']
+        self.__dbOps = ['db-loader']
         self.__emOps = ['mapfix-big', 'em2em-spider', 'fsc_check',
                         'img-convert', 'annot-read-map-header',
                         'annot-read-map-header-in-place',
@@ -406,6 +422,10 @@ class RcsbDpUtility(object):
         elif op in self.__validateOps:
             self.__stepNo += 1
             return self.__validateStep(op)
+
+        elif op in self.__dbOps:
+            self.__stepNo += 1
+            return self.__dbStep(op)
 
         elif op in self.__emOps:
             self.__stepNo += 1
@@ -1539,6 +1559,23 @@ class RcsbDpUtility(object):
             cmd += " -2fofc " + map2fofcPath + " -fofc " + mapfofcPath
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
 
+        elif (op == "annot-dcc-validation"):
+            #
+            cmd += " ; WWPDB_SITE_ID=" + self.__siteId + " ; export WWPDB_SITE_ID "
+            cmd += " ; DEPLOY_DIR=" + self.__deployPath + " ; export DEPLOY_DIR "
+            cmd += " ; TOOLS_DIR=" + os.path.join(self.__localAppsPath, 'bin') + " ; export TOOLS_DIR "
+            cmd += " ; PACKAGE_DIR=" + self.__packagePath + " ; export PACKAGE_DIR "
+            cmd += " ; DCCPY_DIR=" + os.path.join(self.__packagePath, 'sf-valid') + " ; export DCCPY_DIR "
+            #
+            cmdPath = os.path.join(self.__packagePath, "sf-valid", "bin", "dcc.sh")
+            thisCmd = " ; " + cmdPath
+            cmd += thisCmd + " -sf " + iPath + " -o " + oPath + " -one -no_xtriage "
+            #
+            if "model_file" in self.__inputParamDict:
+                cmd += " -pdb " + self.__inputParamDict["model_file"]
+            #
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
+
         elif (op == "annot-poly-link-dist"):
             cmdPath = os.path.join(self.__annotAppsPath, "bin", "cal_polymer_linkage_distance")
             thisCmd = " ; " + cmdPath
@@ -1811,6 +1848,287 @@ class RcsbDpUtility(object):
                 cmd += " -ciffile " + xyzPathFull
             #
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
+
+        elif (op == "annot-nef-update-with-check"):
+            #  iPath input is the target nmr-data file oPath is the output nmr-data file
+            #
+            # check_update_nmr_data_file -input input_nmr_data_file -output output_nmr_data_file -ciffile coord_cif_file -log logfile
+            #
+            cmdPath = os.path.join(self.__annotAppsPath, "bin", "check_update_nmr_data_file")
+            thisCmd = " ; " + cmdPath
+            #cmd += thisCmd + ' -input ' + iPath + " -output " + oPath + " -report report.cif -log " + lPath
+            cmd += thisCmd + ' -input ' + iPath + " -output " + oPath + " -log " + lPath
+
+            if 'coordinate_file_path' in self.__inputParamDict:
+                xyzPath = self.__inputParamDict['coordinate_file_path']
+                xyzPathFull = os.path.abspath(xyzPath)
+                cmd += " -ciffile " + xyzPathFull
+            #
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
+
+        elif (op == "annot-generte-nmr-data-str-file"):
+            #  iPath input is the target nmr-data cif file oPath is the output nmr-data nmr-star file
+            #
+            # GenNmrDataStarFile -input input_nmr_data_cif_file -output output_nmr_data_str_file -pdbid pdbid 
+            #
+            cmdPath = os.path.join(self.__annotAppsPath, "bin", "GenNmrDataStarFile")
+            thisCmd = " ; " + cmdPath
+            cmd += thisCmd + ' -input ' + iPath + " -output " + oPath
+
+            if 'pdb_id' in self.__inputParamDict:
+                pdb_id = self.__inputParamDict['pdb_id']
+                cmd += " -pdbid " + pdb_id
+            #
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
+
+        elif (op == "annot-get-symmetry-operator"):
+            #  oPath is the output space group symop info text file
+            #
+            # GetSymmetryOperator -space_group space_group_name -output space_group-symop-info.txt -log logfile
+            #
+            cmdPath = os.path.join(self.__annotAppsPath, "bin", "GetSymmetryOperator")
+            thisCmd = " ; " + cmdPath
+            if 'space_group' in self.__inputParamDict:
+                thisCmd += " -space_group " + self.__inputParamDict['space_group']
+            #
+            cmd += thisCmd + " -output " + oPath + " -log " + lPath
+            #
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
+
+        elif (op == "annot-depict-molecule-json"):
+            #
+            txtPath = os.path.abspath(os.path.join(self.__wrkPath, "chainids.txt"))
+            cifPath = os.path.abspath(os.path.join(self.__wrkPath, "index.cif"))
+            #
+            cmdPath = os.path.join(self.__annotAppsPath, "bin", "DepictMolecule_Json")
+            thisCmd = " ; " + cmdPath
+            cmd += thisCmd + " -input " + iPath + " -output " + oPath + " -output_2 " + txtPath + " -output_3 " +  cifPath + " -log " + lPath
+            #
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
+
+        elif (op == "annot-check-select-number"):
+            #
+            cmdPath = os.path.join(self.__annotAppsPath, "bin", "CheckSelectNumber")
+            thisCmd = " ; " + cmdPath
+            cmd += thisCmd + " -index " + iPath + " -log " + lPath
+            #
+            if "select" in self.__inputParamDict:
+                cmd += " -select " + self.__inputParamDict["select"]
+            #
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
+
+        elif (op == "annot-update-molecule"):
+            #
+            cmdPath = os.path.join(self.__annotAppsPath, "bin", "UpdateMolecule")
+            thisCmd = " ; " + cmdPath
+            cmd += thisCmd + " -input " + iPath + " -output " + oPath + " -log " + lPath
+            #
+            if "assign" in self.__inputParamDict:
+                cmd += " -assign " + self.__inputParamDict["assign"]
+            #
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
+
+        elif (op == "annot-depict-chemical-shift"):
+            #
+            cmdPath = os.path.join(self.__annotAppsPath, "bin", "depict_chemical_shift")
+            thisCmd = " ; " + cmdPath
+            cmd += thisCmd + " -input " + iPath + " -output " + oPath + " -log " + lPath
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
+
+        elif (op == "annot-edit-chemical-shift"):
+            #
+            cmdPath = os.path.join(self.__annotAppsPath, "bin", "edit_chemical_shift")
+            thisCmd = " ; " + cmdPath
+            cmd += thisCmd + " -input " + iPath + " -output " + oPath + " -log " + lPath
+            #
+            if "assign" in self.__inputParamDict:
+                cmd += " -assign " + self.__inputParamDict["assign"]
+            #
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
+
+        elif (op == "annot-correct-freer-set"):
+            #
+            cmdPath = os.path.join(self.__annotAppsPath, "bin", "CorrectFreeRsetInSFFile")
+            thisCmd = " ; " + cmdPath
+            cmd += thisCmd + " -input " + iPath + " -output " + oPath + " -log " + lPath
+            #
+            if "set_num" in self.__inputParamDict:
+                cmd += " -set_num " + self.__inputParamDict["set_num"]
+            #
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
+
+        elif (op == "annot-cif-to-public-pdbx"):
+            #
+            cmdPath = os.path.join(self.__packagePath, "dict", "bin", "cifexch2")
+            thisCmd = " ; " + cmdPath + " -dicSdb " + self.__nameToDictPath("archive_current") + " -pdbxDicSdb " \
+                    + self.__nameToDictPath("archive_current") + " -reorder  -strip -op in  -pdbids "
+            cmd += thisCmd + " -input " + iPath + " -output " + oPath
+            cmd += " 2> " + lPath + " 1> " + tPath
+
+        elif (op == "annot-public-pdbx-to-xml"):
+            #
+            cmdPath = os.path.join(self.__packagePath, "dict", "bin", "mmcif2XML")
+            thisCmd = " ; " + cmdPath + " -prefix  pdbx-v50 -ns PDBx -funct mmcif2xmlall -dictName mmcif_pdbx.dic -df " \
+                    + self.__nameToDictPath("archive_current", suffix=".odb")
+            cmd += thisCmd + " -f " + iPath
+            cmd += " 2> " + tPath + " 1> " + lPath
+
+        elif (op == "annot-check-cif"):
+            #
+            cmdPath = os.path.join(self.__packagePath, "dict", "bin", "CifCheck")
+            thisCmd = " ; " + cmdPath + " -dictSdb " + self.__nameToDictPath("archive_current") + " -f " + iPath
+            cmd += thisCmd + " 2> tmp 1> " + tPath + " ; cat tmp >> " + lPath + " ; touch " + iPath + "-parser.log ; cat " \
+                 + iPath + "-parser.log >> " + lPath
+
+        elif (op == "annot-check-xml-xmllint"):
+            #
+            cmdPath = os.path.join(self.__localAppsPath, "bin", "xmllint")
+            thisCmd = " ; " + cmdPath + " --noout --schema " + os.path.join(self.__getConfigPath("SITE_PDBX_DICT_PATH"), "pdbx-v50.xsd")
+            cmd += thisCmd + " " + iPath + " > " + tPath + " 2>&1 ; "
+
+        elif (op == "annot-check-xml-stdinparse"):
+            #
+            cmdPath = os.path.join(self.__localAppsPath, "bin", "StdInParse")
+            thisCmd = " ; cp -f " + os.path.join(self.__getConfigPath("SITE_PDBX_DICT_PATH"), "pdbx-v50.xsd") + " . ; " + cmdPath
+            cmd += thisCmd + " -s -f -n -v=always < " + iPath + " >> " + tPath + " 2>&1 ; "
+
+        elif (op == "annot-misc-checking"):
+            #
+            cmdPath = os.path.join(self.__annotAppsPath, "bin", "MiscChecking")
+            thisCmd = " ; " + cmdPath
+            cmd += thisCmd + " -input " + iPath + " -output " + oPath + " -log " + tPath
+            #
+            if "option" in self.__inputParamDict:
+                cmd += " " + self.__inputParamDict["option"] + " "
+            #
+            cmd += " > " + lPath + " 2>&1 "
+
+        elif (op == "annot-add-version-info"):
+            #
+            cmdPath = os.path.join(self.__annotAppsPath, "bin", "AddVersionInfo")
+            thisCmd = " ; " + cmdPath
+            cmd += thisCmd + " -input " + iPath + " -output " + oPath + " -log " + tPath
+            #
+            if "option" in self.__inputParamDict:
+                cmd += " " + self.__inputParamDict["option"] + " "
+            #
+            cmd += " > " + lPath + " 2>&1 "
+
+        elif (op == "annot-get-pdb-file"):
+            #
+            thisCmd = " ; " + maxitCmd
+            cmd += thisCmd + " -input " + iPath + " -o 2 -output " + oPath + " -log " + tPath + " > " + lPath + " 2>&1 "
+
+        elif (op == "annot-release-update"):
+            cmdPath = os.path.join(self.__annotAppsPath, "bin", "ReleaseUpdate")
+            thisCmd = " ; " + cmdPath
+            cmd += thisCmd + " -input " + iPath + " -log " + tPath
+            #
+            if "option" in self.__inputParamDict:
+                cmd += " " + self.__inputParamDict["option"] + " "
+            #
+            depId = "UNASSIGNED"
+            if "dep_id" in self.__inputParamDict:
+                depId = self.__inputParamDict["dep_id"]
+            #
+            cmd += " -output outputfile_" + depId + ".cif "
+            cmd += " > " + lPath + " 2>&1 ; tar cvf result.tar *" + depId + "* > tmp 2>&1 ; gzip -f result.tar "
+
+        elif (op == "annot-get-pdb-bundle"):
+            #
+            cmdPath = os.path.join(self.__annotAppsPath, "bin", "GetPdbBundle")
+            thisCmd = " ; " + cmdPath
+            cmd += thisCmd + " -input " + iPath + " -log " + tPath
+            #
+            if "pdb_id" in self.__inputParamDict:
+                pdb_id = self.__inputParamDict["pdb_id"]
+                cmd += " -output output.index -output_mapping " + pdb_id + "-chain-id-mapping.txt "
+            #
+            cmd += " > " + lPath + " 2>&1 ; tar cvf result.tar " + pdb_id + "* > tmp 2>&1 ; gzip -f result.tar "
+
+        elif (op == "annot-get-biol-cif-file"):
+            #
+            cmdPath = os.path.join(self.__annotAppsPath, "bin", "GenBioCIFFile")
+            thisCmd = " ; " + cmdPath
+            cmd += thisCmd + " -input " + iPath + " -public -log " + tPath
+            #
+            if "pdb_id" in self.__inputParamDict:
+                pdb_id = self.__inputParamDict["pdb_id"]
+                cmd += " -output " + pdb_id + " -index " + pdb_id + "_GenBioCIFFile.index "
+            #
+            cmd += " > " + lPath + " 2>&1 ; tar cvf result.tar " + pdb_id + "* > tmp 2>&1 ; gzip -f result.tar "
+
+        elif (op == "annot-get-biol-pdb-file"):
+            #
+            cmdPath = os.path.join(self.__annotAppsPath, "bin", "GenBioPDBFile")
+            thisCmd = " ; " + cmdPath
+            cmd += thisCmd + " -input " + iPath + " -log " + tPath
+            #
+            if "pdb_id" in self.__inputParamDict:
+                pdb_id = self.__inputParamDict["pdb_id"]
+                cmd += " -output " + pdb_id + " -index " + pdb_id + "_GenBioPDBFile.index "
+            #
+            cmd += " > " + lPath + " 2>&1 ; tar cvf result.tar " + pdb_id + "* > tmp 2>&1 ; gzip -f result.tar "
+
+        elif (op == "annot-check-pdb-file"):
+            #
+            cmdPath = os.path.join(self.__annotAppsPath, "bin", "CheckPDBFile")
+            thisCmd = " ; " + cmdPath
+            cmd += thisCmd + " -input " + iPath + " -log " + tPath
+            #
+            if "option" in self.__inputParamDict:
+                cmd += " " + self.__inputParamDict["option"] + " "
+            #
+            if "pdb_id" in self.__inputParamDict:
+                pdb_id = self.__inputParamDict["pdb_id"]
+                cmd += " -output " + pdb_id + "_pdb.report -obslte " + pdb_id + ".obslte -sprsde " + pdb_id + ".sprsde -pdbid " + pdb_id
+            #
+            cmd += " > " + lPath + " 2>&1 ; tar cvf result.tar " + pdb_id + "* > tmp 2>&1 ; gzip -f result.tar "
+
+        elif (op == "annot-check-sf-file"):
+            #
+            cmdPath = os.path.join(self.__annotAppsPath, "bin", "CheckSFFile")
+            thisCmd = " ; " + cmdPath
+            cmd += thisCmd + " -input " + iPath + " -output " + oPath
+            #
+            if "option" in self.__inputParamDict:
+                cmd += " " + self.__inputParamDict["option"] + " "
+            #
+            if "pdb_id" in self.__inputParamDict:
+                pdb_id = self.__inputParamDict["pdb_id"]
+                cmd += " -pdbid " + self.__inputParamDict["pdb_id"]
+            #
+            cmd += " > " + tPath + " 2>&1 "
+
+        elif (op == "annot-check-mr-file"):
+            #
+            cmdPath = os.path.join(self.__annotAppsPath, "bin", "CheckMRFile")
+            thisCmd = " ; " + cmdPath
+            cmd += thisCmd + " -input " + iPath + " -output " + oPath
+            #
+            if "option" in self.__inputParamDict:
+                cmd += " " + self.__inputParamDict["option"] + " "
+            #
+            if "pdb_id" in self.__inputParamDict:
+                pdb_id = self.__inputParamDict["pdb_id"]
+                cmd += " -pdbid " + self.__inputParamDict["pdb_id"]
+            #
+            cmd += " > " + tPath + " 2>&1 "
+
+        elif (op == "annot-check-cs-file"):
+            #
+            cmdPath = os.path.join(self.__annotAppsPath, "bin", "CheckCSFile")
+            thisCmd = " ; " + cmdPath
+            cmd += thisCmd + " -input " + iPath + " -output " + oPath
+            #
+            if "option" in self.__inputParamDict:
+                cmd += " " + self.__inputParamDict["option"] + " "
+            #
+            if "pdb_id" in self.__inputParamDict:
+                pdb_id = self.__inputParamDict["pdb_id"]
+                cmd += " -pdbid " + self.__inputParamDict["pdb_id"]
+            #
+            cmd += " > " + tPath + " 2>&1 "
 
         elif (op == "prd-search"):
 
@@ -2167,6 +2485,89 @@ class RcsbDpUtility(object):
         elif (op in ["annot-chem-shifts-atom-name-check", "annot-chem-shifts-upload-check"]):
             if os.access(lCheckPath, os.R_OK):
                 shutil.copyfile(lCheckPath, chkPath)
+            #
+
+        elif (op == "annot-depict-molecule-json"):
+            self.__resultPathList = []
+            #
+            outFile = os.path.join(self.__wrkPath, oPath)
+            if os.access(outFile, os.F_OK):
+                self.__resultPathList.append(outFile)
+            else:
+                self.__resultPathList.append("missing")
+            #
+            txtPath = os.path.join(self.__wrkPath, "chainids.txt")
+            if os.access(txtPath, os.F_OK):
+                self.__resultPathList.append(txtPath)
+            else:
+                self.__resultPathList.append("missing")
+            #
+            cifPath = os.path.join(self.__wrkPath, "index.cif")
+            if os.access(cifPath, os.F_OK):
+                self.__resultPathList.append(cifPath)
+            else:
+                self.__resultPathList.append("missing")
+            #
+
+        elif ((op == "annot-check-sf-file") or (op == "annot-check-mr-file") or (op == "annot-check-cs-file") or (op == "annot-pdbx2nmrstar")):
+            for fileName in ( oPath, tPath ):
+                outFile = os.path.join(self.__wrkPath, fileName)
+                if os.access(outFile, os.F_OK):
+                    self.__resultPathList.append(outFile)
+                else:
+                    self.__resultPathList.append("missing")
+                #
+            #
+
+        elif ((op == "annot-cif-to-public-pdbx") or (op == "annot-misc-checking") or (op == "annot-get-pdb-file") or (op == "annot-add-version-info")):
+            for fileName in ( oPath, tPath, lPath ):
+                outFile = os.path.join(self.__wrkPath, fileName)
+                if os.access(outFile, os.F_OK):
+                    self.__resultPathList.append(outFile)
+                else:
+                    self.__resultPathList.append("missing")
+                #
+            #
+
+        elif (op == "annot-public-pdbx-to-xml"):
+            for fileName in ( iPath + ".xml", iPath + ".xml-noatom", iPath + ".xml-extatom", lPath, tPath ):
+                outFile = os.path.join(self.__wrkPath, fileName)
+                if os.access(outFile, os.F_OK):
+                    self.__resultPathList.append(outFile)
+                else:
+                    self.__resultPathList.append("missing")
+                #
+            #
+
+        elif (op == "annot-check-cif"):
+            for fileName in ( iPath + "-diag.log", lPath ):
+                outFile = os.path.join(self.__wrkPath, fileName)
+                if os.access(outFile, os.F_OK):
+                    self.__resultPathList.append(outFile)
+                else:
+                    self.__resultPathList.append("missing")
+                #
+            #
+
+        elif (op == "annot-check-xml-xmllint") or (op == "annot-check-xml-stdinparse"):
+            outFile = os.path.join(self.__wrkPath, tPath)
+            if os.access(outFile, os.F_OK):
+                self.__resultPathList.append(outFile)
+            else:
+                self.__resultPathList.append("missing")
+            #
+
+        elif (op == "annot-release-update") or (op == "annot-get-pdb-bundle") or (op == "annot-get-biol-cif-file") or \
+             (op == "annot-get-biol-pdb-file") or (op == "annot-check-pdb-file"):
+            for fileName in ( "result.tar.gz", tPath, lPath ):
+                outFile = os.path.join(self.__wrkPath, fileName)
+                if os.access(outFile, os.F_OK):
+                    self.__resultPathList.append(outFile)
+                else:
+                    self.__resultPathList.append("missing")
+                #
+            #
+
         else:
             self.__resultPathList = [os.path.join(self.__wrkPath, oPath)]
 
@@ -2246,6 +2647,97 @@ class RcsbDpUtility(object):
 
         if (self.__debug):
             logger.info("+RcsbDpUtility._validationStep()  - Application string:\n%s\n" % cmd.replace(";", "\n"))
+        #
+        # if (self.__debug):
+        #    cmd += " ; ls -la  > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
+
+        cmd += " ) > %s 2>&1 " % ePathFull
+
+        cmd += " ; cat " + ePathFull + " >> " + lPathFull
+
+        if (self.__debug):
+            ofh = open(lPathFull, 'w')
+            lt = time.strftime("%Y %m %d %H:%M:%S", time.localtime())
+            ofh.write("\n\n-------------------------------------------------\n")
+            ofh.write("LogFile:      %s\n" % lPath)
+            ofh.write("Working path: %s\n" % self.__wrkPath)
+            ofh.write("Date:         %s\n" % lt)
+            ofh.write("\nStep command:\n%s\n-------------------------------------------------\n" % cmd.replace(";", "\n"))
+            ofh.close()
+
+        iret = self.__run(cmd, lPathFull, op)
+
+        return iret
+
+    def __dbStep(self, op):
+        """ Internal method that performs a trasformations needed for DB loading
+
+            Now using only validation pack functions.
+        """
+        #
+        # Set application specific path details here -
+        #
+        self.__packagePath = self.__getConfigPath('SITE_PACKAGES_PATH')
+
+        #
+        #
+        iPath = self.__getSourceWrkFile(self.__stepNo)
+        # iPathList = self.__getSourceWrkFileList(self.__stepNo)
+        oPath = self.__getResultWrkFile(self.__stepNo)
+        lPath = self.__getLogWrkFile(self.__stepNo)
+        ePath = self.__getErrWrkFile(self.__stepNo)
+        tPath = self.__getTmpWrkFile(self.__stepNo)
+        #
+        if (self.__wrkPath is not None):
+            # iPathFull = os.path.abspath(os.path.join(self.__wrkPath, iPath))
+            ePathFull = os.path.join(self.__wrkPath, ePath)
+            lPathFull = os.path.join(self.__wrkPath, lPath)
+            # tPathFull = os.path.join(self.__wrkPath, tPath)
+            cmd = "(cd " + self.__wrkPath
+        else:
+            # iPathFull = iPath
+            ePathFull = ePath
+            lPathFull = lPath
+            # tPathFull = tPath
+            cmd = "("
+        #
+        if (self.__stepNo > 1):
+            pPath = self.__updateInputPath()
+            if (os.access(pPath, os.F_OK)):
+                cmd += "; cp " + pPath + " " + iPath
+
+        #
+        # Standard setup for maxit ---
+        #
+        dbLoaderCmd  = os.path.join(self.__packagePath, "dbloader", "bin", "db-loader")
+
+        #
+        if (op == "db-loader"):
+            # Flag to indicate if input file is a list or the actual file
+            filelist = self.__inputParamDict.get("file_list", False)
+
+            dbServer = self.__inputParamDict.get("dbname", "da_internal")
+            
+            mappingfile = self.__inputParamDict.get("mapping_file", "None")
+
+
+            if filelist:
+                filecmd = " -list " + iPath
+            else:
+                filecmd = " -f " + iPath
+
+            cmd += "; rm -f DB_LOADER.sql "
+            thisCmd = " ; " + dbLoaderCmd
+            cmd += thisCmd + " -server mysql " + filecmd  + " -map " + mappingfile + " -db " + dbServer
+            #
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
+            cmd += " ; cp DB_LOADER.sql " + oPath
+        else:
+            return -1
+        #
+
+        if (self.__debug):
+            logger.info("+RcsbDpUtility._dbStep()  - Application string:\n%s\n" % cmd.replace(";", "\n"))
         #
         # if (self.__debug):
         #    cmd += " ; ls -la  > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
@@ -2831,9 +3323,6 @@ class RcsbDpUtility(object):
             cmd += " -dictSdb " + self.__pathPdbxV4DictSdb
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
             cmd += " ; touch " + iPath + "-diag.log "
-            cmd += " ; touch " + iPath + "-parser.log "
-            cmd += " ; cat " + iPath + "-parser.log > " + oPath
-            cmd += " ; cat " + iPath + "-diag.log  >> " + oPath
             # cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
         elif (op == "check-cif-ext"):
             # Dictionary check with selectable dictionary
