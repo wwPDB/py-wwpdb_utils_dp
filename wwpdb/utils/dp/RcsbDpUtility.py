@@ -3901,7 +3901,7 @@ class RcsbDpUtility(object):
             return RunRemote(command=command, job_name=job_name, 
                              log_dir=os.path.dirname(lPathFull),
                              timeout=self.__timeout, 
-                             number_of_processors=self.__numThreads,
+                             # number_of_processors=self.__numThreads,
                              memory_limit=self.__startingMemory
                              ).run()
 
