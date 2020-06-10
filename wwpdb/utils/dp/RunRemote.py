@@ -71,18 +71,20 @@ class RunRemote:
                     self.memory_limit = self.memory_limit + 40000
                 elif self.memory_limit >= 20000:
                     self.memory_limit = self.memory_limit + 30000
+                elif self.memory_limit >= 10000:
+                    self.memory_limit = self.memory_limit + 5000
                 else:
-                    self.memory_limit = self.memory_limit + 10000
+                    self.memory_limit = self.memory_limit + 2000
                 bsub_try += 1
-                logging.info('try {}, memory {}'.format(bsub_try, self.memory_limit))
+                logger.info('try {}, memory {}'.format(bsub_try, self.memory_limit))
                 rc, self.out, self.err = self.run_bsub()
 
         if rc != 0:
-            logging.error('return code: {}'.format(rc))
-            logging.error('out: {}'.format(self.out))
-            logging.error('error: {}'.format(self.err))
+            logger.error('return code: {}'.format(rc))
+            logger.error('out: {}'.format(self.out))
+            logger.error('error: {}'.format(self.err))
         else:
-            logging.info('worked')
+            logger.info('worked')
 
         return rc
 
@@ -129,24 +131,24 @@ class RunRemote:
         time.sleep(10)
         if not os.path.exists(self.bsub_out_file):
             retries = 0
-            logging.info('bsub out file not present - waiting for bsub to finish')
+            logger.info('bsub out file not present - waiting for bsub to finish')
             max_num_of_retries = (int(self.bsub_timeout) / int(self.bsub_retry_delay))
             while retries < max_num_of_retries:
                 if os.path.exists(self.bsub_out_file):
-                    logging.info('found bsub out file')
+                    logger.info('found bsub out file')
                     break
                 else:
                     retries += 1
-                    logging.info(
+                    logger.info(
                         'try {} of {}, wait for {} seconds'.format(retries, max_num_of_retries, self.bsub_retry_delay))
                     time.sleep(int(self.bsub_retry_delay))
 
     def run_command(self, command, log_file=None, new_env=None):
         # command_list = shlex.split(command)
-        logging.info('Starting: %s' % self.job_name)
-        logging.debug(command)
+        logger.info('Starting: %s' % self.job_name)
+        logger.debug(command)
         if log_file:
-            logging.info('logging to: {}'.format(log_file))
+            logger.info('logging to: {}'.format(log_file))
             if not os.path.exists(os.path.dirname(log_file)):
                 os.makedirs(os.path.dirname(log_file))
         t1 = os.times()[4]
@@ -158,23 +160,23 @@ class RunRemote:
         out, err = child.communicate()
         rc = child.returncode
         if rc != 0:
-            logging.error('Exit status: %s - process failed: %s' % (rc, self.job_name))
+            logger.error('Exit status: %s - process failed: %s' % (rc, self.job_name))
         else:
-            logging.info('process worked: %s' % self.job_name)
+            logger.info('process worked: %s' % self.job_name)
 
         if log_file:
             with open(log_file, 'wb') as lf:
                 if out:
                     lf.write(out)
-                    # logging.info(out)
+                    # logger.info(out)
                 if err:
                     lf.write(err)
-                    logging.error(err)
+                    logger.error(err)
 
         t2 = os.times()[4]
         ht = self.check_timing(t1, t2)
-        # logging.info("Timing: %s took %s" %(name, ht[0]))
-        logging.info("Finished: %s, %s" % (self.job_name, ht[1]))
+        # logger.info("Timing: %s took %s" %(name, ht[0]))
+        logger.info("Finished: %s, %s" % (self.job_name, ht[1]))
 
         return rc, out, err
 
@@ -239,7 +241,7 @@ class RunRemote:
                             self.memory_unit = memory_used.split(' ')[1]
                             self.memory_used = int(memory_used.split(' ')[0])
                         except Exception as e:
-                            logging.error(e)
+                            logger.error(e)
 
                     if 'TERM_MEMLIMIT' in l:
                         self.bsub_exit_status = 1
@@ -249,8 +251,8 @@ class RunRemote:
         elif self.memory_unit == 'KB':
             self.memory_unit = 'MB'
             self.memory_used = int(self.memory_used / 1024)
-        logging.info('memory used: {} {}'.format(self.memory_used, self.memory_unit))
-        logging.info('bsub exit status: {}'.format(self.bsub_exit_status))
+        logger.info('memory used: {} {}'.format(self.memory_used, self.memory_unit))
+        logger.info('bsub exit status: {}'.format(self.bsub_exit_status))
 
     def run_bsub(self):
 
@@ -274,7 +276,7 @@ class RunRemote:
             if rc in allowed_codes:
                 break
             delay_time = i * 2
-            logging.info('bsub return code of {}. Waiting for {}'.format(rc, delay_time))
+            logger.info('bsub return code of {}. Waiting for {}'.format(rc, delay_time))
             time.sleep(delay_time)
             i += 1
 
