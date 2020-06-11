@@ -3746,7 +3746,7 @@ class RcsbDpUtility(object):
         if 'num_threads' in self.__inputParamDict:
             numThreads = str(self.__inputParamDict['num_threads'])
             self.__numThreads = int(numThreads)
-            self.__startingMemory = 30000
+            self.__startingMemory = 100000
         else:
             numThreads = '1'
 
