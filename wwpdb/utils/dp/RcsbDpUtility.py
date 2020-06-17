@@ -118,6 +118,7 @@
 #                     "annot-get-biol-pdb-file", "annot-check-cif", "annot-check-xml-xmllint", "annot-check-xml-stdinparse"
 # 19-Mar-2020 zf  Add "annot-get-pdb-file", "annot-check-pdb-file", "annot-check-sf-file", "annot-check-mr-file", "annot-check-cs-file"
 # 20-Mar-2020 zf  Add "annot-add-version-info", "annot-release-update"
+# 17-Jun-2020 zf  Add "carbohydrate-remediation", "carbohydrate-remediation-test"
 ##
 """
 Wrapper class for data processing and chemical component utilities.
@@ -220,7 +221,8 @@ class RcsbDpUtility(object):
                                 "annot-dcc-validation", "annot-correct-freer-set", "annot-cif-to-public-pdbx", "annot-public-pdbx-to-xml",
                                 "annot-release-update", "annot-get-pdb-bundle", "annot-get-biol-cif-file", "annot-get-biol-pdb-file", "annot-check-cif",
                                 "annot-check-xml-xmllint", "annot-check-xml-stdinparse", "annot-get-pdb-file", "annot-check-pdb-file",
-                                "annot-check-sf-file", "annot-check-mr-file", "annot-check-cs-file", "annot-add-version-info" ]
+                                "annot-check-sf-file", "annot-check-mr-file", "annot-check-cs-file", "annot-add-version-info", 
+                                "carbohydrate-remediation", "carbohydrate-remediation-test" ]
 
         self.__sequenceOps = ['seq-blastp', 'seq-blastn']
         self.__validateOps = ['validate-geometry']
@@ -2132,6 +2134,18 @@ class RcsbDpUtility(object):
             #
             cmd += " > " + tPath + " 2>&1 "
 
+        elif (op == "carbohydrate-remediation"):
+            cmdPath = os.path.join(self.__annotAppsPath, "bin", "CarbohydrateRemediation")
+            thisCmd = " ; " + cmdPath
+            cmd += thisCmd + " -input " + iPath + " -output " + oPath + " -log " + tPath
+            cmd += " > " + lPath + " 2>&1 "
+
+        elif (op == "carbohydrate-remediation-test"):
+            cmdPath = os.path.join(self.__annotAppsPath, "bin", "CarbohydrateRemediation")
+            thisCmd = " ; " + cmdPath
+            cmd += thisCmd + " -input " + iPath + " -output " + oPath + " -output_public carbohydrate_public.cif -log " + tPath
+            cmd += " > " + lPath + " 2>&1 "
+
         elif (op == "prd-search"):
 
             cmd += " ; PRDCC_PATH=" + self.__prdccCvsPath + " ; export PRDCC_PATH "
@@ -2562,6 +2576,26 @@ class RcsbDpUtility(object):
         elif (op == "annot-release-update") or (op == "annot-get-pdb-bundle") or (op == "annot-get-biol-cif-file") or \
              (op == "annot-get-biol-pdb-file") or (op == "annot-check-pdb-file"):
             for fileName in ( "result.tar.gz", tPath, lPath ):
+                outFile = os.path.join(self.__wrkPath, fileName)
+                if os.access(outFile, os.F_OK):
+                    self.__resultPathList.append(outFile)
+                else:
+                    self.__resultPathList.append("missing")
+                #
+            #
+
+        elif (op == "carbohydrate-remediation"):
+            for fileName in ( oPath, tPath, lPath ):
+                outFile = os.path.join(self.__wrkPath, fileName)
+                if os.access(outFile, os.F_OK):
+                    self.__resultPathList.append(outFile)
+                else:
+                    self.__resultPathList.append("missing")
+                #
+            #
+
+        elif (op == "carbohydrate-remediation-test"):
+            for fileName in ( oPath, "carbohydrate_public.cif", tPath, lPath ):
                 outFile = os.path.join(self.__wrkPath, fileName)
                 if os.access(outFile, os.F_OK):
                     self.__resultPathList.append(outFile)
