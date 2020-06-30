@@ -1,4 +1,7 @@
 # File:    VaildationWrapper.py
+#
+# Updates:
+# 30-Jun-2020 zf  Add image tar file output after svg file for "annot-wwpdb-validate-all", "annot-wwpdb-validate-all-v2" & "annot-wwpdb-validate-all-sf"
 ##
 """ Class to act as a front end to validation calculations and repackaging.
     Access pattern mirrors RscbDpUtility.
@@ -73,9 +76,9 @@ class ValidationWrapper(RcsbDpUtility):
         # Handle the first arguments
         # ofpdf,ofxml,offullpdf,ofpng,ofsvg,ofmtz
 
-        basedst = dstPathList[0:5]
-        outfosf = dstPathList[5]
-        out2fosf = dstPathList[6]
+        basedst = dstPathList[0:6]
+        outfosf = dstPathList[6]
+        out2fosf = dstPathList[7]
         mtzfile = os.path.join(self.getWorkingDir(), 'mapcoef.mtz')
         basedst.append(mtzfile)
         ret = super(ValidationWrapper, self).expList(basedst)

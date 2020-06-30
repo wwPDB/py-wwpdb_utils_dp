@@ -118,7 +118,9 @@
 #                     "annot-get-biol-pdb-file", "annot-check-cif", "annot-check-xml-xmllint", "annot-check-xml-stdinparse"
 # 19-Mar-2020 zf  Add "annot-get-pdb-file", "annot-check-pdb-file", "annot-check-sf-file", "annot-check-mr-file", "annot-check-cs-file"
 # 20-Mar-2020 zf  Add "annot-add-version-info", "annot-release-update"
+# 17-Jun-2020 zf  Add "PDB2GLYCAN" environmental variable for pdb2glycan software setting
 # 17-Jun-2020 zf  Add "carbohydrate-remediation", "carbohydrate-remediation-test"
+# 30-Jun-2020 zf  Add image tar file output after svg file for "annot-wwpdb-validate-all" & "annot-wwpdb-validate-all-v2" 
 ##
 """
 Wrapper class for data processing and chemical component utilities.
@@ -1066,9 +1068,9 @@ class RcsbDpUtility(object):
             #                      - The following is for legacy support -
             #  'request_annotation_context'  parameter to override site environment setting -- can force annotation
             #
-            #  Returned files: annot-wwpdb-validate-all: [pdf, xml, pdfFull, png, svg]
+            #  Returned files: annot-wwpdb-validate-all: [pdf, xml, pdfFull, png, svg, imagetar]
             #
-            #  For annot-wwpdb-validate-all-v2: [pdf, xml, pdfFull, png, svg, edmapcoef]
+            #  For annot-wwpdb-validate-all-v2: [pdf, xml, pdfFull, png, svg, imagetar, edmapcoef]
             #
             #
 
@@ -1162,6 +1164,7 @@ class RcsbDpUtility(object):
             pngPath = os.path.abspath(os.path.join(self.__wrkPath, "out.png"))
             svgPath = os.path.abspath(os.path.join(self.__wrkPath, "out.svg"))
             edmapCoefPath = os.path.abspath(os.path.join(self.__wrkPath, "out.mtz"))
+            imageTarPath = os.path.abspath(os.path.join(self.__wrkPath, "out_image.tar"))
             site_config_command = ". %s/init/env.sh -s %s -l %s" % (self.__siteConfigDir, self.__siteId, self.__siteLoc)
 
             cmd += " ; %s " % site_config_command
@@ -1171,8 +1174,8 @@ class RcsbDpUtility(object):
 
             thisCmd = " ; python -m wwpdb.apps.validation.src.validator"
 
-            cmd += thisCmd + " --mmciffile %s --xml %s --pdf %s --fullpdf %s --png %s --svg %s" % (iPathFull, xmlPath, pdfPath,
-                                                                                                   pdfFullPath, pngPath, svgPath)
+            cmd += thisCmd + " --mmciffile %s --xml %s --pdf %s --fullpdf %s --png %s --svg %s --imagetar %s" % \
+                       (iPathFull, xmlPath, pdfPath, pdfFullPath, pngPath, svgPath, imageTarPath)
             cmd += " --mode " + validation_mode
 
             # For deposit or validation server - provide a PDB id. Otherwise for annotation incorrect id would be used
@@ -2350,6 +2353,11 @@ class RcsbDpUtility(object):
 
             if os.access(svgPath, os.F_OK):
                 self.__resultPathList.append(svgPath)
+            else:
+                self.__resultPathList.append("missing")
+
+            if os.access(imageTarPath, os.F_OK):
+                self.__resultPathList.append(imageTarPath)
             else:
                 self.__resultPathList.append("missing")
 
