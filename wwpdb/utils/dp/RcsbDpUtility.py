@@ -121,6 +121,7 @@
 # 17-Jun-2020 zf  Add "PDB2GLYCAN" environmental variable for pdb2glycan software setting
 # 17-Jun-2020 zf  Add "carbohydrate-remediation", "carbohydrate-remediation-test"
 # 30-Jun-2020 zf  Add image tar file output after svg file for "annot-wwpdb-validate-all" & "annot-wwpdb-validate-all-v2" 
+# 08-Jul-2020 zf  Add "get-branch-polymer-info"
 ##
 """
 Wrapper class for data processing and chemical component utilities.
@@ -224,7 +225,7 @@ class RcsbDpUtility(object):
                                 "annot-release-update", "annot-get-pdb-bundle", "annot-get-biol-cif-file", "annot-get-biol-pdb-file", "annot-check-cif",
                                 "annot-check-xml-xmllint", "annot-check-xml-stdinparse", "annot-get-pdb-file", "annot-check-pdb-file",
                                 "annot-check-sf-file", "annot-check-mr-file", "annot-check-cs-file", "annot-add-version-info", 
-                                "carbohydrate-remediation", "carbohydrate-remediation-test" ]
+                                "carbohydrate-remediation", "carbohydrate-remediation-test", "get-branch-polymer-info" ]
 
         self.__sequenceOps = ['seq-blastp', 'seq-blastn']
         self.__validateOps = ['validate-geometry']
@@ -2147,6 +2148,12 @@ class RcsbDpUtility(object):
             cmdPath = os.path.join(self.__annotAppsPath, "bin", "CarbohydrateRemediation")
             thisCmd = " ; " + cmdPath
             cmd += thisCmd + " -input " + iPath + " -output " + oPath + " -output_public carbohydrate_public.cif -log " + tPath
+            cmd += " > " + lPath + " 2>&1 "
+
+        elif (op == "get-branch-polymer-info"):
+            cmdPath = os.path.join(self.__annotAppsPath, "bin", "GetBranchPolymerInfo")
+            thisCmd = " ; " + cmdPath
+            cmd += thisCmd + " -input " + iPath + " -output " + oPath + " -log " + tPath
             cmd += " > " + lPath + " 2>&1 "
 
         elif (op == "prd-search"):
