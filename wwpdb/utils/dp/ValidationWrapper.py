@@ -99,7 +99,11 @@ class ValidationWrapper(RcsbDpUtility):
         logger.debug("read_mtz_sf ret %s" %ret)
 
         if ret:
-            ret = psm.write_mmcif_coef(fopathout=outfosf, twofopathout=out2fosf, entry_id=pdbid.lower())
+            # Ensure map coefficients produced in conversion - returns True if present
+            ret = psm.has_map_coeff()
+            logger.debug("Check for map coeffcients returns %s", ret)
+            if ret:
+                ret = psm.write_mmcif_coef(fopathout=outfosf, twofopathout=out2fosf, entry_id=pdbid.lower())
 
         logger.debug("Returning %s" % ret)
         return ret

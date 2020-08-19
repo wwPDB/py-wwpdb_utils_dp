@@ -1,7 +1,7 @@
 #
 # File:    PdbxSFMapCoefficients.py
 ##
-"""  lasses to aid in conversion and manipulation of SF files from the validation package.
+"""  Classes to aid in conversion and manipulation of SF map coefficient files from the validation package.
 """
 
 __docformat__ = "restructuredtext en"
@@ -31,9 +31,9 @@ class PdbxSFMapCoefficients(object):
         self.__tmppath = tmppath
 
     def read_mmcif_sf(self, pathin):
-        """Reads PDBx/mmCIF structure factorfile
+        """Reads PDBx/mmCIF structure factor file with map coefficients
 
-            Return True on success, otherwise False
+           Return True on success, otherwise False
         """
 
         logger.debug("Starting read %s" % pathin)
@@ -45,6 +45,32 @@ class PdbxSFMapCoefficients(object):
             logger.exception("Failing with %s" % str(e))
             self.__sf = None
             return False
+
+    def has_map_coeff(self):
+        """Returns True if read in SF file has map coefficients, else returns False
+        """
+        if self.__sf is None:
+            return False
+
+        if len(self.__sf) == 0:
+            return False
+
+        # Check first block
+        b0 = self.__sf[0]
+
+        c0 = b0.getObj("refln")
+        if c0 is None:
+            return False
+
+        alist = c0.getAttributeList()
+        for att in ["index_h", "index_k", "index_l", "fom",
+                    "pdbx_DELFWT", "pdbx_DELPHWT",
+                    "pdbx_FWT", "pdbx_PHWT"]:
+            if att not in alist:
+                logger.debug("Missing %s from sf file", att)
+                return False
+
+        return True
 
     def read_mtz_sf(self, pathin):
         """Reads MTZ structure factor file 
