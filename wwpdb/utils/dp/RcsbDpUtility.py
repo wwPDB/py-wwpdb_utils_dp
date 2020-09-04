@@ -258,7 +258,6 @@ class RcsbDpUtility(object):
         self.__cI = ConfigInfo(self.__siteId)
         self.__initPath()
         self.__getRunRemote()
-        self.__memory = 0
 
     def __getConfigPath(self, ky):
         try:
@@ -1076,7 +1075,7 @@ class RcsbDpUtility(object):
             #
 
             # Set the initial memory for run remote use
-            self.__memory = 10000
+            self.__startingMemory = 2000
             validation_mode = 'release'
             if 'request_validation_mode' in self.__inputParamDict:
                 validation_mode = str(self.__inputParamDict['request_validation_mode']).lower()
@@ -3800,7 +3799,7 @@ class RcsbDpUtility(object):
 
         if 'num_threads' in self.__inputParamDict:
             numThreads = str(self.__inputParamDict['num_threads'])
-            self.__numThreads = int(numThreads)
+            # self.__numThreads = int(numThreads) # commented out to improve perfomance on EBI cluster
             self.__startingMemory = 20000
         else:
             numThreads = '1'
