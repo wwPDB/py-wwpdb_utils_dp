@@ -485,15 +485,13 @@ class RcsbDpUtility(object):
         if (dstPathList == [] or self.__resultPathList == []):
             return
         #
-        if (self.__verbose):
-            logger.info("+RcsbUtility.expList dstPathList    %r\n" % dstPathList)
-            logger.info("+RcsbUtility.expList resultPathList %r\n" % self.__resultPathList)
+        logger.debug("+RcsbUtility.expList dstPathList    %r\n" % dstPathList)
+        logger.debug("+RcsbUtility.expList resultPathList %r\n" % self.__resultPathList)
         #
 
         ok = True
         for f, fc in zip_longest(self.__resultPathList, dstPathList):
-            if (self.__verbose):
-                logger.info("+RcsbUtility.expList exporting %s to %s\n" % (f, fc))
+            logger.debug("+RcsbUtility.expList exporting %s to %s\n" % (f, fc))
             f1 = DataFile(f)
             if f1.srcFileExists():
                 f1.copy(fc)
