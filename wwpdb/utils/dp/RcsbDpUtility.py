@@ -492,10 +492,14 @@ class RcsbDpUtility(object):
         ok = True
         for f, fc in zip_longest(self.__resultPathList, dstPathList):
             print("+RcsbUtility.expList exporting %s to %s\n" % (f, fc))
-            f1 = DataFile(f)
-            if f1.srcFileExists():
-                f1.copy(fc)
+            if os.path.exists(f):
+                f1 = DataFile(f)
+                if f1.srcFileExists():
+                    f1.copy(fc)
+                else:
+                    ok = False
             else:
+                print("+RcsbUtility.failed to copy %s to %s\n" % (f, fc))
                 ok = False
         return ok
 
