@@ -234,8 +234,7 @@ class RcsbDpUtility(object):
                         'img-convert', 'annot-read-map-header',
                         'annot-read-map-header-in-place',
                         'annot-update-map-header-in-place',
-                        'deposit-update-map-header-in-place',
-                        'xml-header-check']
+                        'deposit-update-map-header-in-place']
 
         #
 
@@ -3068,14 +3067,6 @@ class RcsbDpUtility(object):
 
             cmd += " ; } 2> " + ePath + " 1> " + oPath
             cmd += " ; cat " + ePath + " > " + lPath
-        elif (op == "xml-header-check"):
-            schema = os.path.join(self.__emDictPath, "emdb_da.xsd")
-            cmd += "xmllint --noout --schema " + schema + " " + iPath
-            #
-            if 'options' in self.__inputParamDict:
-                cmd += " " + self.__inputParamDict['options']
-            #
-            cmd += " ; } > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
         else:
             pass
 
@@ -3083,8 +3074,7 @@ class RcsbDpUtility(object):
                        "img-convert", "annot-read-map-header",
                        "annot-read-map-header-in-place",
                        "annot-update-map-header-in-place",
-                       "deposit-update-map-header-in-place",
-                       "xml-header-check")):
+                       "deposit-update-map-header-in-place")):
             return -1
         #
 
