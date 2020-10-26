@@ -1134,6 +1134,12 @@ class RcsbDpUtility(object):
             else:
                 csPathFull = None
 
+            if 'nmr_restraint_file_path' in self.__inputParamDict:
+                nmrRestPath = self.__inputParamDict['nmr_restraint_file_path']
+                nmrRestPathFull = os.path.abspath(nmrRestPath)
+            else:
+                nmrRestPathFull = None
+
             if 'vol_file_path' in self.__inputParamDict:
                 volPath = self.__inputParamDict['vol_file_path']
                 volPathFull = os.path.abspath(volPath)
@@ -1195,6 +1201,9 @@ class RcsbDpUtility(object):
 
             if csPathFull:
                 cmd += " --shiftsfiles " + csPathFull
+
+            if nmrRestPathFull:
+                cmd += " --restraintsfile " + nmrRestPathFull
 
             if volPathFull:
                 cmd += " --mapfile " + volPathFull
