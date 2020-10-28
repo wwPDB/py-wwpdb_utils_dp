@@ -122,6 +122,7 @@
 # 17-Jun-2020 zf  Add "carbohydrate-remediation", "carbohydrate-remediation-test"
 # 30-Jun-2020 zf  Add image tar file output after svg file for "annot-wwpdb-validate-all" & "annot-wwpdb-validate-all-v2" 
 # 08-Jul-2020 zf  Add "get-branch-polymer-info"
+# 28-Sep-2020 zf  Add "annot-get-close-contact" & "annot-convert-close-contact-to-link"
 ##
 """
 Wrapper class for data processing and chemical component utilities.
@@ -225,7 +226,8 @@ class RcsbDpUtility(object):
                                 "annot-release-update", "annot-get-pdb-bundle", "annot-get-biol-cif-file", "annot-get-biol-pdb-file", "annot-check-cif",
                                 "annot-check-xml-xmllint", "annot-check-xml-stdinparse", "annot-get-pdb-file", "annot-check-pdb-file",
                                 "annot-check-sf-file", "annot-check-mr-file", "annot-check-cs-file", "annot-add-version-info", 
-                                "carbohydrate-remediation", "carbohydrate-remediation-test", "get-branch-polymer-info" ]
+                                "carbohydrate-remediation", "carbohydrate-remediation-test", "get-branch-polymer-info", "annot-get-close-contact",
+                                "annot-convert-close-contact-to-link" ]
 
         self.__sequenceOps = ['seq-blastp', 'seq-blastn']
         self.__validateOps = ['validate-geometry']
@@ -491,7 +493,7 @@ class RcsbDpUtility(object):
         ok = True
         for f, fc in zip_longest(self.__resultPathList, dstPathList):
             logger.debug("+RcsbUtility.expList exporting %s to %s\n" % (f, fc))
-            if os.path.exists(f):
+            if (f != "missing") and os.path.exists(f):
                 f1 = DataFile(f)
                 if f1.srcFileExists():
                     f1.copy(fc)
@@ -2146,6 +2148,24 @@ class RcsbDpUtility(object):
                 cmd += " -pdbid " + self.__inputParamDict["pdb_id"]
             #
             cmd += " > " + tPath + " 2>&1 "
+
+        elif (op == "annot-get-close-contact"):
+            #
+            cmdPath = os.path.join(self.__annotAppsPath, "bin", "DepictCloseContact")
+            thisCmd = " ; " + cmdPath
+            cmd += thisCmd + " -input " + iPath + " -output " + oPath + " -log " + lPath + " > " + tPath + " 2>&1 "
+
+        elif (op == "annot-convert-close-contact-to-link"):
+            #
+            dataFilePath = ""
+            if "datafile" in self.__inputParamDict:
+                dataFilePath = self.__inputParamDict["datafile"]
+            else:
+                return -1
+            #
+            cmdPath = os.path.join(self.__annotAppsPath, "bin", "ConvertContactToLink")
+            thisCmd = " ; " + cmdPath
+            cmd += thisCmd + " -input " + iPath + " -datafile " + dataFilePath + " -output " + oPath + " -log " + lPath + " > " + tPath + " 2>&1 "
 
         elif (op == "carbohydrate-remediation"):
             cmdPath = os.path.join(self.__annotAppsPath, "bin", "CarbohydrateRemediation")
