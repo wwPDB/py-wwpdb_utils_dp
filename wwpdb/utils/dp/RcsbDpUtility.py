@@ -3808,6 +3808,9 @@ class RcsbDpUtility(object):
             if (os.access(pPath, os.F_OK)):
                 cmd += "; cp " + pPath + " " + iPath
 
+        # Disable phone home https://www.ncbi.nlm.nih.gov/books/NBK563686/
+        cmd += " ; BLAST_USAGE_REPORT=false ; export BLAST_USAGE_REPORT "
+
         if 'db_name' in self.__inputParamDict:
             dbName = str(self.__inputParamDict['db_name'])
         else:
