@@ -668,6 +668,9 @@ class RcsbDpUtility(object):
         self.__validScrPath = self.__cI.get('VALID_SCR_PATH')
         self.__siteConfigDir = self.__getConfigPath('TOP_WWPDB_SITE_CONFIG_DIR')
         self.__ccDictPathIdx = os.path.join(self.__ccDictPath, "Components-all-v3-r4.idx")
+        self.site_config_command = ". %s/init/env.sh -s %s -l %s" % (self.__siteConfigDir,
+                                                                     self.__siteId,
+                                                                     self.__siteLoc)
 
         # if self.__rcsbAppsPath is None:
         #            self.__rcsbAppsPath  =  self.__getConfigPath('SITE_RCSB_APPS_PATH')
@@ -1174,11 +1177,10 @@ class RcsbDpUtility(object):
             svgPath = os.path.abspath(os.path.join(self.__wrkPath, "out.svg"))
             edmapCoefPath = os.path.abspath(os.path.join(self.__wrkPath, "out.mtz"))
             imageTarPath = os.path.abspath(os.path.join(self.__wrkPath, "out_image.tar"))
-            site_config_command = ". %s/init/env.sh -s %s -l %s" % (self.__siteConfigDir, self.__siteId, self.__siteLoc)
 
-            cmd += " ; %s " % site_config_command
+            cmd += " ; %s " % self.site_config_command
             cmd += ' ; export PATH="$PATH:$PACKAGE_DIR/ChimeraX/bin"'
-            cmd += " ; %s --validation " % site_config_command
+            cmd += " ; %s --validation " % self.site_config_command
             # cmd += " ; env "
 
             thisCmd = " ; python -m wwpdb.apps.validation.src.validator"
