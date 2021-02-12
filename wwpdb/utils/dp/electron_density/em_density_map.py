@@ -16,7 +16,7 @@ logger = logging.getLogger()
 class EmVolumes:
 
     def __init__(self, em_map, output_folder, node_path, volume_server_pack_path, volume_server_query_path,
-                 binary_map_out):
+                 binary_map_out, keep_working=False):
 
         self.output_folder = output_folder
         self.em_map = em_map
@@ -28,6 +28,7 @@ class EmVolumes:
         self.mdb_map_path = None
         self.bcif_map_path = binary_map_out
         self.workdir = None
+        self.keep_working = keep_working
 
     def run_conversion(self):
         self.workdir = tempfile.mkdtemp()
@@ -39,8 +40,9 @@ class EmVolumes:
         if worked:
             worked = self.convert_map_to_binary_cif()
 
-        logging.debug('removing temp working dir: %s' % self.workdir)
-        shutil.rmtree(self.workdir)
+            if worked and not self.keep_working:
+                logging.debug('removing temp working dir: %s' % self.workdir)
+                shutil.rmtree(self.workdir)
         return worked
 
     def make_volume_server_map(self):
@@ -74,6 +76,7 @@ def main():  # pragma: no cover
     parser.add_argument('--node_path', help='path to node', type=str, required=True)
     parser.add_argument('--volume_server_pack_path', help='path to volume-server-pack', type=str, required=True)
     parser.add_argument('--volume_server_query_path', help='path to volume-server-query', type=str, required=True)
+    parser.add_argument('--keep_working_directory', help='keep working directory', action="store_true")
     parser.add_argument('--debug', help='debugging', action='store_const', dest='loglevel', const=logging.DEBUG,
                         default=logging.INFO)
 
@@ -89,10 +92,11 @@ def main():  # pragma: no cover
                    node_path=args.node_path,
                    volume_server_pack_path=args.volume_server_pack_path,
                    volume_server_query_path=args.volume_server_query_path,
-                   binary_map_out=args.binary_map_out
+                   binary_map_out=args.binary_map_out,
+                   keep_working=args.keep_working_directory
                    )
     worked = em.run_conversion()
-    logging.info('conversion worked: %s' % worked)
+    logging.info('EM map conversion worked: {}'.format(worked))
     if not worked:
         sys.exit(1)
 

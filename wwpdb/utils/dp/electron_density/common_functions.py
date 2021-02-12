@@ -14,6 +14,7 @@ def run_command(command, process_name, workdir=None):
     :return bool: True if exit status is zero, False otherwise
     """
     try:
+        logging.debug(command)
         command_list = shlex.split(command)
         if workdir and workdir is not None:
             process = subprocess.Popen(command_list, cwd=workdir)
@@ -47,8 +48,16 @@ def run_command_and_check_output_file(command, process_name, output_file, workdi
     if command and output_file:
         ret = run_command(command=command, workdir=workdir, process_name=process_name)
         if ret:
+            logging.debug('checking for {}'.format(output_file))
             if os.path.exists(output_file):
+                logging.debug('file exists')
                 return True
+            else:
+                logging.error('output file missing: {}'.format(output_file))
+        else:
+            logging.error('command returned non-zero exit status')
+    else:
+        logging.error('either command or output file not set')
 
     return False
 
