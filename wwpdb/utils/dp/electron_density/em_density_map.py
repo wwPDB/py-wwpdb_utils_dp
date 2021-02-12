@@ -111,7 +111,7 @@ def main():  # pragma: no cover
         parser.print_help()
         exit()
 
-    em = EmVolumes(output_folder=args.output,
+    em = EmVolumes(output_folder=args.output_path,
                    em_map=args.em_map,
                    node_path=args.node_path,
                    volume_server_pack_path=args.volume_server_pack_path,
