@@ -73,7 +73,7 @@ def convert_mdb_to_binary_cif(node_path,
                               working_dir,
                               detail=4):
     query_kind = 'cell'
-    map_file_name = '{}_{}-{}_d{}'.format(map_id, source_id, query_kind, detail)
+    map_file_name = '{}_{}-{}_d{}.bcif'.format(map_id, source_id, query_kind, detail)
     temp_out_file = os.path.join(working_dir, map_file_name)
     json_filename = 'conversion.json'
     json_content = [{
