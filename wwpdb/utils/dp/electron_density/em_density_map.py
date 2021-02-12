@@ -22,7 +22,6 @@ class EmVolumes:
         self.em_map = em_map
         self.em_map_name = os.path.basename(em_map)
         self.mdb_map = 'em_map.mdb'
-        self.bcif_map = 'em_map.bcif'
         self.node_path = node_path
         self.volume_server_pack_path = volume_server_pack_path
         self.volume_server_query_path = volume_server_query_path
