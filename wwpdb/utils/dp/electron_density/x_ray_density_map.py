@@ -1,59 +1,73 @@
 import argparse
+import gemmi
 import logging
 import os
 import shutil
-import subprocess
 import sys
 import tempfile
-import gemmi
+
+from wwpdb.utils.dp.electron_density.common_functions import run_command_and_check_output_file, \
+    convert_mdb_to_binary_cif
 
 logger = logging.getLogger(__name__)
 
 
 class XrayVolumeServerMap:
-    def __init__(self):
-        pass
+    def __init__(self, coord_path, binary_map_out, node_path, volume_server_path, working_dir,
+                 two_fofc_mmcif_map_coeff_in, fofc_mmcif_map_coeff_in, keep_working=False):
+        self.coord_path = coord_path
+        self.binary_map_out = binary_map_out
+        self.node_path = node_path
+        self.volume_server_path = volume_server_path
+        self.working_dir = working_dir
+        self.two_fofc_mmcif_map_coeff_in = two_fofc_mmcif_map_coeff_in
+        self.fofc_mmcif_map_coeff_in = fofc_mmcif_map_coeff_in
+        self.keep_working = keep_working
 
-    @staticmethod
-    def run_command(command, output_file):
-        """
-        Runs a command and checks the present of the expected output file
-        :param command: command to run
-        :param output_file: expected output file
-        :return: True if worked, False if failed
-        """
-        if command and output_file:
-            logging.debug(command)
-            logging.debug("expected output file: {}".format(output_file))
-            cmd = subprocess.run(
-                command,
-                shell=True,
-                # capture_output=True,
-                # text=True
+        # intermediate files
+        self.mdb_map_path = os.path.join(self.working_dir, 'mdb_map.mdb')
+        self.two_fo_fc_map = os.path.join(self.working_dir, "2fofc.map")
+        self.fo_fc_map = os.path.join(self.working_dir, "fofc.map")
+
+    def run_process(self):
+        ok = False
+        ok1 = self.gemmi_sf2map(
+            sf_mmcif_in=self.two_fofc_mmcif_map_coeff_in,
+            map_out=self.two_fo_fc_map,
+            f_column="pdbx_FWT",
+            phi_column="pdbx_PHWT",
+        )
+        ok2 = self.gemmi_sf2map(
+            sf_mmcif_in=self.fofc_mmcif_map_coeff_in,
+            map_out=self.fo_fc_map,
+            f_column="pdbx_DELFWT",
+            phi_column="pdbx_DELPHWT",
+        )
+        if ok1 and ok2:
+            ok = self.make_maps_to_serve_with_volume_server(
+                two_fofc_map_in=self.two_fo_fc_map,
+                fofc_map_in=self.fo_fc_map,
             )
-            ret = cmd.returncode
-            if ret == 0:
-                if os.path.exists(output_file):
-                    return True
-                else:
-                    logging.error("output file {} missing".format(output_file))
+            if ok:
+                ok = self.convert_mdb_map_to_binary_cif()
             else:
-                logging.error("exit status of {}".format(ret))
-                logging.error(cmd.stdout)
-                logging.error(cmd.stderr)
-        return False
+                logging.error("making mdb maps failed")
+        else:
+            logging.error("making maps failed")
+        if not self.keep_working:
+            shutil.rmtree(self.working_dir, ignore_errors=True)
+        return ok
 
-    def gemmi_sf2map(self, coord_path, sf_mmcif_in, map_out, f_column, phi_column):
+    def gemmi_sf2map(self, sf_mmcif_in, map_out, f_column, phi_column):
         """
         converts input mmCIF file map coefficients to map
-        :param coord_path: mmCIF coordinate file in
         :param sf_mmcif_in: mmCIF structure factor input file
         :param map_out: map output file
         :param f_column: F column
         :param phi_column: PHI column
         :return: True if worked, False if failed
         """
-        st = gemmi.read_structure(coord_path)
+        st = gemmi.read_structure(self.coord_path)
         fbox = st.calculate_fractional_box(margin=5)
         if sf_mmcif_in:
             if os.path.exists(sf_mmcif_in):
@@ -89,28 +103,22 @@ class XrayVolumeServerMap:
 
     def make_maps_to_serve_with_volume_server(
             self,
-            node_path,
             two_fofc_map_in,
             fofc_map_in,
-            map_out,
-            volume_server_path,
     ):
-        if not node_path:
+        if not self.node_path:
             logging.error('node path not set')
             return False
-        if volume_server_path:
+        if self.volume_server_path:
             return self.make_volume_server_map(
-                node_path=node_path,
-                volume_server_path=volume_server_path,
                 two_fofc_map_in=two_fofc_map_in,
                 fofc_map_in=fofc_map_in,
-                map_out=map_out,
             )
         else:
             return False
 
     def make_volume_server_map(
-            self, node_path, volume_server_path, two_fofc_map_in, fofc_map_in, map_out
+            self, two_fofc_map_in, fofc_map_in
     ):
         """
         make map for Volume server to serve
@@ -118,22 +126,30 @@ class XrayVolumeServerMap:
         :param: map_out: output map file
         :return: True if worked, False if failed
         """
-        if not node_path:
+        if not self.node_path:
             logging.error('node path not set')
             return False
-        if not volume_server_path:
+        if not self.volume_server_path:
             logging.error("volume server executable not set")
             return False
-        if not os.path.exists(volume_server_path):
+        if not os.path.exists(self.volume_server_path):
             logging.error(
-                "volume server executable not found at {}".format(volume_server_path)
+                "volume server executable not found at {}".format(self.volume_server_path)
             )
             return False
         if os.path.exists(two_fofc_map_in) and os.path.exists(fofc_map_in):
             command = "{} {} xray {} {} {}".format(
-                node_path, volume_server_path, two_fofc_map_in, fofc_map_in, map_out
+                self.node_path, self.volume_server_path, two_fofc_map_in, fofc_map_in, self.mdb_map_path
             )
-            return self.run_command(command=command, output_file=map_out)
+            return run_command_and_check_output_file(command=command, workdir=None, process_name='make mdb_map',
+                                                     output_file=self.mdb_map_path)
+
+    def convert_mdb_map_to_binary_cif(self):
+        return convert_mdb_to_binary_cif(map_id='em_volume', source_id='x-ray',
+                                         output_file=self.binary_map_out,
+                                         working_dir=self.working_dir,
+                                         mdb_map_path=self.mdb_map_path,
+                                         output_folder=self.working_dir)
 
 
 def run_process_with_gemmi(
@@ -141,7 +157,7 @@ def run_process_with_gemmi(
         coord_file,
         two_fofc_mmcif_map_coeff_in,
         fofc_mmcif_map_coeff_in,
-        volume_server_map_out,
+        binary_map_out,
         volume_server_path=None,
         keep_working=False,
 ):
@@ -178,39 +194,17 @@ def run_process_with_gemmi(
             'input mmcif files not found: {} or {}'.format(two_fofc_mmcif_map_coeff_in, fofc_mmcif_map_coeff_in))
         return False
 
-    ok = False
     run_working_directory = tempfile.mkdtemp()
     logging.debug("working directory: {}".format(run_working_directory))
-    two_fo_fc_map = os.path.join(run_working_directory, "2fofc.map")
-    fo_fc_map = os.path.join(run_working_directory, "fofc.map")
-    xrsm = XrayVolumeServerMap()
-    ok1 = xrsm.gemmi_sf2map(
-        sf_mmcif_in=two_fofc_mmcif_map_coeff_in,
-        map_out=two_fo_fc_map,
-        f_column="pdbx_FWT",
-        phi_column="pdbx_PHWT",
-        coord_path=coord_file
-    )
-    ok2 = xrsm.gemmi_sf2map(
-        sf_mmcif_in=fofc_mmcif_map_coeff_in,
-        map_out=fo_fc_map,
-        f_column="pdbx_DELFWT",
-        phi_column="pdbx_DELPHWT",
-        coord_path=coord_file
-    )
-    if ok1 and ok2:
-        ok = xrsm.make_maps_to_serve_with_volume_server(
-            node_path=node_path,
-            volume_server_path=volume_server_path,
-            two_fofc_map_in=two_fo_fc_map,
-            fofc_map_in=fo_fc_map,
-            map_out=volume_server_map_out,
-        )
-    else:
-        logging.error("making maps failed")
-    if not keep_working:
-        shutil.rmtree(run_working_directory, ignore_errors=True)
-    return ok
+    xrsm = XrayVolumeServerMap(coord_path=coord_file,
+                               node_path=node_path,
+                               volume_server_path=volume_server_path,
+                               binary_map_out=binary_map_out,
+                               working_dir=run_working_directory,
+                               two_fofc_mmcif_map_coeff_in=two_fofc_mmcif_map_coeff_in,
+                               fofc_mmcif_map_coeff_in=fofc_mmcif_map_coeff_in,
+                               keep_working=keep_working)
+    return xrsm.run_process()
 
 
 def main():  # pragma: no cover
@@ -228,8 +222,8 @@ def main():  # pragma: no cover
         required=True,
     )
     parser.add_argument(
-        "--volume_server_map_out",
-        help="volume server map output file name",
+        "--binary_map_out",
+        help="binary map output file name",
         type=str,
         required=True,
     )
@@ -258,8 +252,9 @@ def main():  # pragma: no cover
         volume_server_path=args.volume_server_path,
         two_fofc_mmcif_map_coeff_in=args.two_fofc_mmcif_map_coeff_in,
         fofc_mmcif_map_coeff_in=args.fofc_mmcif_map_coeff_in,
-        volume_server_map_out=args.volume_server_map_out,
         keep_working=args.keep_working,
+        coord_file=args.coord_file,
+        binary_map_out=args.binary_map_out
     )
 
     if not ok:

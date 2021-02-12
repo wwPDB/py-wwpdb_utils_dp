@@ -49,7 +49,7 @@ setup(
                       'wwpdb.utils.config ~= 0.1',
                       'wwpdb.utils.testing ~= 0.4',
                       'wwpdb.io',
-                      'gemmi'],
+                      'gemmi ~= 0.4'],
     packages=find_packages(exclude=['wwpdb.mock-data', 'wwpdb.utils.tests-dp', 'tests.*']),
     package_data={
         # If any package contains *.md or *.rst ...  files, include them:
