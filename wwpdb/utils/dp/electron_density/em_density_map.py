@@ -14,16 +14,18 @@ logger = logging.getLogger()
 
 class EmVolumes:
 
-    def __init__(self, em_map, output_folder, node_path, volume_server_path, binary_map_out):
+    def __init__(self, em_map, output_folder, node_path, volume_server_pack_path, volume_server_query_path,
+                 binary_map_out):
 
         self.output_folder = output_folder
         self.em_map = em_map
         self.em_map_name = os.path.basename(em_map)
-        self.ndb_map = 'em_map.ndb'
+        self.mdb_map = 'em_map.mdb'
         self.bcif_map = 'em_map.bcif'
         self.node_path = node_path
-        self.volume_server_path = volume_server_path
-        self.mdb_map_path = os.path.join(self.workdir, self.ndb_map)
+        self.volume_server_pack_path = volume_server_pack_path
+        self.volume_server_query_path = volume_server_query_path
+        self.mdb_map_path = None
         self.bcif_map_path = binary_map_out
         self.workdir = None
         self.temp_map = None
@@ -33,6 +35,7 @@ class EmVolumes:
         self.workdir = tempfile.mkdtemp()
         logging.debug('temp working folder: %s' % self.workdir)
         self.working_map = os.path.join(self.workdir, self.em_map_name)
+        self.mdb_map_path = os.path.join(self.workdir, self.mdb_map)
 
         worked = self.make_volume_server_map()
 
@@ -66,7 +69,7 @@ class EmVolumes:
             if not os.path.exists(self.output_folder):
                 os.makedirs(self.output_folder)
             command = '%s %s em %s %s' % (
-                self.node_path, self.volume_server_path, self.working_map, self.mdb_map_path)
+                self.node_path, self.volume_server_pack_path, self.working_map, self.mdb_map_path)
             logging.debug(command)
             ret = run_command(command=command, process_name='make Volume server map', workdir=self.workdir)
 
@@ -81,20 +84,23 @@ class EmVolumes:
         return False
 
     def convert_map_to_binary_cif(self):
-        return convert_mdb_to_binary_cif(map_id='em_volume', source_id='em',
+        return convert_mdb_to_binary_cif(node_path=self.node_path,
+                                         volume_server_query_path=self.volume_server_query_path,
+                                         map_id='em_volume', source_id='em',
                                          output_file=self.bcif_map_path,
                                          working_dir=self.workdir,
                                          mdb_map_path=self.mdb_map_path,
                                          output_folder=self.output_folder)
 
 
-def main(): # pragma: no cover
+def main():  # pragma: no cover
     parser = argparse.ArgumentParser()
-    parser.add_argument('--output', help='output folder', type=str, required=True)
+    parser.add_argument('--output_path', help='output folder', type=str, required=True)
     parser.add_argument('--em_map', help='EM map', type=str, required=True)
     parser.add_argument('--binary_map_out', help='Output filename of binary map', type=str, required=True)
     parser.add_argument('--node_path', help='path to node', type=str, required=True)
-    parser.add_argument('--volume_server_path', help='path to volume server', type=str, required=True)
+    parser.add_argument('--volume_server_pack_path', help='path to volume-server-pack', type=str, required=True)
+    parser.add_argument('--volume_server_query_path', help='path to volume-server-query', type=str, required=True)
     parser.add_argument('--debug', help='debugging', action='store_const', dest='loglevel', const=logging.DEBUG,
                         default=logging.INFO)
 
@@ -108,7 +114,8 @@ def main(): # pragma: no cover
     em = EmVolumes(output_folder=args.output,
                    em_map=args.em_map,
                    node_path=args.node_path,
-                   volume_server_path=args.volume_server_path,
+                   volume_server_pack_path=args.volume_server_pack_path,
+                   volume_server_query_path=args.volume_server_query_path,
                    binary_map_out=args.binary_map_out
                    )
     worked = em.run_conversion()

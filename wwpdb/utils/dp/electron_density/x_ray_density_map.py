@@ -13,12 +13,14 @@ logger = logging.getLogger(__name__)
 
 
 class XrayVolumeServerMap:
-    def __init__(self, coord_path, binary_map_out, node_path, volume_server_path, working_dir,
+    def __init__(self, coord_path, binary_map_out, node_path, volume_server_pack_path,
+                 volume_server_query_path, working_dir,
                  two_fofc_mmcif_map_coeff_in, fofc_mmcif_map_coeff_in, keep_working=False):
         self.coord_path = coord_path
         self.binary_map_out = binary_map_out
         self.node_path = node_path
-        self.volume_server_path = volume_server_path
+        self.volume_server_pack_path = volume_server_pack_path
+        self.volume_server_query_path = volume_server_query_path
         self.working_dir = working_dir
         self.two_fofc_mmcif_map_coeff_in = two_fofc_mmcif_map_coeff_in
         self.fofc_mmcif_map_coeff_in = fofc_mmcif_map_coeff_in
@@ -109,7 +111,7 @@ class XrayVolumeServerMap:
         if not self.node_path:
             logging.error('node path not set')
             return False
-        if self.volume_server_path:
+        if self.volume_server_pack_path:
             return self.make_volume_server_map(
                 two_fofc_map_in=two_fofc_map_in,
                 fofc_map_in=fofc_map_in,
@@ -129,17 +131,17 @@ class XrayVolumeServerMap:
         if not self.node_path:
             logging.error('node path not set')
             return False
-        if not self.volume_server_path:
+        if not self.volume_server_pack_path:
             logging.error("volume server executable not set")
             return False
-        if not os.path.exists(self.volume_server_path):
+        if not os.path.exists(self.volume_server_pack_path):
             logging.error(
-                "volume server executable not found at {}".format(self.volume_server_path)
+                "volume server executable not found at {}".format(self.volume_server_pack_path)
             )
             return False
         if os.path.exists(two_fofc_map_in) and os.path.exists(fofc_map_in):
             command = "{} {} xray {} {} {}".format(
-                self.node_path, self.volume_server_path, two_fofc_map_in, fofc_map_in, self.mdb_map_path
+                self.node_path, self.volume_server_pack_path, two_fofc_map_in, fofc_map_in, self.mdb_map_path
             )
             return run_command_and_check_output_file(command=command, workdir=None, process_name='make mdb_map',
                                                      output_file=self.mdb_map_path)
@@ -149,7 +151,8 @@ class XrayVolumeServerMap:
                                          output_file=self.binary_map_out,
                                          working_dir=self.working_dir,
                                          mdb_map_path=self.mdb_map_path,
-                                         output_folder=self.working_dir)
+                                         output_folder=self.working_dir,
+                                         volume_server_query_path=self.volume_server_query_path)
 
 
 def run_process_with_gemmi(
@@ -158,7 +161,8 @@ def run_process_with_gemmi(
         two_fofc_mmcif_map_coeff_in,
         fofc_mmcif_map_coeff_in,
         binary_map_out,
-        volume_server_path=None,
+        volume_server_pack_path=None,
+        volume_server_query_path=None,
         keep_working=False,
 ):
     """
@@ -173,8 +177,12 @@ def run_process_with_gemmi(
     :return: True if worked, False if failed
     """
 
-    if not volume_server_path:
-        logging.error("volume_server_path must be set")
+    if not volume_server_pack_path:
+        logging.error("volume-server-pack path must be set")
+        return False
+
+    if not volume_server_query_path:
+        logging.error("volume-server-query path must be set")
         return False
 
     if not coord_file:
@@ -198,12 +206,13 @@ def run_process_with_gemmi(
     logging.debug("working directory: {}".format(run_working_directory))
     xrsm = XrayVolumeServerMap(coord_path=coord_file,
                                node_path=node_path,
-                               volume_server_path=volume_server_path,
+                               volume_server_pack_path=volume_server_pack_path,
                                binary_map_out=binary_map_out,
                                working_dir=run_working_directory,
                                two_fofc_mmcif_map_coeff_in=two_fofc_mmcif_map_coeff_in,
                                fofc_mmcif_map_coeff_in=fofc_mmcif_map_coeff_in,
-                               keep_working=keep_working)
+                               keep_working=keep_working,
+                               volume_server_query_path=volume_server_query_path)
     return xrsm.run_process()
 
 
@@ -229,7 +238,8 @@ def main():  # pragma: no cover
     )
     parser.add_argument("--node", help="node program path", type=str, required=True)
     parser.add_argument("--coord_file", help="mmCIF coordinate file", type=str, required=True)
-    parser.add_argument("--volume_server_path", help="volume server path", type=str)
+    parser.add_argument("--volume_server_pack_path", help="volume-server-pack path", type=str, required=True)
+    parser.add_argument("--volume_server_query_path", help="volume-server-query path", type=str, required=True)
     parser.add_argument(
         "--keep_working", help="Keep working directory", action="store_true"
     )
@@ -249,7 +259,8 @@ def main():  # pragma: no cover
 
     ok = run_process_with_gemmi(
         node_path=args.node,
-        volume_server_path=args.volume_server_path,
+        volume_server_pack_path=args.volume_server_pack_path,
+        volume_server_query_path=args.volume_server_query_path,
         two_fofc_mmcif_map_coeff_in=args.two_fofc_mmcif_map_coeff_in,
         fofc_mmcif_map_coeff_in=args.fofc_mmcif_map_coeff_in,
         keep_working=args.keep_working,

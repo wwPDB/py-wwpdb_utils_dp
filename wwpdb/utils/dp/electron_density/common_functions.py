@@ -53,7 +53,7 @@ def run_command_and_check_output_file(command, process_name, output_file, workdi
     return False
 
 
-def convert_mdb_to_binary_cif(map_id, source_id, mdb_map_path, output_folder, output_file, working_dir, detail=4):
+def convert_mdb_to_binary_cif(node_path, volume_server_query_path, map_id, source_id, mdb_map_path, output_folder, output_file, working_dir, detail=4):
     json_filename = 'conversion.json'
     json_content = [{
         "source": {
@@ -74,7 +74,7 @@ def convert_mdb_to_binary_cif(map_id, source_id, mdb_map_path, output_folder, ou
     working_json = os.path.join(working_dir, json_filename)
     with open(working_json, 'w') as out_file:
         json.dump(json_content, out_file)
-    command = "volume-server-query --jobs {}".format(working_json)
+    command = "{} {} --jobs {}".format(node_path, volume_server_query_path, working_json)
     return run_command_and_check_output_file(command=command,
                                              process_name='mdb_to_binary_cif',
                                              workdir=working_dir,
