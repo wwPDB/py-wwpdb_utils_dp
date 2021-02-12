@@ -4,6 +4,7 @@ import json
 import logging
 import os
 import subprocess
+import shutil
 
 
 def run_command(command, process_name, workdir=None):
@@ -71,6 +72,9 @@ def convert_mdb_to_binary_cif(node_path,
                               output_file,
                               working_dir,
                               detail=4):
+    query_kind = 'cell'
+    map_file_name = '{}_{}-{}_d{}'.format(map_id, source_id, query_kind, detail)
+    temp_out_file = os.path.join(working_dir, map_file_name)
     json_filename = 'conversion.json'
     json_content = [{
         "source": {
@@ -79,21 +83,24 @@ def convert_mdb_to_binary_cif(node_path,
             "id": source_id
         },
         "query": {
-            "kind": "cell"
+            "kind": query_kind
         },
         "params": {
             "detail": detail,
             "asBinary": True
         },
         "outputFolder": working_dir,
-        "outputFilename": output_file
+        "outputFilename": temp_out_file
     }]
     working_json = os.path.join(working_dir, json_filename)
     with open(working_json, 'w') as out_file:
         json.dump(json_content, out_file)
     command = "{} {} --jobs {}".format(node_path, volume_server_query_path, working_json)
-    return run_command_and_check_output_file(command=command,
+    ret = run_command_and_check_output_file(command=command,
                                              process_name='mdb_to_binary_cif',
                                              workdir=working_dir,
-                                             output_file=output_file
+                                             output_file=temp_out_file
                                              )
+    if ret:
+        shutil.copy(temp_out_file, output_file)
+

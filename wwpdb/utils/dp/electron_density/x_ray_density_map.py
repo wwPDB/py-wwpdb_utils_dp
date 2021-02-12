@@ -155,12 +155,13 @@ class XrayVolumeServerMap:
                                                      output_file=self.mdb_map_path)
 
     def convert_mdb_map_to_binary_cif(self):
-        return convert_mdb_to_binary_cif(map_id='em_volume', source_id='x-ray',
+        return convert_mdb_to_binary_cif(map_id='x_ray_volume', source_id='x-ray',
                                          output_file=self.binary_map_out,
                                          working_dir=self.working_dir,
                                          mdb_map_path=self.mdb_map_path,
                                          volume_server_query_path=self.volume_server_query_path,
-                                         node_path=self.node_path)
+                                         node_path=self.node_path,
+                                         detail=4)
 
 
 def run_process_with_gemmi(
