@@ -15,10 +15,9 @@ logger = logging.getLogger()
 
 class EmVolumes:
 
-    def __init__(self, em_map, output_folder, node_path, volume_server_pack_path, volume_server_query_path,
+    def __init__(self, em_map, node_path, volume_server_pack_path, volume_server_query_path,
                  binary_map_out, keep_working=False):
 
-        self.output_folder = output_folder
         self.em_map = em_map
         self.em_map_name = os.path.basename(em_map)
         self.mdb_map = 'em_map.mdb'
@@ -31,6 +30,8 @@ class EmVolumes:
         self.keep_working = keep_working
 
     def run_conversion(self):
+        if not os.path.exists(os.path.dirname(self.bcif_map_path)):
+            os.makedirs(os.path.dirname(self.bcif_map_path))
         self.workdir = tempfile.mkdtemp()
         logging.debug('temp working folder: %s' % self.workdir)
         self.mdb_map_path = os.path.join(self.workdir, self.mdb_map)
@@ -47,8 +48,6 @@ class EmVolumes:
 
     def make_volume_server_map(self):
         if os.path.exists(self.em_map):
-            if not os.path.exists(self.output_folder):
-                os.makedirs(self.output_folder)
             command = '%s %s em %s %s' % (
                 self.node_path, self.volume_server_pack_path, self.em_map, self.mdb_map_path)
             logging.debug(command)
@@ -65,12 +64,11 @@ class EmVolumes:
                                          output_file=self.bcif_map_path,
                                          working_dir=self.workdir,
                                          mdb_map_path=self.mdb_map_path,
-                                         output_folder=self.output_folder)
+                                         )
 
 
 def main():  # pragma: no cover
     parser = argparse.ArgumentParser()
-    parser.add_argument('--output_path', help='output folder', type=str, required=True)
     parser.add_argument('--em_map', help='EM map', type=str, required=True)
     parser.add_argument('--binary_map_out', help='Output filename of binary map', type=str, required=True)
     parser.add_argument('--node_path', help='path to node', type=str, required=True)
@@ -87,14 +85,14 @@ def main():  # pragma: no cover
         parser.print_help()
         exit()
 
-    em = EmVolumes(output_folder=args.output_path,
-                   em_map=args.em_map,
-                   node_path=args.node_path,
-                   volume_server_pack_path=args.volume_server_pack_path,
-                   volume_server_query_path=args.volume_server_query_path,
-                   binary_map_out=args.binary_map_out,
-                   keep_working=args.keep_working_directory
-                   )
+    em = EmVolumes(
+        em_map=args.em_map,
+        node_path=args.node_path,
+        volume_server_pack_path=args.volume_server_pack_path,
+        volume_server_query_path=args.volume_server_query_path,
+        binary_map_out=args.binary_map_out,
+        keep_working=args.keep_working_directory
+    )
     worked = em.run_conversion()
     logging.info('EM map conversion worked: {}'.format(worked))
     if not worked:

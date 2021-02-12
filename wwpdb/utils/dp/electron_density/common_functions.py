@@ -1,4 +1,5 @@
 import shlex
+
 import json
 import logging
 import os
@@ -62,7 +63,14 @@ def run_command_and_check_output_file(command, process_name, output_file, workdi
     return False
 
 
-def convert_mdb_to_binary_cif(node_path, volume_server_query_path, map_id, source_id, mdb_map_path, output_folder, output_file, working_dir, detail=4):
+def convert_mdb_to_binary_cif(node_path,
+                              volume_server_query_path,
+                              map_id,
+                              source_id,
+                              mdb_map_path,
+                              output_file,
+                              working_dir,
+                              detail=4):
     json_filename = 'conversion.json'
     json_content = [{
         "source": {
@@ -77,7 +85,7 @@ def convert_mdb_to_binary_cif(node_path, volume_server_query_path, map_id, sourc
             "detail": detail,
             "asBinary": True
         },
-        "outputFolder": output_folder,
+        "outputFolder": working_dir,
         "outputFilename": output_file
     }]
     working_json = os.path.join(working_dir, json_filename)
