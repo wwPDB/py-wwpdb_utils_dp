@@ -102,5 +102,8 @@ def convert_mdb_to_binary_cif(node_path,
                                              output_file=temp_out_file
                                              )
     if ret:
+        os.makedirs(os.path.dirname(output_file))
         shutil.copy(temp_out_file, output_file)
+        return True
+    return False
 
