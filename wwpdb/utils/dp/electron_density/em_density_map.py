@@ -7,7 +7,8 @@ import shutil
 import sys
 import tempfile
 
-from wwpdb.utils.dp.electron_density.common_functions import run_command, convert_mdb_to_binary_cif
+from wwpdb.utils.dp.electron_density.common_functions import convert_mdb_to_binary_cif, \
+    run_command_and_check_output_file
 
 logger = logging.getLogger()
 
@@ -28,13 +29,10 @@ class EmVolumes:
         self.mdb_map_path = None
         self.bcif_map_path = binary_map_out
         self.workdir = None
-        self.temp_map = None
-        self.working_map = None
 
     def run_conversion(self):
         self.workdir = tempfile.mkdtemp()
         logging.debug('temp working folder: %s' % self.workdir)
-        self.working_map = os.path.join(self.workdir, self.em_map_name)
         self.mdb_map_path = os.path.join(self.workdir, self.mdb_map)
 
         worked = self.make_volume_server_map()
@@ -46,41 +44,17 @@ class EmVolumes:
         shutil.rmtree(self.workdir)
         return worked
 
-    def get_em_map(self):
-        filename, extension = os.path.splitext(self.em_map)
-        if extension == 'gz':
-            self.working_map = self.copy_map_to_temp()
-        else:
-            self.working_map = self.em_map
-        return self.working_map
-
-    def copy_map_to_temp(self):
-        shutil.copy(self.em_map, self.workdir)
-        compressed_map_file_name = self.temp_map + '.gz'
-        if os.path.exists(compressed_map_file_name):
-            gzip_command = 'gzip -d %s' % compressed_map_file_name
-            ret = run_command(command=gzip_command, process_name='gunzip map', workdir=self.workdir)
-            logging.debug('temp map path: %s' % self.temp_map)
-
-        return self.temp_map
-
     def make_volume_server_map(self):
-        if os.path.exists(self.working_map):
+        if os.path.exists(self.em_map):
             if not os.path.exists(self.output_folder):
                 os.makedirs(self.output_folder)
             command = '%s %s em %s %s' % (
-                self.node_path, self.volume_server_pack_path, self.working_map, self.mdb_map_path)
+                self.node_path, self.volume_server_pack_path, self.em_map, self.mdb_map_path)
             logging.debug(command)
-            ret = run_command(command=command, process_name='make Volume server map', workdir=self.workdir)
-
-            if not os.path.exists(self.mdb_map_path):
-                logging.error('Volume server map generation failed')
-            else:
-                logging.info('Volume server map generation worked')
-                logging.info('output map: %s' % self.mdb_map_path)
-                return True
+            return run_command_and_check_output_file(command=command, process_name='make Volume server map',
+                                                     workdir=self.workdir, output_file=self.mdb_map_path)
         else:
-            logging.error('map file missing: %s' % self.working_map)
+            logging.error('input map file missing: %s' % self.em_map)
         return False
 
     def convert_map_to_binary_cif(self):
