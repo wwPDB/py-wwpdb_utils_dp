@@ -13,9 +13,17 @@ logger = logging.getLogger(__name__)
 
 
 class XrayVolumeServerMap:
-    def __init__(self, coord_path, binary_map_out, node_path, volume_server_pack_path,
-                 volume_server_query_path, working_dir,
-                 two_fofc_mmcif_map_coeff_in, fofc_mmcif_map_coeff_in, keep_working=False):
+    def __init__(self,
+                 coord_path,
+                 binary_map_out,
+                 node_path,
+                 volume_server_pack_path,
+                 volume_server_query_path,
+                 working_dir,
+                 two_fofc_mmcif_map_coeff_in,
+                 fofc_mmcif_map_coeff_in,
+                 keep_working=False
+                 ):
         self.coord_path = coord_path
         self.binary_map_out = binary_map_out
         self.node_path = node_path
@@ -151,8 +159,8 @@ class XrayVolumeServerMap:
                                          output_file=self.binary_map_out,
                                          working_dir=self.working_dir,
                                          mdb_map_path=self.mdb_map_path,
-                                         output_folder=self.working_dir,
-                                         volume_server_query_path=self.volume_server_query_path)
+                                         volume_server_query_path=self.volume_server_query_path,
+                                         node_path=self.node_path)
 
 
 def run_process_with_gemmi(
