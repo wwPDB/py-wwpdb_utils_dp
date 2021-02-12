@@ -92,7 +92,7 @@ def main(): # pragma: no cover
     parser = argparse.ArgumentParser()
     parser.add_argument('--output', help='output folder', type=str, required=True)
     parser.add_argument('--em_map', help='EM map', type=str, required=True)
-    parser.add_argument('--binary_map_out', 'Output filename of binary map', type=str, required=True)
+    parser.add_argument('--binary_map_out', help='Output filename of binary map', type=str, required=True)
     parser.add_argument('--node_path', help='path to node', type=str, required=True)
     parser.add_argument('--volume_server_path', help='path to volume server', type=str, required=True)
     parser.add_argument('--debug', help='debugging', action='store_const', dest='loglevel', const=logging.DEBUG,
