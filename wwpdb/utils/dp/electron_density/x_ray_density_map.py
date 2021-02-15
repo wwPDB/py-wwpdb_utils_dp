@@ -2,7 +2,6 @@ import argparse
 import gemmi
 import logging
 import os
-import shutil
 import sys
 import tempfile
 
@@ -22,7 +21,6 @@ class XrayVolumeServerMap:
                  working_dir,
                  two_fofc_mmcif_map_coeff_in,
                  fofc_mmcif_map_coeff_in,
-                 keep_working=False
                  ):
         self.coord_path = coord_path
         self.binary_map_out = binary_map_out
@@ -32,7 +30,6 @@ class XrayVolumeServerMap:
         self.working_dir = working_dir
         self.two_fofc_mmcif_map_coeff_in = two_fofc_mmcif_map_coeff_in
         self.fofc_mmcif_map_coeff_in = fofc_mmcif_map_coeff_in
-        self.keep_working = keep_working
 
         # intermediate files
         self.mdb_map_path = os.path.join(self.working_dir, 'mdb_map.mdb')
@@ -64,8 +61,7 @@ class XrayVolumeServerMap:
                 logging.error("making mdb maps failed")
         else:
             logging.error("making maps failed")
-        if not self.keep_working:
-            shutil.rmtree(self.working_dir, ignore_errors=True)
+
         return ok
 
     def gemmi_sf2map(self, sf_mmcif_in, map_out, f_column, phi_column):

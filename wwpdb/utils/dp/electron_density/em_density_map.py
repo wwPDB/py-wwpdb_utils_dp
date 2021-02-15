@@ -3,9 +3,7 @@
 import argparse
 import logging
 import os
-import shutil
 import sys
-import tempfile
 
 from wwpdb.utils.dp.electron_density.common_functions import convert_mdb_to_binary_cif, \
     run_command_and_check_output_file
@@ -16,7 +14,9 @@ logger = logging.getLogger()
 class EmVolumes:
 
     def __init__(self, em_map, node_path, volume_server_pack_path, volume_server_query_path,
-                 binary_map_out, keep_working=False):
+                 binary_map_out,
+                 working_dir,
+                 ):
 
         self.em_map = em_map
         self.em_map_name = os.path.basename(em_map)
@@ -26,13 +26,11 @@ class EmVolumes:
         self.volume_server_query_path = volume_server_query_path
         self.mdb_map_path = None
         self.bcif_map_path = binary_map_out
-        self.workdir = None
-        self.keep_working = keep_working
+        self.workdir = working_dir
 
     def run_conversion(self):
         if not os.path.exists(os.path.dirname(self.bcif_map_path)):
             os.makedirs(os.path.dirname(self.bcif_map_path))
-        self.workdir = tempfile.mkdtemp()
         logging.debug('temp working folder: %s' % self.workdir)
         self.mdb_map_path = os.path.join(self.workdir, self.mdb_map)
 
@@ -41,9 +39,6 @@ class EmVolumes:
         if worked:
             worked = self.convert_map_to_binary_cif()
 
-            if worked and not self.keep_working:
-                logging.debug('removing temp working dir: %s' % self.workdir)
-                shutil.rmtree(self.workdir)
         return worked
 
     def make_volume_server_map(self):
