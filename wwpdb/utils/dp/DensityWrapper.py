@@ -1,7 +1,10 @@
 import os
+
 from wwpdb.utils.config.ConfigInfo import ConfigInfo, getSiteId
-from wwpdb.utils.dp.electron_density.x_ray_density_map import XrayVolumeServerMap
+
 from wwpdb.utils.dp.electron_density.em_density_map import EmVolumes
+from wwpdb.utils.dp.electron_density.x_ray_density_map import XrayVolumeServerMap
+
 
 class DensityWrapper:
 
@@ -14,7 +17,6 @@ class DensityWrapper:
         self.volume_server_query = self.cI.get('VOLUME_SERVER_QUERY')
 
     def convert_xray_density_map(self, coord_file, in_2fofc_map, in_fofc_map, out_binary_cif, working_dir):
-
         xray_conversion = XrayVolumeServerMap(coord_path=coord_file,
                                               binary_map_out=out_binary_cif,
                                               node_path=self.node_path,
@@ -33,4 +35,3 @@ class DensityWrapper:
                                   volume_server_query_path=self.volume_server_query,
                                   working_dir=working_dir)
         return em_conversion.run_conversion()
-
