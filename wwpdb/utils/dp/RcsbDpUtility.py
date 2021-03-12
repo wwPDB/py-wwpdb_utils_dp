@@ -668,7 +668,7 @@ class RcsbDpUtility(object):
         self.__validScrPath = self.__cI.get('VALID_SCR_PATH')
         self.__siteConfigDir = self.__getConfigPath('TOP_WWPDB_SITE_CONFIG_DIR')
         self.__ccDictPathIdx = os.path.join(self.__ccDictPath, "Components-all-v3-r4.idx")
-        self.site_config_command = ". %s/init/env.sh -s %s -l %s" % (self.__siteConfigDir,
+        self.__site_config_command = ". %s/init/env.sh -s %s -l %s" % (self.__siteConfigDir,
                                                                      self.__siteId,
                                                                      self.__siteLoc)
 
