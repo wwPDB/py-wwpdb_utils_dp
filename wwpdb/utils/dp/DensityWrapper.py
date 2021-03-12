@@ -1,3 +1,4 @@
+import os
 from wwpdb.utils.config.ConfigInfo import ConfigInfo, getSiteId
 from wwpdb.utils.dp.electron_density.x_ray_density_map import XrayVolumeServerMap
 from wwpdb.utils.dp.electron_density.em_density_map import EmVolumes
@@ -7,7 +8,8 @@ class DensityWrapper:
     def __init__(self):
         site_id = getSiteId()
         self.cI = ConfigInfo(siteId=site_id)
-        self.node_path = self.cI.get('NODE')
+        self.__packagePath = self.cI('SITE_PACKAGES_PATH')
+        self.node_path = os.path.join(self.__packagePath, 'node', 'bin', 'node')
         self.volume_server_pack = self.cI.get('VOLUME_SERVER_PACK')
         self.volume_server_query = self.cI.get('VOLUME_SERVER_QUERY')
 
