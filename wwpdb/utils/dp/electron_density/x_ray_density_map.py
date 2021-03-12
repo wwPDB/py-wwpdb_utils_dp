@@ -168,17 +168,13 @@ def run_process_with_gemmi(
         binary_map_out,
         volume_server_pack_path=None,
         volume_server_query_path=None,
-        keep_working=False,
 ):
     """
     Process 2fo-fc and fo-fc mmCIF files and convert to maps for volume server
     :param node_path: path to node executable
     :param coord_file: path to mmCIF coordinate file
-    :param volume_server_path: path to volume server executable
-    :param volume_server_map_out: path to volume server out map file
     :param two_fofc_mmcif_map_coeff_in: input 2Fo-Fc map coefficient mmCIF file
     :param fofc_mmcif_map_coeff_in: input Fo-Fc map coefficient mmCIF file
-    :param keep_working: Keep working directory - for debugging
     :return: True if worked, False if failed
     """
 
@@ -216,7 +212,6 @@ def run_process_with_gemmi(
                                working_dir=run_working_directory,
                                two_fofc_mmcif_map_coeff_in=two_fofc_mmcif_map_coeff_in,
                                fofc_mmcif_map_coeff_in=fofc_mmcif_map_coeff_in,
-                               keep_working=keep_working,
                                volume_server_query_path=volume_server_query_path)
     return xrsm.run_process()
 
@@ -268,7 +263,6 @@ def main():  # pragma: no cover
         volume_server_query_path=args.volume_server_query_path,
         two_fofc_mmcif_map_coeff_in=args.two_fofc_mmcif_map_coeff_in,
         fofc_mmcif_map_coeff_in=args.fofc_mmcif_map_coeff_in,
-        keep_working=args.keep_working,
         coord_file=args.coord_file,
         binary_map_out=args.binary_map_out
     )

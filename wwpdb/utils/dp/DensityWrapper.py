@@ -1,4 +1,9 @@
 import os
+import sys
+import logging
+import argparse
+import tempfile
+import shutil
 
 from wwpdb.utils.config.ConfigInfo import ConfigInfo, getSiteId
 
@@ -11,7 +16,7 @@ class DensityWrapper:
     def __init__(self):
         site_id = getSiteId()
         self.cI = ConfigInfo(siteId=site_id)
-        self.__packagePath = self.cI('SITE_PACKAGES_PATH')
+        self.__packagePath = self.cI.get('SITE_PACKAGES_PATH')
         self.node_path = os.path.join(self.__packagePath, 'node', 'bin', 'node')
         self.volume_server_pack = self.cI.get('VOLUME_SERVER_PACK')
         self.volume_server_query = self.cI.get('VOLUME_SERVER_QUERY')
@@ -35,3 +40,32 @@ class DensityWrapper:
                                   volume_server_query_path=self.volume_server_query,
                                   working_dir=working_dir)
         return em_conversion.run_conversion()
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--em_map', help='EM map', type=str)
+    parser.add_argument('--binary_map_out', help='Output filename of binary map', type=str, required=True)
+    parser.add_argument('--debug', help='debugging', action='store_const', dest='loglevel', const=logging.DEBUG,
+                        default=logging.INFO)
+
+    args = parser.parse_args()
+    logger = logging.getLogger()
+    logger.setLevel(args.loglevel)
+
+    if not sys.argv[1:]:
+        parser.print_help()
+        exit()
+
+    dw = DensityWrapper()
+    working_dir = tempfile.mkdtemp()
+    if args.em_map:
+        dw.convert_em_volume(in_em_volume=args.em_map,
+                             out_binary_volume=args.binary_map_out,
+                             working_dir=working_dir)
+
+    shutil.rmtree(working_dir)
+
+
+if __name__ == '__main__':
+    main()

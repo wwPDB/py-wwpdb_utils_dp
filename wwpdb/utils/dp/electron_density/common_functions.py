@@ -3,8 +3,8 @@ import shlex
 import json
 import logging
 import os
-import subprocess
 import shutil
+import subprocess
 
 
 def run_command(command, process_name, workdir=None):
@@ -97,15 +97,15 @@ def convert_mdb_to_binary_cif(node_path,
         json.dump(json_content, out_file)
     command = "{} {} --jobs {}".format(node_path, volume_server_query_path, working_json)
     ret = run_command_and_check_output_file(command=command,
-                                             process_name='mdb_to_binary_cif',
-                                             workdir=working_dir,
-                                             output_file=temp_out_file
-                                             )
+                                            process_name='mdb_to_binary_cif',
+                                            workdir=working_dir,
+                                            output_file=temp_out_file
+                                            )
     if ret:
         output_folder = os.path.dirname(output_file)
         if not os.path.exists(output_folder):
             os.makedirs(output_folder)
         shutil.copy(temp_out_file, output_file)
+        logging.debug('output file {}'.format(output_file))
         return True
     return False
-

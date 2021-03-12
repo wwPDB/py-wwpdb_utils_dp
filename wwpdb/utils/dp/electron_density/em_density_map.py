@@ -66,6 +66,7 @@ class EmVolumes:
 def main():  # pragma: no cover
     parser = argparse.ArgumentParser()
     parser.add_argument('--em_map', help='EM map', type=str, required=True)
+    parser.add_argument('--working_dir', help='working dir', type=str, required=True)
     parser.add_argument('--binary_map_out', help='Output filename of binary map', type=str, required=True)
     parser.add_argument('--node_path', help='path to node', type=str, required=True)
     parser.add_argument('--volume_server_pack_path', help='path to volume-server-pack', type=str, required=True)
@@ -87,7 +88,7 @@ def main():  # pragma: no cover
         volume_server_pack_path=args.volume_server_pack_path,
         volume_server_query_path=args.volume_server_query_path,
         binary_map_out=args.binary_map_out,
-        keep_working=args.keep_working_directory
+        working_dir=args.working_dir
     )
     worked = em.run_conversion()
     logging.info('EM map conversion worked: {}'.format(worked))
