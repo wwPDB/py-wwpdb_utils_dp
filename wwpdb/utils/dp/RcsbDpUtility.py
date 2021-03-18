@@ -1178,9 +1178,9 @@ class RcsbDpUtility(object):
             edmapCoefPath = os.path.abspath(os.path.join(self.__wrkPath, "out.mtz"))
             imageTarPath = os.path.abspath(os.path.join(self.__wrkPath, "out_image.tar"))
 
-            cmd += " ; %s " % self.site_config_command
+            cmd += " ; %s " % self.__site_config_command
             cmd += ' ; export PATH="$PATH:$PACKAGE_DIR/ChimeraX/bin"'
-            cmd += " ; %s --validation " % self.site_config_command
+            cmd += " ; %s --validation " % self.__site_config_command
             # cmd += " ; env "
 
             thisCmd = " ; python -m wwpdb.apps.validation.src.validator"
