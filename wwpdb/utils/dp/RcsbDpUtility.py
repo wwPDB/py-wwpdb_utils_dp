@@ -1279,6 +1279,25 @@ class RcsbDpUtility(object):
             cmd += thisCmd + dccArgs + " -cif ./" + iPath + " -sf  ./" + sfFileName + " -ligmapcif  -no_xtriage " + omitArgs
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
 
+        elif op == 'em-density-bcif':
+            node_path = os.path.join(self.__packagePath, 'node', 'bin', 'node')
+            volume_server_pack = self.__cI.get('VOLUME_SERVER_PACK')
+            volume_server_query = self.__cI.get('VOLUME_SERVER_QUERY')
+
+            em_map = self.__inputParamDict.get('em_map')
+            binary_map_out = self.__inputParamDict.get('map_out')
+
+            cmd_args = ['--em_map {}'.format(em_map)]
+            cmd_args.append('--node_path {}'.format(node_path))
+            cmd_args.append('--volume_server_pack_path {}'.format(volume_server_pack))
+            cmd_args.append('--volume_server_query_path {}'.format(volume_server_query))
+            cmd_args.append('--binary_map_out {}'.format(binary_map_out))
+            cmd_args.append('--working_dir {}'.format(self.__wrkPath))
+
+            cmd += '{};'.format(self.__site_config_command)
+
+            cmd += 'python -m wwpdb.utils.dp.electron_density.em_density_map {}'.format(' '.join(cmd_args))
+
         elif (op == "annot-dcc-report"):
             # The sf-valid package is currently set to self configure in a wrapper
             # shell script.  PACKAGE_DIR and TOOLS_DIR only need to be set here.
