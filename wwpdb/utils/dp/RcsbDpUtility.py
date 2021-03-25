@@ -227,7 +227,8 @@ class RcsbDpUtility(object):
                                 "annot-check-xml-xmllint", "annot-check-xml-stdinparse", "annot-get-pdb-file", "annot-check-pdb-file",
                                 "annot-check-sf-file", "annot-check-mr-file", "annot-check-cs-file", "annot-add-version-info", 
                                 "carbohydrate-remediation", "carbohydrate-remediation-test", "get-branch-polymer-info", "annot-get-close-contact",
-                                "annot-convert-close-contact-to-link" ]
+                                "annot-convert-close-contact-to-link",
+                                "em-density-bcif"]
 
         self.__sequenceOps = ['seq-blastp', 'seq-blastn']
         self.__validateOps = ['validate-geometry']
@@ -668,6 +669,9 @@ class RcsbDpUtility(object):
         self.__validScrPath = self.__cI.get('VALID_SCR_PATH')
         self.__siteConfigDir = self.__getConfigPath('TOP_WWPDB_SITE_CONFIG_DIR')
         self.__ccDictPathIdx = os.path.join(self.__ccDictPath, "Components-all-v3-r4.idx")
+        self.__site_config_command = ". %s/init/env.sh -s %s -l %s" % (self.__siteConfigDir,
+                                                                     self.__siteId,
+                                                                     self.__siteLoc)
 
         # if self.__rcsbAppsPath is None:
         #            self.__rcsbAppsPath  =  self.__getConfigPath('SITE_RCSB_APPS_PATH')
@@ -1174,11 +1178,10 @@ class RcsbDpUtility(object):
             svgPath = os.path.abspath(os.path.join(self.__wrkPath, "out.svg"))
             edmapCoefPath = os.path.abspath(os.path.join(self.__wrkPath, "out.mtz"))
             imageTarPath = os.path.abspath(os.path.join(self.__wrkPath, "out_image.tar"))
-            site_config_command = ". %s/init/env.sh -s %s -l %s" % (self.__siteConfigDir, self.__siteId, self.__siteLoc)
 
-            cmd += " ; %s " % site_config_command
+            cmd += " ; %s " % self.__site_config_command
             cmd += ' ; export PATH="$PATH:$PACKAGE_DIR/ChimeraX/bin"'
-            cmd += " ; %s --validation " % site_config_command
+            cmd += " ; %s --validation " % self.__site_config_command
             # cmd += " ; env "
 
             thisCmd = " ; python -m wwpdb.apps.validation.src.validator"
@@ -1275,6 +1278,24 @@ class RcsbDpUtility(object):
             #
 
             cmd += thisCmd + dccArgs + " -cif ./" + iPath + " -sf  ./" + sfFileName + " -ligmapcif  -no_xtriage " + omitArgs
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
+
+        elif op == 'em-density-bcif':
+            node_path = os.path.join(self.__packagePath, 'node', 'bin', 'node')
+            volume_server_pack = self.__cI.get('VOLUME_SERVER_PACK')
+            volume_server_query = self.__cI.get('VOLUME_SERVER_QUERY')
+
+            cmd_args = ['--em_map {}'.format(iPath),
+                        '--node_path {}'.format(node_path),
+                        '--volume_server_pack_path {}'.format(volume_server_pack),
+                        '--volume_server_query_path {}'.format(volume_server_query),
+                        '--binary_map_out {}'.format(oPath),
+                        '--working_dir {}'.format(self.__wrkPath)
+                        ]
+
+            cmd += '; {}'.format(self.__site_config_command)
+
+            cmd += ' ; python -m wwpdb.utils.dp.electron_density.em_density_map {}'.format(' '.join(cmd_args))
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
 
         elif (op == "annot-dcc-report"):
