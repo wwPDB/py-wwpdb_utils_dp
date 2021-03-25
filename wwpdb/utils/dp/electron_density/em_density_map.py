@@ -26,11 +26,13 @@ class EmVolumes:
         self.volume_server_query_path = volume_server_query_path
         self.mdb_map_path = None
         self.bcif_map_path = binary_map_out
-        self.workdir = working_dir
+        self.workdir = working_dir if working_dir else os.getcwd()
 
     def run_conversion(self):
-        if not os.path.exists(os.path.dirname(self.bcif_map_path)):
-            os.makedirs(os.path.dirname(self.bcif_map_path))
+        bcif_dir_out = os.path.dirname(self.bcif_map_path)
+        if bcif_dir_out:
+            if not os.path.exists(bcif_dir_out):
+                os.makedirs(bcif_dir_out)
         logging.debug('temp working folder: %s' % self.workdir)
         self.mdb_map_path = os.path.join(self.workdir, self.mdb_map)
 

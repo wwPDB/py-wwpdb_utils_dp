@@ -227,7 +227,8 @@ class RcsbDpUtility(object):
                                 "annot-check-xml-xmllint", "annot-check-xml-stdinparse", "annot-get-pdb-file", "annot-check-pdb-file",
                                 "annot-check-sf-file", "annot-check-mr-file", "annot-check-cs-file", "annot-add-version-info", 
                                 "carbohydrate-remediation", "carbohydrate-remediation-test", "get-branch-polymer-info", "annot-get-close-contact",
-                                "annot-convert-close-contact-to-link" ]
+                                "annot-convert-close-contact-to-link",
+                                "em-density-bcif"]
 
         self.__sequenceOps = ['seq-blastp', 'seq-blastn']
         self.__validateOps = ['validate-geometry']
@@ -1284,19 +1285,18 @@ class RcsbDpUtility(object):
             volume_server_pack = self.__cI.get('VOLUME_SERVER_PACK')
             volume_server_query = self.__cI.get('VOLUME_SERVER_QUERY')
 
-            em_map = self.__inputParamDict.get('em_map')
-            binary_map_out = self.__inputParamDict.get('map_out')
+            cmd_args = ['--em_map {}'.format(iPath),
+                        '--node_path {}'.format(node_path),
+                        '--volume_server_pack_path {}'.format(volume_server_pack),
+                        '--volume_server_query_path {}'.format(volume_server_query),
+                        '--binary_map_out {}'.format(oPath),
+                        '--working_dir {}'.format(self.__wrkPath)
+                        ]
 
-            cmd_args = ['--em_map {}'.format(em_map)]
-            cmd_args.append('--node_path {}'.format(node_path))
-            cmd_args.append('--volume_server_pack_path {}'.format(volume_server_pack))
-            cmd_args.append('--volume_server_query_path {}'.format(volume_server_query))
-            cmd_args.append('--binary_map_out {}'.format(binary_map_out))
-            cmd_args.append('--working_dir {}'.format(self.__wrkPath))
+            cmd += '; {}'.format(self.__site_config_command)
 
-            cmd += '{};'.format(self.__site_config_command)
-
-            cmd += 'python -m wwpdb.utils.dp.electron_density.em_density_map {}'.format(' '.join(cmd_args))
+            cmd += ' ; python -m wwpdb.utils.dp.electron_density.em_density_map {}'.format(' '.join(cmd_args))
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
 
         elif (op == "annot-dcc-report"):
             # The sf-valid package is currently set to self configure in a wrapper

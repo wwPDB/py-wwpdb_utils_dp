@@ -74,6 +74,8 @@ def convert_mdb_to_binary_cif(node_path,
                               detail=4):
     query_kind = 'cell'
     map_file_name = '{}_{}-{}_d{}.bcif'.format(map_id, source_id, query_kind, detail)
+    if not working_dir:
+        working_dir = os.getcwd()
     temp_out_file = os.path.join(working_dir, map_file_name)
     json_filename = 'conversion.json'
     json_content = [{
@@ -92,7 +94,10 @@ def convert_mdb_to_binary_cif(node_path,
         "outputFolder": working_dir,
         "outputFilename": temp_out_file
     }]
-    working_json = os.path.join(working_dir, json_filename)
+    if working_dir:
+        working_json = os.path.join(working_dir, json_filename)
+    else:
+        working_json = json_filename
     with open(working_json, 'w') as out_file:
         json.dump(json_content, out_file)
     command = "{} {} --jobs {}".format(node_path, volume_server_query_path, working_json)
@@ -103,8 +108,9 @@ def convert_mdb_to_binary_cif(node_path,
                                             )
     if ret:
         output_folder = os.path.dirname(output_file)
-        if not os.path.exists(output_folder):
-            os.makedirs(output_folder)
+        if output_folder:
+            if not os.path.exists(output_folder):
+                os.makedirs(output_folder)
         shutil.copy(temp_out_file, output_file)
         logging.debug('output file {}'.format(output_file))
         return True
