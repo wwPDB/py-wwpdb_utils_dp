@@ -46,7 +46,7 @@ setup(
     #
     install_requires=['future',
                       'mmcif ~= 0.18',
-                      'wwpdb.utils.config ~= 0.1',
+                      'wwpdb.utils.config ~= 0.22',
                       'wwpdb.utils.testing ~= 0.4',
                       'wwpdb.io',
                       'gemmi >= 0.4'],

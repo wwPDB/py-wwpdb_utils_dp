@@ -153,6 +153,7 @@ except ImportError:
 
 from wwpdb.io.file.DataFile import DataFile
 from wwpdb.utils.config.ConfigInfo import ConfigInfo
+from wwpdb.utils.config.ConfigInfoApp import ConfigInfoAppEm
 from wwpdb.utils.dp.PdbxStripCategory import PdbxStripCategory
 from wwpdb.utils.dp.RunRemote import RunRemote
 
@@ -2872,7 +2873,6 @@ class RcsbDpUtility(object):
         #
         self.__packagePath = self.__getConfigPath('SITE_PACKAGES_PATH')
         self.__deployPath = self.__getConfigPath('SITE_DEPLOY_PATH')
-        self.__emDictPath = self.__getConfigPath('SITE_EM_DICT_PATH')
         self.__localAppsPath = self.__getConfigPath('SITE_LOCAL_APPS_PATH')
 
         if self.__siteId in ['WWPDB_DEPLOY_MACOSX']:
@@ -2952,7 +2952,10 @@ class RcsbDpUtility(object):
         elif (op == "fsc_check"):
             system_path = os.path.join(self.__packagePath, "..")
             lib_path = os.path.join(system_path, "lib")
-            schema = os.path.join(self.__emDictPath, "emdb_fsc.xsd")
+
+            ciapp = ConfigInfoAppEm(self.__siteId)
+            schema = ciapp.get_emd_fsc_scheme_file_path()
+
             cmd += "export LD_LIBRARY_PATH=" + lib_path + "; "
             cmd += "xmllint --format --schema " + schema + " " + iPath
             #
