@@ -153,7 +153,7 @@ except ImportError:
 
 from wwpdb.io.file.DataFile import DataFile
 from wwpdb.utils.config.ConfigInfo import ConfigInfo
-from wwpdb.utils.config.ConfigInfoApp import ConfigInfoAppEm
+from wwpdb.utils.config.ConfigInfoApp import ConfigInfoAppEm, ConfigInfoAppCommon
 from wwpdb.utils.dp.PdbxStripCategory import PdbxStripCategory
 from wwpdb.utils.dp.RunRemote import RunRemote
 
@@ -259,6 +259,7 @@ class RcsbDpUtility(object):
         self.__run_remote = False
 
         self.__cI = ConfigInfo(self.__siteId)
+        self.__cICommon = ConfigInfoAppCommon(self.__siteId)
         self.__initPath()
         self.__getRunRemote()
 
@@ -660,7 +661,6 @@ class RcsbDpUtility(object):
         self.__localAppsPath = self.__getConfigPath('SITE_LOCAL_APPS_PATH')
         self.__packagePath = self.__getConfigPath('SITE_PACKAGES_PATH')
         self.__deployPath = self.__getConfigPath('SITE_DEPLOY_PATH')
-        self.__topPythonDir = self.__getConfigPath('TOP_WWPDB_PYTHON_DIR')
         self.__siteLoc = self.__cI.get('WWPDB_SITE_LOC')
         self.__ccDictPath = self.__getConfigPath('SITE_CC_DICT_PATH')
         self.__ccCvsPath = self.__getConfigPath('SITE_CC_CVS_PATH')
@@ -678,14 +678,6 @@ class RcsbDpUtility(object):
         #            self.__rcsbAppsPath  =  self.__getConfigPath('SITE_RCSB_APPS_PATH')
         # JDW 2013-02-26
         self.__rcsbAppsPath = self.__getConfigPath('SITE_ANNOT_TOOLS_PATH')
-        #
-        # These are set in the section that depends on it
-        #self.__pdbxDictPath = self.__getConfigPath('SITE_PDBX_DICT_PATH')
-        #self.__pdbxDictName = self.__cI.get('SITE_PDBX_DICT_NAME')
-        #self.__pathDdlSdb = os.path.join(self.__pdbxDictPath, "mmcif_ddl.sdb")
-        #self.__pathPdbxDictSdb = os.path.join(self.__pdbxDictPath, self.__pdbxDictName + '.sdb')
-        #self.__pathPdbxDictOdb = os.path.join(self.__pdbxDictPath, self.__pdbxDictName + '.odb')
-
         #
         #
         iPath = self.__getSourceWrkFile(self.__stepNo)
@@ -2024,13 +2016,13 @@ class RcsbDpUtility(object):
         elif (op == "annot-check-xml-xmllint"):
             #
             cmdPath = os.path.join(self.__localAppsPath, "bin", "xmllint")
-            thisCmd = " ; " + cmdPath + " --noout --schema " + os.path.join(self.__getConfigPath("SITE_PDBX_DICT_PATH"), "pdbx-v50.xsd")
+            thisCmd = " ; " + cmdPath + " --noout --schema " + os.path.join(self.__cICommon.get_mmcif_dict_path(), "pdbx-v50.xsd")
             cmd += thisCmd + " " + iPath + " > " + tPath + " 2>&1 ; "
 
         elif (op == "annot-check-xml-stdinparse"):
             #
             cmdPath = os.path.join(self.__localAppsPath, "bin", "StdInParse")
-            thisCmd = " ; cp -f " + os.path.join(self.__getConfigPath("SITE_PDBX_DICT_PATH"), "pdbx-v50.xsd") + " . ; " + cmdPath
+            thisCmd = " ; cp -f " + os.path.join(self.__cICommon.get_mmcif_dict_path(), "pdbx-v50.xsd") + " . ; " + cmdPath
             cmd += thisCmd + " -s -f -n -v=always < " + iPath + " >> " + tPath + " 2>&1 ; "
 
         elif (op == "annot-misc-checking"):
@@ -2693,14 +2685,6 @@ class RcsbDpUtility(object):
 
         self.__rcsbAppsPath = os.path.join(self.__packagePath, 'annotation')
         #
-        # These may not be needed --
-        #self.__pdbxDictPath = self.__getConfigPath('SITE_PDBX_DICT_PATH')
-        #self.__pdbxDictName = self.__cI.get('SITE_PDBX_DICT_NAME')
-        #self.__pathDdlSdb = os.path.join(self.__pdbxDictPath, "mmcif_ddl.sdb")
-        #self.__pathPdbxDictSdb = os.path.join(self.__pdbxDictPath, self.__pdbxDictName + '.sdb')
-        #self.__pathPdbxDictOdb = os.path.join(self.__pdbxDictPath, self.__pdbxDictName + '.odb')
-
-        #
         #
         iPath = self.__getSourceWrkFile(self.__stepNo)
         # iPathList = self.__getSourceWrkFileList(self.__stepNo)
@@ -3295,8 +3279,8 @@ class RcsbDpUtility(object):
 
         #
         self.__ccAppsPath = self.__getConfigPath('SITE_CC_APPS_PATH')
-        self.__pdbxDictPath = self.__getConfigPath('SITE_PDBX_DICT_PATH')
-        self.__pdbxDictName = self.__cI.get('SITE_PDBX_DICT_NAME', 'missing')
+        self.__pdbxDictPath = self.__cICommon.get_mmcif_dict_path()
+        self.__pdbxDictName = self.__cICommon.get_mmcif_archive_next_dict_filename()
         self.__pdbxV4DictName = self.__cI.get('SITE_PDBX_V4_DICT_NAME', 'missing')
 
         self.__ccDictPath = self.__getConfigPath('SITE_CC_DICT_PATH')
@@ -3956,7 +3940,7 @@ class RcsbDpUtility(object):
                    'archive_next': 'ARCHIVE_NEXT'}
         envName = mapping[name]
 
-        pdbxDictPath = self.__getConfigPath('SITE_PDBX_DICT_PATH')
+        pdbxDictPath = self.__cICommon.get_mmcif_dict_path()
         dictBase = self.__cI.get('SITE_PDBX_DICTIONARY_NAME_DICT')[envName]
         fName = os.path.join(pdbxDictPath, dictBase + suffix)
         return fName
