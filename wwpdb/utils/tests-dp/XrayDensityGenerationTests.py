@@ -3,6 +3,7 @@ import os
 import shutil
 import tempfile
 import unittest
+
 from wwpdb.utils.dp.electron_density.x_ray_density_map import XrayVolumeServerMap, run_process_with_gemmi
 
 logger = logging.getLogger()
@@ -17,12 +18,13 @@ class TestXrayMolStarMaps(unittest.TestCase):
         self.test_coord_file = os.path.join(self.test_files, '2gc2.cif')
         self.working_dir = tempfile.mkdtemp()
         self.binary_cif_out = os.path.join(self.working_dir, 'binary_cif.map')
-        self.xrm = XrayVolumeServerMap(coord_path=self.test_coord_file, node_path=None, volume_server_path='missing',
+        self.xrm = XrayVolumeServerMap(coord_path=self.test_coord_file, node_path=None,
+                                       volume_server_pack_path='missing',
+                                       volume_server_query_path=None,
                                        binary_map_out=self.binary_cif_out,
                                        fofc_mmcif_map_coeff_in=self.test_fofc_map_coeff_file,
                                        two_fofc_mmcif_map_coeff_in=self.test_2fofc_map_coeff_file,
                                        working_dir=self.working_dir)
-
 
         self.temp_out_map = os.path.join(self.working_dir, 'out.map')
 
@@ -64,19 +66,17 @@ class TestXrayMolStarMaps(unittest.TestCase):
 
     def test_make_maps_to_serve_with_volume_server_no_exe(self):
         ok = self.xrm.make_maps_to_serve_with_volume_server(
-                                                            fofc_map_in=self.test_fofc_map_coeff_file,
-                                                            two_fofc_map_in=self.test_2fofc_map_coeff_file,
-                                                            )
+            fofc_map_in=self.test_fofc_map_coeff_file,
+            two_fofc_map_in=self.test_2fofc_map_coeff_file,
+        )
         self.assertFalse(ok)
-
-
 
     def test_run_process_with_gemmi_no_exe(self):
         ok = run_process_with_gemmi(node_path=None,
                                     two_fofc_mmcif_map_coeff_in=self.test_2fofc_map_coeff_file,
                                     fofc_mmcif_map_coeff_in=self.test_fofc_map_coeff_file,
-                                    volume_server_path=None,
-                                    keep_working=False,
+                                    volume_server_pack_path=None,
+                                    volume_server_query_path=None,
                                     coord_file=self.test_coord_file,
                                     binary_map_out=self.binary_cif_out)
 
@@ -86,8 +86,8 @@ class TestXrayMolStarMaps(unittest.TestCase):
         ok = run_process_with_gemmi(node_path='node',
                                     two_fofc_mmcif_map_coeff_in=self.test_2fofc_map_coeff_file,
                                     fofc_mmcif_map_coeff_in=self.test_fofc_map_coeff_file,
-                                    volume_server_path='missing',
-                                    keep_working=False,
+                                    volume_server_pack_path='missing',
+                                    volume_server_query_path='missing',
                                     coord_file=self.test_coord_file,
                                     binary_map_out=self.binary_cif_out)
 
@@ -97,8 +97,8 @@ class TestXrayMolStarMaps(unittest.TestCase):
         ok = run_process_with_gemmi(node_path=None,
                                     two_fofc_mmcif_map_coeff_in=self.test_2fofc_map_coeff_file,
                                     fofc_mmcif_map_coeff_in=self.test_fofc_map_coeff_file,
-                                    volume_server_path='missing',
-                                    keep_working=False,
+                                    volume_server_pack_path='missing',
+                                    volume_server_query_path='missing',
                                     coord_file=self.test_coord_file,
                                     binary_map_out=self.binary_cif_out)
 
@@ -108,8 +108,8 @@ class TestXrayMolStarMaps(unittest.TestCase):
         ok = run_process_with_gemmi(node_path='node',
                                     two_fofc_mmcif_map_coeff_in='missing',
                                     fofc_mmcif_map_coeff_in='missing',
-                                    volume_server_path='volume',
-                                    keep_working=False,
+                                    volume_server_pack_path='volume',
+                                    volume_server_query_path='query',
                                     coord_file=self.test_coord_file,
                                     binary_map_out=self.binary_cif_out)
 
@@ -119,8 +119,8 @@ class TestXrayMolStarMaps(unittest.TestCase):
         ok = run_process_with_gemmi(node_path='node',
                                     two_fofc_mmcif_map_coeff_in=self.test_2fofc_map_coeff_file,
                                     fofc_mmcif_map_coeff_in=self.test_fofc_map_coeff_file,
-                                    volume_server_path='volume',
-                                    keep_working=False,
+                                    volume_server_pack_path='volume',
+                                    volume_server_query_path='query',
                                     coord_file=self.test_coord_file,
                                     binary_map_out=self.binary_cif_out)
 
