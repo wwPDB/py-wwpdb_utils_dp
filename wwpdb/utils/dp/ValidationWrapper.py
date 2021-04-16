@@ -76,9 +76,9 @@ class ValidationWrapper(RcsbDpUtility):
         # Handle the first arguments
         # ofpdf,ofxml,offullpdf,ofpng,ofsvg,ofmtz
 
-        basedst = dstPathList[0:6]
-        outfosf = dstPathList[6]
-        out2fosf = dstPathList[7]
+        basedst = dstPathList[0:7]
+        outfosf = dstPathList[7]
+        out2fosf = dstPathList[8]
         mtzfile = os.path.join(self.getWorkingDir(), 'mapcoef.mtz')
         basedst.append(mtzfile)
         ret = super(ValidationWrapper, self).expList(basedst)
