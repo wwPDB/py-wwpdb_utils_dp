@@ -1165,6 +1165,7 @@ class RcsbDpUtility(object):
 
             #
             xmlPath = os.path.abspath(os.path.join(self.__wrkPath, "out.xml"))
+            cifPath = os.path.abspath(os.path.join(self.__wrkPath, "out.cif"))
             pdfPath = os.path.abspath(os.path.join(self.__wrkPath, "out.pdf"))
             pdfFullPath = os.path.abspath(os.path.join(self.__wrkPath, "out_full.pdf"))
             pngPath = os.path.abspath(os.path.join(self.__wrkPath, "out.png"))
@@ -1179,8 +1180,8 @@ class RcsbDpUtility(object):
 
             thisCmd = " ; python -m wwpdb.apps.validation.src.validator"
 
-            cmd += thisCmd + " --mmciffile %s --xml %s --pdf %s --fullpdf %s --png %s --svg %s --imagetar %s" % \
-                       (iPathFull, xmlPath, pdfPath, pdfFullPath, pngPath, svgPath, imageTarPath)
+            cmd += thisCmd + " --mmciffile %s --xml %s --cif %s --pdf %s --fullpdf %s --png %s --svg %s --imagetar %s" % \
+                       (iPathFull, xmlPath, cifPath, pdfPath, pdfFullPath, pngPath, svgPath, imageTarPath)
             cmd += " --mode " + validation_mode
 
             # For deposit or validation server - provide a PDB id. Otherwise for annotation incorrect id would be used
@@ -2408,6 +2409,11 @@ class RcsbDpUtility(object):
 
             if os.access(imageTarPath, os.F_OK):
                 self.__resultPathList.append(imageTarPath)
+            else:
+                self.__resultPathList.append("missing")
+
+            if os.access(cifPath, os.F_OK):
+                self.__resultPathList.append(cifPath)
             else:
                 self.__resultPathList.append("missing")
 
