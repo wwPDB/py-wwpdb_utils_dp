@@ -10,23 +10,22 @@ import logging
 import unittest
 import os
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(levelname)s]-%(module)s.%(funcName)s: %(message)s')
-logger = logging.getLogger()
-logger.setLevel(logging.INFO)
-logger.setLevel(logging.DEBUG)
-
-
 if __package__ is None or __package__ == '':
     import sys
     from os import path
 
     sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
-    from commonsetup import TESTOUTPUT, TOPDIR, toolsmissing, mockTopPath
+    from commonsetup import TESTOUTPUT, toolsmissing, mockTopPath
 else:
-    from .commonsetup import TESTOUTPUT, TOPDIR, toolsmissing, mockTopPath
+    from .commonsetup import TESTOUTPUT, toolsmissing, mockTopPath
 
 from wwpdb.utils.config.ConfigInfo import getSiteId
 from wwpdb.utils.dp.ValidationWrapper import ValidationWrapper
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(levelname)s]-%(module)s.%(funcName)s: %(message)s')
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
+logger.setLevel(logging.DEBUG)
 
 
 class ValidationWrapperTests(unittest.TestCase):
@@ -34,7 +33,7 @@ class ValidationWrapperTests(unittest.TestCase):
         pass
 
     def testImport(self):
-        vw = ValidationWrapper(tmpPath=TESTOUTPUT, siteId=getSiteId())
+        _vw = ValidationWrapper(tmpPath=TESTOUTPUT, siteId=getSiteId())  # noqa: F841
 
     @unittest.skipIf(toolsmissing, "Cannot test validation without tools")
     @unittest.skipIf(True, "Tests do not work yet - need site-config for validation")
@@ -51,7 +50,7 @@ class ValidationWrapperTests(unittest.TestCase):
         png = os.path.join(TESTOUTPUT, '1cbs-val.png')
         oflog = os.path.join(TESTOUTPUT, '1cbs-val.log')
 
-        #ofpdf, ofxml, offullpdf, ofpng, ofsvg, ofmtz
+        # ofpdf, ofxml, offullpdf, ofpng, ofsvg, ofmtz
         if os.path.exists(foout):
             os.unlink(foout)
         if os.path.exists(twofoout):
@@ -80,6 +79,7 @@ class ValidationWrapperTests(unittest.TestCase):
         self.assertTrue(ret, "Writing SF file")
         self.assertTrue(os.path.exists(foout))
         self.assertTrue(os.path.exists(twofoout))
+
 
 if __name__ == '__main__':
     # Run all tests --

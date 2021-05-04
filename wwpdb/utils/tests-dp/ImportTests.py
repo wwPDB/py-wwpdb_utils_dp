@@ -10,12 +10,20 @@ import unittest
 if __package__ is None or __package__ == '':
     import sys
     from os import path
-    sys.path.append( path.dirname( path.dirname( path.abspath(__file__) ) ) )
-    from commonsetup import TESTOUTPUT
+    sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
+    from commonsetup import TESTOUTPUT  # noqa: F401
 else:
-    from .commonsetup import TESTOUTPUT
+    from .commonsetup import TESTOUTPUT  # noqa: F401
 
-from wwpdb.utils.dp.DataFileAdapter import DataFileAdapter
+from wwpdb.utils.dp.DataFileAdapter import DataFileAdapter  # noqa: F401
+from wwpdb.utils.dp.DensityWrapper import DensityWrapper  # noqa: F401
+from wwpdb.utils.dp.PdbxChemShiftReport import PdbxChemShiftReport  # noqa: F401
+from wwpdb.utils.dp.PdbxMergeCategory import PdbxMergeCategory
+from wwpdb.utils.dp.PdbxSFMapCoefficients import PdbxSFMapCoefficients
+from wwpdb.utils.dp.PdbxStripCategory import PdbxStripCategory
+from wwpdb.utils.dp.RcsbDpUtility import RcsbDpUtility
+from wwpdb.utils.dp.RunRemote import RunRemote  # noqa: F401
+from wwpdb.utils.dp.ValidationWrapper import ValidationWrapper
 
 
 class ImportTests(unittest.TestCase):
@@ -23,5 +31,8 @@ class ImportTests(unittest.TestCase):
         pass
 
     def testInstantiate(self):
-        pass
-
+        _pmc = PdbxMergeCategory()  # noqa: F841
+        _psc = PdbxStripCategory()  # noqa: F841
+        _rdp = RcsbDpUtility()  # noqa: F841
+        _vw = ValidationWrapper()  # noqa: F841
+        _pdmc = PdbxSFMapCoefficients()  # noqa: F841

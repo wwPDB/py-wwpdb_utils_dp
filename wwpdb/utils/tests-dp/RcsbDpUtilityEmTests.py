@@ -16,7 +16,6 @@ import json
 import logging
 import math
 import os
-import platform
 import sys
 import unittest
 
@@ -31,9 +30,8 @@ except ImportError:
 
 
 if __package__ is None or __package__ == '':
-    import sys
     from os import path
-    sys.path.append( path.dirname( path.dirname( path.abspath(__file__) ) ) )
+    sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
     from commonsetup import TESTOUTPUT, TOPDIR, toolsmissing
 else:
     from .commonsetup import TESTOUTPUT, TOPDIR, toolsmissing
@@ -131,7 +129,7 @@ class RcsbDpUtilityEmTests(unittest.TestCase):
 
             #
             width = float(x[-1] - x[0]) / float(len(x))
-            #width = 2.0
+            # width = 2.0
             logger.info("Starting plot\n")
             plt.bar(x, y, width, color="r", log=True)
             logger.info("Loaded data\n")
@@ -182,7 +180,7 @@ class RcsbDpUtilityEmTests(unittest.TestCase):
                     logy.append(math.log10(float(v)))
 
             # width = float(x[-1] - x[0]) / float(len(x))
-            #width = 2.0
+            # width = 2.0
 
             logger.info("Starting plot len x %d len y %d \n" % (len(x), len(logy)))
             nL = int(len(x) / 10)

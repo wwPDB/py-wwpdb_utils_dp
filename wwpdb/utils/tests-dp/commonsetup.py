@@ -1,6 +1,5 @@
 # Common setup for tests as unittest runner loads files in any order
 
-import sys
 import os
 import platform
 
@@ -17,7 +16,6 @@ from wwpdb.utils.testing.SiteConfigSetup  import SiteConfigSetup
 from wwpdb.utils.testing.CreateRWTree import CreateRWTree
 
 mockTopPath = os.path.join(TOPDIR, 'wwpdb', 'mock-data')
-from wwpdb.utils.testing.SiteConfigSetup import SiteConfigSetup
 SiteConfigSetup().setupEnvironment(TESTOUTPUT, mockTopPath)
 
 from wwpdb.utils.config.ConfigInfo import ConfigInfo

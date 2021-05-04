@@ -2,20 +2,18 @@ import sys
 import unittest
 import os
 import os.path
-import platform
 import tempfile
-import shutil
+# import shutil
 import random
 import logging
 
 
 if __package__ is None or __package__ == '':
-    import sys
     from os import path
-    sys.path.append( path.dirname( path.dirname( path.abspath(__file__) ) ) )
-    from commonsetup import TESTOUTPUT, toolsmissing
+    sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
+    from commonsetup import toolsmissing
 else:
-    from .commonsetup import TESTOUTPUT, toolsmissing
+    from .commonsetup import toolsmissing
 
 from wwpdb.utils.config.ConfigInfo import ConfigInfo, getSiteId
 from wwpdb.utils.dp.RcsbDpUtility import RcsbDpUtility
@@ -90,9 +88,9 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
 
         self.__testValidateXrayNeutronModel = 'D_1200007116_model-upload_P1.cif.V1'
         self.__testValidateXrayNeutronSF = 'D_1200007116_sf-upload_P1.cif.V1'
-        #self.__testValidateXrayLargeIdList = ['4u4r']
-        #self.__testValidateNmrIdList = ['2MM4']
-        #self.__testValidateNmrLargeIdList = ['2MMZ']
+        # self.__testValidateXrayLargeIdList = ['4u4r']
+        # self.__testValidateNmrIdList = ['2MM4']
+        # self.__testValidateNmrLargeIdList = ['2MMZ']
 
         self.__testDccModelId = '4wpo'
 
@@ -235,7 +233,6 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
         self.assertTrue(os.path.exists(ofpng))
         self.assertTrue(os.path.exists(ofsvg))
 
-
     def testAnnotValidateListNmrTestRemote(self):
         """  Test create validation report for the test list of example PDB ids (NMR examples)
         """
@@ -260,7 +257,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
                         value=os.path.join(self.__siteWebAppsSessionsPath, "validation_%s" % random.randrange(9999999)))
             # adding explicit selection of steps --
             # Alternate
-            #dp.addInput(name="step_list", value=" coreclust,chemicalshifts,writexml,writepdf ")
+            # dp.addInput(name="step_list", value=" coreclust,chemicalshifts,writexml,writepdf ")
             dp.addInput(name='kind', value='nmr')
             dp.imp(xyzPath)
             dp.addInput(name="cs_file_path", value=csPath)
@@ -277,7 +274,6 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             self.assertTrue(os.path.exists(ofpng))
             self.assertTrue(os.path.exists(ofsvg))
 
-
     def testMapFixRemote(self):
         """  Test mapfix utility
         """
@@ -289,9 +285,9 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
         of = os.path.join(self.__tmpPath, self.__testMapNormal + "-fix.map")
         dp.imp(inpPath)
         pixelSize = 2.54
-        #dp.addInput(name="pixel-spacing-x", value=pixelSize)
-        #dp.addInput(name="pixel-spacing-y", value=pixelSize)
-        #dp.addInput(name="pixel-spacing-z", value=pixelSize)
+        # dp.addInput(name="pixel-spacing-x", value=pixelSize)
+        # dp.addInput(name="pixel-spacing-y", value=pixelSize)
+        # dp.addInput(name="pixel-spacing-z", value=pixelSize)
         dp.addInput(name="input_map_file_path", value=inpPath)
         dp.addInput(name="output_map_file_path", value=of)
         dp.addInput(name="label", value='test')
@@ -397,7 +393,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
         """  Test cif to pdbx conversion  (good cif)
         """
         self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
-        cifout = os.path.join(self.__tmpPath, self.__testFileAnnotSiteAlt) 
+        cifout = os.path.join(self.__tmpPath, self.__testFileAnnotSiteAlt)
         #
         dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
         cifin = os.path.join(self.__testFilePath, self.__testFileAnnotSiteAlt)
@@ -414,9 +410,9 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
 
 def suiteAnnotDccTests():
     suiteSelect = unittest.TestSuite()
-    #suiteSelect.addTest(RcsbDpUtilityAnnotTests("testMapFixLargeMapRemote"))
-    #suiteSelect.addTest(RcsbDpUtilityAnnotTests("test_AnnotValidateGeometryCheck"))
-    #suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotMtz2PdbxBad"))
+    # suiteSelect.addTest(RcsbDpUtilityAnnotTests("testMapFixLargeMapRemote"))
+    # suiteSelect.addTest(RcsbDpUtilityAnnotTests("test_AnnotValidateGeometryCheck"))
+    # suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotMtz2PdbxBad"))
     suiteSelect.addTest(RcsbDpUtilityAnnotTests("testCif2pdbx_public"))
     return suiteSelect
 

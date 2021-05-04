@@ -10,21 +10,19 @@ import logging
 import unittest
 import os
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(levelname)s]-%(module)s.%(funcName)s: %(message)s')
-logger = logging.getLogger()
-logger.setLevel(logging.INFO)
-
-
 if __package__ is None or __package__ == '':
     import sys
     from os import path
 
     sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
-    from commonsetup import TESTOUTPUT, TOPDIR, toolsmissing, mockTopPath
+    from commonsetup import TESTOUTPUT, toolsmissing, mockTopPath
 else:
-    from .commonsetup import TESTOUTPUT, TOPDIR, toolsmissing, mockTopPath
+    from .commonsetup import TESTOUTPUT, toolsmissing, mockTopPath
 
 from wwpdb.utils.dp.PdbxSFMapCoefficients import PdbxSFMapCoefficients
+logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(levelname)s]-%(module)s.%(funcName)s: %(message)s')
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 
 
 class PdbxSFTests(unittest.TestCase):
@@ -32,7 +30,7 @@ class PdbxSFTests(unittest.TestCase):
         pass
 
     def testImport(self):
-        p = PdbxSFMapCoefficients()
+        p = PdbxSFMapCoefficients()  # noqa: F841
 
     @unittest.skipIf(toolsmissing, "Cannot test sf conversion without tools")
     def testMtzConversion(self):
@@ -52,6 +50,7 @@ class PdbxSFTests(unittest.TestCase):
         self.assertTrue(ret, "Writing SF file")
         self.assertTrue(os.path.exists(foout))
         self.assertTrue(os.path.exists(twofoout))
+
 
 if __name__ == '__main__':
     # Run all tests --
