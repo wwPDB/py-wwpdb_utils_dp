@@ -5,6 +5,8 @@ import logging
 import subprocess
 import argparse
 from wwpdb.utils.config.ConfigInfo import ConfigInfo, getSiteId
+from prefect.tasks.mysql import mysql
+from prefect import task, Flow
 
 logger = logging.getLogger()
 
@@ -41,6 +43,15 @@ class RunRemote:
         self.out = None
         self.err = None
 
+        # For DB Connection
+        self.__db_Server = self.__cI.get("SITE_DB_SERVER")
+        self.__db_Host = self.__cI.get("SITE_DB_HOST_NAME")
+        self.__db_Name = self.__cI.get("SITE_DB_DATABASE_NAME")
+        self.__db_User = self.__cI.get("SITE_DB_USER_NAME")
+        self.__db_Pw = self.__cI.get("SITE_DB_PASSWORD")
+        self.__db_Socket = self.__cI.get("SITE_DB_SOCKET")
+        self.__db_Port = int(self.__cI.get("SITE_DB_PORT_NUMBER"))
+
     def escape_substitution(self, command):
         """
         Escapes dollars, stops variables being interpretted early when passed to bsub.
@@ -48,7 +59,8 @@ class RunRemote:
         command = command.replace('$', '\$')
         return command
 
-    def run(self):
+    @task
+    def run_task(self):
         rc = 1
 
         if self.add_site_config_database:
@@ -85,6 +97,26 @@ class RunRemote:
             logging.info('worked')
 
         return rc
+
+    @task
+    def save_run_stats(self):
+        query = f'''INSERT into run_statistics 
+                ('job_name', 'memory_limit', 'memory_used', 'exit_status', 'number_of_processors' )
+                ({self.job_name}, {self.memory_limit}, {self.memory_used}, {self.bsub_exit_status}, {self.number_of_processors})
+                '''
+
+        mysql.MySQLExecute.run(self.__db_Name,self.__db_User, self.__db_Pw,  self.__db_Host, self.__db_Port,
+                               query, commit=False, charset="utf8mb4")
+
+    def run(self):
+        with Flow('Remote Run') as flow:
+            rc = self.run_task()
+            self.save_run_stats()
+            return rc
+        flow.register("Remote Running", idempotency_key=flow.serialized_hash())
+        rc = flow.run()
+        return rc
+
 
     @staticmethod
     def check_timing(t1, t2):
