@@ -6,12 +6,12 @@ import subprocess
 import argparse
 from wwpdb.utils.config.ConfigInfo import ConfigInfo, getSiteId
 from prefect.tasks.mysql import mysql
-from prefect import task, Flow
+from prefect import Task
 
 logger = logging.getLogger()
 
 
-class RunRemote:
+class RunRemote(Task):
 
     def __init__(self, command, job_name, log_dir, timeout=5600, memory_limit=0, number_of_processors=1,
                  add_site_config=False, add_site_config_database=False):
@@ -59,8 +59,7 @@ class RunRemote:
         command = command.replace('$', '\$')
         return command
 
-    @task
-    def run_task(self):
+    def run(self):
         rc = 1
 
         if self.add_site_config_database:
@@ -89,6 +88,13 @@ class RunRemote:
                 logging.info('try {}, memory {}'.format(bsub_try, self.memory_limit))
                 rc, self.out, self.err = self.run_bsub()
 
+        query = f'''INSERT into run_statistics 
+                        ('job_name', 'memory_limit', 'memory_used', 'exit_status', 'number_of_processors' )
+                        ({self.job_name}, {self.memory_limit}, {self.memory_used}, {self.bsub_exit_status}, {self.number_of_processors})
+                        '''
+
+        mysql.MySQLExecute.run(self.db_Name, self.db_User, self.db_Pw, self.db_Host, self.db_Port,
+                               query, commit=False, charset="utf8mb4")
         if rc != 0:
             logging.error('return code: {}'.format(rc))
             logging.error('out: {}'.format(self.out))
@@ -96,25 +102,6 @@ class RunRemote:
         else:
             logging.info('worked')
 
-        return rc
-
-    @task
-    def save_run_stats(self):
-        query = f'''INSERT into run_statistics 
-                ('job_name', 'memory_limit', 'memory_used', 'exit_status', 'number_of_processors' )
-                ({self.job_name}, {self.memory_limit}, {self.memory_used}, {self.bsub_exit_status}, {self.number_of_processors})
-                '''
-
-        mysql.MySQLExecute.run(self.db_Name,self.db_User, self.db_Pw,  self.db_Host, self.db_Port,
-                               query, commit=False, charset="utf8mb4")
-
-    def run(self):
-        with Flow('Remote Run') as flow:
-            rc = self.run_task()
-            self.save_run_stats()
-            return rc
-        flow.register("Remote Running", idempotency_key=flow.serialized_hash())
-        rc = flow.run()
         return rc
 
 
