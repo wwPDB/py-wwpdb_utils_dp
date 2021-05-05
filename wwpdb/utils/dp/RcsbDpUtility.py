@@ -3995,7 +3995,7 @@ class RcsbDpUtility(object):
                 rr = RunRemote(command=command, job_name=job_name, log_dir=os.path.dirname(lPathFull),
                                  timeout=self.__timeout, number_of_processors=self.__numThreads,
                                  memory_limit=self.__startingMemory)
-                result = rr()
+                result = rr(slug='rr')
             flow.register("Remote Running", idempotency_key=flow.serialized_hash())
             return flow.run()
 
