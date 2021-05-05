@@ -44,13 +44,13 @@ class RunRemote:
         self.err = None
 
         # For DB Connection
-        self.__db_Server = self.__cI.get("SITE_DB_SERVER")
-        self.__db_Host = self.__cI.get("SITE_DB_HOST_NAME")
-        self.__db_Name = self.__cI.get("SITE_DB_DATABASE_NAME")
-        self.__db_User = self.__cI.get("SITE_DB_USER_NAME")
-        self.__db_Pw = self.__cI.get("SITE_DB_PASSWORD")
-        self.__db_Socket = self.__cI.get("SITE_DB_SOCKET")
-        self.__db_Port = int(self.__cI.get("SITE_DB_PORT_NUMBER"))
+        self.db_Server = self.cI.get("SITE_DB_SERVER")
+        self.db_Host = self.cI.get("SITE_DB_HOST_NAME")
+        self.db_Name = self.cI.get("SITE_DB_DATABASE_NAME")
+        self.db_User = self.cI.get("SITE_DB_USER_NAME")
+        self.db_Pw = self.cI.get("SITE_DB_PASSWORD")
+        self.db_Socket = self.cI.get("SITE_DB_SOCKET")
+        self.db_Port = int(self.cI.get("SITE_DB_PORT_NUMBER"))
 
     def escape_substitution(self, command):
         """
@@ -105,7 +105,7 @@ class RunRemote:
                 ({self.job_name}, {self.memory_limit}, {self.memory_used}, {self.bsub_exit_status}, {self.number_of_processors})
                 '''
 
-        mysql.MySQLExecute.run(self.__db_Name,self.__db_User, self.__db_Pw,  self.__db_Host, self.__db_Port,
+        mysql.MySQLExecute.run(self.db_Name,self.db_User, self.db_Pw,  self.db_Host, self.db_Port,
                                query, commit=False, charset="utf8mb4")
 
     def run(self):
