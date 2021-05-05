@@ -3992,12 +3992,12 @@ class RcsbDpUtility(object):
             random_suffix = random.randrange(9999999)
             job_name = '{}_{}'.format(op, random_suffix)
             with Flow('Running Remote') as flow:
-                ret = RunRemote(command=command, job_name=job_name, log_dir=os.path.dirname(lPathFull),
+                rr = RunRemote(command=command, job_name=job_name, log_dir=os.path.dirname(lPathFull),
                                  timeout=self.__timeout, number_of_processors=self.__numThreads,
                                  memory_limit=self.__startingMemory)
-                flow.register("Remote Running", idempotency_key=flow.serialized_hash())
-                flow.run()
-                return ret
+                result = rr()
+            flow.register("Remote Running", idempotency_key=flow.serialized_hash())
+            return flow.run()
 
         if self.__timeout > 0:
             return self.__runTimeout(command, self.__timeout, lPathFull)
