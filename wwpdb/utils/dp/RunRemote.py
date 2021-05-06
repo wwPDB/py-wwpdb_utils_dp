@@ -5,6 +5,7 @@ import logging
 import subprocess
 import argparse
 from wwpdb.utils.config.ConfigInfo import ConfigInfo, getSiteId
+from prefect import task
 
 logger = logging.getLogger()
 
@@ -286,6 +287,17 @@ class RunRemote:
         self.parse_bsub_log()
 
         return rc, out, err
+
+@task
+def run_remote_task(command, job_name, log_dir, timeout, number_of_processors,memory_limit):
+    rr = RunRemote(command=command, job_name=job_name, log_dir=log_dir,
+              timeout=timeout, number_of_processors=number_of_processors,
+              memory_limit=memory_limit)
+    query = f'''INSERT into run_statistics 
+            ('job_name', 'memory_limit', 'memory_used', 'exit_status', 'number_of_processors' )
+            ({rr.job_name}, {rr.memory_limit}, {rr.memory_used}, {rr.bsub_exit_status}, {rr.number_of_processors})
+            '''
+    return rr.run(), query
 
 
 if __name__ == '__main__':
