@@ -155,7 +155,7 @@ from wwpdb.io.file.DataFile import DataFile
 from wwpdb.utils.config.ConfigInfo import ConfigInfo
 from wwpdb.utils.config.ConfigInfoApp import ConfigInfoAppEm, ConfigInfoAppCommon
 from wwpdb.utils.dp.PdbxStripCategory import PdbxStripCategory
-from wwpdb.utils.dp.RunRemote import RunRemote, run_remote_task
+from wwpdb.utils.dp.RunRemote import pre_remote_task, run_remote_task, get_rr_exit_code
 from prefect.tasks.mysql import mysql
 from prefect import Flow
 logger = logging.getLogger(__name__)
@@ -3992,7 +3992,7 @@ class RcsbDpUtility(object):
             random_suffix = random.randrange(9999999)
             job_name = '{}_{}'.format(op, random_suffix)
             with Flow('Run Remotely') as flow:
-                ret_code, query = run_remote_task(command=command, job_name=job_name, log_dir=os.path.dirname(lPathFull),
+                rr = pre_remote_task(command=command, job_name=job_name, log_dir=os.path.dirname(lPathFull),
                                 timeout=self.__timeout, number_of_processors=self.__numThreads,
                                 memory_limit=self.__startingMemory)
                 db_Host = self.__cI.get("SITE_DB_HOST_NAME")
@@ -4001,12 +4001,15 @@ class RcsbDpUtility(object):
                 db_Pw = self.__cI.get("SITE_DB_PASSWORD")
                 db_Port = int(self.__cI.get("SITE_DB_PORT_NUMBER"))
 
+                rr = run_remote_task(rr)
+                return_code = get_rr_exit_code(rr)
+
                 mysql.MySQLExecute.run(db_Name, db_User, db_Pw, db_Host, db_Port,
-                                       query, commit=False, charset="utf8mb4")
+                                       rr.SQLquery, commit=False, charset="utf8mb4")
 
             flow.register("Remote Running", idempotency_key=flow.serialized_hash())
             state = flow.run()
-            return state.result[ret_code]
+            return state.result[return_code]
 
         if self.__timeout > 0:
             return self.__runTimeout(command, self.__timeout, lPathFull)

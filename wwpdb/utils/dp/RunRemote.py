@@ -41,6 +41,10 @@ class RunRemote:
         self.add_site_config_database = add_site_config_database
         self.out = None
         self.err = None
+        self.SQLquery = None
+        self.start_time = None
+        self.end_time = None
+        self.run_duration = None
 
     def escape_substitution(self, command):
         """
@@ -289,15 +293,29 @@ class RunRemote:
         return rc, out, err
 
 @task
-def run_remote_task(command, job_name, log_dir, timeout, number_of_processors,memory_limit):
+def pre_remote_task(command, job_name, log_dir, timeout, number_of_processors,memory_limit):
     rr = RunRemote(command=command, job_name=job_name, log_dir=log_dir,
               timeout=timeout, number_of_processors=number_of_processors,
               memory_limit=memory_limit)
-    query = f'''INSERT into run_statistics 
+    rr.SQLquery = f'''INSERT into run_statistics 
             ('job_name', 'memory_limit', 'memory_used', 'exit_status', 'number_of_processors' )
             ({rr.job_name}, {rr.memory_limit}, {rr.memory_used}, {rr.bsub_exit_status}, {rr.number_of_processors})
             '''
-    return rr.run(), query
+    rr.start_time = time.time()
+    return rr
+
+def run_remote_task(rr):
+    rr.bsub_exit_status = rr.run()
+    rr.end_time = time.time()
+    rr.run_duration = rr.end_time - rr.start_time
+    rr.SQLquery = f'''INSERT into run_statistics 
+            ('job_name', 'memory_limit', 'memory_used', 'exit_status', 'number_of_processors', 'duration' )
+            ({rr.job_name}, {rr.memory_limit}, {rr.memory_used}, {rr.bsub_exit_status}, {rr.number_of_processors}, {rr.run_duration})
+            '''
+    return rr
+
+def get_rr_exit_code(rr):
+    return rr.bsub_exit_status
 
 
 if __name__ == '__main__':
