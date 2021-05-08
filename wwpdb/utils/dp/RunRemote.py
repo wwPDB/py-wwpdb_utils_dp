@@ -184,7 +184,10 @@ class RunRemote:
             os.remove(self.bsub_out_file)
 
         bsub_command = list()
-        bsub_command.append("ssh {} '{};".format(self.bsub_login_node, self.bsub_source_command))
+        if self.bsub_login_node:
+            bsub_command.append("ssh {} '".format(self.bsub_login_node))
+        if self.bsub_source_command:
+            bsub_command.append('{};'.format(self.bsub_source_command))
         bsub_command.append(self.bsub_run_command)
         bsub_command.append('-J {}'.format(self.job_name))
         bsub_command.append('-oo {}'.format(self.bsub_log_file))
@@ -204,7 +207,8 @@ class RunRemote:
             bsub_command.append('-R "rusage[mem={0}]" -M {0}'.format(self.memory_limit))
         bsub_command.append('-K "{}"'.format(self.command))
         # bsub_command.append('"{}"'.format(self.command))
-        bsub_command.append("'")
+        if self.bsub_login_node:
+            bsub_command.append("'")
 
         command_string = ' '.join(bsub_command)
         rc, out, err = self.run_command(command=command_string)
