@@ -3304,8 +3304,8 @@ class RcsbDpUtility(object):
         self.__pathPdbxV4DictSdb = os.path.join(self.__pdbxDictPath, self.__pdbxV4DictName + '.sdb')
         self.__pathPdbxDictOdb = os.path.join(self.__pdbxDictPath, self.__pdbxDictName + '.odb')
         #
-        self.__oeDirPath = self.__getConfigPath('SITE_CC_OE_DIR')
-        self.__oeLicensePath = self.__getConfigPath('SITE_CC_OE_LICENSE')
+        self.__oeDirPath = self.__cICommon.get_site_cc_oe_dir()
+        self.__oeLicensePath = self.__cICommon.get_site_cc_oe_licence()
         self.__babelLibPath = self.__getConfigPath('SITE_CC_BABEL_LIB')
         self.__babelDirPath = self.__getConfigPath('SITE_CC_BABEL_DIR')
         self.__babelDataDirPath = self.__getConfigPath('SITE_CC_BABEL_DATADIR')
