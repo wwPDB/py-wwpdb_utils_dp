@@ -662,14 +662,15 @@ class RcsbDpUtility(object):
         self.__packagePath = self.__getConfigPath('SITE_PACKAGES_PATH')
         self.__deployPath = self.__getConfigPath('SITE_DEPLOY_PATH')
         self.__siteLoc = self.__cI.get('WWPDB_SITE_LOC')
-        self.__ccDictPath = self.__getConfigPath('SITE_CC_DICT_PATH')
-        self.__ccCvsPath = self.__getConfigPath('SITE_CC_CVS_PATH')
-        self.__prdccCvsPath = self.__getConfigPath('SITE_PRDCC_CVS_PATH')
-        self.__prdDictPath = os.path.join(self.__getConfigPath('SITE_DEPLOY_PATH'), 'reference', 'components', 'prd-dict')
+        self.__ccDictPath = self.__cICommon.get_site_cc_dict_path()
+        self.__ccCvsPath = self.__cICommon.get_site_cc_cvs_path()
+        self.__prdccCvsPath = self.__cICommon.get_site_prdcc_cvs_path()
+        self.__prdDictPath = self.__cICommon.get_site_prd_dict_path()
+        self.__prdSummarySerial = self.__cICommon.get_prd_summary_sdb()
         self.__siteWebAppsSessionsPath = self.__cI.get('SITE_WEB_APPS_SESSIONS_PATH')
         self.__validScrPath = self.__cI.get('VALID_SCR_PATH')
         self.__siteConfigDir = self.__getConfigPath('TOP_WWPDB_SITE_CONFIG_DIR')
-        self.__ccDictPathIdx = os.path.join(self.__ccDictPath, "Components-all-v3-r4.idx")
+        self.__ccDictPathIdx = self.__cICommon.get_cc_dict_idx()
         self.__site_config_command = ". %s/init/env.sh -s %s -l %s" % (self.__siteConfigDir,
                                                                      self.__siteId,
                                                                      self.__siteLoc)
@@ -2206,7 +2207,7 @@ class RcsbDpUtility(object):
             cmd += " ; PRD_DICT_PATH=" + self.__prdDictPath + " ; export PRD_DICT_PATH "
             cmdPath = os.path.join(self.__annotAppsPath, "bin", "GetPrdMatch")
             cmd += " ; " + cmdPath + " -input " + iPath + " -output " + oPath \
-                + " -path . -index " + self.__prdDictPath + "/prd_summary.sdb -cc_index " + self.__ccDictPathIdx
+                + " -path . -index " + self.__prdSummarySerial + " -cc_index " + self.__ccDictPathIdx
             if 'logfile' in self.__inputParamDict:
                 cmd += " -log " + self.__inputParamDict['logfile']
             if 'firstmodel' in self.__inputParamDict:
@@ -2684,10 +2685,10 @@ class RcsbDpUtility(object):
         self.__localAppsPath = self.__getConfigPath('SITE_LOCAL_APPS_PATH')
         self.__packagePath = self.__getConfigPath('SITE_PACKAGES_PATH')
         self.__deployPath = self.__getConfigPath('SITE_DEPLOY_PATH')
-        self.__ccDictPath = self.__getConfigPath('SITE_CC_DICT_PATH')
-        self.__ccCvsPath = self.__getConfigPath('SITE_CC_CVS_PATH')
-        self.__prdccCvsPath = self.__getConfigPath('SITE_PRDCC_CVS_PATH')
-        self.__prdDictPath = os.path.join(self.__getConfigPath('SITE_DEPLOY_PATH'), 'reference', 'components', 'prd-dict')
+        self.__ccDictPath = self.__cICommon.get_site_cc_dict_path()
+        self.__ccCvsPath = self.__cICommon.get_site_cc_cvs_path()
+        self.__prdccCvsPath = self.__cICommon.get_site_prdcc_cvs_path()
+        self.__prdDictPath = self.__cICommon.get_site_prd_dict_path()
 
         self.__rcsbAppsPath = os.path.join(self.__packagePath, 'annotation')
         #
@@ -2721,7 +2722,7 @@ class RcsbDpUtility(object):
         # Standard setup for maxit ---
         #
         cmd += " ; RCSBROOT=" + self.__rcsbAppsPath + " ; export RCSBROOT  "
-        cmd += " ; PDB2GLYCAN=" + os.path.join(os.path.abspath(self.__cI.get("SITE_PACKAGES_PATH")), "pdb2glycan", "bin", "PDB2Glycan") \
+        cmd += " ; PDB2GLYCAN=" + os.path.join(os.path.abspath(self.__packagePath), "pdb2glycan", "bin", "PDB2Glycan") \
              + " ; export PDB2GLYCAN "
         cmd += " ; COMP_PATH=" + self.__ccCvsPath + " ; export COMP_PATH  "
         valCmd = os.path.join(self.__rcsbAppsPath, "bin", "validation_with_cif_output")
@@ -3149,7 +3150,7 @@ class RcsbDpUtility(object):
         if self.__rcsbAppsPath is None:
             # self.__rcsbAppsPath  =  self.__getConfigPath('SITE_RCSB_APPS_PATH')
             self.__rcsbAppsPath = self.__getConfigPath('SITE_ANNOT_TOOLS_PATH')
-        self.__ccCvsPath = self.__getConfigPath('SITE_CC_CVS_PATH')
+        self.__ccCvsPath = self.__cICommon.get_site_cc_cvs_path()
         #
         iPath = self.__getSourceWrkFile(self.__stepNo)
         # iPathList = self.__getSourceWrkFileList(self.__stepNo)
@@ -3289,13 +3290,13 @@ class RcsbDpUtility(object):
         self.__pdbxDictName = self.__cICommon.get_mmcif_archive_next_dict_filename()
         self.__pdbxV4DictName = self.__cI.get('SITE_PDBX_V4_DICT_NAME', 'missing')
 
-        self.__ccDictPath = self.__getConfigPath('SITE_CC_DICT_PATH')
-        self.__ccCvsPath = self.__getConfigPath('SITE_CC_CVS_PATH')
+        self.__ccDictPath = self.__cICommon.get_site_cc_dict_path()
+        self.__ccCvsPath = self.__cICommon.get_site_cc_cvs_path()
 
-        self.__patternPath = os.path.join(self.__ccDictPath, "fp_patterns.txt")
-        self.__ccDictPathCif = os.path.join(self.__ccDictPath, "Components-all-v3.cif")
-        self.__ccDictPathSdb = os.path.join(self.__ccDictPath, "Components-all-v3.sdb")
-        self.__ccDictPathIdx = os.path.join(self.__ccDictPath, "Components-all-v3-r4.idx")
+        self.__patternPath = self.__cICommon.get_cc_fp_patterns()
+        self.__ccDictPathCif = self.__cICommon.get_cc_dict()
+        self.__ccDictPathSdb = self.__cICommon.get_cc_dict_serial()
+        self.__ccDictPathIdx = self.__cICommon.get_cc_dict_idx()
         #
         self.__pathDdlSdb = os.path.join(self.__pdbxDictPath, "mmcif_ddl.sdb")
         self.__pathDdl = os.path.join(self.__pdbxDictPath, "mmcif_ddl.dic")
@@ -3786,7 +3787,7 @@ class RcsbDpUtility(object):
         """
         #
         packagePath = self.__getConfigPath('SITE_PACKAGES_PATH')
-        seqDbPath = self.__getConfigPath('SITE_REFDATA_SEQUENCE_DB_PATH')
+        seqDbPath = self.__cICommon.get_site_refdata_sequence_db_path()
         altDbPaths = self.__cI.get('SITE_REFDATA_ALT_SEQUENCE_DB_PATHS')
         
         altPathList = []
