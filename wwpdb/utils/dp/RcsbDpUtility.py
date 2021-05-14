@@ -3724,7 +3724,7 @@ class RcsbDpUtility(object):
             # MergePisaData -input input_ciffile -output output_ciffile -xml xmlfile_from_PISA_output
             #                -log logfile -spacegroup spacegroup_file -list idlist
             #
-            spgFilePath = self.__getConfigPath('SITE_SPACE_GROUP_FILE_PATH')
+            spgFilePath = self.__cICommon.get_site_space_group_file_path()
             # assemblyTupleList = self.__inputParamDict['pisa_assembly_tuple_list']
             #assemblyFile = self.__inputParamDict['pisa_assembly_file_path']
             #assignmentFile = self.__inputParamDict['pisa_assembly_assignment_file_path']
