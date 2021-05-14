@@ -3306,14 +3306,14 @@ class RcsbDpUtility(object):
         #
         self.__oeDirPath = self.__cICommon.get_site_cc_oe_dir()
         self.__oeLicensePath = self.__cICommon.get_site_cc_oe_licence()
-        self.__babelLibPath = self.__getConfigPath('SITE_CC_BABEL_LIB')
-        self.__babelDirPath = self.__getConfigPath('SITE_CC_BABEL_DIR')
-        self.__babelDataDirPath = self.__getConfigPath('SITE_CC_BABEL_DATADIR')
-        self.__cactvsDirPath = self.__getConfigPath('SITE_CC_CACTVS_DIR')
+        self.__babelLibPath = self.__cICommon.get_site_cc_babel_lib()
+        self.__babelDirPath = self.__cICommon.get_site_cc_babel_dir()
+        self.__babelDataDirPath = self.__cICommon.get_site_cc_babel_datadir()
+        self.__cactvsDirPath = self.__cICommon.get_site_cc_cactvs_dir()
         #
-        self.__acdDirPath = self.__getConfigPath('SITE_CC_ACD_DIR')
-        self.__corinaDirPath = os.path.join(self.__getConfigPath('SITE_CC_CORINA_DIR'), 'bin')
-        self.__inchiDirPath = self.__getConfigPath('SITE_CC_INCHI_DIR')
+        self.__acdDirPath = self.__cICommon.get_site_cc_acd_dir()
+        self.__corinaDirPath = os.path.join(self.__cICommon.get_site_cc_corina_dir(), 'bin')
+        self.__inchiDirPath = self.__cICommon.get_site_cc_inchi_dir()
 
         # -------------
         #
