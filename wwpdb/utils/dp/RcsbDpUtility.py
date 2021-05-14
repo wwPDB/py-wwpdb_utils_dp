@@ -3652,9 +3652,9 @@ class RcsbDpUtility(object):
 
         """
         #
-        pisaTopPath = self.__getConfigPath('SITE_PISA_TOP_PATH')
-        pisaConfPath = self.__getConfigPath('SITE_PISA_CONF_PATH')
-        annotToolsPath = self.__getConfigPath('SITE_ANNOT_TOOLS_PATH')
+        pisaTopPath = self.__cICommon.get_site_pisa_top_path()
+        pisaConfPath = self.__cICommon.get_site_pisa_conf_path()
+        annotToolsPath = self.__cICommon.get_site_annot_tools_path()
 
         #
         iPath = self.__getSourceWrkFile(self.__stepNo)
