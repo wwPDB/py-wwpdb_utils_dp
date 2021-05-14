@@ -657,9 +657,9 @@ class RcsbDpUtility(object):
         #
         # Set application specific path details here -
         #
-        self.__annotAppsPath = self.__getConfigPath('SITE_ANNOT_TOOLS_PATH')
-        self.__localAppsPath = self.__getConfigPath('SITE_LOCAL_APPS_PATH')
-        self.__packagePath = self.__getConfigPath('SITE_PACKAGES_PATH')
+        self.__annotAppsPath = self.__cICommon.get_site_annot_tools_path()
+        self.__localAppsPath = self.__cICommon.get_site_local_apps_path()
+        self.__packagePath = self.__cICommon.get_site_packages_path()
         self.__deployPath = self.__getConfigPath('SITE_DEPLOY_PATH')
         self.__siteLoc = self.__cI.get('WWPDB_SITE_LOC')
         self.__ccDictPath = self.__cICommon.get_site_cc_dict_path()
@@ -678,7 +678,7 @@ class RcsbDpUtility(object):
         # if self.__rcsbAppsPath is None:
         #            self.__rcsbAppsPath  =  self.__getConfigPath('SITE_RCSB_APPS_PATH')
         # JDW 2013-02-26
-        self.__rcsbAppsPath = self.__getConfigPath('SITE_ANNOT_TOOLS_PATH')
+        self.__rcsbAppsPath = self.__cICommon.get_site_annot_tools_path()
         #
         #
         iPath = self.__getSourceWrkFile(self.__stepNo)
@@ -2682,15 +2682,15 @@ class RcsbDpUtility(object):
         #
         # Set application specific path details here -
         #
-        self.__localAppsPath = self.__getConfigPath('SITE_LOCAL_APPS_PATH')
-        self.__packagePath = self.__getConfigPath('SITE_PACKAGES_PATH')
+        self.__localAppsPath = self.__cICommon.get_site_local_apps_path()
+        self.__packagePath = self.__cICommon.get_site_packages_path()
         self.__deployPath = self.__getConfigPath('SITE_DEPLOY_PATH')
         self.__ccDictPath = self.__cICommon.get_site_cc_dict_path()
         self.__ccCvsPath = self.__cICommon.get_site_cc_cvs_path()
         self.__prdccCvsPath = self.__cICommon.get_site_prdcc_cvs_path()
         self.__prdDictPath = self.__cICommon.get_site_prd_dict_path()
 
-        self.__rcsbAppsPath = os.path.join(self.__packagePath, 'annotation')
+        self.__rcsbAppsPath = self.__cICommon.get_site_annot_tools_path()
         #
         #
         iPath = self.__getSourceWrkFile(self.__stepNo)
@@ -2772,7 +2772,7 @@ class RcsbDpUtility(object):
         #
         # Set application specific path details here -
         #
-        self.__packagePath = self.__getConfigPath('SITE_PACKAGES_PATH')
+        self.__packagePath = self.__cICommon.get_site_packages_path()
 
         #
         #
@@ -2862,9 +2862,9 @@ class RcsbDpUtility(object):
         #
         # Set application specific path details here -
         #
-        self.__packagePath = self.__getConfigPath('SITE_PACKAGES_PATH')
+        self.__packagePath = self.__cICommon.get_site_packages_path()
         self.__deployPath = self.__getConfigPath('SITE_DEPLOY_PATH')
-        self.__localAppsPath = self.__getConfigPath('SITE_LOCAL_APPS_PATH')
+        self.__localAppsPath = self.__cICommon.get_site_local_apps_path()
 
         if self.__siteId in ['WWPDB_DEPLOY_MACOSX']:
             self.__javaPath = '/usr/bin/java'
@@ -3277,15 +3277,15 @@ class RcsbDpUtility(object):
         if self.__rcsbAppsPath is None:
             # self.__rcsbAppsPath  =  self.__getConfigPath('SITE_RCSB_APPS_PATH')
             # 01-05-2013 -  Now point to the new annotation module
-            self.__rcsbAppsPath = self.__getConfigPath('SITE_ANNOT_TOOLS_PATH')
+            self.__rcsbAppsPath = self.__cICommon.get_site_annot_tools_path()
 
         if self.__localAppsPath is None:
-            self.__localAppsPath = self.__getConfigPath('SITE_LOCAL_APPS_PATH')
+            self.__localAppsPath = self.__cICommon.get_site_local_apps_path()
 
-        self.__packagePath = self.__getConfigPath('SITE_PACKAGES_PATH')
+        self.__packagePath = self.__cICommon.get_site_packages_path()
 
         #
-        self.__ccAppsPath = self.__getConfigPath('SITE_CC_APPS_PATH')
+        self.__ccAppsPath = self.__cICommon.get_site_cc_apps_path()
         self.__pdbxDictPath = self.__cICommon.get_mmcif_dict_path()
         self.__pdbxDictName = self.__cICommon.get_mmcif_archive_next_dict_filename()
         self.__pdbxV4DictName = self.__cI.get('SITE_PDBX_V4_DICT_NAME', 'missing')
@@ -3786,7 +3786,7 @@ class RcsbDpUtility(object):
 
         """
         #
-        packagePath = self.__getConfigPath('SITE_PACKAGES_PATH')
+        packagePath = self.__cICommon.get_site_packages_path()
         seqDbPath = self.__cICommon.get_site_refdata_sequence_db_path()
         altDbPaths = self.__cI.get('SITE_REFDATA_ALT_SEQUENCE_DB_PATHS')
         
