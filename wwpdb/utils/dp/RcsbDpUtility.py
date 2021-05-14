@@ -675,8 +675,6 @@ class RcsbDpUtility(object):
                                                                      self.__siteId,
                                                                      self.__siteLoc)
 
-        # if self.__rcsbAppsPath is None:
-        #            self.__rcsbAppsPath  =  self.__getConfigPath('SITE_RCSB_APPS_PATH')
         # JDW 2013-02-26
         self.__rcsbAppsPath = self.__cICommon.get_site_annot_tools_path()
         #
@@ -3148,8 +3146,7 @@ class RcsbDpUtility(object):
         #
         # If this has not been initialized take if from the configuration class.
         if self.__rcsbAppsPath is None:
-            # self.__rcsbAppsPath  =  self.__getConfigPath('SITE_RCSB_APPS_PATH')
-            self.__rcsbAppsPath = self.__getConfigPath('SITE_ANNOT_TOOLS_PATH')
+            self.__rcsbAppsPath = self.__cICommon.get_site_annot_tools_path()
         self.__ccCvsPath = self.__cICommon.get_site_cc_cvs_path()
         #
         iPath = self.__getSourceWrkFile(self.__stepNo)
@@ -3275,7 +3272,6 @@ class RcsbDpUtility(object):
         # Set application specific path details here -
         #
         if self.__rcsbAppsPath is None:
-            # self.__rcsbAppsPath  =  self.__getConfigPath('SITE_RCSB_APPS_PATH')
             # 01-05-2013 -  Now point to the new annotation module
             self.__rcsbAppsPath = self.__cICommon.get_site_annot_tools_path()
 
