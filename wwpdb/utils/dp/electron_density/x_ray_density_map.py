@@ -236,8 +236,8 @@ def main():  # pragma: no cover
         type=str,
         required=True,
     )
-    parser.add_argument("--node", help="node program path", type=str, required=True)
-    parser.add_argument("--coord_file", help="mmCIF coordinate file", type=str, required=True)
+    parser.add_argument("--node_path", help="node program path", type=str, required=True)
+    parser.add_argument("--coordinate_file", help="mmCIF coordinate file", type=str, required=True)
     parser.add_argument("--volume_server_pack_path", help="volume-server-pack path", type=str, required=True)
     parser.add_argument("--volume_server_query_path", help="volume-server-query path", type=str, required=True)
     parser.add_argument(
@@ -258,12 +258,12 @@ def main():  # pragma: no cover
     logger.setLevel(args.loglevel)
 
     ok = run_process_with_gemmi(
-        node_path=args.node,
+        node_path=args.node_path,
         volume_server_pack_path=args.volume_server_pack_path,
         volume_server_query_path=args.volume_server_query_path,
         two_fofc_mmcif_map_coeff_in=args.two_fofc_mmcif_map_coeff_in,
         fofc_mmcif_map_coeff_in=args.fofc_mmcif_map_coeff_in,
-        coord_file=args.coord_file,
+        coord_file=args.coordinate_file,
         binary_map_out=args.binary_map_out
     )
 
