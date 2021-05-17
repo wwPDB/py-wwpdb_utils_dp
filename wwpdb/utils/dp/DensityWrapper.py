@@ -5,21 +5,21 @@ import argparse
 import tempfile
 import shutil
 
-from wwpdb.utils.config.ConfigInfo import ConfigInfo, getSiteId
-
-# from wwpdb.utils.dp.electron_density.em_density_map import EmVolumes
+from wwpdb.utils.config.ConfigInfo import getSiteId
+from wwpdb.utils.config.ConfigInfoApp import ConfigInfoAppCommon
 from wwpdb.utils.dp.electron_density.x_ray_density_map import XrayVolumeServerMap
 from wwpdb.utils.dp.RcsbDpUtility import RcsbDpUtility
+# from wwpdb.utils.dp.electron_density.em_density_map import EmVolumes
+
 
 class DensityWrapper:
 
     def __init__(self):
         self.__site_id = getSiteId()
-        self.__cI = ConfigInfo(siteId=self.__site_id)
-        self.__packagePath = self.__cI.get('SITE_PACKAGES_PATH')
-        self.node_path = os.path.join(self.__packagePath, 'node', 'bin', 'node')
-        self.volume_server_pack = self.__cI.get('VOLUME_SERVER_PACK')
-        self.volume_server_query = self.__cI.get('VOLUME_SERVER_QUERY')
+        self.__cICommon = ConfigInfoAppCommon(self.__site_id)
+        self.node_path = self.__cICommon.get_node_bin_path()
+        self.volume_server_pack = self.__cICommon.get_volume_server_pack_path()
+        self.volume_server_query = self.__cICommon.get_volume_server_query_path()
 
     def convert_xray_density_map(self, coord_file, in_2fofc_map, in_fofc_map, out_binary_cif, working_dir):
         xray_conversion = XrayVolumeServerMap(coord_path=coord_file,
