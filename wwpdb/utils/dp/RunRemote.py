@@ -5,8 +5,10 @@ import logging
 import subprocess
 import argparse
 from wwpdb.utils.config.ConfigInfo import ConfigInfo, getSiteId
+import prefect
 from prefect import task
-
+from prefect.tasks.shell import ShellTask
+from prefect.tasks.mysql import mysql
 logger = logging.getLogger()
 
 
@@ -45,6 +47,7 @@ class RunRemote:
         self.start_time = None
         self.end_time = None
         self.run_duration = None
+        self.ret_code = 1
 
     def escape_substitution(self, command):
         """
@@ -54,7 +57,7 @@ class RunRemote:
         return command
 
     def run(self):
-        rc = 1
+        self.ret_code = 1
 
         if self.add_site_config_database:
             self.pre_pend_sourcing_site_config(database=True)
@@ -63,7 +66,7 @@ class RunRemote:
 
         if self.bsub_run_command:
             bsub_try = 1
-            rc, self.out, self.err = self.run_bsub()
+            self.ret_code, self.out, self.err = self.run_bsub()
             while self.bsub_exit_status != 0:
                 if self.memory_used:
                     try:
@@ -80,16 +83,16 @@ class RunRemote:
                     self.memory_limit = self.memory_limit + 10000
                 bsub_try += 1
                 logging.info('try {}, memory {}'.format(bsub_try, self.memory_limit))
-                rc, self.out, self.err = self.run_bsub()
+                self.ret_code, self.out, self.err = self.run_bsub()
 
-        if rc != 0:
-            logging.error('return code: {}'.format(rc))
+        if self.ret_code != 0:
+            logging.error('return code: {}'.format(self.ret_code))
             logging.error('out: {}'.format(self.out))
             logging.error('error: {}'.format(self.err))
         else:
             logging.info('worked')
 
-        return rc
+        return self.ret_code
 
     @staticmethod
     def check_timing(t1, t2):
@@ -293,29 +296,41 @@ class RunRemote:
         return rc, out, err
 
 @task
-def pre_remote_task(command, job_name, log_dir, timeout, number_of_processors,memory_limit):
+def run_remote_task(command, job_name, log_dir, timeout, number_of_processors,memory_limit):
+    logger = prefect.context.get("logger")
+    logger.info(f"Job: {job_name}")
+    logger.info(f"Command to execute: {command}")
     rr = RunRemote(command=command, job_name=job_name, log_dir=log_dir,
               timeout=timeout, number_of_processors=number_of_processors,
               memory_limit=memory_limit)
-    rr.SQLquery = f'''INSERT into run_statistics 
-            ('job_name', 'memory_limit', 'memory_used', 'exit_status', 'number_of_processors' )
-            ({rr.job_name}, {rr.memory_limit}, {rr.memory_used}, {rr.bsub_exit_status}, {rr.number_of_processors})
-            '''
+    logger.debug("RunRemote Object Created")
     rr.start_time = time.time()
-    return rr
-
-def run_remote_task(rr):
     rr.bsub_exit_status = rr.run()
+    logger.info(f"Remote Task Ended | Exit Code: {rr.bsub_exit_status}")
     rr.end_time = time.time()
     rr.run_duration = rr.end_time - rr.start_time
-    rr.SQLquery = f'''INSERT into run_statistics 
-            ('job_name', 'memory_limit', 'memory_used', 'exit_status', 'number_of_processors', 'duration' )
-            ({rr.job_name}, {rr.memory_limit}, {rr.memory_used}, {rr.bsub_exit_status}, {rr.number_of_processors}, {rr.run_duration})
-            '''
+    logger.info(f"Duration: {rr.run_duration} seconds")
+    logger.info(f"Memory Used: {rr.memory_used} MB")
+    logger.info(f"Number of Processors: {rr.number_of_processors}")
     return rr
 
-def get_rr_exit_code(rr):
-    return rr.bsub_exit_status
+
+@task
+def save_remote_run_detail(rr):
+    logger = prefect.context.get("logger")
+    db_Host = rr.cI.get("SITE_DB_HOST_NAME")
+    db_Name = rr.cI.get("SITE_DB_DATABASE_NAME")
+    db_User = rr.cI.get("SITE_DB_USER_NAME")
+    db_Pw = rr.cI.get("SITE_DB_PASSWORD")
+    db_Port = int(rr.cI.get("SITE_DB_PORT_NUMBER"))
+    rr.SQLquery = f'''INSERT into run_statistics 
+            (job_name, memory_limit, memory_used, exit_status, number_of_processor, duration) 
+            VALUES ('{rr.job_name}', '{rr.memory_limit}', '{rr.memory_used}', 
+            '{rr.ret_code}', '{rr.number_of_processors}', '{rr.run_duration}')
+            '''
+    db_task = mysql.MySQLExecute(db_Name, db_User, db_Pw, db_Host, port=db_Port, commit=True)
+    db_task.run(query=rr.SQLquery)
+    return rr.ret_code
 
 
 if __name__ == '__main__':

@@ -155,9 +155,13 @@ from wwpdb.io.file.DataFile import DataFile
 from wwpdb.utils.config.ConfigInfo import ConfigInfo
 from wwpdb.utils.config.ConfigInfoApp import ConfigInfoAppEm, ConfigInfoAppCommon
 from wwpdb.utils.dp.PdbxStripCategory import PdbxStripCategory
-from wwpdb.utils.dp.RunRemote import pre_remote_task, run_remote_task, get_rr_exit_code
-from prefect.tasks.mysql import mysql
-from prefect import Flow
+from wwpdb.utils.dp.RunRemote import  run_remote_task, save_remote_run_detail
+import prefect
+from prefect.agent.local import LocalAgent
+from prefect.run_configs import LocalRun
+from prefect import Flow,Parameter
+from prefect.executors import LocalExecutor
+
 logger = logging.getLogger(__name__)
 
 
@@ -3986,30 +3990,59 @@ class RcsbDpUtility(object):
         logger.info("+RcsbDpUtility.__runTimeout() completed with return code %r\n" % process.stdout.read())
         return 0
 
+    def _register_flow(self):
+        job_name = Parameter('jobname', default = "list file")
+        command =  Parameter('command', default = "ls")
+        lPathFull =  Parameter('lPathFull', default = "/tmp")
+        timeout = Parameter('timeout', default = 5600)
+        numThreads = Parameter('number_of_processors', default= 1)
+        startingMemory = Parameter('memory_limit', 0)
+
+        with Flow('Run Remotely', executor=LocalExecutor()) as flow:
+            rr = run_remote_task(command=command, job_name=job_name, log_dir=lPathFull,
+                                 timeout=timeout, number_of_processors=numThreads,
+                                 memory_limit=startingMemory)
+            state = save_remote_run_detail(rr)
+
+        return flow.register("Remote Running")
+
+    def _flow_run(self, jobname, command, lPathFull, flow_id):
+        self.__lfh.write(f'Flow ID to run is: {flow_id}')
+        client = prefect.Client()
+        params= {
+            'jobname' : jobname,
+            'command' : command,
+            'lPathFull' : lPathFull,
+            'timeout' : self.__timeout,
+            'number_of_processors' : self.__numThreads,
+            'memory_limit' : self.__startingMemory
+        }
+        flow_run_id = client.create_flow_run(flow_id=flow_id, parameters=params, run_name=jobname)
+        state = client.get_flow_run_state(flow_run_id )
+        self.__lfh.write(f'Flow set to run .... now waiting')
+        time.sleep(20)
+        # while not state.is_finished():
+        #     self.__lfh.write('Flow not finished! Sleeping')
+        #     time.sleep(1)
+        #
+        # if state.is_successful():
+        #     self.__lfh.write('Sleep over')
+        #     logger.info(f"Operation {jobname} succeeded")
+        #     return 1
+        # else:
+        #     logger.info(f"Operation {jobname} failed")
+        #     return 1
+
+        return 0
+
     def __run(self, command, lPathFull, op):
 
         if self.__run_remote:
             random_suffix = random.randrange(9999999)
             job_name = '{}_{}'.format(op, random_suffix)
-            with Flow('Run Remotely') as flow:
-                rr = pre_remote_task(command=command, job_name=job_name, log_dir=os.path.dirname(lPathFull),
-                                timeout=self.__timeout, number_of_processors=self.__numThreads,
-                                memory_limit=self.__startingMemory)
-                db_Host = self.__cI.get("SITE_DB_HOST_NAME")
-                db_Name = self.__cI.get("SITE_DB_DATABASE_NAME")
-                db_User = self.__cI.get("SITE_DB_USER_NAME")
-                db_Pw = self.__cI.get("SITE_DB_PASSWORD")
-                db_Port = int(self.__cI.get("SITE_DB_PORT_NUMBER"))
-
-                rr = run_remote_task(rr)
-                return_code = get_rr_exit_code(rr)
-
-                mysql.MySQLExecute.run(db_Name, db_User, db_Pw, db_Host, db_Port,
-                                       rr.SQLquery, commit=False, charset="utf8mb4")
-
-            flow.register("Remote Running", idempotency_key=flow.serialized_hash())
-            state = flow.run()
-            return state.result[return_code]
+            lPathFull = os.path.dirname(lPathFull)
+            flow_id = self._register_flow()
+            return self._flow_run(job_name, command, lPathFull, flow_id)
 
         if self.__timeout > 0:
             return self.__runTimeout(command, self.__timeout, lPathFull)
