@@ -7,7 +7,6 @@ import argparse
 from wwpdb.utils.config.ConfigInfo import ConfigInfo, getSiteId
 import prefect
 from prefect import task
-from prefect.tasks.shell import ShellTask
 from prefect.tasks.mysql import mysql
 logger = logging.getLogger()
 
@@ -43,9 +42,6 @@ class RunRemote:
         self.add_site_config_database = add_site_config_database
         self.out = None
         self.err = None
-        self.SQLquery = None
-        self.start_time = None
-        self.end_time = None
         self.run_duration = None
         self.ret_code = 1
 
@@ -304,11 +300,11 @@ def run_remote_task(command, job_name, log_dir, timeout, number_of_processors,me
               timeout=timeout, number_of_processors=number_of_processors,
               memory_limit=memory_limit)
     logger.debug("RunRemote Object Created")
-    rr.start_time = time.time()
-    rr.bsub_exit_status = rr.run()
-    logger.info(f"Remote Task Ended | Exit Code: {rr.bsub_exit_status}")
-    rr.end_time = time.time()
-    rr.run_duration = rr.end_time - rr.start_time
+    start_time = time.time()
+    rr.ret_code = rr.run()
+    logger.info(f"Remote Task Ended | Exit Code: {rr.ret_code}")
+    end_time = time.time()
+    rr.run_duration = end_time - start_time
     logger.info(f"Duration: {rr.run_duration} seconds")
     logger.info(f"Memory Used: {rr.memory_used} MB")
     logger.info(f"Number of Processors: {rr.number_of_processors}")
@@ -317,19 +313,18 @@ def run_remote_task(command, job_name, log_dir, timeout, number_of_processors,me
 
 @task
 def save_remote_run_detail(rr):
-    logger = prefect.context.get("logger")
     db_Host = rr.cI.get("SITE_DB_HOST_NAME")
     db_Name = rr.cI.get("SITE_DB_DATABASE_NAME")
     db_User = rr.cI.get("SITE_DB_USER_NAME")
     db_Pw = rr.cI.get("SITE_DB_PASSWORD")
     db_Port = int(rr.cI.get("SITE_DB_PORT_NUMBER"))
-    rr.SQLquery = f'''INSERT into run_statistics 
+    insertion_query= f'''INSERT into run_statistics 
             (job_name, memory_limit, memory_used, exit_status, number_of_processor, duration) 
             VALUES ('{rr.job_name}', '{rr.memory_limit}', '{rr.memory_used}', 
             '{rr.ret_code}', '{rr.number_of_processors}', '{rr.run_duration}')
             '''
     db_task = mysql.MySQLExecute(db_Name, db_User, db_Pw, db_Host, port=db_Port, commit=True)
-    db_task.run(query=rr.SQLquery)
+    db_task.run(query=insertion_query)
     return rr.ret_code
 
 

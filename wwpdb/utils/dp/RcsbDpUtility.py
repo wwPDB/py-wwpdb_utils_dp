@@ -157,8 +157,6 @@ from wwpdb.utils.config.ConfigInfoApp import ConfigInfoAppEm, ConfigInfoAppCommo
 from wwpdb.utils.dp.PdbxStripCategory import PdbxStripCategory
 from wwpdb.utils.dp.RunRemote import  run_remote_task, save_remote_run_detail
 import prefect
-from prefect.agent.local import LocalAgent
-from prefect.run_configs import LocalRun
 from prefect import Flow,Parameter
 from prefect.executors import LocalExecutor
 
@@ -3991,7 +3989,7 @@ class RcsbDpUtility(object):
         return 0
 
     def _register_flow(self):
-        job_name = Parameter('jobname', default = "list file")
+        job_name = Parameter('job_name', default = "Default Job")
         command =  Parameter('command', default = "ls")
         lPathFull =  Parameter('lPathFull', default = "/tmp")
         timeout = Parameter('timeout', default = 5600)
@@ -4004,36 +4002,34 @@ class RcsbDpUtility(object):
                                  memory_limit=startingMemory)
             state = save_remote_run_detail(rr)
 
-        return flow.register("Remote Running")
+        return flow.register("Remote Running", idempotency_key=flow.serialized_hash())
 
-    def _flow_run(self, jobname, command, lPathFull, flow_id):
+    def _flow_run(self, job_name, command, lPathFull, flow_id):
         self.__lfh.write(f'Flow ID to run is: {flow_id}')
         client = prefect.Client()
         params= {
-            'jobname' : jobname,
+            'job_name' : job_name,
             'command' : command,
             'lPathFull' : lPathFull,
             'timeout' : self.__timeout,
             'number_of_processors' : self.__numThreads,
             'memory_limit' : self.__startingMemory
         }
-        flow_run_id = client.create_flow_run(flow_id=flow_id, parameters=params, run_name=jobname)
+        flow_run_id = client.create_flow_run(flow_id=flow_id, parameters=params, run_name=job_name)
         state = client.get_flow_run_state(flow_run_id )
         self.__lfh.write(f'Flow set to run .... now waiting')
-        time.sleep(20)
-        # while not state.is_finished():
-        #     self.__lfh.write('Flow not finished! Sleeping')
-        #     time.sleep(1)
-        #
-        # if state.is_successful():
-        #     self.__lfh.write('Sleep over')
-        #     logger.info(f"Operation {jobname} succeeded")
-        #     return 1
-        # else:
-        #     logger.info(f"Operation {jobname} failed")
-        #     return 1
 
-        return 0
+        while not state.is_finished():
+            state = client.get_flow_run_state(flow_run_id )
+            time.sleep(1)
+
+        if state.is_successful():
+            self.__lfh.write('Sleep over')
+            self.__lfh.write(f"Operation {job_name} succeeded")
+            return 0
+        else:
+            self.__lfh.write(f"Operation {job_name} failed")
+            return 1
 
     def __run(self, command, lPathFull, op):
 
