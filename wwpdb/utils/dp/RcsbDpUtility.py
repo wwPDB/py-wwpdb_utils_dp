@@ -196,7 +196,8 @@ class RcsbDpUtility(object):
                           "chem-comp-link", "chem-comp-assign", "chem-comp-assign-comp", "chem-comp-assign-skip",
                           "chem-comp-assign-exact", "chem-comp-assign-validation", "check-cif", "check-cif-v4", "check-cif-ext",
                           "cif2pdbx-public", "cif2pdbx-ext",
-                          "chem-comp-dict-makeindex", "chem-comp-dict-serialize", "chem-comp-annotate-comp", "chem-comp-do-report"]
+                          "chem-comp-dict-makeindex", "chem-comp-dict-serialize", "chem-comp-annotate-comp",
+                          "chem-comp-do-report", "chem-comp-align-img-gen", "chem-comp-align-images", "chem-comp-gen-images"]
         self.__pisaOps = ["pisa-analysis", "pisa-assembly-report-xml", "pisa-assembly-report-text",
                           "pisa-interface-report-xml", "pisa-assembly-coordinates-pdb", "pisa-assembly-coordinates-cif",
                           "pisa-assembly-coordinates-cif", "pisa-assembly-merge-cif"]
@@ -3313,6 +3314,9 @@ class RcsbDpUtility(object):
         self.__acdDirPath = self.__getConfigPath('SITE_CC_ACD_DIR')
         self.__corinaDirPath = os.path.join(self.__getConfigPath('SITE_CC_CORINA_DIR'), 'bin')
         self.__inchiDirPath = self.__getConfigPath('SITE_CC_INCHI_DIR')
+        #
+        self.__siteConfigDir = self.__getConfigPath('TOP_WWPDB_SITE_CONFIG_DIR')
+        self.__siteLoc = self.__cI.get('WWPDB_SITE_LOC')
 
         # -------------
         #
@@ -3651,6 +3655,44 @@ class RcsbDpUtility(object):
             cmd += " ; " + os.path.join(self.__ccAppsPath, "bin", "makeReportFromFile.csh")
             cmd += " " + os.path.join(self.__ccAppsPath, "bin") + " " + reportPath + " " + fileName
             cmd += " " + reportRelativePath + " " + reportFile
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
+        elif (op == "chem-comp-align-img-gen"):
+            # set up
+            #
+            site_config_command = ". %s/init/env.sh -s %s -l %s" % (self.__siteConfigDir, self.__siteId, self.__siteLoc)
+            cmd += " ; %s " % site_config_command
+            
+            thisCmd = " ; python -m wwpdb.apps.ccmodule.reports.ChemCompBigAlignImages"
+            
+            cmd += thisCmd + " image.txt"
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
+        elif (op == "chem-comp-align-images"):
+            # set up
+            #
+            ccid = self.__inputParamDict['ccid']
+            fileListPath = self.__inputParamDict['file_list_path']
+
+            site_config_command = ". %s/init/env.sh -s %s -l %s" % (self.__siteConfigDir, self.__siteId, self.__siteLoc)
+            cmd += " ; %s " % site_config_command
+            
+            thisCmd = " ; python -m wwpdb.apps.ccmodule.reports.ChemCompAlignImages"
+            
+            cmd += thisCmd + " -v -i %s -f %s" % (ccid, fileListPath)
+
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
+        elif (op == "chem-comp-gen-images"):
+            # set up
+            #
+            title = self.__inputParamDict['title']
+            path = self.__inputParamDict['path']
+            imagePath = self.__inputParamDict['image_path']
+
+            site_config_command = ". %s/init/env.sh -s %s -l %s" % (self.__siteConfigDir, self.__siteId, self.__siteLoc)
+            cmd += " ; %s " % site_config_command
+            
+            thisCmd = " ; python -m wwpdb.apps.ccmodule.reports.ChemCompGenImage"
+            
+            cmd += thisCmd + " -v -i %s -f %s -o %s" % (title, path, imagePath)
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
         else:
             return -1
