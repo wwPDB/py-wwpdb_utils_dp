@@ -195,7 +195,7 @@ class RcsbDpUtility(object):
                           "chem-comp-link", "chem-comp-assign", "chem-comp-assign-comp", "chem-comp-assign-skip",
                           "chem-comp-assign-exact", "chem-comp-assign-validation", "check-cif", "check-cif-v4", "check-cif-ext",
                           "cif2pdbx-public", "cif2pdbx-ext",
-                          "chem-comp-dict-makeindex", "chem-comp-dict-serialize", "chem-comp-annotate-comp"]
+                          "chem-comp-dict-makeindex", "chem-comp-dict-serialize", "chem-comp-annotate-comp", "chem-comp-do-report"]
         self.__pisaOps = ["pisa-analysis", "pisa-assembly-report-xml", "pisa-assembly-report-text",
                           "pisa-interface-report-xml", "pisa-assembly-coordinates-pdb", "pisa-assembly-coordinates-cif",
                           "pisa-assembly-coordinates-cif", "pisa-assembly-merge-cif"]
@@ -3595,6 +3595,52 @@ class RcsbDpUtility(object):
             #
             cmd += " -log " + self.__inputParamDict['cc_validation_log_file']
             #
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
+        elif (op == "chem-comp-do-report"):
+            # set up
+            #
+            typeTag = self.__inputParamDict['type']
+            definitionId = str(self.__inputParamDict['defid']).upper()
+            ccReportPath = self.__inputParamDict['ccreport_path']
+            definitionFilePath = self.__inputParamDict['definition_file_path']
+            ccAssignPathModifier = self.__inputParamDict['cc_path_modifier']
+            fileName = definitionId + ".cif"
+
+            if typeTag == 'ref':
+                # this is for reference instances
+                definitionFilePath = os.path.join(self.__ccCvsPath,definitionId[0:1],definitionId[0:3],fileName)
+            
+            if (not os.access(definitionFilePath,os.R_OK)):
+                return -1
+
+            rprtPthSuffix = '' 
+            if typeTag == None:
+                reportPath = os.path.join(ccReportPath,definitionId,'report')
+                reportRelativePath = os.path.join(definitionId,'report')
+            else:
+                if( typeTag == 'exp' ):
+                    rprtPthSuffix = os.path.join(ccAssignPathModifier,'report')
+                elif( typeTag == 'ref'):
+                    rprtPthSuffix = os.path.join('rfrnc_reports',ccAssignPathModifier)
+                    
+                reportPath = os.path.join(ccReportPath,rprtPthSuffix)
+                reportRelativePath = os.path.join(rprtPthSuffix)
+
+            if (not os.access(reportPath,os.F_OK)):
+                try:
+                    os.makedirs(reportPath)
+                except:
+                    return -1
+            
+            filePath = os.path.join(reportPath,fileName)
+            shutil.copyfile(definitionFilePath,filePath)
+            reportFile = definitionId + "_report.html"
+
+            cmd += " ; OE_DIR=" + self.__oeDirPath + " ; export OE_DIR "
+            cmd += " ; OE_LICENSE=" + self.__oeLicensePath + " ; export OE_LICENSE "
+            cmd += " ; " + os.path.join(self.__ccAppsPath, "bin", "makeReportFromFile.csh")
+            cmd += " " + os.path.join(self.__ccAppsPath, "bin") + " " + reportPath + " " + fileName
+            cmd += " " + reportRelativePath + " " + reportFile
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
         else:
             return -1
