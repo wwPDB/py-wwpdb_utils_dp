@@ -155,7 +155,7 @@ from wwpdb.io.file.DataFile import DataFile
 from wwpdb.utils.config.ConfigInfo import ConfigInfo
 from wwpdb.utils.config.ConfigInfoApp import ConfigInfoAppEm, ConfigInfoAppCommon
 from wwpdb.utils.dp.PdbxStripCategory import PdbxStripCategory
-from wwpdb.utils.dp.RunRemote import  run_remote_task, save_remote_run_detail
+from wwpdb.utils.dp.RunRemote import  RunRemoteFlow
 import prefect
 from prefect import Flow,Parameter
 from prefect.executors import LocalExecutor
@@ -3988,57 +3988,15 @@ class RcsbDpUtility(object):
         logger.info("+RcsbDpUtility.__runTimeout() completed with return code %r\n" % process.stdout.read())
         return 0
 
-    def _register_flow(self):
-        job_name = Parameter('job_name', default = "Default Job")
-        command =  Parameter('command', default = "ls")
-        lPathFull =  Parameter('lPathFull', default = "/tmp")
-        timeout = Parameter('timeout', default = 5600)
-        numThreads = Parameter('number_of_processors', default= 1)
-        startingMemory = Parameter('memory_limit', 0)
-
-        with Flow('Run Remotely', executor=LocalExecutor()) as flow:
-            rr = run_remote_task(command=command, job_name=job_name, log_dir=lPathFull,
-                                 timeout=timeout, number_of_processors=numThreads,
-                                 memory_limit=startingMemory)
-            state = save_remote_run_detail(rr)
-
-        return flow.register("Remote Running", idempotency_key=flow.serialized_hash())
-
-    def _flow_run(self, job_name, command, lPathFull, flow_id):
-        self.__lfh.write(f'Flow ID to run is: {flow_id}')
-        client = prefect.Client()
-        params= {
-            'job_name' : job_name,
-            'command' : command,
-            'lPathFull' : lPathFull,
-            'timeout' : self.__timeout,
-            'number_of_processors' : self.__numThreads,
-            'memory_limit' : self.__startingMemory
-        }
-        flow_run_id = client.create_flow_run(flow_id=flow_id, parameters=params, run_name=job_name)
-        state = client.get_flow_run_state(flow_run_id )
-        self.__lfh.write(f'Flow set to run .... now waiting')
-
-        while not state.is_finished():
-            state = client.get_flow_run_state(flow_run_id )
-            time.sleep(1)
-
-        if state.is_successful():
-            self.__lfh.write('Sleep over')
-            self.__lfh.write(f"Operation {job_name} succeeded")
-            return 0
-        else:
-            self.__lfh.write(f"Operation {job_name} failed")
-            return 1
-
     def __run(self, command, lPathFull, op):
 
         if self.__run_remote:
             random_suffix = random.randrange(9999999)
             job_name = '{}_{}'.format(op, random_suffix)
             lPathFull = os.path.dirname(lPathFull)
-            flow_id = self._register_flow()
-            return self._flow_run(job_name, command, lPathFull, flow_id)
+            rrf = RunRemoteFlow(job_name, command, lPathFull, self.__timeout, self.__numThreads, self.__startingMemory)
+            rrf.register_flow()
+            return rrf.run_flow()
 
         if self.__timeout > 0:
             return self.__runTimeout(command, self.__timeout, lPathFull)
