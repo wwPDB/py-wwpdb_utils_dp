@@ -275,7 +275,7 @@ class RunRemote:
                     if 'CPU time :' in l:
                         try:
                             cpu_time = l.split(':')[-1].strip()
-                            self.cpu_time = cpu_time.split()[0]
+                            self.cpu_time = float(cpu_time.split()[0])
                         except Exception as e:
                             logging.error(e)
                         continue
@@ -283,21 +283,21 @@ class RunRemote:
                     if 'Run time :' in l:
                         try:
                             job_time = l.split(':')[-1].strip()
-                            self.job_time = job_time.split()[0]
+                            self.job_time = float(job_time.split()[0])
                         except Exception as e:
                             logging.error(e)
                         continue
 
                     if 'Max Threads :' in l:
                         try:
-                            self.max_threads = l.split(':')[-1].strip()
+                            self.max_threads = int(l.split(':')[-1].strip())
                         except Exception as e:
                             logging.error(e)
                         continue
 
                     if 'Max Processes :' in l:
                         try:
-                            self.max_processes = l.split(':')[-1].strip()
+                            self.max_processes = int(l.split(':')[-1].strip())
                         except Exception as e:
                             logging.error(e)
                         continue
@@ -370,8 +370,8 @@ class RunRemoteFlow():
                                  memory_limit=startingMemory)
             state = save_remote_run_detail(rr)
 
-        self.flow_id = flow.register("Remote Running")
-        # self.flow_id = flow.register("Remote Running", idempotency_key=flow.serialized_hash())
+        # self.flow_id = flow.register("Remote Running")
+        self.flow_id = flow.register("Remote Running", idempotency_key=flow.serialized_hash())
 
     def run_flow(self):
         client = prefect.Client()
