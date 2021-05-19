@@ -3605,10 +3605,6 @@ class RcsbDpUtility(object):
             definitionFilePath = self.__inputParamDict['definition_file_path']
             ccAssignPathModifier = self.__inputParamDict['cc_path_modifier']
             fileName = definitionId + ".cif"
-
-            if typeTag == 'ref':
-                # this is for reference instances
-                definitionFilePath = os.path.join(self.__ccCvsPath,definitionId[0:1],definitionId[0:3],fileName)
             
             if (not os.access(definitionFilePath,os.R_OK)):
                 return -1
