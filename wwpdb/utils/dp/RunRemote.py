@@ -310,7 +310,6 @@ class RunRemote:
         logging.info('bsub exit status: {}'.format(self.bsub_exit_status))
 
     def run_bsub(self):
-
         if not os.path.exists(self.log_dir):
             os.makedirs(self.log_dir)
 
@@ -407,14 +406,17 @@ def run_remote_task(command, job_name, log_dir, timeout, number_of_processors,me
               memory_limit=memory_limit)
     start_time = time.time()
     rr.ret_code = rr.run()
-    logger.info(f"Executed: {rr.executed_command}")
-    logger.info(f"Remote Task Ended | Exit Code: {rr.ret_code}")
-    logger.info(f'BSUB Log path: {rr.bsub_log_file}')
-    end_time = time.time()
-    rr.run_duration = end_time - start_time
-    logger.info(f"Duration: {rr.run_duration} seconds")
-    logger.info(f"Memory Used: {rr.max_memory_used} MB")
-    logger.info(f"Number of Processors: {rr.number_of_processors}")
+    try:
+        logger.info(f"Executed: {rr.executed_command}")
+        logger.info(f"Remote Task Ended | Exit Code: {rr.ret_code}")
+        logger.info(f'BSUB Log path: {rr.bsub_log_file}')
+        end_time = time.time()
+        rr.run_duration = end_time - start_time
+        logger.info(f"Duration: {rr.run_duration} seconds")
+        logger.info(f"Memory Used: {rr.max_memory_used} MB")
+        logger.info(f"Number of Processors: {rr.number_of_processors}")
+    except Exception as e:
+        logger.info(e)
     return rr
 
 
