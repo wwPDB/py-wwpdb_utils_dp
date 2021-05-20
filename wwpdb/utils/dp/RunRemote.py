@@ -352,7 +352,7 @@ class RunRemoteFlow():
         self.timeout = timeout
         self.num_threads = num_threads
         self.starting_memory = starting_memory
-        self.flow_id = None
+        self.flow_id = 'efcd4cd5-dadc-451f-9df6-32c8114e431e' # Group Flow ID for RunRemotely
 
 
     def register_flow(self):
@@ -395,6 +395,10 @@ class RunRemoteFlow():
         else:
             return 1
 
+    def run(self):
+        self.register_flow()
+        exit_code = self.run_flow()
+        return exit_code
 
 @task
 def run_remote_task(command, job_name, log_dir, timeout, number_of_processors,memory_limit):

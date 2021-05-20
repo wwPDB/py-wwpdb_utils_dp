@@ -3995,8 +3995,7 @@ class RcsbDpUtility(object):
             job_name = '{}_{}'.format(op, random_suffix)
             lPathFull = os.path.dirname(lPathFull)
             rrf = RunRemoteFlow(job_name, command, lPathFull, self.__timeout, self.__numThreads, self.__startingMemory)
-            rrf.register_flow()
-            return rrf.run_flow()
+            return rrf.run()
 
         if self.__timeout > 0:
             return self.__runTimeout(command, self.__timeout, lPathFull)
