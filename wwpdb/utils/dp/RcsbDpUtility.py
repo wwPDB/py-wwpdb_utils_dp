@@ -677,8 +677,6 @@ class RcsbDpUtility(object):
                                                                      self.__siteId,
                                                                      self.__siteLoc)
 
-        # if self.__rcsbAppsPath is None:
-        #            self.__rcsbAppsPath  =  self.__getConfigPath('SITE_RCSB_APPS_PATH')
         # JDW 2013-02-26
         self.__rcsbAppsPath = self.__cICommon.get_site_annot_tools_path()
         #
@@ -1303,14 +1301,14 @@ class RcsbDpUtility(object):
             one_fo_fc = self.__inputParamDict['one_fo_fc_cif']
 
             cmd_args = [
-                        '--node_path {}'.format(node_path),
-                        '--volume_server_pack_path {}'.format(volume_server_pack),
-                        '--volume_server_query_path {}'.format(volume_server_query),
-                        '--binary_map_out {}'.format(oPath),
-                        '--two_fofc_mmcif_map_coeff_in {}'.format(two_fo_fc),
-                        '--fofc_mmcif_map_coeff_in {}'.format(one_fo_fc),
-                        '--coordinate_file {}'.format(iPath)
-                        ]
+                '--node_path {}'.format(node_path),
+                '--volume_server_pack_path {}'.format(volume_server_pack),
+                '--volume_server_query_path {}'.format(volume_server_query),
+                '--binary_map_out {}'.format(oPath),
+                '--two_fofc_mmcif_map_coeff_in {}'.format(two_fo_fc),
+                '--fofc_mmcif_map_coeff_in {}'.format(one_fo_fc),
+                '--coordinate_file {}'.format(iPath)
+            ]
 
             cmd += '; {}'.format(self.__site_config_command)
 
@@ -3298,7 +3296,6 @@ class RcsbDpUtility(object):
         # Set application specific path details here -
         #
         if self.__rcsbAppsPath is None:
-            # self.__rcsbAppsPath  =  self.__getConfigPath('SITE_RCSB_APPS_PATH')
             # 01-05-2013 -  Now point to the new annotation module
             self.__rcsbAppsPath = self.__cICommon.get_site_annot_tools_path()
 
@@ -3340,6 +3337,7 @@ class RcsbDpUtility(object):
         #
         self.__siteConfigDir = self.__getConfigPath('TOP_WWPDB_SITE_CONFIG_DIR')
         self.__siteLoc = self.__cI.get('WWPDB_SITE_LOC')
+>>>>>>>>> Temporary merge branch 2
 
         # -------------
         #
