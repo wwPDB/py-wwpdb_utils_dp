@@ -1276,9 +1276,9 @@ class RcsbDpUtility(object):
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
 
         elif op == 'em-density-bcif':
-            node_path = os.path.join(self.__packagePath, 'node', 'bin', 'node')
-            volume_server_pack = self.__cI.get('VOLUME_SERVER_PACK')
-            volume_server_query = self.__cI.get('VOLUME_SERVER_QUERY')
+            node_path = self.__cICommon.get_node_bin_path()
+            volume_server_pack = self.__cICommon.get_volume_server_pack_path()
+            volume_server_query = self.__cICommon.get_volume_server_query_path()
 
             cmd_args = ['--em_map {}'.format(iPath),
                         '--node_path {}'.format(node_path),
@@ -1291,6 +1291,28 @@ class RcsbDpUtility(object):
             cmd += '; {}'.format(self.__site_config_command)
 
             cmd += ' ; python -m wwpdb.utils.dp.electron_density.em_density_map {}'.format(' '.join(cmd_args))
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
+
+        elif op == 'xray-density-bcif':
+            node_path = self.__cICommon.get_node_bin_path()
+            volume_server_pack = self.__cICommon.get_volume_server_pack_path()
+            volume_server_query = self.__cICommon.get_volume_server_query_path()
+            two_fo_fc = self.__inputParamDict['two_fo_fc_cif']
+            one_fo_fc = self.__inputParamDict['one_fo_fc_cif']
+
+            cmd_args = [
+                '--node_path {}'.format(node_path),
+                '--volume_server_pack_path {}'.format(volume_server_pack),
+                '--volume_server_query_path {}'.format(volume_server_query),
+                '--binary_map_out {}'.format(oPath),
+                '--two_fofc_mmcif_map_coeff_in {}'.format(two_fo_fc),
+                '--fofc_mmcif_map_coeff_in {}'.format(one_fo_fc),
+                '--coordinate_file {}'.format(iPath)
+            ]
+
+            cmd += '; {}'.format(self.__site_config_command)
+
+            cmd += ' ; python -m wwpdb.utils.dp.electron_density.x_ray_density_map {}'.format(' '.join(cmd_args))
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
 
         elif (op == "annot-dcc-report"):
@@ -3661,9 +3683,9 @@ class RcsbDpUtility(object):
             #
             site_config_command = ". %s/init/env.sh -s %s -l %s" % (self.__siteConfigDir, self.__siteId, self.__siteLoc)
             cmd += " ; %s " % site_config_command
-            
+
             thisCmd = " ; python -m wwpdb.apps.ccmodule.reports.ChemCompBigAlignImages"
-            
+
             cmd += thisCmd + " image.txt"
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
         elif (op == "chem-comp-align-images"):
@@ -3674,9 +3696,9 @@ class RcsbDpUtility(object):
 
             site_config_command = ". %s/init/env.sh -s %s -l %s" % (self.__siteConfigDir, self.__siteId, self.__siteLoc)
             cmd += " ; %s " % site_config_command
-            
+
             thisCmd = " ; python -m wwpdb.apps.ccmodule.reports.ChemCompAlignImages"
-            
+
             cmd += thisCmd + " -v -i %s -f %s" % (ccid, fileListPath)
 
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
@@ -3689,9 +3711,9 @@ class RcsbDpUtility(object):
 
             site_config_command = ". %s/init/env.sh -s %s -l %s" % (self.__siteConfigDir, self.__siteId, self.__siteLoc)
             cmd += " ; %s " % site_config_command
-            
+
             thisCmd = " ; python -m wwpdb.apps.ccmodule.reports.ChemCompGenImage"
-            
+
             cmd += thisCmd + " -v -i %s -f %s -o %s" % (title, path, imagePath)
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
         else:
