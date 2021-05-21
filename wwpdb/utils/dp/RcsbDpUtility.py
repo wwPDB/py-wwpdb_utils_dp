@@ -3337,7 +3337,6 @@ class RcsbDpUtility(object):
         #
         self.__siteConfigDir = self.__getConfigPath('TOP_WWPDB_SITE_CONFIG_DIR')
         self.__siteLoc = self.__cI.get('WWPDB_SITE_LOC')
->>>>>>>>> Temporary merge branch 2
 
         # -------------
         #
