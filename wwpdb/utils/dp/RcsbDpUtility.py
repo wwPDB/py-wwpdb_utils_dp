@@ -669,6 +669,8 @@ class RcsbDpUtility(object):
         self.__prdccCvsPath = self.__cICommon.get_site_prdcc_cvs_path()
         self.__prdDictPath = self.__cICommon.get_site_prd_dict_path()
         self.__prdSummarySerial = self.__cICommon.get_prd_summary_sdb()
+        self.__oeDirPath = self.__cICommon.get_site_cc_oe_dir()
+        self.__oeLicensePath = self.__cICommon.get_site_cc_oe_licence()
         self.__siteWebAppsSessionsPath = self.__cI.get('SITE_WEB_APPS_SESSIONS_PATH')
         self.__validScrPath = self.__cI.get('VALID_SCR_PATH')
         self.__siteConfigDir = self.__getConfigPath('TOP_WWPDB_SITE_CONFIG_DIR')
