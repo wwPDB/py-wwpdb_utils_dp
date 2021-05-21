@@ -4058,7 +4058,7 @@ class RcsbDpUtility(object):
         envName = mapping[name]
 
         pdbxDictPath = self.__cICommon.get_mmcif_dict_path()
-        dictBase = self.__cI.get('SITE_PDBX_DICTIONARY_NAME_DICT')[envName]
+        dictBase = self.__cICommon.get_pdbx_dictionary_name_dict()[envName]
         fName = os.path.join(pdbxDictPath, dictBase + suffix)
         return fName
 
