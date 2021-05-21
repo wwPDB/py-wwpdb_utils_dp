@@ -1276,9 +1276,9 @@ class RcsbDpUtility(object):
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
 
         elif op == 'em-density-bcif':
-            node_path = os.path.join(self.__packagePath, 'node', 'bin', 'node')
-            volume_server_pack = self.__cI.get('VOLUME_SERVER_PACK')
-            volume_server_query = self.__cI.get('VOLUME_SERVER_QUERY')
+            node_path = self.__cICommon.get_node_bin_path()
+            volume_server_pack = self.__cICommon.get_volume_server_pack_path()
+            volume_server_query = self.__cICommon.get_volume_server_query_path()
 
             cmd_args = ['--em_map {}'.format(iPath),
                         '--node_path {}'.format(node_path),
