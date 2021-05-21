@@ -712,7 +712,7 @@ class RcsbDpUtility(object):
         # Standard setup for maxit ---
         #
         cmd += " ; RCSBROOT=" + self.__rcsbAppsPath + " ; export RCSBROOT  "
-        cmd += " ; PDB2GLYCAN=" + os.path.join(os.path.abspath(self.__cI.get("SITE_PACKAGES_PATH")), "pdb2glycan", "bin", "PDB2Glycan") \
+        cmd += " ; PDB2GLYCAN=" + os.path.join(os.path.abspath(self.__packagePath), "pdb2glycan", "bin", "PDB2Glycan") \
              + " ; export PDB2GLYCAN "
         cmd += " ; COMP_PATH=" + self.__ccCvsPath + " ; export COMP_PATH  "
         maxitCmd = os.path.join(self.__rcsbAppsPath, "bin", "maxit")
