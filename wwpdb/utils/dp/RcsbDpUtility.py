@@ -196,7 +196,8 @@ class RcsbDpUtility(object):
                           "chem-comp-link", "chem-comp-assign", "chem-comp-assign-comp", "chem-comp-assign-skip",
                           "chem-comp-assign-exact", "chem-comp-assign-validation", "check-cif", "check-cif-v4", "check-cif-ext",
                           "cif2pdbx-public", "cif2pdbx-ext",
-                          "chem-comp-dict-makeindex", "chem-comp-dict-serialize", "chem-comp-annotate-comp", "chem-comp-do-report"]
+                          "chem-comp-dict-makeindex", "chem-comp-dict-serialize", "chem-comp-annotate-comp",
+                          "chem-comp-do-report", "chem-comp-align-img-gen", "chem-comp-align-images", "chem-comp-gen-images"]
         self.__pisaOps = ["pisa-analysis", "pisa-assembly-report-xml", "pisa-assembly-report-text",
                           "pisa-interface-report-xml", "pisa-assembly-coordinates-pdb", "pisa-assembly-coordinates-cif",
                           "pisa-assembly-coordinates-cif", "pisa-assembly-merge-cif"]
@@ -657,26 +658,27 @@ class RcsbDpUtility(object):
         #
         # Set application specific path details here -
         #
-        self.__annotAppsPath = self.__cICommon.get_site_annot_tools_path()
-        self.__localAppsPath = self.__cICommon.get_site_local_apps_path()
-        self.__packagePath = self.__cICommon.get_site_packages_path()
+        self.__annotAppsPath = self.__getConfigPath('SITE_ANNOT_TOOLS_PATH')
+        self.__localAppsPath = self.__getConfigPath('SITE_LOCAL_APPS_PATH')
+        self.__packagePath = self.__getConfigPath('SITE_PACKAGES_PATH')
         self.__deployPath = self.__getConfigPath('SITE_DEPLOY_PATH')
         self.__siteLoc = self.__cI.get('WWPDB_SITE_LOC')
-        self.__ccDictPath = self.__cICommon.get_site_cc_dict_path()
-        self.__ccCvsPath = self.__cICommon.get_site_cc_cvs_path()
-        self.__prdccCvsPath = self.__cICommon.get_site_prdcc_cvs_path()
-        self.__prdDictPath = self.__cICommon.get_site_prd_dict_path()
-        self.__prdSummarySerial = self.__cICommon.get_prd_summary_sdb()
+        self.__ccDictPath = self.__getConfigPath('SITE_CC_DICT_PATH')
+        self.__ccCvsPath = self.__getConfigPath('SITE_CC_CVS_PATH')
+        self.__prdccCvsPath = self.__getConfigPath('SITE_PRDCC_CVS_PATH')
+        self.__prdDictPath = os.path.join(self.__getConfigPath('SITE_DEPLOY_PATH'), 'reference', 'components', 'prd-dict')
         self.__siteWebAppsSessionsPath = self.__cI.get('SITE_WEB_APPS_SESSIONS_PATH')
         self.__validScrPath = self.__cI.get('VALID_SCR_PATH')
         self.__siteConfigDir = self.__getConfigPath('TOP_WWPDB_SITE_CONFIG_DIR')
-        self.__ccDictPathIdx = self.__cICommon.get_cc_dict_idx()
+        self.__ccDictPathIdx = os.path.join(self.__ccDictPath, "Components-all-v3-r4.idx")
         self.__site_config_command = ". %s/init/env.sh -s %s -l %s" % (self.__siteConfigDir,
                                                                      self.__siteId,
                                                                      self.__siteLoc)
 
+        # if self.__rcsbAppsPath is None:
+        #            self.__rcsbAppsPath  =  self.__getConfigPath('SITE_RCSB_APPS_PATH')
         # JDW 2013-02-26
-        self.__rcsbAppsPath = self.__cICommon.get_site_annot_tools_path()
+        self.__rcsbAppsPath = self.__getConfigPath('SITE_ANNOT_TOOLS_PATH')
         #
         #
         iPath = self.__getSourceWrkFile(self.__stepNo)
@@ -1231,10 +1233,10 @@ class RcsbDpUtility(object):
             cmd += " ; DEPLOY_DIR=" + self.__deployPath + " ; export DEPLOY_DIR "
             cmd += " ; TOOLS_DIR=" + os.path.join(self.__localAppsPath, 'bin') + " ; export TOOLS_DIR "
             cmd += " ; PACKAGE_DIR=" + self.__packagePath + " ; export PACKAGE_DIR "
-            cmd += " ; DCCPY_DIR=" + self.__cICommon.get_sf_valid() + " ; export DCCPY_DIR "
+            cmd += " ; DCCPY_DIR=" + os.path.join(self.__packagePath, 'sf-valid') + " ; export DCCPY_DIR "
 
             #
-            cmdPath = os.path.join(self.__cICommon.get_sf_valid(), "bin", "dcc.sh")
+            cmdPath = os.path.join(self.__packagePath, "sf-valid", "bin", "dcc.sh")
             thisCmd = " ; " + cmdPath
 
             dccArgs = ''
@@ -1274,9 +1276,9 @@ class RcsbDpUtility(object):
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
 
         elif op == 'em-density-bcif':
-            node_path = self.__cICommon.get_node_bin_path()
-            volume_server_pack = self.__cICommon.get_volume_server_pack_path()
-            volume_server_query = self.__cICommon.get_volume_server_query_path()
+            node_path = os.path.join(self.__packagePath, 'node', 'bin', 'node')
+            volume_server_pack = self.__cI.get('VOLUME_SERVER_PACK')
+            volume_server_query = self.__cI.get('VOLUME_SERVER_QUERY')
 
             cmd_args = ['--em_map {}'.format(iPath),
                         '--node_path {}'.format(node_path),
@@ -1291,28 +1293,6 @@ class RcsbDpUtility(object):
             cmd += ' ; python -m wwpdb.utils.dp.electron_density.em_density_map {}'.format(' '.join(cmd_args))
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
 
-        elif op == 'xray-density-bcif':
-            node_path = self.__cICommon.get_node_bin_path()
-            volume_server_pack = self.__cICommon.get_volume_server_pack_path()
-            volume_server_query = self.__cICommon.get_volume_server_query_path()
-            two_fo_fc = self.__inputParamDict['two_fo_fc_cif']
-            one_fo_fc = self.__inputParamDict['one_fo_fc_cif']
-
-            cmd_args = [
-                        '--node_path {}'.format(node_path),
-                        '--volume_server_pack_path {}'.format(volume_server_pack),
-                        '--volume_server_query_path {}'.format(volume_server_query),
-                        '--binary_map_out {}'.format(oPath),
-                        '--two_fofc_mmcif_map_coeff_in {}'.format(two_fo_fc),
-                        '--fofc_mmcif_map_coeff_in {}'.format(one_fo_fc),
-                        '--coordinate_file {}'.format(iPath)
-                        ]
-
-            cmd += '; {}'.format(self.__site_config_command)
-
-            cmd += ' ; python -m wwpdb.utils.dp.electron_density.x_ray_density_map {}'.format(' '.join(cmd_args))
-            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
-
         elif (op == "annot-dcc-report"):
             # The sf-valid package is currently set to self configure in a wrapper
             # shell script.  PACKAGE_DIR and TOOLS_DIR only need to be set here.
@@ -1321,10 +1301,10 @@ class RcsbDpUtility(object):
             cmd += " ; DEPLOY_DIR=" + self.__deployPath + " ; export DEPLOY_DIR "
             cmd += " ; TOOLS_DIR=" + os.path.join(self.__localAppsPath, 'bin') + " ; export TOOLS_DIR "
             cmd += " ; PACKAGE_DIR=" + self.__packagePath + " ; export PACKAGE_DIR "
-            cmd += " ; DCCPY_DIR=" + self.__cICommon.get_sf_valid() + " ; export DCCPY_DIR "
+            cmd += " ; DCCPY_DIR=" + os.path.join(self.__packagePath, 'sf-valid') + " ; export DCCPY_DIR "
 
             #
-            cmdPath = os.path.join(self.__cICommon.get_sf_valid(), "bin", "dcc.sh")
+            cmdPath = os.path.join(self.__packagePath, "sf-valid", "bin", "dcc.sh")
             thisCmd = " ; " + cmdPath
 
             dccArgs = ''
@@ -1355,10 +1335,10 @@ class RcsbDpUtility(object):
             cmd += " ; DEPLOY_DIR=" + self.__deployPath + " ; export DEPLOY_DIR "
             cmd += " ; TOOLS_DIR=" + os.path.join(self.__localAppsPath, 'bin') + " ; export TOOLS_DIR "
             cmd += " ; PACKAGE_DIR=" + self.__packagePath + " ; export PACKAGE_DIR "
-            cmd += " ; DCCPY_DIR=" + self.__cICommon.get_sf_valid() + " ; export DCCPY_DIR "
+            cmd += " ; DCCPY_DIR=" + os.path.join(self.__packagePath, 'sf-valid') + " ; export DCCPY_DIR "
 
             #
-            cmdPath = os.path.join(self.__cICommon.get_sf_valid(), "bin", "dcc.sh")
+            cmdPath = os.path.join(self.__packagePath, "sf-valid", "bin", "dcc.sh")
             thisCmd = " ; " + cmdPath
 
             dccArgs = ''
@@ -1388,10 +1368,10 @@ class RcsbDpUtility(object):
             cmd += " ; DEPLOY_DIR=" + self.__deployPath + " ; export DEPLOY_DIR "
             cmd += " ; TOOLS_DIR=" + os.path.join(self.__localAppsPath, 'bin') + " ; export TOOLS_DIR "
             cmd += " ; PACKAGE_DIR=" + self.__packagePath + " ; export PACKAGE_DIR "
-            cmd += " ; DCCPY_DIR=" + self.__cICommon.get_sf_valid() + " ; export DCCPY_DIR "
+            cmd += " ; DCCPY_DIR=" + os.path.join(self.__packagePath, 'sf-valid') + " ; export DCCPY_DIR "
 
             #
-            cmdPath = os.path.join(self.__cICommon.get_sf_valid(), "bin", "dcc.sh")
+            cmdPath = os.path.join(self.__packagePath, "sf-valid", "bin", "dcc.sh")
             thisCmd = " ; " + cmdPath
 
             #
@@ -1406,10 +1386,10 @@ class RcsbDpUtility(object):
             cmd += " ; DEPLOY_DIR=" + self.__deployPath + " ; export DEPLOY_DIR "
             cmd += " ; TOOLS_DIR=" + os.path.join(self.__localAppsPath, 'bin') + " ; export TOOLS_DIR "
             cmd += " ; PACKAGE_DIR=" + self.__packagePath + " ; export PACKAGE_DIR "
-            cmd += " ; DCCPY_DIR=" + self.__cICommon.get_sf_valid() + " ; export DCCPY_DIR "
+            cmd += " ; DCCPY_DIR=" + os.path.join(self.__packagePath, 'sf-valid') + " ; export DCCPY_DIR "
 
             #
-            cmdPath = os.path.join(self.__cICommon.get_sf_valid(), "bin", "tool.sh")
+            cmdPath = os.path.join(self.__packagePath, "sf-valid", "bin", "tool.sh")
             thisCmd = " ; " + cmdPath
 
             dccArgs = ''
@@ -1428,10 +1408,10 @@ class RcsbDpUtility(object):
             cmd += " ; DEPLOY_DIR=" + self.__deployPath + " ; export DEPLOY_DIR "
             cmd += " ; TOOLS_DIR=" + os.path.join(self.__localAppsPath, 'bin') + " ; export TOOLS_DIR "
             cmd += " ; PACKAGE_DIR=" + self.__packagePath + " ; export PACKAGE_DIR "
-            cmd += " ; DCCPY_DIR=" + self.__cICommon.get_sf_valid() + " ; export DCCPY_DIR "
+            cmd += " ; DCCPY_DIR=" + os.path.join(self.__packagePath, 'sf-valid') + " ; export DCCPY_DIR "
 
             #
-            cmdPath = os.path.join(self.__cICommon.get_sf_valid(), "bin", "tool.sh")
+            cmdPath = os.path.join(self.__packagePath, "sf-valid", "bin", "tool.sh")
             thisCmd = " ; " + cmdPath
             #
             # new model file will not be created if nothing to fix
@@ -1448,10 +1428,10 @@ class RcsbDpUtility(object):
             cmd += " ; DEPLOY_DIR=" + self.__deployPath + " ; export DEPLOY_DIR "
             cmd += " ; TOOLS_DIR=" + os.path.join(self.__localAppsPath, 'bin') + " ; export TOOLS_DIR "
             cmd += " ; PACKAGE_DIR=" + self.__packagePath + " ; export PACKAGE_DIR "
-            cmd += " ; DCCPY_DIR=" + self.__cICommon.get_sf_valid() + " ; export DCCPY_DIR "
+            cmd += " ; DCCPY_DIR=" + os.path.join(self.__packagePath, 'sf-valid') + " ; export DCCPY_DIR "
 
             #
-            cmdPath = os.path.join(self.__cICommon.get_sf_valid(), "bin", "tool.sh")
+            cmdPath = os.path.join(self.__packagePath, "sf-valid", "bin", "tool.sh")
             thisCmd = " ; " + cmdPath
 
             #
@@ -1481,12 +1461,12 @@ class RcsbDpUtility(object):
             cmd += " ; DEPLOY_DIR=" + self.__deployPath + " ; export DEPLOY_DIR "
             cmd += " ; TOOLS_DIR=" + os.path.join(self.__localAppsPath, 'bin') + " ; export TOOLS_DIR "
             cmd += " ; PACKAGE_DIR=" + self.__packagePath + " ; export PACKAGE_DIR "
-            cmd += " ; DCCPY_DIR=" + self.__cICommon.get_sf_valid() + " ; export DCCPY_DIR "
-            cmd += " ; DCCPY=" + self.__cICommon.get_sf_valid() + " ; export DCCPY "
+            cmd += " ; DCCPY_DIR=" + os.path.join(self.__packagePath, 'sf-valid') + " ; export DCCPY_DIR "
+            cmd += " ; DCCPY=" + os.path.join(self.__packagePath, 'sf-valid') + " ; export DCCPY "
             cmd += " ; CCP4=" + ccp4_path + " ; export CCP4 "
             cmd += " ; source {}/bin/ccp4.setup-sh ".format(ccp4_path)
             #
-            cmdPath = os.path.join(self.__cICommon.get_sf_valid(), "bin", "sf_convert")
+            cmdPath = os.path.join(self.__packagePath, "sf-valid", "bin", "sf_convert")
             thisCmd = " ; " + cmdPath
             #
             cmd += thisCmd + " -o mmcif  -sf " + mtzFile + " -out " + oPath + " -diags " + lPath
@@ -2227,7 +2207,7 @@ class RcsbDpUtility(object):
             cmd += " ; PRD_DICT_PATH=" + self.__prdDictPath + " ; export PRD_DICT_PATH "
             cmdPath = os.path.join(self.__annotAppsPath, "bin", "GetPrdMatch")
             cmd += " ; " + cmdPath + " -input " + iPath + " -output " + oPath \
-                + " -path . -index " + self.__prdSummarySerial + " -cc_index " + self.__ccDictPathIdx
+                + " -path . -index " + self.__prdDictPath + "/prd_summary.sdb -cc_index " + self.__ccDictPathIdx
             if 'logfile' in self.__inputParamDict:
                 cmd += " -log " + self.__inputParamDict['logfile']
             if 'firstmodel' in self.__inputParamDict:
@@ -2702,15 +2682,15 @@ class RcsbDpUtility(object):
         #
         # Set application specific path details here -
         #
-        self.__localAppsPath = self.__cICommon.get_site_local_apps_path()
-        self.__packagePath = self.__cICommon.get_site_packages_path()
+        self.__localAppsPath = self.__getConfigPath('SITE_LOCAL_APPS_PATH')
+        self.__packagePath = self.__getConfigPath('SITE_PACKAGES_PATH')
         self.__deployPath = self.__getConfigPath('SITE_DEPLOY_PATH')
-        self.__ccDictPath = self.__cICommon.get_site_cc_dict_path()
-        self.__ccCvsPath = self.__cICommon.get_site_cc_cvs_path()
-        self.__prdccCvsPath = self.__cICommon.get_site_prdcc_cvs_path()
-        self.__prdDictPath = self.__cICommon.get_site_prd_dict_path()
+        self.__ccDictPath = self.__getConfigPath('SITE_CC_DICT_PATH')
+        self.__ccCvsPath = self.__getConfigPath('SITE_CC_CVS_PATH')
+        self.__prdccCvsPath = self.__getConfigPath('SITE_PRDCC_CVS_PATH')
+        self.__prdDictPath = os.path.join(self.__getConfigPath('SITE_DEPLOY_PATH'), 'reference', 'components', 'prd-dict')
 
-        self.__rcsbAppsPath = self.__cICommon.get_site_annot_tools_path()
+        self.__rcsbAppsPath = os.path.join(self.__packagePath, 'annotation')
         #
         #
         iPath = self.__getSourceWrkFile(self.__stepNo)
@@ -2742,7 +2722,7 @@ class RcsbDpUtility(object):
         # Standard setup for maxit ---
         #
         cmd += " ; RCSBROOT=" + self.__rcsbAppsPath + " ; export RCSBROOT  "
-        cmd += " ; PDB2GLYCAN=" + os.path.join(os.path.abspath(self.__packagePath), "pdb2glycan", "bin", "PDB2Glycan") \
+        cmd += " ; PDB2GLYCAN=" + os.path.join(os.path.abspath(self.__cI.get("SITE_PACKAGES_PATH")), "pdb2glycan", "bin", "PDB2Glycan") \
              + " ; export PDB2GLYCAN "
         cmd += " ; COMP_PATH=" + self.__ccCvsPath + " ; export COMP_PATH  "
         valCmd = os.path.join(self.__rcsbAppsPath, "bin", "validation_with_cif_output")
@@ -2792,7 +2772,7 @@ class RcsbDpUtility(object):
         #
         # Set application specific path details here -
         #
-        self.__packagePath = self.__cICommon.get_site_packages_path()
+        self.__packagePath = self.__getConfigPath('SITE_PACKAGES_PATH')
 
         #
         #
@@ -2882,9 +2862,9 @@ class RcsbDpUtility(object):
         #
         # Set application specific path details here -
         #
-        self.__packagePath = self.__cICommon.get_site_packages_path()
+        self.__packagePath = self.__getConfigPath('SITE_PACKAGES_PATH')
         self.__deployPath = self.__getConfigPath('SITE_DEPLOY_PATH')
-        self.__localAppsPath = self.__cICommon.get_site_local_apps_path()
+        self.__localAppsPath = self.__getConfigPath('SITE_LOCAL_APPS_PATH')
 
         if self.__siteId in ['WWPDB_DEPLOY_MACOSX']:
             self.__javaPath = '/usr/bin/java'
@@ -3168,8 +3148,9 @@ class RcsbDpUtility(object):
         #
         # If this has not been initialized take if from the configuration class.
         if self.__rcsbAppsPath is None:
-            self.__rcsbAppsPath = self.__cICommon.get_site_annot_tools_path()
-        self.__ccCvsPath = self.__cICommon.get_site_cc_cvs_path()
+            # self.__rcsbAppsPath  =  self.__getConfigPath('SITE_RCSB_APPS_PATH')
+            self.__rcsbAppsPath = self.__getConfigPath('SITE_ANNOT_TOOLS_PATH')
+        self.__ccCvsPath = self.__getConfigPath('SITE_CC_CVS_PATH')
         #
         iPath = self.__getSourceWrkFile(self.__stepNo)
         # iPathList = self.__getSourceWrkFileList(self.__stepNo)
@@ -3294,27 +3275,28 @@ class RcsbDpUtility(object):
         # Set application specific path details here -
         #
         if self.__rcsbAppsPath is None:
+            # self.__rcsbAppsPath  =  self.__getConfigPath('SITE_RCSB_APPS_PATH')
             # 01-05-2013 -  Now point to the new annotation module
-            self.__rcsbAppsPath = self.__cICommon.get_site_annot_tools_path()
+            self.__rcsbAppsPath = self.__getConfigPath('SITE_ANNOT_TOOLS_PATH')
 
         if self.__localAppsPath is None:
-            self.__localAppsPath = self.__cICommon.get_site_local_apps_path()
+            self.__localAppsPath = self.__getConfigPath('SITE_LOCAL_APPS_PATH')
 
-        self.__packagePath = self.__cICommon.get_site_packages_path()
+        self.__packagePath = self.__getConfigPath('SITE_PACKAGES_PATH')
 
         #
-        self.__ccAppsPath = self.__cICommon.get_site_cc_apps_path()
+        self.__ccAppsPath = self.__getConfigPath('SITE_CC_APPS_PATH')
         self.__pdbxDictPath = self.__cICommon.get_mmcif_dict_path()
         self.__pdbxDictName = self.__cICommon.get_mmcif_archive_next_dict_filename()
         self.__pdbxV4DictName = self.__cI.get('SITE_PDBX_V4_DICT_NAME', 'missing')
 
-        self.__ccDictPath = self.__cICommon.get_site_cc_dict_path()
-        self.__ccCvsPath = self.__cICommon.get_site_cc_cvs_path()
+        self.__ccDictPath = self.__getConfigPath('SITE_CC_DICT_PATH')
+        self.__ccCvsPath = self.__getConfigPath('SITE_CC_CVS_PATH')
 
-        self.__patternPath = self.__cICommon.get_cc_fp_patterns()
-        self.__ccDictPathCif = self.__cICommon.get_cc_dict()
-        self.__ccDictPathSdb = self.__cICommon.get_cc_dict_serial()
-        self.__ccDictPathIdx = self.__cICommon.get_cc_dict_idx()
+        self.__patternPath = os.path.join(self.__ccDictPath, "fp_patterns.txt")
+        self.__ccDictPathCif = os.path.join(self.__ccDictPath, "Components-all-v3.cif")
+        self.__ccDictPathSdb = os.path.join(self.__ccDictPath, "Components-all-v3.sdb")
+        self.__ccDictPathIdx = os.path.join(self.__ccDictPath, "Components-all-v3-r4.idx")
         #
         self.__pathDdlSdb = os.path.join(self.__pdbxDictPath, "mmcif_ddl.sdb")
         self.__pathDdl = os.path.join(self.__pdbxDictPath, "mmcif_ddl.dic")
@@ -3322,16 +3304,19 @@ class RcsbDpUtility(object):
         self.__pathPdbxV4DictSdb = os.path.join(self.__pdbxDictPath, self.__pdbxV4DictName + '.sdb')
         self.__pathPdbxDictOdb = os.path.join(self.__pdbxDictPath, self.__pdbxDictName + '.odb')
         #
-        self.__oeDirPath = self.__cICommon.get_site_cc_oe_dir()
-        self.__oeLicensePath = self.__cICommon.get_site_cc_oe_licence()
-        self.__babelLibPath = self.__cICommon.get_site_cc_babel_lib()
-        self.__babelDirPath = self.__cICommon.get_site_cc_babel_dir()
-        self.__babelDataDirPath = self.__cICommon.get_site_cc_babel_datadir()
-        self.__cactvsDirPath = self.__cICommon.get_site_cc_cactvs_dir()
+        self.__oeDirPath = self.__getConfigPath('SITE_CC_OE_DIR')
+        self.__oeLicensePath = self.__getConfigPath('SITE_CC_OE_LICENSE')
+        self.__babelLibPath = self.__getConfigPath('SITE_CC_BABEL_LIB')
+        self.__babelDirPath = self.__getConfigPath('SITE_CC_BABEL_DIR')
+        self.__babelDataDirPath = self.__getConfigPath('SITE_CC_BABEL_DATADIR')
+        self.__cactvsDirPath = self.__getConfigPath('SITE_CC_CACTVS_DIR')
         #
-        self.__acdDirPath = self.__cICommon.get_site_cc_acd_dir()
-        self.__corinaDirPath = os.path.join(self.__cICommon.get_site_cc_corina_dir(), 'bin')
-        self.__inchiDirPath = self.__cICommon.get_site_cc_inchi_dir()
+        self.__acdDirPath = self.__getConfigPath('SITE_CC_ACD_DIR')
+        self.__corinaDirPath = os.path.join(self.__getConfigPath('SITE_CC_CORINA_DIR'), 'bin')
+        self.__inchiDirPath = self.__getConfigPath('SITE_CC_INCHI_DIR')
+        #
+        self.__siteConfigDir = self.__getConfigPath('TOP_WWPDB_SITE_CONFIG_DIR')
+        self.__siteLoc = self.__cI.get('WWPDB_SITE_LOC')
 
         # -------------
         #
@@ -3671,6 +3656,44 @@ class RcsbDpUtility(object):
             cmd += " " + os.path.join(self.__ccAppsPath, "bin") + " " + reportPath + " " + fileName
             cmd += " " + reportRelativePath + " " + reportFile
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
+        elif (op == "chem-comp-align-img-gen"):
+            # set up
+            #
+            site_config_command = ". %s/init/env.sh -s %s -l %s" % (self.__siteConfigDir, self.__siteId, self.__siteLoc)
+            cmd += " ; %s " % site_config_command
+
+            thisCmd = " ; python -m wwpdb.apps.ccmodule.reports.ChemCompBigAlignImages"
+
+            cmd += thisCmd + " image.txt"
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
+        elif (op == "chem-comp-align-images"):
+            # set up
+            #
+            ccid = self.__inputParamDict['ccid']
+            fileListPath = self.__inputParamDict['file_list_path']
+
+            site_config_command = ". %s/init/env.sh -s %s -l %s" % (self.__siteConfigDir, self.__siteId, self.__siteLoc)
+            cmd += " ; %s " % site_config_command
+
+            thisCmd = " ; python -m wwpdb.apps.ccmodule.reports.ChemCompAlignImages"
+
+            cmd += thisCmd + " -v -i %s -f %s" % (ccid, fileListPath)
+
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
+        elif (op == "chem-comp-gen-images"):
+            # set up
+            #
+            title = self.__inputParamDict['title']
+            path = self.__inputParamDict['path']
+            imagePath = self.__inputParamDict['image_path']
+
+            site_config_command = ". %s/init/env.sh -s %s -l %s" % (self.__siteConfigDir, self.__siteId, self.__siteLoc)
+            cmd += " ; %s " % site_config_command
+
+            thisCmd = " ; python -m wwpdb.apps.ccmodule.reports.ChemCompGenImage"
+
+            cmd += thisCmd + " -v -i %s -f %s -o %s" % (title, path, imagePath)
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
         else:
             return -1
         #
@@ -3712,9 +3735,9 @@ class RcsbDpUtility(object):
 
         """
         #
-        pisaTopPath = self.__cICommon.get_site_pisa_top_path()
-        pisaConfPath = self.__cICommon.get_site_pisa_conf_path()
-        annotToolsPath = self.__cICommon.get_site_annot_tools_path()
+        pisaTopPath = self.__getConfigPath('SITE_PISA_TOP_PATH')
+        pisaConfPath = self.__getConfigPath('SITE_PISA_CONF_PATH')
+        annotToolsPath = self.__getConfigPath('SITE_ANNOT_TOOLS_PATH')
 
         #
         iPath = self.__getSourceWrkFile(self.__stepNo)
@@ -3784,7 +3807,7 @@ class RcsbDpUtility(object):
             # MergePisaData -input input_ciffile -output output_ciffile -xml xmlfile_from_PISA_output
             #                -log logfile -spacegroup spacegroup_file -list idlist
             #
-            spgFilePath = self.__cICommon.get_site_space_group_file_path()
+            spgFilePath = self.__getConfigPath('SITE_SPACE_GROUP_FILE_PATH')
             # assemblyTupleList = self.__inputParamDict['pisa_assembly_tuple_list']
             #assemblyFile = self.__inputParamDict['pisa_assembly_file_path']
             #assignmentFile = self.__inputParamDict['pisa_assembly_assignment_file_path']
@@ -3846,8 +3869,8 @@ class RcsbDpUtility(object):
 
         """
         #
-        packagePath = self.__cICommon.get_site_packages_path()
-        seqDbPath = self.__cICommon.get_site_refdata_sequence_db_path()
+        packagePath = self.__getConfigPath('SITE_PACKAGES_PATH')
+        seqDbPath = self.__getConfigPath('SITE_REFDATA_SEQUENCE_DB_PATH')
         altDbPaths = self.__cI.get('SITE_REFDATA_ALT_SEQUENCE_DB_PATHS')
         
         altPathList = []
