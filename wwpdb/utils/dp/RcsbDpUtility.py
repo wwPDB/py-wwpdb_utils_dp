@@ -1177,6 +1177,8 @@ class RcsbDpUtility(object):
             cmd += " ; %s " % self.__site_config_command
             cmd += ' ; export PATH="$PATH:$PACKAGE_DIR/ChimeraX/bin"'
             cmd += " ; %s --validation " % self.__site_config_command
+            cmd += " ; OE_DIR=" + self.__oeDirPath + " ; export OE_DIR "
+            cmd += " ; OE_LICENSE=" + self.__oeLicensePath + " ; export OE_LICENSE "
             # cmd += " ; env "
 
             thisCmd = " ; python -m wwpdb.apps.validation.src.validator"
