@@ -3676,11 +3676,14 @@ class RcsbDpUtility(object):
             cmd += " " + os.path.join(self.__ccAppsPath, "bin") + " " + reportPath + " " + fileName
             cmd += " " + reportRelativePath + " " + reportFile
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
+
         elif (op == "chem-comp-align-img-gen"):
             # set up
             #
             site_config_command = ". %s/init/env.sh -s %s -l %s" % (self.__siteConfigDir, self.__siteId, self.__siteLoc)
             cmd += " ; %s " % site_config_command
+            cmd += " ; OE_DIR=" + self.__oeDirPath + " ; export OE_DIR "
+            cmd += " ; OE_LICENSE=" + self.__oeLicensePath + " ; export OE_LICENSE "
 
             thisCmd = " ; python -m wwpdb.apps.ccmodule.reports.ChemCompBigAlignImages"
 
@@ -3694,6 +3697,8 @@ class RcsbDpUtility(object):
 
             site_config_command = ". %s/init/env.sh -s %s -l %s" % (self.__siteConfigDir, self.__siteId, self.__siteLoc)
             cmd += " ; %s " % site_config_command
+            cmd += " ; OE_DIR=" + self.__oeDirPath + " ; export OE_DIR "
+            cmd += " ; OE_LICENSE=" + self.__oeLicensePath + " ; export OE_LICENSE "
 
             thisCmd = " ; python -m wwpdb.apps.ccmodule.reports.ChemCompAlignImages"
 
@@ -3709,6 +3714,8 @@ class RcsbDpUtility(object):
 
             site_config_command = ". %s/init/env.sh -s %s -l %s" % (self.__siteConfigDir, self.__siteId, self.__siteLoc)
             cmd += " ; %s " % site_config_command
+            cmd += " ; OE_DIR=" + self.__oeDirPath + " ; export OE_DIR "
+            cmd += " ; OE_LICENSE=" + self.__oeLicensePath + " ; export OE_LICENSE "
 
             thisCmd = " ; python -m wwpdb.apps.ccmodule.reports.ChemCompGenImage"
 
