@@ -662,6 +662,7 @@ class RcsbDpUtility(object):
         self.__localAppsPath = self.__cICommon.get_site_local_apps_path()
         self.__packagePath = self.__cICommon.get_site_packages_path()
         self.__deployPath = self.__getConfigPath('SITE_DEPLOY_PATH')
+        self.__sfvalidPath = self.__cICommon.get_sf_valid()
         self.__siteLoc = self.__cI.get('WWPDB_SITE_LOC')
         self.__ccDictPath = self.__cICommon.get_site_cc_dict_path()
         self.__ccCvsPath = self.__cICommon.get_site_cc_cvs_path()
@@ -1234,10 +1235,10 @@ class RcsbDpUtility(object):
             cmd += " ; DEPLOY_DIR=" + self.__deployPath + " ; export DEPLOY_DIR "
             cmd += " ; TOOLS_DIR=" + os.path.join(self.__localAppsPath, 'bin') + " ; export TOOLS_DIR "
             cmd += " ; PACKAGE_DIR=" + self.__packagePath + " ; export PACKAGE_DIR "
-            cmd += " ; DCCPY_DIR=" + self.__cICommon.get_sf_valid() + " ; export DCCPY_DIR "
+            cmd += " ; DCCPY_DIR=" + self.__sfvalidPath + " ; export DCCPY_DIR "
 
             #
-            cmdPath = os.path.join(self.__cICommon.get_sf_valid(), "bin", "dcc.sh")
+            cmdPath = os.path.join(self.__sfvalidPath, "bin", "dcc.sh")
             thisCmd = " ; " + cmdPath
 
             dccArgs = ''
@@ -1324,10 +1325,10 @@ class RcsbDpUtility(object):
             cmd += " ; DEPLOY_DIR=" + self.__deployPath + " ; export DEPLOY_DIR "
             cmd += " ; TOOLS_DIR=" + os.path.join(self.__localAppsPath, 'bin') + " ; export TOOLS_DIR "
             cmd += " ; PACKAGE_DIR=" + self.__packagePath + " ; export PACKAGE_DIR "
-            cmd += " ; DCCPY_DIR=" + self.__cICommon.get_sf_valid() + " ; export DCCPY_DIR "
+            cmd += " ; DCCPY_DIR=" + self.__sfvalidPath + " ; export DCCPY_DIR "
 
             #
-            cmdPath = os.path.join(self.__cICommon.get_sf_valid(), "bin", "dcc.sh")
+            cmdPath = os.path.join(self.__sfvalidPath, "bin", "dcc.sh")
             thisCmd = " ; " + cmdPath
 
             dccArgs = ''
@@ -1358,10 +1359,10 @@ class RcsbDpUtility(object):
             cmd += " ; DEPLOY_DIR=" + self.__deployPath + " ; export DEPLOY_DIR "
             cmd += " ; TOOLS_DIR=" + os.path.join(self.__localAppsPath, 'bin') + " ; export TOOLS_DIR "
             cmd += " ; PACKAGE_DIR=" + self.__packagePath + " ; export PACKAGE_DIR "
-            cmd += " ; DCCPY_DIR=" + self.__cICommon.get_sf_valid() + " ; export DCCPY_DIR "
+            cmd += " ; DCCPY_DIR=" + self.__sfvalidPath + " ; export DCCPY_DIR "
 
             #
-            cmdPath = os.path.join(self.__cICommon.get_sf_valid(), "bin", "dcc.sh")
+            cmdPath = os.path.join(self.__sfvalidPath, "bin", "dcc.sh")
             thisCmd = " ; " + cmdPath
 
             dccArgs = ''
@@ -1391,10 +1392,10 @@ class RcsbDpUtility(object):
             cmd += " ; DEPLOY_DIR=" + self.__deployPath + " ; export DEPLOY_DIR "
             cmd += " ; TOOLS_DIR=" + os.path.join(self.__localAppsPath, 'bin') + " ; export TOOLS_DIR "
             cmd += " ; PACKAGE_DIR=" + self.__packagePath + " ; export PACKAGE_DIR "
-            cmd += " ; DCCPY_DIR=" + self.__cICommon.get_sf_valid() + " ; export DCCPY_DIR "
+            cmd += " ; DCCPY_DIR=" + self.__sfvalidPath + " ; export DCCPY_DIR "
 
             #
-            cmdPath = os.path.join(self.__cICommon.get_sf_valid(), "bin", "dcc.sh")
+            cmdPath = os.path.join(self.__sfvalidPath, "bin", "dcc.sh")
             thisCmd = " ; " + cmdPath
 
             #
@@ -1409,10 +1410,10 @@ class RcsbDpUtility(object):
             cmd += " ; DEPLOY_DIR=" + self.__deployPath + " ; export DEPLOY_DIR "
             cmd += " ; TOOLS_DIR=" + os.path.join(self.__localAppsPath, 'bin') + " ; export TOOLS_DIR "
             cmd += " ; PACKAGE_DIR=" + self.__packagePath + " ; export PACKAGE_DIR "
-            cmd += " ; DCCPY_DIR=" + self.__cICommon.get_sf_valid() + " ; export DCCPY_DIR "
+            cmd += " ; DCCPY_DIR=" + self.__sfvalidPath + " ; export DCCPY_DIR "
 
             #
-            cmdPath = os.path.join(self.__cICommon.get_sf_valid(), "bin", "tool.sh")
+            cmdPath = os.path.join(self.__sfvalidPath, "bin", "tool.sh")
             thisCmd = " ; " + cmdPath
 
             dccArgs = ''
@@ -1431,10 +1432,10 @@ class RcsbDpUtility(object):
             cmd += " ; DEPLOY_DIR=" + self.__deployPath + " ; export DEPLOY_DIR "
             cmd += " ; TOOLS_DIR=" + os.path.join(self.__localAppsPath, 'bin') + " ; export TOOLS_DIR "
             cmd += " ; PACKAGE_DIR=" + self.__packagePath + " ; export PACKAGE_DIR "
-            cmd += " ; DCCPY_DIR=" + self.__cICommon.get_sf_valid() + " ; export DCCPY_DIR "
+            cmd += " ; DCCPY_DIR=" + self.__sfvalidPath + " ; export DCCPY_DIR "
 
             #
-            cmdPath = os.path.join(self.__cICommon.get_sf_valid(), "bin", "tool.sh")
+            cmdPath = os.path.join(self.__sfvalidPath, "bin", "tool.sh")
             thisCmd = " ; " + cmdPath
             #
             # new model file will not be created if nothing to fix
@@ -1451,10 +1452,10 @@ class RcsbDpUtility(object):
             cmd += " ; DEPLOY_DIR=" + self.__deployPath + " ; export DEPLOY_DIR "
             cmd += " ; TOOLS_DIR=" + os.path.join(self.__localAppsPath, 'bin') + " ; export TOOLS_DIR "
             cmd += " ; PACKAGE_DIR=" + self.__packagePath + " ; export PACKAGE_DIR "
-            cmd += " ; DCCPY_DIR=" + self.__cICommon.get_sf_valid() + " ; export DCCPY_DIR "
+            cmd += " ; DCCPY_DIR=" + self.__sfvalidPath + " ; export DCCPY_DIR "
 
             #
-            cmdPath = os.path.join(self.__cICommon.get_sf_valid(), "bin", "tool.sh")
+            cmdPath = os.path.join(self.__sfvalidPath, "bin", "tool.sh")
             thisCmd = " ; " + cmdPath
 
             #
@@ -1484,12 +1485,12 @@ class RcsbDpUtility(object):
             cmd += " ; DEPLOY_DIR=" + self.__deployPath + " ; export DEPLOY_DIR "
             cmd += " ; TOOLS_DIR=" + os.path.join(self.__localAppsPath, 'bin') + " ; export TOOLS_DIR "
             cmd += " ; PACKAGE_DIR=" + self.__packagePath + " ; export PACKAGE_DIR "
-            cmd += " ; DCCPY_DIR=" + self.__cICommon.get_sf_valid() + " ; export DCCPY_DIR "
-            cmd += " ; DCCPY=" + self.__cICommon.get_sf_valid() + " ; export DCCPY "
+            cmd += " ; DCCPY_DIR=" + self.__sfvalidPath + " ; export DCCPY_DIR "
+            cmd += " ; DCCPY=" + self.__sfvalidPath + " ; export DCCPY "
             cmd += " ; CCP4=" + ccp4_path + " ; export CCP4 "
             cmd += " ; source {}/bin/ccp4.setup-sh ".format(ccp4_path)
             #
-            cmdPath = os.path.join(self.__cICommon.get_sf_valid(), "bin", "sf_convert")
+            cmdPath = os.path.join(self.__sfvalidPath, "bin", "sf_convert")
             thisCmd = " ; " + cmdPath
             #
             cmd += thisCmd + " -o mmcif  -sf " + mtzFile + " -out " + oPath + " -diags " + lPath
