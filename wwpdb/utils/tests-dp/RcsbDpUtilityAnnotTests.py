@@ -32,14 +32,12 @@ Test cases from
 
 import logging
 import os
-import platform
 import sys
 import unittest
 
 if __package__ is None or __package__ == '':
-    import sys
     from os import path
-    sys.path.append( path.dirname( path.dirname( path.abspath(__file__) ) ) )
+    sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
     from commonsetup import TESTOUTPUT, TOPDIR, toolsmissing
 else:
     from .commonsetup import TESTOUTPUT, TOPDIR, toolsmissing
@@ -51,8 +49,8 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(levelname)s]-%(mo
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
-class RcsbDpUtilityAnnotTests(unittest.TestCase):
 
+class RcsbDpUtilityAnnotTests(unittest.TestCase):
     def setUp(self):
         self.__siteId = getSiteId(defaultSiteId=None)
         logger.info("\nTesting with site environment for:  %s\n" % self.__siteId)
@@ -78,7 +76,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
         self.__testFileAnnotSiteAlt = '4p00.cif'
         self.__testIdAnnotSiteAlt = '4P00'
 
-        ## OK JDW
+        # OK JDW
         self.__testFileAnnotRcsb = '3of4.cif'
         #
         self.__testFilePdbPisa = '1xbb.pdb'
@@ -100,7 +98,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
 
         self.__testMapNormal = "normal.map"
         self.__testMapSpider = "testmap.spi"
-        ## OK JDW
+        # OK JDW
         self.__testFilePrdSearch = 'D_1200000237_model_P1.cif.V1'
 
         self.__testValidateXrayIdList = ['1cbs']
@@ -539,9 +537,9 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
 
                 xyzPath = os.path.abspath(os.path.join(self.__testFilePath, testFileValidateXyz))
                 sfPath = os.path.abspath(os.path.join(self.__testFilePath, testFileValidateSf))
-                #dp.addInput(name="request_annotation_context", value="yes")
+                # dp.addInput(name="request_annotation_context", value="yes")
                 dp.addInput(name="request_validation_mode", value="annotate")
-                #dp.addInput(name="request_validation_mode", value="server")
+                # dp.addInput(name="request_validation_mode", value="server")
                 dp.imp(xyzPath)
                 dp.addInput(name="sf_file_path", value=sfPath)
                 dp.op("annot-wwpdb-validate-all")
@@ -721,8 +719,8 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             ciffn = "sf-convert-datafile-bad.cif"
             dmpfn = "sf-convert-mtzdmp-bad.log"
             #
-            #self.__testFileMtzRunaway  = "bad-runaway.mtz"
-            #self.__testFileXyzRunaway  = "bad-runaway.cif"
+            # self.__testFileMtzRunaway  = "bad-runaway.mtz"
+            # self.__testFileXyzRunaway  = "bad-runaway.cif"
             #
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
             mtzPath = os.path.join(self.__testFilePath, self.__testFileMtzBad)
@@ -973,7 +971,6 @@ def suiteAnnotSiteAltTests():
     suiteSelect = unittest.TestSuite()
     suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotSiteAlt"))
     return suiteSelect
-
 
 
 def suiteArchiveValidationXrayTests():

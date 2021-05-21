@@ -45,7 +45,7 @@ class RunRemote:
         """
         Escapes dollars, stops variables being interpretted early when passed to bsub.
         """
-        command = command.replace('$', '\$')
+        command = command.replace('$', '\$')  # noqa: W605
         return command
 
     def run(self):
@@ -64,7 +64,7 @@ class RunRemote:
                     try:
                         if self.memory_used > self.memory_limit:
                             self.memory_limit = int(self.memory_used)
-                    except:
+                    except:  # noqa: E722
                         pass
 
                 if self.memory_limit >= 100000:
@@ -200,7 +200,6 @@ class RunRemote:
         if 'LSB_JOBGROUP' in os.environ and os.environ['LSB_JOBGROUP']:
             bsub_command.append('-g {}'.format(os.environ['LSB_JOBGROUP']))
 
-
         bsub_command.append('-n {}'.format(self.number_of_processors))
         bsub_command.append('-W {}'.format(self.timeout))
         if self.memory_limit:
@@ -236,7 +235,7 @@ class RunRemote:
         self.memory_unit = 'MB'
         if os.path.exists(self.bsub_log_file):
             with open(self.bsub_log_file, 'r') as log_file:
-                for l in log_file:
+                for l in log_file:  # noqa: E741
                     if 'Max Memory :' in l:
                         try:
                             memory_used = l.split(':')[-1].strip()

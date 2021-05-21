@@ -24,6 +24,7 @@ from wwpdb.utils.dp.PdbxSFMapCoefficients import PdbxSFMapCoefficients
 
 logger = logging.getLogger(__name__)
 
+
 class ValidationWrapper(RcsbDpUtility):
     def __init__(self, tmpPath="/scratch", siteId='DEV', verbose=False, log=sys.stderr):
         logger.debug("Starting")
@@ -49,11 +50,9 @@ class ValidationWrapper(RcsbDpUtility):
 
         return None
 
-
     def imp(self, srcPath=None):
         self.__modelfile = srcPath
         super(ValidationWrapper, self).imp(srcPath)
-
 
     def op(self, op):
         logger.info("Starting op %s" % op)
@@ -96,7 +95,7 @@ class ValidationWrapper(RcsbDpUtility):
 
         psm = PdbxSFMapCoefficients(siteid=self.__siteId, tmppath=self._tmppath)
         ret = psm.read_mtz_sf(mtzfile)
-        logger.debug("read_mtz_sf ret %s" %ret)
+        logger.debug("read_mtz_sf ret %s", ret)
 
         if ret:
             # Ensure map coefficients produced in conversion - returns True if present

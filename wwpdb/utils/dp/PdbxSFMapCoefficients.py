@@ -73,7 +73,7 @@ class PdbxSFMapCoefficients(object):
         return True
 
     def read_mtz_sf(self, pathin):
-        """Reads MTZ structure factor file 
+        """Reads MTZ structure factor file
 
             Return True on success, otherwise False
         """

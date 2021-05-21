@@ -16,14 +16,12 @@ Test cases for map production and structure factor reflection file validation -
 
 import logging
 import os
-import platform
 import sys
 import unittest
 
 if __package__ is None or __package__ == '':
-    import sys
     from os import path
-    sys.path.append( path.dirname( path.dirname( path.abspath(__file__) ) ) )
+    sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
     from commonsetup import TESTOUTPUT, TOPDIR, toolsmissing
 else:
     from .commonsetup import TESTOUTPUT, TOPDIR, toolsmissing
@@ -215,8 +213,8 @@ class RcsbDpUtilityMapTests(unittest.TestCase):
             ciffn = "sf-convert-datafile-bad.cif"
             dmpfn = "sf-convert-mtzdmp-bad.log"
             #
-            #self.__testFileMtzRunaway  = "bad-runaway.mtz"
-            #self.__testFileXyzRunaway  = "bad-runaway.cif"
+            # self.__testFileMtzRunaway  = "bad-runaway.mtz"
+            # self.__testFileXyzRunaway  = "bad-runaway.cif"
             #
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
             mtzPath = os.path.join(self.__testFilePath, self.__testFileMtzBad)
