@@ -22,7 +22,7 @@ import unittest
 if __package__ is None or __package__ == '':
     from os import path
     sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
-    from commonsetup import TESTOUTPUT, TOPDIR, toolsmissing
+    from commonsetup import TESTOUTPUT, TOPDIR, toolsmissing  # pylint: disable=import-error
 else:
     from .commonsetup import TESTOUTPUT, TOPDIR, toolsmissing
 
@@ -39,7 +39,7 @@ class RcsbDpUtilityMapTests(unittest.TestCase):
 
     def setUp(self):
         self.__siteId = getSiteId(defaultSiteId=None)
-        logger.info("\nTesting with site environment for:  %s\n" % self.__siteId)
+        logger.info("\nTesting with site environment for:  %s\n", self.__siteId)
         #
         self.__tmpPath = TESTOUTPUT
         self.__cI = ConfigInfo(self.__siteId)
@@ -62,7 +62,7 @@ class RcsbDpUtilityMapTests(unittest.TestCase):
     def testAnnotMapCalc(self):
         """  Test create density maps --
         """
-        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting")
         try:
             for pdbId in self.__testValidateIdList:
                 of2fofc = pdbId + "_map-2fofc_P1.map"
@@ -82,13 +82,13 @@ class RcsbDpUtilityMapTests(unittest.TestCase):
                 dp.expList(dstPathList=[of2fofc, offofc])
                 # dp.cleanup()
         except Exception as e:
-            logger.exception("Failing with %s" % str(e))
+            logger.exception("Failing with %s", str(e))
             self.fail()
 
     def testAnnotOmitMapCalc(self):
         """  Test create density maps --
         """
-        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting")
         try:
             for pdbId in self.__testValidateIdList:
                 of2fofc = pdbId + "_map-omit-2fofc_P1.map"
@@ -108,13 +108,13 @@ class RcsbDpUtilityMapTests(unittest.TestCase):
                 dp.expList(dstPathList=[of2fofc, offofc])
                 # dp.cleanup()
         except Exception as e:
-            logger.exception("Failing with %s" % str(e))
+            logger.exception("Failing with %s", str(e))
             self.fail()
 
     def testAnnotLigandMapCalc(self):
         """  Test create non-polymer local density maps --
         """
-        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting")
         try:
             for pdbId in ['3of4']:
 
@@ -136,7 +136,7 @@ class RcsbDpUtilityMapTests(unittest.TestCase):
                 dp.op("annot-make-ligand-maps")
                 dp.expLog(pdbId + "-annot-make-ligand-maps.log")
                 #
-                if (False):
+                if (False):  # pylint: disable=using-constant-test
                     dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
                     dp.setDebugMode(flag=True)
                     xyzPath = os.path.join(self.__testFilePath, testFileXyz)
@@ -158,13 +158,13 @@ class RcsbDpUtilityMapTests(unittest.TestCase):
                     # dp.cleanup()
 
         except Exception as e:
-            logger.exception("Failing with %s" % str(e))
+            logger.exception("Failing with %s", str(e))
             self.fail()
 
     def testAnnotDccReport(self):
         """  Test create DCC report -
         """
-        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting")
         try:
             ofn = "dcc-report.cif"
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
@@ -179,13 +179,13 @@ class RcsbDpUtilityMapTests(unittest.TestCase):
             # dp.expList(dstPathList=[ofpdf,ofxml])
             dp.cleanup()
         except Exception as e:
-            logger.exception("Failing with %s" % str(e))
+            logger.exception("Failing with %s", str(e))
             self.fail()
 
     def testAnnotMtz2PdbxGood(self):
         """  Test mtz to pdbx conversion  (good mtz)
         """
-        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting")
         try:
             diagfn = "sf-convert-diags.cif"
             ciffn = "sf-convert-datafile.cif"
@@ -201,13 +201,13 @@ class RcsbDpUtilityMapTests(unittest.TestCase):
             dp.expList(dstPathList=[ciffn, diagfn, dmpfn])
             # dp.cleanup()
         except Exception as e:
-            logger.exception("Failing with %s" % str(e))
+            logger.exception("Failing with %s", str(e))
             self.fail()
 
     def testAnnotMtz2PdbxBad(self):
         """  Test mtz to pdbx conversion
         """
-        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting")
         try:
             diagfn = "sf-convert-diags-bad.cif"
             ciffn = "sf-convert-datafile-bad.cif"
@@ -227,13 +227,13 @@ class RcsbDpUtilityMapTests(unittest.TestCase):
             dp.expList(dstPathList=[ciffn, diagfn, dmpfn])
             # dp.cleanup()
         except Exception as e:
-            logger.exception("Failing with %s" % str(e))
+            logger.exception("Failing with %s", str(e))
             self.fail()
 
     def testAnnotMtz2PdbxBadTimeout(self):
         """  Test mtz to pdbx conversion
         """
-        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting")
         try:
             diagfn = "sf-convert-diags-bad-runaway.cif"
             ciffn = "sf-convert-datafile-bad-runaway.cif"
@@ -249,7 +249,7 @@ class RcsbDpUtilityMapTests(unittest.TestCase):
             dp.expList(dstPathList=[ciffn, diagfn, dmpfn])
             # dp.cleanup()
         except Exception as e:
-            logger.exception("Failing with %s" % str(e))
+            logger.exception("Failing with %s", str(e))
             self.fail()
 
 

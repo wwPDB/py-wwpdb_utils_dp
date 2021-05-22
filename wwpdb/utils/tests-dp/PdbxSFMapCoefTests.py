@@ -15,7 +15,7 @@ if __package__ is None or __package__ == '':
     from os import path
 
     sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
-    from commonsetup import TESTOUTPUT, toolsmissing, mockTopPath
+    from commonsetup import TESTOUTPUT, toolsmissing, mockTopPath  # pylint: disable=import-error
 else:
     from .commonsetup import TESTOUTPUT, toolsmissing, mockTopPath
 
@@ -30,7 +30,7 @@ class PdbxSFTests(unittest.TestCase):
         pass
 
     def testImport(self):
-        p = PdbxSFMapCoefficients()  # noqa: F841
+        _p = PdbxSFMapCoefficients()  # noqa: F841
 
     @unittest.skipIf(toolsmissing, "Cannot test sf conversion without tools")
     def testMtzConversion(self):

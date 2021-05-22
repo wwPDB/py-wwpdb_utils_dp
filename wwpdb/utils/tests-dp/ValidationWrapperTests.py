@@ -8,14 +8,14 @@ Test cases for validation wrapper
 """
 import logging
 import unittest
+import sys
 import os
 
 if __package__ is None or __package__ == '':
-    import sys
     from os import path
 
     sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
-    from commonsetup import TESTOUTPUT, toolsmissing, mockTopPath
+    from commonsetup import TESTOUTPUT, toolsmissing, mockTopPath  # pylint: disable=import-error
 else:
     from .commonsetup import TESTOUTPUT, toolsmissing, mockTopPath
 
@@ -56,7 +56,6 @@ class ValidationWrapperTests(unittest.TestCase):
         if os.path.exists(twofoout):
             os.unlink(twofoout)
 
-        import sys
         sys.stderr.write("CKP1\n")
         siteid = getSiteId()
         sys.stderr.write("SITEID %s\n" % siteid)

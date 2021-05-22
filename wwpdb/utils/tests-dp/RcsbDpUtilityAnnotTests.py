@@ -38,7 +38,7 @@ import unittest
 if __package__ is None or __package__ == '':
     from os import path
     sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
-    from commonsetup import TESTOUTPUT, TOPDIR, toolsmissing
+    from commonsetup import TESTOUTPUT, TOPDIR, toolsmissing  # pylint: disable=import-error
 else:
     from .commonsetup import TESTOUTPUT, TOPDIR, toolsmissing
 
@@ -53,7 +53,7 @@ logger.setLevel(logging.INFO)
 class RcsbDpUtilityAnnotTests(unittest.TestCase):
     def setUp(self):
         self.__siteId = getSiteId(defaultSiteId=None)
-        logger.info("\nTesting with site environment for:  %s\n" % self.__siteId)
+        logger.info("\nTesting with site environment for:  %s\n", self.__siteId)
         #
         self.__cI = ConfigInfo(self.__siteId)
         #
@@ -116,7 +116,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
     def testValidateGeometryCheck(self):
         """  Test format sanity check for pdbx
         """
-        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting")
         try:
             of = "validate-geometry-check.cif"
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
@@ -128,14 +128,14 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             # dp.cleanup()
 
         except Exception as e:
-            logger.exception("Failing with %s" % str(e))
+            logger.exception("Failing with %s", str(e))
             self.fail()
 
     @unittest.skipIf(toolsmissing, "Tools not available for testing")
     def testAnnotValidateGeometryCheck(self):
         """  Test of updating geometrical validation diagnostics -
         """
-        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting")
         try:
             of = "annot-validate-geometry-check.cif"
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
@@ -147,14 +147,14 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             # dp.cleanup()
 
         except Exception as e:
-            logger.exception("Failing with %s" % str(e))
+            logger.exception("Failing with %s", str(e))
             self.fail()
 
     @unittest.skipIf(toolsmissing, "Tools not available for testing")
     def testAnnotGetCorresInfo(self):
         """  Test running GetCorresInfo to get correspondance info -
         """
-        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting")
         try:
             of = os.path.join(self.__tmpPath, "annot-get-corres-info-check.cif")
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
@@ -167,14 +167,14 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             # dp.cleanup()
 
         except Exception as e:
-            logger.exception("Failing with %s" % str(e))
+            logger.exception("Failing with %s", str(e))
             self.fail()
 
     @unittest.skipIf(toolsmissing, "Tools not available for testing")
     def testAnnotFormatCheck(self):
         """  Test format sanity check for pdbx
         """
-        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting")
         try:
             of = "annot-format-check.txt"
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
@@ -187,14 +187,14 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             # dp.cleanup()
 
         except Exception as e:
-            logger.exception("Failing with %s" % str(e))
+            logger.exception("Failing with %s", str(e))
             self.fail()
 
     @unittest.skipIf(toolsmissing, "Tools not available for testing")
     def testAnnotSite(self):
         """  Calculate site environment
         """
-        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting")
         try:
             of = "annot-site-" + self.__testFileAnnotSite + ".gz"
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
@@ -207,14 +207,14 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             # dp.cleanup()
 
         except Exception as e:
-            logger.exception("Failing with %s" % str(e))
+            logger.exception("Failing with %s", str(e))
             self.fail()
 
     @unittest.skipIf(toolsmissing, "Tools not available for testing")
     def testAnnotSiteAlt(self):
         """  Calculate site environment
         """
-        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting")
         try:
             of = "annot-site-" + self.__testIdAnnotSiteAlt + '.cif'
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
@@ -227,14 +227,14 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             # dp.cleanup()
 
         except Exception as e:
-            logger.exception("Failing with %s" % str(e))
+            logger.exception("Failing with %s", str(e))
             self.fail()
 
     @unittest.skipIf(toolsmissing, "Tools not available for testing")
     def testAnnotSiteAndMerge(self):
         """  Calculate site environment
         """
-        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting")
         try:
             of = "annot-site-" + self.__testFileAnnotSite  # +".gz"
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
@@ -255,14 +255,14 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             # dp.cleanup()
 
         except Exception as e:
-            logger.exception("Failing with %s" % str(e))
+            logger.exception("Failing with %s", str(e))
             self.fail()
 
     @unittest.skipIf(toolsmissing, "Tools not available for testing")
     def testAnnotSecondaryStructureWithTopology(self):
         """  Calculate secondary structure with a supporting topology file.
         """
-        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting")
         try:
             of = "annot-ss-with-top-" + self.__testFileAnnotSS + ".gz"
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
@@ -275,14 +275,14 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             dp.exp(of)
             dp.cleanup()
         except Exception as e:
-            logger.exception("Failing with %s" % str(e))
+            logger.exception("Failing with %s", str(e))
             self.fail()
 
     @unittest.skipIf(toolsmissing, "Tools not available for testing")
     def testAnnotSecondaryStructure(self):
         """  Calculate secondary structure for a complicated case where pro-motif will fail.
         """
-        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting")
         try:
             of = "annot-ss-" + self.__testFileAnnotSS + ".gz"
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
@@ -293,14 +293,14 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             dp.exp(of)
             dp.cleanup()
         except Exception as e:
-            logger.exception("Failing with %s" % str(e))
+            logger.exception("Failing with %s", str(e))
             self.fail()
 
     @unittest.skipIf(toolsmissing, "Tools not available for testing")
     def testAnnotLinkSSBond(self):
         """  Calculate link and ss-bond features -
         """
-        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting")
         try:
             of = "annot-link-" + self.__testFileAnnotLink + ".gz"
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
@@ -311,14 +311,14 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             dp.exp(of)
             dp.cleanup()
         except Exception as e:
-            logger.exception("Failing with %s" % str(e))
+            logger.exception("Failing with %s", str(e))
             self.fail()
 
     @unittest.skipIf(toolsmissing, "Tools not available for testing")
     def testAnnotCisPeptide(self):
         """  Calculate cis-peptide linkages -
         """
-        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting")
         try:
             of = "annot-link-" + self.__testFileAnnotCisPeptide + ".gz"
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
@@ -329,14 +329,14 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             dp.exp(of)
             dp.cleanup()
         except Exception as e:
-            logger.exception("Failing with %s" % str(e))
+            logger.exception("Failing with %s", str(e))
             self.fail()
 
     @unittest.skipIf(toolsmissing, "Tools not available for testing")
     def testAnnotDistantSolvent(self):
         """  Calculate distant solvent
         """
-        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting")
         try:
             of = "annot-distant-" + self.__testFileAnnotSolvent + ".gz"
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
@@ -347,14 +347,14 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             dp.exp(of)
             dp.cleanup()
         except Exception as e:
-            logger.exception("Failing with %s" % str(e))
+            logger.exception("Failing with %s", str(e))
             self.fail()
 
     @unittest.skipIf(toolsmissing, "Tools not available for testing")
     def testAnnotRepositionSolvent(self):
         """  Calculate distant solvent
         """
-        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting")
         try:
             of = "annot-reposition-" + self.__testFileAnnotSolvent
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
@@ -365,14 +365,14 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             dp.exp(of)
             dp.cleanup()
         except Exception as e:
-            logger.exception("Failing with %s" % str(e))
+            logger.exception("Failing with %s", str(e))
             self.fail()
 
     @unittest.skipIf(toolsmissing, "Tools not available for testing")
     def testAnnotBasePair(self):
         """  Calculate base pairing
         """
-        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting")
         try:
             of = "annot-base-pair-" + self.__testFileAnnotNA + ".gz"
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
@@ -383,14 +383,14 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             dp.exp(of)
             dp.cleanup()
         except Exception as e:
-            logger.exception("Failing with %s" % str(e))
+            logger.exception("Failing with %s", str(e))
             self.fail()
 
     @unittest.skipIf(toolsmissing, "Tools not available for testing")
     def testAnnotValidation(self):
         """  Calculate geometrical validation -
         """
-        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting")
         try:
             of = "annot-validation-" + self.__testFileAnnotValidate + ".gz"
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
@@ -401,7 +401,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             dp.exp(of)
             dp.cleanup()
         except Exception as e:
-            logger.exception("Failing with %s" % str(e))
+            logger.exception("Failing with %s", str(e))
             self.fail()
 
     @unittest.skipIf(toolsmissing, "Tools not available for testing")
@@ -410,7 +410,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
 
              Converting to RCSB to PDB id in _entry.id and related items.
         """
-        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting")
         try:
             of = "annot-rcsb2pdbx-withpdbid-" + self.__testFileAnnotRcsb
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
@@ -421,7 +421,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             dp.exp(of)
             dp.cleanup()
         except Exception as e:
-            logger.exception("Failing with %s" % str(e))
+            logger.exception("Failing with %s", str(e))
             self.fail()
 
     @unittest.skipIf(toolsmissing, "Tools not available for testing")
@@ -430,7 +430,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
 
              Converting to RCSB to PDB id in _entry.id and related items.
         """
-        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting")
         try:
             of = "annot-rcsb2pdbx-withpdbid-sq-" + self.__testFileAnnotRcsb
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
@@ -441,7 +441,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             dp.exp(of)
             dp.cleanup()
         except Exception as e:
-            logger.exception("Failing with %s" % str(e))
+            logger.exception("Failing with %s", str(e))
             self.fail()
 
     @unittest.skipIf(toolsmissing, "Tools not available for testing")
@@ -449,7 +449,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
         """  RCSB CIF -> PDBx conversion  (Using the smaller application in the annotation package)
              using maxit
         """
-        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting")
         try:
             of = "annot-rcsb2pdbx-alt-" + self.__testFileAnnotRcsb
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
@@ -460,14 +460,14 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             dp.exp(of)
             dp.cleanup()
         except Exception as e:
-            logger.exception("Failing with %s" % str(e))
+            logger.exception("Failing with %s", str(e))
             self.fail()
 
     @unittest.skipIf(toolsmissing, "Tools not available for testing")
     def testAnnotRcsb2PdbxStrip(self):
         """  RCSB CIF -> PDBx conversion  (Using the smaller application in the annotation package)
         """
-        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting")
         try:
             of = "annot-rcsb2pdbx-strip-" + self.__testFileAnnotRcsb
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
@@ -478,14 +478,14 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             dp.exp(of)
             dp.cleanup()
         except Exception as e:
-            logger.exception("Failing with %s" % str(e))
+            logger.exception("Failing with %s", str(e))
             self.fail()
 
     @unittest.skipIf(toolsmissing, "Tools not available for testing")
     def testAnnotValidateListNmrTest(self):
         """  Test create validation report for the test list of example PDB ids (NMR examples)
         """
-        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting")
         try:
             count = 0
             for pdbId in self.__testValidateNmrIdList:
@@ -514,14 +514,14 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
                 dp.expList(dstPathList=[ofpdf, ofxml, offullpdf, ofpng, ofsvg])
                 dp.cleanup()
         except Exception as e:
-            logger.exception("Failing with %s" % str(e))
+            logger.exception("Failing with %s", str(e))
             self.fail()
 
     @unittest.skipIf(toolsmissing, "Tools not available for testing")
     def testAnnotValidateListXrayTest(self):
         """  Test create validation report for the test list of example PDB ids (NMR examples)
         """
-        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting")
         try:
             for pdbId in self.__testValidateXrayIdList:
                 ofpdf = pdbId + "-valrpt.pdf"
@@ -547,14 +547,14 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
                 dp.expList(dstPathList=[ofpdf, ofxml, offullpdf, ofpng, ofsvg])
                 # dp.cleanup()
         except Exception as e:
-            logger.exception("Failing with %s" % str(e))
+            logger.exception("Failing with %s", str(e))
             self.fail()
 
     @unittest.skipIf(toolsmissing, "Tools not available for testing")
     def testAnnotConsolidatedTasksWithTopology(self):
         """  Calculate annotation tasks in a single step including supporting topology data.
         """
-        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting")
         try:
             of = "annot-consolidated-top-" + self.__testFileAnnotSS + ".gz"
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
@@ -567,14 +567,14 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             dp.exp(of)
             dp.cleanup()
         except Exception as e:
-            logger.exception("Failing with %s" % str(e))
+            logger.exception("Failing with %s", str(e))
             self.fail()
 
     @unittest.skipIf(toolsmissing, "Tools not available for testing")
     def testAnnotRepositionSolventPlusDerived(self):
         """  Calculate distant solvent followed by computing key derived categories --
         """
-        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting")
         try:
             of = "annot-reposition-add-derived-" + self.__testFileAnnotSolvent
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
@@ -585,14 +585,14 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             dp.exp(of)
             dp.cleanup()
         except Exception as e:
-            logger.exception("Failing with %s" % str(e))
+            logger.exception("Failing with %s", str(e))
             self.fail()
 
     @unittest.skipIf(toolsmissing, "Tools not available for testing")
     def testAnnotMapCalc(self):
         """  Test create density maps --
         """
-        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting")
         try:
             for pdbId in ['1cbs', '3of4', '3oqp']:
                 of2fofc = pdbId + "_2fofc.map"
@@ -611,14 +611,14 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
                 dp.expList(dstPathList=[of2fofc, offofc])
                 # dp.cleanup()
         except Exception as e:
-            logger.exception("Failing with %s" % str(e))
+            logger.exception("Failing with %s", str(e))
             self.fail()
 
     @unittest.skipIf(toolsmissing, "Tools not available for testing")
     def testAnnotLigandMapCalc(self):
         """  Test create density maps --
         """
-        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting")
         try:
             for pdbId in ['3of4']:
                 # of2fofc=pdbId+"_2fofc.map"
@@ -641,14 +641,14 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
                 # dp.expList(dstPathList=[of2fofc,offofc])
                 # dp.cleanup()
         except Exception as e:
-            logger.exception("Failing with %s" % str(e))
+            logger.exception("Failing with %s", str(e))
             self.fail()
 
     @unittest.skipIf(toolsmissing, "Tools not available for testing")
     def testAnnotDccRsrReport(self):
         """  Test create DCC report -
         """
-        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting")
         try:
             ofn = "dcc-rsr-report.cif"
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
@@ -663,14 +663,14 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             dp.exp(ofn)
             # dp.cleanup()
         except Exception as e:
-            logger.exception("Failing with %s" % str(e))
+            logger.exception("Failing with %s", str(e))
             self.fail()
 
     @unittest.skipIf(toolsmissing, "Tools not available for testing")
     def testAnnotDccReport(self):
         """  Test create DCC report -
         """
-        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting")
         try:
             ofn = "dcc-report.cif"
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
@@ -684,14 +684,14 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             # dp.expList(dstPathList=[ofpdf,ofxml])
             dp.cleanup()
         except Exception as e:
-            logger.exception("Failing with %s" % str(e))
+            logger.exception("Failing with %s", str(e))
             self.fail()
 
     @unittest.skipIf(toolsmissing, "Tools not available for testing")
     def testAnnotMtz2PdbxGood(self):
         """  Test mtz to pdbx conversion  (good mtz)
         """
-        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting")
         try:
             diagfn = "sf-convert-diags.cif"
             ciffn = "sf-convert-datafile.cif"
@@ -706,14 +706,14 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             dp.expList(dstPathList=[ciffn, diagfn, dmpfn])
             # dp.cleanup()
         except Exception as e:
-            logger.exception("Failing with %s" % str(e))
+            logger.exception("Failing with %s", str(e))
             self.fail()
 
     @unittest.skipIf(toolsmissing, "Tools not available for testing")
     def testAnnotMtz2PdbxBad(self):
         """  Test mtz to pdbx conversion
         """
-        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting")
         try:
             diagfn = "sf-convert-diags-bad.cif"
             ciffn = "sf-convert-datafile-bad.cif"
@@ -733,14 +733,14 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             dp.expList(dstPathList=[ciffn, diagfn, dmpfn])
             # dp.cleanup()
         except Exception as e:
-            logger.exception("Failing with %s" % str(e))
+            logger.exception("Failing with %s", str(e))
             self.fail()
 
     @unittest.skipIf(toolsmissing, "Tools not available for testing")
     def testAnnotMtz2PdbxBadTimeout(self):
         """  Test mtz to pdbx conversion
         """
-        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting")
         try:
             diagfn = "sf-convert-diags-bad-runaway.cif"
             ciffn = "sf-convert-datafile-bad-runaway.cif"
@@ -755,14 +755,14 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             dp.expList(dstPathList=[ciffn, diagfn, dmpfn])
             # dp.cleanup()
         except Exception as e:
-            logger.exception("Failing with %s" % str(e))
+            logger.exception("Failing with %s", str(e))
             self.fail()
 
     @unittest.skipIf(toolsmissing, "Tools not available for testing")
     def testMapFix(self):
         """  Test mapfix utility
         """
-        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting")
         try:
 
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
@@ -775,14 +775,14 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             dp.exp(of)
             # dp.cleanup()
         except Exception as e:
-            logger.exception("Failing with %s" % str(e))
+            logger.exception("Failing with %s", str(e))
             self.fail()
 
     @unittest.skipIf(toolsmissing, "Tools not available for testing")
     def testSpecialPosition(self):
         """  Test for atom on special position
         """
-        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting")
         try:
 
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
@@ -800,7 +800,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             self.assertIn('No atoms sit on special position', lines)
             dp.cleanup()
         except Exception as e:
-            logger.exception("Failing with %s" % str(e))
+            logger.exception("Failing with %s", str(e))
             self.fail()
 
         # This case has atoms on special position that needs correction
@@ -821,14 +821,14 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             self.assertIn('Error: Wrong occupancy of 1.00 for atom (O : id=D_HOH_1)', lines)
             dp.cleanup()
         except Exception as e:
-            logger.exception("Failing with %s" % str(e))
+            logger.exception("Failing with %s", str(e))
             self.fail()
 
     @unittest.skipIf(toolsmissing, "Tools not available for testing")
     def testFixSpecialPosition(self):
         """  Test for fixing atoms on special position
         """
-        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting")
         try:
 
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
@@ -848,7 +848,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             self.assertIn('No atoms sit on special position', lines)
             dp.cleanup()
         except Exception as e:
-            logger.exception("Failing with %s" % str(e))
+            logger.exception("Failing with %s", str(e))
             self.fail()
 
         # This case has atoms on special position that needs correction
@@ -878,14 +878,14 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             self.assertIn('Error: Wrong occupancy of 1.00 for atom (O : id=D_HOH_1)', lines)
             dp.cleanup()
         except Exception as e:
-            logger.exception("Failing with %s" % str(e))
+            logger.exception("Failing with %s", str(e))
             self.fail()
 
     @unittest.skipIf(toolsmissing, "Tools not available for testing")
     def testEm2EmSpider(self):
         """  Test mapfix utility
         """
-        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting")
         try:
 
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
@@ -902,14 +902,14 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             dp.exp(of)
             # dp.cleanup()
         except Exception as e:
-            logger.exception("Failing with %s" % str(e))
+            logger.exception("Failing with %s", str(e))
             self.fail()
 
     @unittest.skipIf(toolsmissing, "Tools not available for testing")
     def testAnnotPrdSearch(self):
         """  Test case for PRD Search --
         """
-        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting")
         try:
             ofn = "prd-search-result.cif"
             firstModelPath = os.path.abspath('firstmodel.cif')
@@ -924,14 +924,14 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             dp.exp(ofn)
             # dp.cleanup()
         except Exception as e:
-            logger.exception("Failing with %s" % str(e))
+            logger.exception("Failing with %s", str(e))
             self.fail()
 
     @unittest.skipIf(toolsmissing, "Tools not available for testing")
     def testAnnotUpdateDepositorAssembly(self):
         """  Update deposition provided assembly info into model (need better test example)
         """
-        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting")
         try:
             of = "annot-update-assembly-" + self.__testDepAssembly
 
@@ -943,7 +943,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             dp.exp(of)
             dp.cleanup()
         except Exception as e:
-            logger.exception("Failing with %s" % str(e))
+            logger.exception("Failing with %s", str(e))
             self.fail()
 
 

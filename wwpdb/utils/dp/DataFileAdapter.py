@@ -59,7 +59,7 @@ class DataFileAdapter(object):
             dp.exp(outPath)
             if (not self.__debug):
                 dp.cleanup()
-        except:  # noqa: E722
+        except:  # noqa: E722 pylint: disable=bare-except
             traceback.print_exc(file=self.__lfh)
             return False
         #
@@ -85,7 +85,7 @@ class DataFileAdapter(object):
             dp.exp(outPath)
             if (not self.__debug):
                 dp.cleanup()
-        except:  # noqa: E722
+        except:  # noqa: E722 pylint: disable=bare-except
             traceback.print_exc(file=self.__lfh)
             return False
         #
@@ -103,7 +103,7 @@ class DataFileAdapter(object):
             dp.exp(outPath)
             if (not self.__debug):
                 dp.cleanup()
-        except:  # noqa: E722
+        except:  # noqa: E722 pylint: disable=bare-except
             traceback.print_exc(file=self.__lfh)
             return False
         #
@@ -121,7 +121,7 @@ class DataFileAdapter(object):
             dp.exp(outPath)
             if (not self.__debug):
                 dp.cleanup()
-        except:  # noqa: E722
+        except:  # noqa: E722 pylint: disable=bare-except
             traceback.print_exc(file=self.__lfh)
             return False
         #
@@ -146,7 +146,7 @@ class DataFileAdapter(object):
             dp.exp(outPath)
             if (not self.__debug):
                 dp.cleanup()
-        except:  # noqa: E722
+        except:  # noqa: E722 pylint: disable=bare-except
             traceback.print_exc(file=self.__lfh)
             return False
         #
@@ -164,7 +164,7 @@ class DataFileAdapter(object):
             dp.exp(outPath)
             if (not self.__debug):
                 dp.cleanup()
-        except:  # noqa: E722
+        except:  # noqa: E722 pylint: disable=bare-except
             traceback.print_exc(file=self.__lfh)
             return False
         #
@@ -182,7 +182,7 @@ class DataFileAdapter(object):
             dp.exp(outPath)
             if (not self.__debug):
                 dp.cleanup()
-        except:  # noqa: E722
+        except:  # noqa: E722 pylint: disable=bare-except
             traceback.print_exc(file=self.__lfh)
             return False
         #
@@ -218,7 +218,7 @@ class DataFileAdapter(object):
             else:
                 ok = False
             return ok
-        except:  # noqa: E722
+        except:  # noqa: E722 pylint: disable=bare-except
             traceback.print_exc(file=self.__lfh)
             return False
 
@@ -244,7 +244,7 @@ class DataFileAdapter(object):
             # wrkPath = dp.getWorkingDir()
             for pth in pthList:
                 if os.access(pth, os.R_OK):
-                    (t, fn) = os.path.split(pth)
+                    (_t, fn) = os.path.split(pth)
                     shutil.copyfile(pth, os.path.join(outPath, fn))
 
             # if (not self.__debug):
@@ -254,13 +254,13 @@ class DataFileAdapter(object):
                 self.__lfh.write("+DataFileAdapter.pdbx2Assemblies() - input  model file path: %s\n" % inpFilePath)
                 self.__lfh.write("+DataFileAdapter.pdbx2Assemblies() - assembly output paths:  %r\n" % pthList)
             return True
-        except:  # noqa: E722
+        except:  # noqa: E722 pylint: disable=bare-except
             self.__lfh.write("+DataFileAdapter.pdbx2Assemblies() - failing for input file path %s output path %s\n" % (inpFilePath, outPath))
             traceback.print_exc(file=self.__lfh)
             return False
 
     def mtz2Pdbx(self, mtzFilePath, outSfFilePath, pdbxFilePath=None, logFilePath=None,
-                 diagsFilePath=None, dumpFilePath=None, timeout=120):
+                 diagsFilePath=None, dumpFilePath=None, timeout=120):  # pylint: disable=unused-argument
         """ Convert input MTZ format to PDBx sf file.
         """
         try:
@@ -279,7 +279,7 @@ class DataFileAdapter(object):
             if (not self.__debug):
                 dp.cleanup()
             return True
-        except:  # noqa: E722
+        except:  # noqa: E722 pylint: disable=bare-except
             self.__lfh.write("+DataFileAdapter.mtz2Pdbx() - failing for mtz file path %s output path %s\n" % (mtzFilePath, outSfFilePath))
             traceback.print_exc(file=self.__lfh)
             return False

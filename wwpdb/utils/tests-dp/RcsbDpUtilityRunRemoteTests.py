@@ -9,9 +9,8 @@ import logging
 
 
 if __package__ is None or __package__ == '':
-    from os import path
-    sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
-    from commonsetup import toolsmissing
+    sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    from commonsetup import toolsmissing  # pylint: disable=import-error
 else:
     from .commonsetup import toolsmissing
 
@@ -105,7 +104,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
     def test_AnnotValidateGeometryCheck(self):
         """  Test of updating geometrical validation diagnostics -
         """
-        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.debug("\nStarting")
         of = os.path.join(self.__tmpPath, "annot-validate-geometry-check.cif")
         dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
         inp_path = os.path.join(self.__testFilePath, self.__testFileAnnotSite)
@@ -121,7 +120,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
     def test_AnnotValidateGeometryCheckRemote(self):
         """  Test of updating geometrical validation diagnostics -
         """
-        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.debug("\nStarting")
 
         of = os.path.join(self.__tmpPath, "annot-validate-geometry-check-remote.cif")
         dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
@@ -141,7 +140,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
 
              Converting to RCSB to PDB id in _entry.id and related items.
         """
-        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.debug("\nStarting")
         of = os.path.join(self.__tmpPath, "annot-rcsb2pdbx-withpdbid-" + self.__testFileAnnotRcsb)
         dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
         inpPath = os.path.join(self.__testFilePath, self.__testFileAnnotRcsb)
@@ -158,10 +157,11 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
     def testAnnotValidateListXrayTestRemote(self):
         """  Test create validation report for the test list of example PDB ids (x-ray examples)
         """
-        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.debug("\nStarting")
         for pdbId in self.__testValidateXrayIdList:
             self.__tmpPath = tempfile.mkdtemp(dir=self.__siteWebAppsSessionsPath)
-            self.__lfh.write("\nStarting {} in {}\n".format(pdbId, self.__tmpPath))
+            msg = "\nStarting {} in {}\n".format(pdbId, self.__tmpPath)
+            logger.debug(msg)
             ofpdf = os.path.join(self.__tmpPath, pdbId + "-valrpt.pdf")
             ofxml = os.path.join(self.__tmpPath, pdbId + "-valdata.xml")
             offullpdf = os.path.join(self.__tmpPath, pdbId + "-valrpt_full.pdf")
@@ -198,10 +198,10 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
     def testAnnotValidateXrayNeutronRemote(self):
         """  Test create validation report for the test list of example PDB ids (x-ray examples)
         """
-        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.debug("\nStarting")
 
         self.__tmpPath = tempfile.mkdtemp(dir=self.__siteWebAppsSessionsPath)
-        self.__lfh.write("\nStarting x-ray neutron in {}\n".format(self.__tmpPath))
+        logger.debug("\nStarting x-ray neutron in %s\n", self.__tmpPath)
         ofpdf = os.path.join(self.__tmpPath, "test-valrpt.pdf")
         ofxml = os.path.join(self.__tmpPath, "test-valdata.xml")
         offullpdf = os.path.join(self.__tmpPath, "test-valrpt_full.pdf")
@@ -236,10 +236,10 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
     def testAnnotValidateListNmrTestRemote(self):
         """  Test create validation report for the test list of example PDB ids (NMR examples)
         """
-        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.debug("\nStarting")
         for pdbId in self.__testValidateNmrIdList:
             self.__tmpPath = tempfile.mkdtemp(dir=self.__siteWebAppsSessionsPath)
-            self.__lfh.write("\nStarting {} in {}\n".format(pdbId, self.__tmpPath))
+            logger.debug("\nStarting %s in %s\n", pdbId, self.__tmpPath)
             ofpdf = os.path.join(self.__tmpPath, pdbId + "-valrpt.pdf")
             ofxml = os.path.join(self.__tmpPath, pdbId + "-valdata.xml")
             offullpdf = os.path.join(self.__tmpPath, pdbId + "-valrpt_full.pdf")
@@ -277,7 +277,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
     def testMapFixRemote(self):
         """  Test mapfix utility
         """
-        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.debug("\nStarting")
 
         dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
         #
@@ -329,7 +329,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
     def testAnnotSiteRemote(self):
         """  Calculate site environment
         """
-        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.debug("\nStarting")
         of = os.path.join(self.__tmpPath, "annot-site-" + self.__testFileAnnotSite)
         dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
         inpPath = os.path.join(self.__testFilePath, self.__testFileAnnotSite)
@@ -347,7 +347,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
     def test_AnnotMergeRemote(self):
         """  Test of updating geometrical validation diagnostics -
         """
-        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.debug("\nStarting")
         for pdbId in self.__testValidateXrayIdList:
             self.__tmpPath = tempfile.mkdtemp(dir=self.__siteWebAppsSessionsPath)
             testFileValidateXyz = pdbId + ".cif"
@@ -370,7 +370,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
     def testAnnotMtz2PdbxGood(self):
         """  Test mtz to pdbx conversion  (good mtz)
         """
-        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.debug("\nStarting")
         diagfn = os.path.join(self.__tmpPath, "sf-convert-diags.cif")
         ciffn = os.path.join(self.__tmpPath, "sf-convert-datafile.cif")
         dmpfn = os.path.join(self.__tmpPath, "sf-convert-mtzdmp.log")
@@ -392,7 +392,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
     def testCif2pdbx_public(self):
         """  Test cif to pdbx conversion  (good cif)
         """
-        self.__lfh.write("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.debug("\nStarting")
         cifout = os.path.join(self.__tmpPath, self.__testFileAnnotSiteAlt)
         #
         dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)

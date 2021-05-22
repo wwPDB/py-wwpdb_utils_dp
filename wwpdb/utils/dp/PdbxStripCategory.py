@@ -85,9 +85,12 @@ class PdbxStripCategory(object):
                             'struct_sheet_order',
                             'struct_sheet_range']
 
-    def strip(self, inpPath, outPath, stripList=[]):
+    def strip(self, inpPath, outPath, stripList=None):
         """ Strip categories from inpPath and write to outPath
         """
+        if stripList is None:
+            stripList = []
+        
         try:
             myDataList = []
             with open(inpPath, "r") as ifh:
@@ -110,11 +113,10 @@ class PdbxStripCategory(object):
 
             return True
         except Exception as e:
-            logger.exception("Failing with %s" % str(e))
+            logger.exception("Failing with %s", str(e))
             return False
 
-
-if __name__ == '__main__':
+def _maintest():
     stripList = ['pdbx_coord',
                  # 'pdbx_entity_nonpoly',
                  # 'pdbx_missing_residue_list',
@@ -134,3 +136,6 @@ if __name__ == '__main__':
 
     strp = PdbxStripCategory(verbose=True, log=sys.stderr)
     strp.strip('test-in.cif', 'test-out.cif', stripList)
+
+if __name__ == '__main__':
+    _maintest()
