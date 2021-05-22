@@ -90,7 +90,7 @@ class PdbxStripCategory(object):
         """
         if stripList is None:
             stripList = []
-        
+
         try:
             myDataList = []
             with open(inpPath, "r") as ifh:
@@ -116,6 +116,7 @@ class PdbxStripCategory(object):
             logger.exception("Failing with %s", str(e))
             return False
 
+
 def _maintest():
     stripList = ['pdbx_coord',
                  # 'pdbx_entity_nonpoly',
@@ -136,6 +137,7 @@ def _maintest():
 
     strp = PdbxStripCategory(verbose=True, log=sys.stderr)
     strp.strip('test-in.cif', 'test-out.cif', stripList)
+
 
 if __name__ == '__main__':
     _maintest()

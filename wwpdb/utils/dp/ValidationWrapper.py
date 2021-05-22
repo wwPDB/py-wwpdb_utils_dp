@@ -67,8 +67,8 @@ class ValidationWrapper(RcsbDpUtility):
 
     def expList(self, dstPathList=None):
         if dstPathList is None:
-            dstPathList=[]            
-        
+            dstPathList = []
+
         if self.__op in ["annot-wwpdb-validate-all", "annot-wwpdb-validate-all-v2"]:
             return super(ValidationWrapper, self).expList(dstPathList)
 

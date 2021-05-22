@@ -649,7 +649,7 @@ class RcsbDpUtility(object):
             if (self.__stepNoSaved is not None):
                 return(self.__getResultWrkFile(self.__stepNoSaved))
                 # Is this out of sequence?
-                self.__stepNoSaved = None #   pylint: disable=unreachable
+                self.__stepNoSaved = None  # pylint: disable=unreachable
             else:
                 return(self.__getResultWrkFile(self.__stepNo - 1))
 
