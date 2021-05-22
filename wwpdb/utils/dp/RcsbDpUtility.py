@@ -155,7 +155,10 @@ from wwpdb.io.file.DataFile import DataFile
 from wwpdb.utils.config.ConfigInfo import ConfigInfo
 from wwpdb.utils.config.ConfigInfoApp import ConfigInfoAppEm, ConfigInfoAppCommon
 from wwpdb.utils.dp.PdbxStripCategory import PdbxStripCategory
-from wwpdb.utils.dp.RunRemote import RunRemote
+from wwpdb.utils.dp.RunRemote import  RunRemoteFlow
+import prefect
+from prefect import Flow,Parameter
+from prefect.executors import LocalExecutor
 
 logger = logging.getLogger(__name__)
 
@@ -4096,9 +4099,9 @@ class RcsbDpUtility(object):
         if self.__run_remote:
             random_suffix = random.randrange(9999999)
             job_name = '{}_{}'.format(op, random_suffix)
-            return RunRemote(command=command, job_name=job_name, log_dir=os.path.dirname(lPathFull),
-                             timeout=self.__timeout, number_of_processors=self.__numThreads,
-                             memory_limit=self.__startingMemory).run()
+            lPathFull = os.path.dirname(lPathFull)
+            rrf = RunRemoteFlow(job_name, command, lPathFull, self.__timeout, self.__numThreads, self.__startingMemory)
+            return rrf.run()
 
         if self.__timeout > 0:
             return self.__runTimeout(command, self.__timeout, lPathFull)
