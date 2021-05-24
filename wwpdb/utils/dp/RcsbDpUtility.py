@@ -153,7 +153,7 @@ except ImportError:
 
 from wwpdb.io.file.DataFile import DataFile
 from wwpdb.utils.config.ConfigInfo import ConfigInfo
-from wwpdb.utils.config.ConfigInfoApp import ConfigInfoAppEm, ConfigInfoAppCommon
+from wwpdb.utils.config.ConfigInfoApp import ConfigInfoAppEm, ConfigInfoAppCommon, ConfigInfoAppValidation
 from wwpdb.utils.dp.PdbxStripCategory import PdbxStripCategory
 from wwpdb.utils.dp.RunRemote import RunRemote
 
@@ -261,6 +261,7 @@ class RcsbDpUtility(object):
 
         self.__cI = ConfigInfo(self.__siteId)
         self.__cICommon = ConfigInfoAppCommon(self.__siteId)
+        self.__cIVal = ConfigInfoAppValidation(self.__siteId)
         self.__initPath()
         self.__getRunRemote()
 
@@ -671,7 +672,7 @@ class RcsbDpUtility(object):
         self.__prdSummarySerial = self.__cICommon.get_prd_summary_sdb()
         self.__oeDirPath = self.__cICommon.get_site_cc_oe_dir()
         self.__oeLicensePath = self.__cICommon.get_site_cc_oe_licence()
-        self.__siteWebAppsSessionsPath = self.__cI.get('SITE_WEB_APPS_SESSIONS_PATH')
+        self.__siteWebAppsSessionsPath = self.__cICommon.get_site_web_apps_sessions_path()
         self.__validScrPath = self.__cI.get('VALID_SCR_PATH')
         self.__siteConfigDir = self.__getConfigPath('TOP_WWPDB_SITE_CONFIG_DIR')
         self.__ccDictPathIdx = self.__cICommon.get_cc_dict_idx()
@@ -1176,8 +1177,10 @@ class RcsbDpUtility(object):
             edmapCoefPath = os.path.abspath(os.path.join(self.__wrkPath, "out.mtz"))
             imageTarPath = os.path.abspath(os.path.join(self.__wrkPath, "out_image.tar"))
 
+            chimerax_bin = "$PACKAGE_DIR/ChimeraX/bin"
+
             cmd += " ; %s " % self.__site_config_command
-            cmd += ' ; export PATH="$PATH:$PACKAGE_DIR/ChimeraX/bin"'
+            cmd += ' ; export PATH="$PATH:{}"'.format(chimerax_bin)
             cmd += " ; %s --validation " % self.__site_config_command
             cmd += " ; OE_DIR=" + self.__oeDirPath + " ; export OE_DIR "
             cmd += " ; OE_LICENSE=" + self.__oeLicensePath + " ; export OE_LICENSE "
@@ -3198,7 +3201,7 @@ class RcsbDpUtility(object):
                 cmd += "; cp " + pPath + " " + iPath
         #
         cmd += " ; RCSBROOT=" + self.__rcsbAppsPath + " ; export RCSBROOT "
-        cmd += " ; PDB2GLYCAN=" + os.path.join(os.path.abspath(self.__cI.get("SITE_PACKAGES_PATH")), "pdb2glycan", "bin", "PDB2Glycan") \
+        cmd += " ; PDB2GLYCAN=" + os.path.join(os.path.abspath(self.__cICommon.get_site_packages_path()), "pdb2glycan", "bin", "PDB2Glycan") \
              + " ; export PDB2GLYCAN "
         cmd += " ; COMP_PATH=" + self.__ccCvsPath + " ; export COMP_PATH ; "
         maxitCmd = os.path.join(self.__rcsbAppsPath, "bin", progName)
