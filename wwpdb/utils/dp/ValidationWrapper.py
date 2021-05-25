@@ -24,6 +24,7 @@ from wwpdb.utils.dp.PdbxSFMapCoefficients import PdbxSFMapCoefficients
 
 logger = logging.getLogger(__name__)
 
+
 class ValidationWrapper(RcsbDpUtility):
     def __init__(self, tmpPath="/scratch", siteId='DEV', verbose=False, log=sys.stderr):
         logger.debug("Starting")
@@ -49,16 +50,14 @@ class ValidationWrapper(RcsbDpUtility):
 
         return None
 
-
     def imp(self, srcPath=None):
         self.__modelfile = srcPath
         super(ValidationWrapper, self).imp(srcPath)
 
-
     def op(self, op):
-        logger.info("Starting op %s" % op)
+        logger.info("Starting op %s", op)
         if op not in ["annot-wwpdb-validate-all", "annot-wwpdb-validate-all-v2", "annot-wwpdb-validate-all-sf"]:
-            logger.error("Operation not known %s" % op)
+            logger.error("Operation not known %s", op)
             return False
         self.__op = op
 
@@ -66,7 +65,10 @@ class ValidationWrapper(RcsbDpUtility):
             op = "annot-wwpdb-validate-all-v2"
         return super(ValidationWrapper, self).op(op)
 
-    def expList(self, dstPathList=[]):
+    def expList(self, dstPathList=None):
+        if dstPathList is None:
+            dstPathList = []
+
         if self.__op in ["annot-wwpdb-validate-all", "annot-wwpdb-validate-all-v2"]:
             return super(ValidationWrapper, self).expList(dstPathList)
 
@@ -83,20 +85,20 @@ class ValidationWrapper(RcsbDpUtility):
         basedst.append(mtzfile)
         ret = super(ValidationWrapper, self).expList(basedst)
 
-        logger.debug("expList ret is %s" % ret)
+        logger.debug("expList ret is %s", ret)
 
         # Need to "produce files" for last arguments if possible
         if not os.path.exists(mtzfile):
             return False
 
         pdbid = self.__getPDBId()
-        logger.info('pdbID %s' % pdbid)
+        logger.info('pdbID %s', pdbid)
         if not pdbid:
             pdbid = 'xxxx'
 
         psm = PdbxSFMapCoefficients(siteid=self.__siteId, tmppath=self._tmppath)
         ret = psm.read_mtz_sf(mtzfile)
-        logger.debug("read_mtz_sf ret %s" %ret)
+        logger.debug("read_mtz_sf ret %s", ret)
 
         if ret:
             # Ensure map coefficients produced in conversion - returns True if present
@@ -105,5 +107,5 @@ class ValidationWrapper(RcsbDpUtility):
             if ret:
                 ret = psm.write_mmcif_coef(fopathout=outfosf, twofopathout=out2fosf, entry_id=pdbid.lower())
 
-        logger.debug("Returning %s" % ret)
+        logger.debug("Returning %s", ret)
         return ret

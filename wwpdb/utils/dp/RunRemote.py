@@ -45,7 +45,7 @@ class RunRemote:
         """
         Escapes dollars, stops variables being interpretted early when passed to bsub.
         """
-        command = command.replace('$', '\$')
+        command = command.replace('$', '\$')  # noqa: W605 pylint: disable=anomalous-backslash-in-string
         return command
 
     def run(self):
@@ -64,7 +64,7 @@ class RunRemote:
                     try:
                         if self.memory_used > self.memory_limit:
                             self.memory_limit = int(self.memory_used)
-                    except:
+                    except:  # noqa: E722 pylint: disable=bare-except
                         pass
 
                 if self.memory_limit >= 100000:
@@ -74,13 +74,13 @@ class RunRemote:
                 else:
                     self.memory_limit = self.memory_limit + 10000
                 bsub_try += 1
-                logging.info('try {}, memory {}'.format(bsub_try, self.memory_limit))
+                logging.info('try {}, memory {}'.format(bsub_try, self.memory_limit))  # pylint: disable=logging-format-interpolation
                 rc, self.out, self.err = self.run_bsub()
 
         if rc != 0:
-            logging.error('return code: {}'.format(rc))
-            logging.error('out: {}'.format(self.out))
-            logging.error('error: {}'.format(self.err))
+            logging.error('return code: {}'.format(rc))  # pylint: disable=logging-format-interpolation
+            logging.error('out: {}'.format(self.out))  # pylint: disable=logging-format-interpolation
+            logging.error('error: {}'.format(self.err))  # pylint: disable=logging-format-interpolation
         else:
             logging.info('worked')
 
@@ -138,15 +138,15 @@ class RunRemote:
                 else:
                     retries += 1
                     logging.info(
-                        'try {} of {}, wait for {} seconds'.format(retries, max_num_of_retries, self.bsub_retry_delay))
+                        'try {} of {}, wait for {} seconds'.format(retries, max_num_of_retries, self.bsub_retry_delay))  # pylint: disable=logging-format-interpolation
                     time.sleep(int(self.bsub_retry_delay))
 
     def run_command(self, command, log_file=None, new_env=None):
         # command_list = shlex.split(command)
-        logging.info('Starting: %s' % self.job_name)
+        logging.info('Starting: %s', self.job_name)
         logging.debug(command)
         if log_file:
-            logging.info('logging to: {}'.format(log_file))
+            logging.info('logging to: {}'.format(log_file))  # pylint: disable=logging-format-interpolation
             if not os.path.exists(os.path.dirname(log_file)):
                 os.makedirs(os.path.dirname(log_file))
         t1 = os.times()[4]
@@ -158,9 +158,9 @@ class RunRemote:
         out, err = child.communicate()
         rc = child.returncode
         if rc != 0:
-            logging.error('Exit status: %s - process failed: %s' % (rc, self.job_name))
+            logging.error('Exit status: %s - process failed: %s', rc, self.job_name)
         else:
-            logging.info('process worked: %s' % self.job_name)
+            logging.info('process worked: %s', self.job_name)
 
         if log_file:
             with open(log_file, 'wb') as lf:
@@ -174,7 +174,7 @@ class RunRemote:
         t2 = os.times()[4]
         ht = self.check_timing(t1, t2)
         # logging.info("Timing: %s took %s" %(name, ht[0]))
-        logging.info("Finished: %s, %s" % (self.job_name, ht[1]))
+        logging.info("Finished: %s, %s", self.job_name, ht[1])
 
         return rc, out, err
 
@@ -199,7 +199,6 @@ class RunRemote:
         bsub_command.append('-q {}'.format(self.pdbe_cluster_queue))
         if 'LSB_JOBGROUP' in os.environ and os.environ['LSB_JOBGROUP']:
             bsub_command.append('-g {}'.format(os.environ['LSB_JOBGROUP']))
-
 
         bsub_command.append('-n {}'.format(self.number_of_processors))
         bsub_command.append('-W {}'.format(self.timeout))
@@ -236,7 +235,7 @@ class RunRemote:
         self.memory_unit = 'MB'
         if os.path.exists(self.bsub_log_file):
             with open(self.bsub_log_file, 'r') as log_file:
-                for l in log_file:
+                for l in log_file:  # noqa: E741
                     if 'Max Memory :' in l:
                         try:
                             memory_used = l.split(':')[-1].strip()
@@ -253,8 +252,8 @@ class RunRemote:
         elif self.memory_unit == 'KB':
             self.memory_unit = 'MB'
             self.memory_used = int(self.memory_used / 1024)
-        logging.info('memory used: {} {}'.format(self.memory_used, self.memory_unit))
-        logging.info('bsub exit status: {}'.format(self.bsub_exit_status))
+        logging.info('memory used: {} {}'.format(self.memory_used, self.memory_unit))  # pylint: disable=logging-format-interpolation
+        logging.info('bsub exit status: {}'.format(self.bsub_exit_status))  # pylint: disable=logging-format-interpolation
 
     def run_bsub(self):
 
@@ -278,7 +277,7 @@ class RunRemote:
             if rc in allowed_codes:
                 break
             delay_time = i * 2
-            logging.info('bsub return code of {}. Waiting for {}'.format(rc, delay_time))
+            logging.info('bsub return code of {}. Waiting for {}'.format(rc, delay_time))  # pylint: disable=logging-format-interpolation
             time.sleep(delay_time)
             i += 1
 
@@ -322,7 +321,7 @@ if __name__ == '__main__':
         message = '{} failed'.format(args.job_name)
         annotation_email = run_remote.cI.get('ANNOTATION_EMAIL')
         if annotation_email:
-            command = 'mail -s "{} failed" {}'.format(args.job_name, annotation_email)
-            run_remote.run_command(command=command)
+            mcommand = 'mail -s "{} failed" {}'.format(args.job_name, annotation_email)
+            run_remote.run_command(command=mcommand)
 
     sys.exit(ret)

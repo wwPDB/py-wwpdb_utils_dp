@@ -15,15 +15,13 @@ Test cases for assembly calculation using both PDBx/mmCIF and PDB form input dat
 """
 import logging
 import os
-import platform
 import sys
 import unittest
 
 if __package__ is None or __package__ == '':
-    import sys
     from os import path
-    sys.path.append( path.dirname( path.dirname( path.abspath(__file__) ) ) )
-    from commonsetup import TESTOUTPUT, TOPDIR, toolsmissing
+    sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
+    from commonsetup import TESTOUTPUT, TOPDIR, toolsmissing  # pylint: disable=import-error
 else:
     from .commonsetup import TESTOUTPUT, TOPDIR, toolsmissing
 
@@ -43,7 +41,7 @@ class RcsbDpUtilityTests(unittest.TestCase):
     def setUp(self):
         # Pick up site information from the environment or failover to the development site id.
         self.__siteId = getSiteId(defaultSiteId=None)
-        logger.info("\nTesting with site environment for:  %s\n" % self.__siteId)
+        logger.info("\nTesting with site environment for:  %s\n", self.__siteId)
         #
         self.__cI = ConfigInfo(self.__siteId)
         self.__testFilePath = os.path.join(TOPDIR, 'wwpdb', 'mock-data', 'dp-utils')
@@ -52,8 +50,8 @@ class RcsbDpUtilityTests(unittest.TestCase):
         self.__testFilePdbPisa = '3rer.pdb'
         self.__testFileCifPisa = '3rer.cif'
         #
-        logger.info("\nTest file path %s\n" % (self.__testFilePath))
-        logger.info("\nCIF  file path %s\n" % (self.__testFileCifPisa))
+        logger.info("\nTest file path %s\n", self.__testFilePath)
+        logger.info("\nCIF  file path %s\n", self.__testFileCifPisa)
 
     def tearDown(self):
         pass
@@ -61,7 +59,7 @@ class RcsbDpUtilityTests(unittest.TestCase):
     def testPisaAnalysisPdb(self):
         """
         """
-        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting")
         try:
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
             pdbPath = os.path.join(self.__testFilePath, self.__testFilePdbPisa)
@@ -71,13 +69,13 @@ class RcsbDpUtilityTests(unittest.TestCase):
             dp.expLog("pisa-anal-pdb.log.gz")
             dp.cleanup()
         except Exception as e:
-            logger.exception("Failing with %s" % str(e))
+            logger.exception("Failing with %s", str(e))
             self.fail()
 
     def testPisaAnalysisCif(self):
         """
         """
-        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting")
         try:
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
             cifPath = os.path.join(self.__testFilePath, self.__testFileCifPisa)
@@ -87,13 +85,13 @@ class RcsbDpUtilityTests(unittest.TestCase):
             dp.expLog("pisa-anal-cif.log.gz")
             dp.cleanup()
         except Exception as e:
-            logger.exception("Failing with %s" % str(e))
+            logger.exception("Failing with %s", str(e))
             self.fail()
 
     def testPisaAssemblyReportXmlCif(self):
         """
         """
-        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting")
         try:
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
             fPath = os.path.join(self.__testFilePath, self.__testFileCifPisa)
@@ -110,13 +108,13 @@ class RcsbDpUtilityTests(unittest.TestCase):
             dp.expLog("pisa-interface-report-xml-cif.log")
             dp.cleanup()
         except Exception as e:
-            logger.exception("Failing with %s" % str(e))
+            logger.exception("Failing with %s", str(e))
             self.fail()
 
     def testPisaAssemblyReportXmlPdb(self):
         """
         """
-        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting")
         try:
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
             fPath = os.path.join(self.__testFilePath, self.__testFilePdbPisa)
@@ -129,13 +127,13 @@ class RcsbDpUtilityTests(unittest.TestCase):
             dp.expLog("pisa-report-xml-pdb.log.gz")
             dp.cleanup()
         except Exception as e:
-            logger.exception("Failing with %s" % str(e))
+            logger.exception("Failing with %s", str(e))
             self.fail()
 
     def testPisaAssemblyDownloadModelCif(self):
         """
         """
-        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting")
         try:
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
             fPath = os.path.join(self.__testFilePath, self.__testFileCifPisa)
@@ -156,13 +154,13 @@ class RcsbDpUtilityTests(unittest.TestCase):
                 dp.expLog(oLogName)
             dp.cleanup()
         except Exception as e:
-            logger.exception("Failing with %s" % str(e))
+            logger.exception("Failing with %s", str(e))
             self.fail()
 
     def testPisaAssemblyDownloadModelPdb(self):
         """
         """
-        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting")
         try:
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
             fPath = os.path.join(self.__testFilePath, self.__testFileCifPisa)
@@ -183,13 +181,13 @@ class RcsbDpUtilityTests(unittest.TestCase):
                 dp.expLog(oLogName)
             dp.cleanup()
         except Exception as e:
-            logger.exception("Failing with %s" % str(e))
+            logger.exception("Failing with %s", str(e))
             self.fail()
 
     def testPisaAssemblyMergeModelCif(self):
         """
         """
-        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting")
         try:
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
             fPath = os.path.join(self.__testFilePath, self.__testFileCifPisa)
@@ -212,7 +210,7 @@ class RcsbDpUtilityTests(unittest.TestCase):
             dp.expLog("3rer-updated-cif.log.gz")
             # dp.cleanup()
         except Exception as e:
-            logger.exception("Failing with %s" % str(e))
+            logger.exception("Failing with %s", str(e))
             self.fail()
 
 
@@ -236,7 +234,7 @@ def suitePisaTestsPdb():
 
 if __name__ == '__main__':
     #
-    if (False):
+    if (False):  # pylint: disable=using-constant-test
         mySuite = suitePisaTestsPdb()
         unittest.TextTestRunner(verbosity=2).run(mySuite)
     #

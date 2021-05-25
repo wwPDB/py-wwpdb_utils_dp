@@ -6,6 +6,8 @@ import os
 import shutil
 import subprocess
 
+logger = logging.getLogger(__name__)
+
 
 def run_command(command, process_name, workdir=None):
     """
@@ -16,7 +18,7 @@ def run_command(command, process_name, workdir=None):
     :return bool: True if exit status is zero, False otherwise
     """
     try:
-        logging.debug(command)
+        logger.debug(command)
         command_list = shlex.split(command)
         if workdir and workdir is not None:
             process = subprocess.Popen(command_list, cwd=workdir)
@@ -24,17 +26,17 @@ def run_command(command, process_name, workdir=None):
             process = subprocess.Popen(command_list)
         out, err = process.communicate()
         if out:
-            logging.info(out)
+            logger.info(out)
         if err:
-            logging.error(err)
+            logger.error(err)
         rc = process.returncode
         if rc != 0:
-            logging.error('process failed: {}'.format(process_name))
+            logger.error('process failed: {}'.format(process_name))  # pylint: disable=logging-format-interpolation
             return False
-        logging.info('process worked: {}'.format(process_name))
+        logger.info('process worked: {}'.format(process_name))  # pylint: disable=logging-format-interpolation
         return True
     except Exception as e:
-        logging.error(e)
+        logger.error(e)
     return False
 
 
@@ -50,16 +52,16 @@ def run_command_and_check_output_file(command, process_name, output_file, workdi
     if command and output_file:
         ret = run_command(command=command, workdir=workdir, process_name=process_name)
         if ret:
-            logging.debug('checking for {}'.format(output_file))
+            logger.debug('checking for {}'.format(output_file))  # pylint: disable=logging-format-interpolation
             if os.path.exists(output_file):
-                logging.debug('file exists')
+                logger.debug('file exists')
                 return True
             else:
-                logging.error('output file missing: {}'.format(output_file))
+                logger.error('output file missing: {}'.format(output_file))  # pylint: disable=logging-format-interpolation
         else:
-            logging.error('command returned non-zero exit status')
+            logger.error('command returned non-zero exit status')
     else:
-        logging.error('either command or output file not set')
+        logger.error('either command or output file not set')
 
     return False
 
@@ -112,6 +114,6 @@ def convert_mdb_to_binary_cif(node_path,
             if not os.path.exists(output_folder):
                 os.makedirs(output_folder)
         shutil.copy(temp_out_file, output_file)
-        logging.debug('output file {}'.format(output_file))
+        logger.debug('output file {}'.format(output_file))  # pylint: disable=logging-format-interpolation
         return True
     return False

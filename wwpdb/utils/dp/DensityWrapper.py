@@ -13,8 +13,7 @@ from wwpdb.utils.dp.RcsbDpUtility import RcsbDpUtility
 # from wwpdb.utils.dp.electron_density.em_density_map import EmVolumes
 
 
-class DensityWrapper:
-
+class DensityWrapper(object):
     def __init__(self):
         self.__site_id = getSiteId()
         # self.__cICommon = ConfigInfoAppCommon(self.__site_id)

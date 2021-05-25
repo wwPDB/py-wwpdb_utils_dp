@@ -14,15 +14,13 @@ Test cases for reading, concatenating and obtaining diagnostics about chemical s
 """
 import logging
 import os
-import platform
 import sys
 import unittest
 
 if __package__ is None or __package__ == '':
-    import sys
     from os import path
-    sys.path.append( path.dirname( path.dirname( path.abspath(__file__) ) ) )
-    from commonsetup import TESTOUTPUT, TOPDIR, toolsmissing
+    sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
+    from commonsetup import TESTOUTPUT, TOPDIR, toolsmissing  # pylint: disable=import-error
 else:
     from .commonsetup import TESTOUTPUT, TOPDIR, toolsmissing
 
@@ -44,7 +42,7 @@ class RcsbDpUtilityNMRTests(unittest.TestCase):
         self.__verbose = True
         # Pick up site information from the environment or failover to the development site id.
         self.__siteId = getSiteId(defaultSiteId=None)
-        logger.info("\nTesting with site environment for:  %s\n" % self.__siteId)
+        logger.info("\nTesting with site environment for:  %s\n", self.__siteId)
         #
         self.__cI = ConfigInfo(self.__siteId)
 
@@ -65,7 +63,7 @@ class RcsbDpUtilityNMRTests(unittest.TestCase):
     def testUploadShiftOneCheck(self):
         """  Test upload check of one CS file  ---   upload single file
         """
-        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting")
         try:
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
             dp.setDebugMode(flag=True)
@@ -81,13 +79,13 @@ class RcsbDpUtilityNMRTests(unittest.TestCase):
             dp.exp(outPath)
             # dp.cleanup()
         except Exception as e:
-            logger.exception("Failing with %s" % str(e))
+            logger.exception("Failing with %s", str(e))
             self.fail()
 
     def testUploadShiftListCheck(self):
         """  Test upload check of one CS file  ---  Upload multiple files
         """
-        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting")
         try:
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
             dp.setDebugMode(flag=True)
@@ -103,13 +101,13 @@ class RcsbDpUtilityNMRTests(unittest.TestCase):
             dp.exp(outPath)
             # dp.cleanup()
         except Exception as e:
-            logger.exception("Failing with %s" % str(e))
+            logger.exception("Failing with %s", str(e))
             self.fail()
 
     def testChemicalShiftCoordinateCheck(self):
         """  Test upload check of one CS file  ---   Using a PDB Archive STAR file -- (Does not work)
         """
-        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting")
         try:
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
             dp.setDebugMode(flag=True)
@@ -126,13 +124,13 @@ class RcsbDpUtilityNMRTests(unittest.TestCase):
             dp.exp(outPath)
             # dp.cleanup()
         except Exception as e:
-            logger.exception("Failing with %s" % str(e))
+            logger.exception("Failing with %s", str(e))
             self.fail()
 
     def testChemicalShiftCoordinateCheck2(self):
         """  Test upload check of one CS file  ---  Using a processed chemical shift file
         """
-        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting")
         try:
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
             dp.setDebugMode(flag=True)
@@ -149,13 +147,13 @@ class RcsbDpUtilityNMRTests(unittest.TestCase):
             dp.exp(outPath)
             # dp.cleanup()
         except Exception as e:
-            logger.exception("Failing with %s" % str(e))
+            logger.exception("Failing with %s", str(e))
             self.fail()
 
     def testChemicalShiftCoordinateCheck2Alt(self):
         """  Test upload check of one CS file  --- Using the wrong model to generate errors
         """
-        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting")
         try:
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
             dp.setDebugMode(flag=True)
@@ -174,16 +172,16 @@ class RcsbDpUtilityNMRTests(unittest.TestCase):
             if os.access(chkPath, os.R_OK):
                 csr = PdbxChemShiftReport(inputPath=chkPath, verbose=self.__verbose, log=self.__lfh)
                 status = csr.getStatus()
-                logger.info("Status code: %s\n" % status)
+                logger.info("Status code: %s\n", status)
                 warnings = csr.getWarnings()
-                logger.info("\n\nWarning count : %d\n %s\n" % (len(warnings), ('\n').join(warnings)))
+                logger.info("\n\nWarning count : %d\n %s\n", len(warnings), ('\n').join(warnings))
                 #
                 errors = csr.getErrors()
-                logger.info("\n\nError count : %d\n %s\n" % (len(errors), ('\n').join(errors)))
+                logger.info("\n\nError count : %d\n %s\n", len(errors), ('\n').join(errors))
             #
             # dp.cleanup()
         except Exception as e:
-            logger.exception("Failing with %s" % str(e))
+            logger.exception("Failing with %s", str(e))
             self.fail()
 
 

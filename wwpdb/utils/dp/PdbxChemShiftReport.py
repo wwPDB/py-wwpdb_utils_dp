@@ -44,7 +44,7 @@ class PdbxChemShiftReport(object):
                 pRd.read(self.__myContainerList)
             return True
         except Exception as e:
-            logger.exception("Failing with %s" % str(e))
+            logger.exception("Failing with %s", str(e))
         return False
 
     def getStatus(self):
@@ -64,7 +64,7 @@ class PdbxChemShiftReport(object):
             catObj = c0.getObj(categoryName)
             if catObj is None:
                 return retVal
-            nm, aList, rList = catObj.get()
+            _nm, aList, rList = catObj.get()
 
             if attributeName in aList:
                 idx = aList.index(attributeName)
