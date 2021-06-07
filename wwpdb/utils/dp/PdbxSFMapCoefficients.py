@@ -36,13 +36,13 @@ class PdbxSFMapCoefficients(object):
            Return True on success, otherwise False
         """
 
-        logger.debug("Starting read %s" % pathin)
+        logger.debug("Starting read %s", pathin)
         try:
             io = IoAdapterCore()
             self.__sf = io.readFile(pathin)
             return True
         except Exception as e:
-            logger.exception("Failing with %s" % str(e))
+            logger.exception("Failing with %s", str(e))
             self.__sf = None
             return False
 
@@ -73,12 +73,12 @@ class PdbxSFMapCoefficients(object):
         return True
 
     def read_mtz_sf(self, pathin):
-        """Reads MTZ structure factor file 
+        """Reads MTZ structure factor file
 
             Return True on success, otherwise False
         """
 
-        logger.debug("Starting mtz read %s" % pathin)
+        logger.debug("Starting mtz read %s", pathin)
 
         suffix = '-dir'
         prefix = 'rcsb-'

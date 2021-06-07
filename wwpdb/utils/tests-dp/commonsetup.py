@@ -1,6 +1,5 @@
 # Common setup for tests as unittest runner loads files in any order
 
-import sys
 import os
 import platform
 
@@ -13,14 +12,12 @@ mockTopPath = os.path.join(TOPDIR, 'wwpdb', 'mock-data')
 rwMockTopPath = os.path.join(TESTOUTPUT)
 
 # Must create config file before importing ConfigInfo
-from wwpdb.utils.testing.SiteConfigSetup  import SiteConfigSetup
-from wwpdb.utils.testing.CreateRWTree import CreateRWTree
+from wwpdb.utils.testing.SiteConfigSetup import SiteConfigSetup  # noqa: E402
 
 mockTopPath = os.path.join(TOPDIR, 'wwpdb', 'mock-data')
-from wwpdb.utils.testing.SiteConfigSetup import SiteConfigSetup
 SiteConfigSetup().setupEnvironment(TESTOUTPUT, mockTopPath)
 
-from wwpdb.utils.config.ConfigInfo import ConfigInfo
+from wwpdb.utils.config.ConfigInfo import ConfigInfo  # noqa: E402
 cI = ConfigInfo()
 packagedir = cI.get('SITE_PACKAGES_PATH')
 

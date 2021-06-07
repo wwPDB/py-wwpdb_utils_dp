@@ -15,15 +15,13 @@ Test cases for sequence search  and entry fetch/extract operations --
 
 import logging
 import os
-import platform
 import sys
 import unittest
 
 if __package__ is None or __package__ == '':
-    import sys
     from os import path
-    sys.path.append( path.dirname( path.dirname( path.abspath(__file__) ) ) )
-    from commonsetup import TESTOUTPUT, TOPDIR, toolsmissing
+    sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
+    from commonsetup import TESTOUTPUT, TOPDIR, toolsmissing  # pylint: disable=import-error
 else:
     from .commonsetup import TESTOUTPUT, TOPDIR, toolsmissing
 
@@ -42,7 +40,7 @@ class RcsbDpUtilityTests(unittest.TestCase):
     def setUp(self):
 
         self.__siteId = getSiteId(defaultSiteId='WWPDB_DEPLOY_TEST')
-        logger.info("\nTesting with site environment for:  %s\n" % self.__siteId)
+        logger.info("\nTesting with site environment for:  %s", self.__siteId)
         #
         self.__cI = ConfigInfo(self.__siteId)
         self.__tmpPath = TESTOUTPUT
@@ -51,8 +49,8 @@ class RcsbDpUtilityTests(unittest.TestCase):
         self.__testFileFastaP = os.path.join(self.__testFilePath, '1KIP.fasta')
         self.__testFileFastaN = os.path.join(self.__testFilePath, '2WDK.fasta')
         #
-        logger.info("\nTest fasta protein file path %s\n" % (self.__testFileFastaP))
-        logger.info("\nTest fasta RNA     file path %s\n" % (self.__testFileFastaN))
+        logger.info("\nTest fasta protein file path %s", self.__testFileFastaP)
+        logger.info("\nTest fasta RNA     file path %s", self.__testFileFastaN)
 
     def tearDown(self):
         pass
@@ -60,7 +58,7 @@ class RcsbDpUtilityTests(unittest.TestCase):
     def testProteinSequenceSearch(self):
         """
         """
-        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting RcsbDpUtilittySeqTests.testProteinSequenceSearch")
         try:
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
             dp.imp(self.__testFileFastaP)
@@ -72,13 +70,13 @@ class RcsbDpUtilityTests(unittest.TestCase):
             dp.exp("seq-blastp.xml")
             dp.cleanup()
         except Exception as e:
-            logger.exception("Failing with %s" % str(e))
+            logger.exception("Failing with %s", str(e))
             self.fail()
 
     def testRnaSequenceSearch(self):
         """
         """
-        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting RcsbDpUtilitySeqTests.testRnaSequenceSearch")
         try:
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
             dp.imp(self.__testFileFastaN)
@@ -90,7 +88,7 @@ class RcsbDpUtilityTests(unittest.TestCase):
             dp.exp("seq-blastn.xml")
             dp.cleanup()
         except Exception as e:
-            logger.exception("Failing with %s" % str(e))
+            logger.exception("Failing with %s", str(e))
             self.fail()
 
 

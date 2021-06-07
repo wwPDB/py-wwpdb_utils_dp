@@ -15,10 +15,6 @@ import logging
 import unittest
 import os
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(levelname)s]-%(module)s.%(funcName)s: %(message)s')
-logger = logging.getLogger()
-logger.setLevel(logging.INFO)
-
 from mmcif.api.DataCategory import DataCategory
 from mmcif.api.PdbxContainers import DataContainer
 from mmcif.io.PdbxReader import PdbxReader
@@ -29,11 +25,14 @@ if __package__ is None or __package__ == '':
     from os import path
 
     sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
-    from commonsetup import TESTOUTPUT, TOPDIR, toolsmissing
+    from commonsetup import TESTOUTPUT  # pylint: disable=import-error
 else:
-    from .commonsetup import TESTOUTPUT, TOPDIR, toolsmissing
+    from .commonsetup import TESTOUTPUT
 
 from wwpdb.utils.dp.PdbxMergeCategory import PdbxMergeCategory
+logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(levelname)s]-%(module)s.%(funcName)s: %(message)s')
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 
 
 class PdbxMergeTests(unittest.TestCase):

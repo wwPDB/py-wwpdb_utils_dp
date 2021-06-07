@@ -35,7 +35,7 @@ class PdbxMergeCategory(object):
             If the same category is in mergelist and replacelist, undefined behaviour
 
         """
-        logger.debug("Starting merge %s %s %s" % (srcpath, newcontentpath, outpath))
+        logger.debug("Starting merge %s %s %s", srcpath, newcontentpath, outpath)
         try:
             io = IoAdapterCore()
             srcin = io.readFile(srcpath)
@@ -71,5 +71,5 @@ class PdbxMergeCategory(object):
             return ret
 
         except Exception as e:
-            logger.exception("Failing with %s" % str(e))
+            logger.exception("Failing with %s", str(e))
             return False

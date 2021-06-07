@@ -58,9 +58,9 @@ class XrayVolumeServerMap:
             if ok:
                 ok = self.convert_mdb_map_to_binary_cif()
             else:
-                logging.error("making mdb maps failed")
+                logger.error("making mdb maps failed")
         else:
-            logging.error("making maps failed")
+            logger.error("making maps failed")
 
         return ok
 
@@ -77,7 +77,7 @@ class XrayVolumeServerMap:
         fbox = st.calculate_fractional_box(margin=5)
         if sf_mmcif_in:
             if os.path.exists(sf_mmcif_in):
-                doc = gemmi.cif.read(sf_mmcif_in)
+                doc = gemmi.cif.read(sf_mmcif_in)  # pylint: disable=no-member
                 rblocks = gemmi.as_refln_blocks(doc)
                 if (
                         f_column in rblocks[0].column_labels()
@@ -92,19 +92,16 @@ class XrayVolumeServerMap:
                     if os.path.exists(map_out):
                         return True
                     else:
-                        logging.error("output map file {} missing".format(map_out))
+                        logger.error("output map file {} missing".format(map_out))  # pylint: disable=logging-format-interpolation)
                 else:
-                    logging.error(
-                        "{} {} columns not found in mmCIF {}".format(
-                            f_column, phi_column, sf_mmcif_in
-                        )
-                    )
+                    logger.error(
+                        "{} {} columns not found in mmCIF {}".format(f_column, phi_column, sf_mmcif_in))  # pylint: disable=logging-format-interpolation
             else:
-                logging.error("cannot find input file {}".format(sf_mmcif_in))
+                logger.error("cannot find input file {}".format(sf_mmcif_in))  # pylint: disable=logging-format-interpolation)
 
                 # command = "{} sf2map -f {} -p {} {} {}".format(gemmi_path, f_column, phi_column, mmcif_in, map_out)
                 # return self.run_command(command=command, output_file=map_out)
-        logging.error("converting {} to {} failed".format(sf_mmcif_in, map_out))
+        logger.error("converting {} to {} failed".format(sf_mmcif_in, map_out))  # pylint: disable=logging-format-interpolation)
         return False
 
     def make_maps_to_serve_with_volume_server(
@@ -113,7 +110,7 @@ class XrayVolumeServerMap:
             fofc_map_in,
     ):
         if not self.node_path:
-            logging.error('node path not set')
+            logger.error('node path not set')
             return False
         if self.volume_server_pack_path:
             return self.make_volume_server_map(
@@ -133,15 +130,14 @@ class XrayVolumeServerMap:
         :return: True if worked, False if failed
         """
         if not self.node_path:
-            logging.error('node path not set')
+            logger.error('node path not set')
             return False
         if not self.volume_server_pack_path:
-            logging.error("volume server executable not set")
+            logger.error("volume server executable not set")
             return False
         if not os.path.exists(self.volume_server_pack_path):
-            logging.error(
-                "volume server executable not found at {}".format(self.volume_server_pack_path)
-            )
+            logger.error(
+                "volume server executable not found at {}".format(self.volume_server_pack_path))  # pylint: disable=logging-format-interpolation
             return False
         if os.path.exists(two_fofc_map_in) and os.path.exists(fofc_map_in):
             command = "{} {} xray {} {} {}".format(
@@ -179,32 +175,32 @@ def run_process_with_gemmi(
     """
 
     if not volume_server_pack_path:
-        logging.error("volume-server-pack path must be set")
+        logger.error("volume-server-pack path must be set")
         return False
 
     if not volume_server_query_path:
-        logging.error("volume-server-query path must be set")
+        logger.error("volume-server-query path must be set")
         return False
 
     if not coord_file:
-        logging.error('coordinate file must be provided')
+        logger.error('coordinate file must be provided')
         return False
 
     if not node_path:
-        logging.error('node not set')
+        logger.error('node not set')
         return False
 
     if not os.path.exists(node_path):
-        logging.error('node not found: {}'.format(node_path))
+        logger.error('node not found: {}'.format(node_path))  # pylint: disable=logging-format-interpolation
         return False
 
     if not os.path.exists(two_fofc_mmcif_map_coeff_in) or not os.path.exists(fofc_mmcif_map_coeff_in):
-        logging.error(
-            'input mmcif files not found: {} or {}'.format(two_fofc_mmcif_map_coeff_in, fofc_mmcif_map_coeff_in))
+        logger.error(
+            'input mmcif files not found: {} or {}'.format(two_fofc_mmcif_map_coeff_in, fofc_mmcif_map_coeff_in))  # pylint: disable=logging-format-interpolation)
         return False
 
     run_working_directory = tempfile.mkdtemp()
-    logging.debug("working directory: {}".format(run_working_directory))
+    logger.debug("working directory: {}".format(run_working_directory))  # pylint: disable=logging-format-interpolation
     xrsm = XrayVolumeServerMap(coord_path=coord_file,
                                node_path=node_path,
                                volume_server_pack_path=volume_server_pack_path,
@@ -254,8 +250,8 @@ def main():  # pragma: no cover
     )
 
     args = parser.parse_args()
-    logger = logging.getLogger()
-    logger.setLevel(args.loglevel)
+    logger_in = logging.getLogger()
+    logger_in.setLevel(args.loglevel)
 
     ok = run_process_with_gemmi(
         node_path=args.node_path,

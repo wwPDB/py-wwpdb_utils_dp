@@ -19,15 +19,13 @@ Test cases from
 """
 import logging
 import os
-import platform
 import sys
 import unittest
 
 if __package__ is None or __package__ == '':
-    import sys
     from os import path
-    sys.path.append( path.dirname( path.dirname( path.abspath(__file__) ) ) )
-    from commonsetup import TESTOUTPUT, TOPDIR, dictsmissing
+    sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
+    from commonsetup import TESTOUTPUT, TOPDIR, dictsmissing  # pylint: disable=import-error
 else:
     from .commonsetup import TESTOUTPUT, TOPDIR, dictsmissing
 
@@ -45,7 +43,7 @@ class RcsbDpUtilityTests(unittest.TestCase):
         self.__tmpPath = TESTOUTPUT
         #
         self.__siteId = getSiteId(defaultSiteId=None)
-        logger.info("\nTesting with site environment for:  %s\n" % self.__siteId)
+        logger.info("\nTesting with site environment for:  %s\n", self.__siteId)
         #
         self.__cI = ConfigInfo(self.__siteId)
         self.__testFilePath = os.path.join(TOPDIR, 'wwpdb', 'mock-data', 'dp-utils')
@@ -57,7 +55,7 @@ class RcsbDpUtilityTests(unittest.TestCase):
     def testCifToPdb(self):
         """
         """
-        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting")
         try:
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
             cifPath = os.path.join(self.__testFilePath, self.__testFileCif)
@@ -67,14 +65,14 @@ class RcsbDpUtilityTests(unittest.TestCase):
             dp.expLog("myLog1.log.gz")
             # dp.cleanup()
         except Exception as e:
-            logger.exception("Failing with %s" % str(e))
+            logger.exception("Failing with %s", str(e))
             self.fail()
 
     @unittest.skipIf(dictsmissing, "SITE_PDBX_DICTIONARY_NAME_DICT not in site-config")
     def testCifCheck(self):
         """
         """
-        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting")
         try:
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
             cifPath = os.path.join(self.__testFilePath, self.__testFileCif)
@@ -84,14 +82,14 @@ class RcsbDpUtilityTests(unittest.TestCase):
             dp.expLog("check-cif.log")
             # dp.cleanup()
         except Exception as e:
-            logger.exception("Failing with %s" % str(e))
+            logger.exception("Failing with %s", str(e))
             self.fail()
 
     @unittest.skipIf(dictsmissing, "SITE_PDBX_DICTIONARY_NAME_DICT not in site-config")
     def testCifCheckExt(self):
         """
         """
-        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting")
         try:
             for name in ['deposit', 'archive_current', 'archive_next']:
                 dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
@@ -103,14 +101,14 @@ class RcsbDpUtilityTests(unittest.TestCase):
                 dp.expLog("check-cif-%s.log" % name)
                 # dp.cleanup()
         except Exception as e:
-            logger.exception("Failing with %s" % str(e))
+            logger.exception("Failing with %s", str(e))
             self.fail()
 
     @unittest.skipIf(dictsmissing, "SITE_PDBX_DICTIONARY_NAME_DICT not in site-config")
     def testCif2PdbxExt(self):
         """
         """
-        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting")
         try:
             for name in ['archive_next', 'archive_current']:
                 dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
@@ -122,7 +120,7 @@ class RcsbDpUtilityTests(unittest.TestCase):
                 dp.expLog("cif2pdbx-%s.log" % name)
                 # dp.cleanup()
         except Exception as e:
-            logger.exception("Failing with %s" % str(e))
+            logger.exception("Failing with %s", str(e))
             self.fail()
 
 

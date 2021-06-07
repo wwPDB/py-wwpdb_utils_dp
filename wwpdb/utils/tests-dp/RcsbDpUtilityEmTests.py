@@ -16,7 +16,6 @@ import json
 import logging
 import math
 import os
-import platform
 import sys
 import unittest
 
@@ -31,10 +30,9 @@ except ImportError:
 
 
 if __package__ is None or __package__ == '':
-    import sys
     from os import path
-    sys.path.append( path.dirname( path.dirname( path.abspath(__file__) ) ) )
-    from commonsetup import TESTOUTPUT, TOPDIR, toolsmissing
+    sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
+    from commonsetup import TESTOUTPUT, TOPDIR, toolsmissing  # pylint: disable=import-error
 else:
     from .commonsetup import TESTOUTPUT, TOPDIR, toolsmissing
 
@@ -57,7 +55,7 @@ class RcsbDpUtilityEmTests(unittest.TestCase):
 
     def setUp(self):
         self.__siteId = getSiteId(defaultSiteId=None)
-        logger.info("\nTesting with site environment for:  %s\n" % self.__siteId)
+        logger.info("\nTesting with site environment for:  %s\n", self.__siteId)
         #
         self.__cI = ConfigInfo(self.__siteId)
         #
@@ -79,7 +77,7 @@ class RcsbDpUtilityEmTests(unittest.TestCase):
     def testMapFix(self):
         """  Test mapfix utility
         """
-        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting")
         try:
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
             #
@@ -91,7 +89,7 @@ class RcsbDpUtilityEmTests(unittest.TestCase):
             dp.exp(of)
             # dp.cleanup()
         except Exception as e:
-            logger.exception("Failing with %s" % str(e))
+            logger.exception("Failing with %s", str(e))
             self.fail()
 
     @unittest.skipIf(skiptest, "Matplotlib")
@@ -100,7 +98,7 @@ class RcsbDpUtilityEmTests(unittest.TestCase):
     def testReadMapHeader(self):
         """  Test read map header -- export JSON packet and plot density distribution -
         """
-        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting")
         try:
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
             dp.setDebugMode(flag=True)
@@ -114,11 +112,11 @@ class RcsbDpUtilityEmTests(unittest.TestCase):
             # dp.cleanup()
             #
             mD = json.load(open(of, 'r'))
-            logger.info("Map header keys: %r\n" % mD.keys())
-            logger.info("Map header: %r\n" % mD.items())
+            logger.info("Map header keys: %r\n", mD.keys())
+            logger.info("Map header: %r\n", mD.items())
 
-            logger.info("Input  header keys: %r\n" % mD['input_header'].keys())
-            logger.info("Output header keys: %r\n" % mD['output_header'].keys())
+            logger.info("Input  header keys: %r\n", mD['input_header'].keys())
+            logger.info("Output header keys: %r\n", mD['output_header'].keys())
             #
             x = mD['input_histogram_categories']
             y = mD['input_histogram_values']
@@ -131,7 +129,7 @@ class RcsbDpUtilityEmTests(unittest.TestCase):
 
             #
             width = float(x[-1] - x[0]) / float(len(x))
-            #width = 2.0
+            # width = 2.0
             logger.info("Starting plot\n")
             plt.bar(x, y, width, color="r", log=True)
             logger.info("Loaded data\n")
@@ -145,7 +143,7 @@ class RcsbDpUtilityEmTests(unittest.TestCase):
             logger.info("saved figure\n")
 
         except Exception as e:
-            logger.exception("Failing with %s" % str(e))
+            logger.exception("Failing with %s", str(e))
             self.fail()
 
     @unittest.skipIf(skiptest, "Matplotlib")
@@ -153,7 +151,7 @@ class RcsbDpUtilityEmTests(unittest.TestCase):
     def testReadMapHeaderPygal(self):
         """  Test read map header -- export JSON packet and plot density distribution -
         """
-        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting")
         try:
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
             #
@@ -166,11 +164,11 @@ class RcsbDpUtilityEmTests(unittest.TestCase):
             dp.cleanup()
             #
             mD = json.load(open(of, 'r'))
-            logger.info("Map header keys: %r\n" % mD.keys())
-            logger.info("Map header: %r\n" % mD.items())
+            logger.info("Map header keys: %r\n", mD.keys())
+            logger.info("Map header: %r\n", mD.items())
 
-            logger.info("Input  header keys: %r\n" % mD['input_header'].keys())
-            logger.info("Output header keys: %r\n" % mD['output_header'].keys())
+            logger.info("Input  header keys: %r\n", mD['input_header'].keys())
+            logger.info("Output header keys: %r\n", mD['output_header'].keys())
             #
             x = mD['input_histogram_categories']
             y = mD['input_histogram_values']
@@ -182,12 +180,12 @@ class RcsbDpUtilityEmTests(unittest.TestCase):
                     logy.append(math.log10(float(v)))
 
             # width = float(x[-1] - x[0]) / float(len(x))
-            #width = 2.0
+            # width = 2.0
 
-            logger.info("Starting plot len x %d len y %d \n" % (len(x), len(logy)))
+            logger.info("Starting plot len x %d len y %d \n", len(x), len(logy))
             nL = int(len(x) / 10)
             #
-            if False:
+            if False:  # pylint: disable=using-constant-test
                 bar_chart = pygal.Bar(x_label_rotation=20, show_minor_x_labels=False, style=LightColorizedStyle)
             bar_chart = pygal.Bar(x_label_rotation=20, show_minor_x_labels=False, style=LightGreenStyle)
             bar_chart.title = 'Map density distribution'
@@ -199,7 +197,7 @@ class RcsbDpUtilityEmTests(unittest.TestCase):
             bar_chart.render_to_file(plotFileName)
 
         except Exception as e:
-            logger.exception("Failing with %s" % str(e))
+            logger.exception("Failing with %s", str(e))
             self.fail()
 
     def myround(self, x, base=5):
@@ -209,7 +207,7 @@ class RcsbDpUtilityEmTests(unittest.TestCase):
     def testEm2EmSpider(self):
         """  Test mapfix utility
         """
-        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting")
         try:
 
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
@@ -226,14 +224,14 @@ class RcsbDpUtilityEmTests(unittest.TestCase):
             dp.exp(of)
             # dp.cleanup()
         except Exception as e:
-            logger.exception("Failing with %s" % str(e))
+            logger.exception("Failing with %s", str(e))
             self.fail()
 
     @unittest.skipIf(toolsmissing, "Tools not available for testing")
     def testXmlHeaderCheck(self):
         """  Test xmllint
         """
-        logger.info("\nStarting %s %s\n" % (self.__class__.__name__, sys._getframe().f_code.co_name))
+        logger.info("\nStarting")
         try:
 
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
@@ -246,7 +244,7 @@ class RcsbDpUtilityEmTests(unittest.TestCase):
             dp.expLog("xml-header-check.log")
             # dp.cleanup()
         except Exception as e:
-            logger.exception("Failing with %s" % str(e))
+            logger.exception("Failing with %s", str(e))
             self.fail()
 
 
