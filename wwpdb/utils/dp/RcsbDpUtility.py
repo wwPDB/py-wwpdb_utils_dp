@@ -148,6 +148,7 @@ import sys
 import tempfile
 import time
 from subprocess import Popen, call
+
 try:
     from itertools import zip_longest
 except ImportError:
@@ -163,7 +164,6 @@ logger = logging.getLogger(__name__)
 
 
 class RcsbDpUtility(object):
-
     """ Wrapper class for data processing and chemical component utilities.
     """
 
@@ -191,46 +191,68 @@ class RcsbDpUtility(object):
         self.__inputParamDict = {}
         #
         # List of known operations ---
-        self.__maxitOps = ["cif2cif", "cif2cif-remove", "cif2cif-ebi", "cif2cif-pdbx", "cif2cif-pdbx-skip-process", "cif-rcsb2cif-pdbx",
+        self.__maxitOps = ["cif2cif", "cif2cif-remove", "cif2cif-ebi", "cif2cif-pdbx", "cif2cif-pdbx-skip-process",
+                           "cif-rcsb2cif-pdbx",
                            "cif-seqed2cif-pdbx", "cif2pdb", "pdb2cif", "pdb2cif-ebi", "switch-dna",
                            "cif2pdb-assembly", "pdbx2pdb-assembly", "pdbx2deriv"]
-        self.__rcsbOps = ["rename-atoms", "cif2pdbx", "pdbx2xml", "pdb2dssp", "pdb2stride", "initial-version", "poly-link-dist",
+        self.__rcsbOps = ["rename-atoms", "cif2pdbx", "pdbx2xml", "pdb2dssp", "pdb2stride", "initial-version",
+                          "poly-link-dist",
                           "chem-comp-link", "chem-comp-assign", "chem-comp-assign-comp", "chem-comp-assign-skip",
-                          "chem-comp-assign-exact", "chem-comp-assign-validation", "check-cif", "check-cif-v4", "check-cif-ext",
+                          "chem-comp-assign-exact", "chem-comp-assign-validation", "check-cif", "check-cif-v4",
+                          "check-cif-ext",
                           "cif2pdbx-public", "cif2pdbx-ext",
                           "chem-comp-dict-makeindex", "chem-comp-dict-serialize", "chem-comp-annotate-comp",
-                          "chem-comp-do-report", "chem-comp-align-img-gen", "chem-comp-align-images", "chem-comp-gen-images"]
+                          "chem-comp-do-report", "chem-comp-align-img-gen", "chem-comp-align-images",
+                          "chem-comp-gen-images"]
         self.__pisaOps = ["pisa-analysis", "pisa-assembly-report-xml", "pisa-assembly-report-text",
                           "pisa-interface-report-xml", "pisa-assembly-coordinates-pdb", "pisa-assembly-coordinates-cif",
                           "pisa-assembly-coordinates-cif", "pisa-assembly-merge-cif"]
-        self.__annotationOps = ["annot-secondary-structure", "annot-link-ssbond", "annot-cis-peptide", "annot-distant-solvent",
+        self.__annotationOps = ["annot-secondary-structure", "annot-link-ssbond", "annot-cis-peptide",
+                                "annot-distant-solvent",
                                 "annot-merge-struct-site", "annot-reposition-solvent", "annot-base-pair-info",
                                 "annot-validation", "annot-site", "annot-rcsb2pdbx", "annot-consolidated-tasks",
-                                "annot-wwpdb-validate-all", "annot-wwpdb-validate-all-v2", "prd-search", "prd-process-summary",
+                                "annot-wwpdb-validate-all", "annot-wwpdb-validate-all-v2", "prd-search",
+                                "prd-process-summary",
                                 "annot-nmrstar2pdbx", "annot-pdbx2nmrstar",
-                                "annot-reposition-solvent-add-derived", "annot-rcsb2pdbx-strip", "annot-rcsbeps2pdbx-strip",
+                                "annot-reposition-solvent-add-derived", "annot-rcsb2pdbx-strip",
+                                "annot-rcsbeps2pdbx-strip",
                                 "annot-rcsb2pdbx-strip-plus-entity", "annot-rcsbeps2pdbx-strip-plus-entity",
-                                "chem-comp-instance-update", "annot-cif2cif", "annot-cif2pdb", "annot-pdb2cif", "annot-poly-link-dist",
-                                "annot-merge-sequence-data", "annot-make-maps", "annot-make-ligand-maps", "annot-poly-link-dist-json",
+                                "chem-comp-instance-update", "annot-cif2cif", "annot-cif2pdb", "annot-pdb2cif",
+                                "annot-poly-link-dist",
+                                "annot-merge-sequence-data", "annot-make-maps", "annot-make-ligand-maps",
+                                "annot-poly-link-dist-json",
                                 "annot-make-omit-maps",
-                                "annot-cif2cif-dep", "annot-pdb2cif-dep", "annot-format-check-pdbx", "annot-format-check-pdb",
-                                "annot-dcc-report", "annot-sf-convert", "annot-tls-range-correction", "annot-dcc-refine-report", "annot-dcc-biso-full",
-                                "annot-dcc-special-position", "annot-dcc-fix-special-position", "annot-dcc-reassign-alt-ids",
+                                "annot-cif2cif-dep", "annot-pdb2cif-dep", "annot-format-check-pdbx",
+                                "annot-format-check-pdb",
+                                "annot-dcc-report", "annot-sf-convert", "annot-tls-range-correction",
+                                "annot-dcc-refine-report", "annot-dcc-biso-full",
+                                "annot-dcc-special-position", "annot-dcc-fix-special-position",
+                                "annot-dcc-reassign-alt-ids",
                                 "annot-rcsb2pdbx-withpdbid", "annot-merge-tls-range-data",
                                 "annot-rcsb2pdbx-withpdbid-singlequote", "annot-rcsb2pdbx-alt",
                                 "annot-move-xyz-by-matrix", "annot-move-xyz-by-symop", "annot-extra-checks",
-                                "annot-update-terminal-atoms", "annot-merge-xyz", "annot-gen-assem-pdbx", "annot-cif2pdbx-withpdbid",
-                                "annot-validate-geometry", "annot-update-dep-assembly-info", "annot-chem-shifts-update-with-check",
-                                "annot-chem-shifts-atom-name-check", "annot-chem-shifts-upload-check", "annot-nef-update-with-check",
+                                "annot-update-terminal-atoms", "annot-merge-xyz", "annot-gen-assem-pdbx",
+                                "annot-cif2pdbx-withpdbid",
+                                "annot-validate-geometry", "annot-update-dep-assembly-info",
+                                "annot-chem-shifts-update-with-check",
+                                "annot-chem-shifts-atom-name-check", "annot-chem-shifts-upload-check",
+                                "annot-nef-update-with-check",
                                 "annot-reorder-models", "annot-chem-shifts-update", "annot-generte-nmr-data-str-file",
                                 "annot-get-corres-info", "prd-summary-serialize", "prd-family-mapping",
-                                "annot-get-symmetry-operator", "annot-depict-molecule-json", "annot-check-select-number",
-                                "annot-update-molecule", "annot-depict-chemical-shift", "annot-edit-chemical-shift", "annot-misc-checking",
-                                "annot-dcc-validation", "annot-correct-freer-set", "annot-cif-to-public-pdbx", "annot-public-pdbx-to-xml",
-                                "annot-release-update", "annot-get-pdb-bundle", "annot-get-biol-cif-file", "annot-get-biol-pdb-file", "annot-check-cif",
-                                "annot-check-xml-xmllint", "annot-check-xml-stdinparse", "annot-get-pdb-file", "annot-check-pdb-file",
-                                "annot-check-sf-file", "annot-check-mr-file", "annot-check-cs-file", "annot-add-version-info",
-                                "carbohydrate-remediation", "carbohydrate-remediation-test", "get-branch-polymer-info", "annot-get-close-contact",
+                                "annot-get-symmetry-operator", "annot-depict-molecule-json",
+                                "annot-check-select-number",
+                                "annot-update-molecule", "annot-depict-chemical-shift", "annot-edit-chemical-shift",
+                                "annot-misc-checking",
+                                "annot-dcc-validation", "annot-correct-freer-set", "annot-cif-to-public-pdbx",
+                                "annot-public-pdbx-to-xml",
+                                "annot-release-update", "annot-get-pdb-bundle", "annot-get-biol-cif-file",
+                                "annot-get-biol-pdb-file", "annot-check-cif",
+                                "annot-check-xml-xmllint", "annot-check-xml-stdinparse", "annot-get-pdb-file",
+                                "annot-check-pdb-file",
+                                "annot-check-sf-file", "annot-check-mr-file", "annot-check-cs-file",
+                                "annot-add-version-info",
+                                "carbohydrate-remediation", "carbohydrate-remediation-test", "get-branch-polymer-info",
+                                "annot-get-close-contact",
                                 "annot-convert-close-contact-to-link",
                                 "em-density-bcif"]
 
@@ -271,7 +293,8 @@ class RcsbDpUtility(object):
         try:
             pth = os.path.abspath(self.__cI.get(ky))
             if (self.__debug):
-                logger.info("+RcsbDpUtility.__getConfigPath()  - site %s configuration for %s is %s\n", self.__siteId, ky, pth)
+                logger.info("+RcsbDpUtility.__getConfigPath()  - site %s configuration for %s is %s\n", self.__siteId,
+                            ky, pth)
         except Exception:
             if (self.__verbose):
                 logger.info("++WARN - site %s configuration data missing for %s\n", self.__siteId, ky)
@@ -340,7 +363,7 @@ class RcsbDpUtility(object):
             self.__localAppsPath = os.path.abspath(fPath)
 
     def saveResult(self):
-        return(self.__stepNo)
+        return (self.__stepNo)
 
     def useResult(self, stepNo):
         if (stepNo > 0 and stepNo <= self.__stepNo):
@@ -484,7 +507,7 @@ class RcsbDpUtility(object):
             return False
 
     def getResultPathList(self):
-        return(self.__resultPathList)
+        return (self.__resultPathList)
 
     def expList(self, dstPathList=None):
         """Export  copies of the list of last results to the corresponding paths
@@ -624,22 +647,22 @@ class RcsbDpUtility(object):
                 ofh.write("%s\n", f)
         ofh.close()
         #
-        return(iPathList)
+        return (iPathList)
 
     def __getSourceWrkFile(self, stepNo):
-        return("input_file_" + str(stepNo))
+        return ("input_file_" + str(stepNo))
 
     def __getResultWrkFile(self, stepNo):
-        return("result_file_" + str(stepNo))
+        return ("result_file_" + str(stepNo))
 
     def __getLogWrkFile(self, stepNo):
-        return("log_file_" + str(stepNo))
+        return ("log_file_" + str(stepNo))
 
     def __getErrWrkFile(self, stepNo):
-        return("error_file_" + str(stepNo))
+        return ("error_file_" + str(stepNo))
 
     def __getTmpWrkFile(self, stepNo):
-        return("temp_file_" + str(stepNo))
+        return ("temp_file_" + str(stepNo))
 
     def __updateInputPath(self):
         """Shuffle the output from the previous step or a selected previous
@@ -648,11 +671,11 @@ class RcsbDpUtility(object):
         #
         if (self.__stepNo > 1):
             if (self.__stepNoSaved is not None):
-                return(self.__getResultWrkFile(self.__stepNoSaved))
+                return (self.__getResultWrkFile(self.__stepNoSaved))
                 # Is this out of sequence?
                 self.__stepNoSaved = None  # pylint: disable=unreachable
             else:
-                return(self.__getResultWrkFile(self.__stepNo - 1))
+                return (self.__getResultWrkFile(self.__stepNo - 1))
 
     def __annotationStep(self, op):
         """ Internal method that performs a single annotation application operation.
@@ -717,7 +740,7 @@ class RcsbDpUtility(object):
         #
         cmd += " ; RCSBROOT=" + self.__rcsbAppsPath + " ; export RCSBROOT  "
         cmd += " ; PDB2GLYCAN=" + os.path.join(os.path.abspath(self.__packagePath), "pdb2glycan", "bin", "PDB2Glycan") \
-            +  " ; export PDB2GLYCAN "
+               + " ; export PDB2GLYCAN "
         cmd += " ; COMP_PATH=" + self.__ccCvsPath + " ; export COMP_PATH  "
         maxitCmd = os.path.join(self.__rcsbAppsPath, "bin", "maxit")
 
@@ -888,9 +911,12 @@ class RcsbDpUtility(object):
         elif (op == "annot-site"):
             cmd += " ; TOOLS_PATH=" + self.__packagePath + " ; export TOOLS_PATH "
             cmd += " ; CCP4=" + os.path.join(self.__packagePath, "ccp4") + " ; export CCP4 "
-            cmd += " ; SYMINFO=" + os.path.join(self.__packagePath, "getsite-cif", "data", "syminfo.lib") + " ; export SYMINFO "
-            cmd += " ; MMCIFDIC=" + os.path.join(self.__packagePath, "getsite-cif", "data", "cif_mmdic.lib") + " ; export MMCIFDIC "
-            cmd += " ; STANDATA=" + os.path.join(self.__packagePath, "getsite-cif", "data", "standard_geometry.cif") + " ; export STANDATA "
+            cmd += " ; SYMINFO=" + os.path.join(self.__packagePath, "getsite-cif", "data",
+                                                "syminfo.lib") + " ; export SYMINFO "
+            cmd += " ; MMCIFDIC=" + os.path.join(self.__packagePath, "getsite-cif", "data",
+                                                 "cif_mmdic.lib") + " ; export MMCIFDIC "
+            cmd += " ; STANDATA=" + os.path.join(self.__packagePath, "getsite-cif", "data",
+                                                 "standard_geometry.cif") + " ; export STANDATA "
             cmd += " ; CCIF_NOITEMIP=off ; export CCIF_NOITEMIP "
             # setenv DYLD_LIBRARY_PATH  "$CCP4/lib/ccif:$CCP4/lib"
             # cmd += " ; DYLD_LIBRARY_PATH=" + os.path.join(self.__packagePath,"ccp4","lib","ccif") + ":" + \
@@ -900,7 +926,7 @@ class RcsbDpUtility(object):
                    os.path.join(self.__packagePath, "ccp4", "lib", "ccif") + " ; export LD_LIBRARY_PATH "
 
             cmd += " ; DYLD_LIBRARY_PATH=" + os.path.join(self.__packagePath, "ccp4-ccif", "lib") + ":" + \
-                os.path.join(self.__packagePath, "ccp4") + " ; export DYLD_LIBRARY_PATH "
+                   os.path.join(self.__packagePath, "ccp4") + " ; export DYLD_LIBRARY_PATH "
 
             # setenv CIFIN 1abc.cif
             cmd += " ; CIFIN=" + iPath + " ; export CIFIN "
@@ -1191,7 +1217,7 @@ class RcsbDpUtility(object):
             thisCmd = " ; python -m wwpdb.apps.validation.src.validator"
 
             cmd += thisCmd + " --mmciffile %s --xml %s --cif %s --pdf %s --fullpdf %s --png %s --svg %s --imagetar %s" % \
-                (iPathFull, xmlPath, cifPath, pdfPath, pdfFullPath, pngPath, svgPath, imageTarPath)
+                   (iPathFull, xmlPath, cifPath, pdfPath, pdfFullPath, pngPath, svgPath, imageTarPath)
             cmd += " --mode " + validation_mode
 
             # For deposit or validation server - provide a PDB id. Otherwise for annotation incorrect id would be used
@@ -1545,8 +1571,9 @@ class RcsbDpUtility(object):
             else:
                 return -1
             #
-            cmd += " ; " + os.path.join(self.__rcsbAppsPath, "bin", "MergeTLSData") + " -input " + iPath + " -input_tls " + tlsDataFilePath \
-                + " -output " + oPath + " -log " + lPath + " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
+            cmd += " ; " + os.path.join(self.__rcsbAppsPath, "bin",
+                                        "MergeTLSData") + " -input " + iPath + " -input_tls " + tlsDataFilePath \
+                   + " -output " + oPath + " -log " + lPath + " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
             #
 
         elif (op == "annot-make-omit-maps"):
@@ -2027,7 +2054,7 @@ class RcsbDpUtility(object):
             #
             cmdPath = os.path.join(self.__packagePath, "dict", "bin", "cifexch2")
             thisCmd = " ; " + cmdPath + " -dicSdb " + self.__nameToDictPath("archive_current") + " -pdbxDicSdb " \
-                + self.__nameToDictPath("archive_current") + " -reorder  -strip -op in  -pdbids "
+                      + self.__nameToDictPath("archive_current") + " -reorder  -strip -op in  -pdbids "
             cmd += thisCmd + " -input " + iPath + " -output " + oPath
             cmd += " 2> " + lPath + " 1> " + tPath
 
@@ -2035,7 +2062,7 @@ class RcsbDpUtility(object):
             #
             cmdPath = os.path.join(self.__packagePath, "dict", "bin", "mmcif2XML")
             thisCmd = " ; " + cmdPath + " -prefix  pdbx-v50 -ns PDBx -funct mmcif2xmlall -dictName mmcif_pdbx.dic -df " \
-                + self.__nameToDictPath("archive_current", suffix=".odb")
+                      + self.__nameToDictPath("archive_current", suffix=".odb")
             cmd += thisCmd + " -f " + iPath
             cmd += " 2> " + tPath + " 1> " + lPath
 
@@ -2044,18 +2071,20 @@ class RcsbDpUtility(object):
             cmdPath = os.path.join(self.__packagePath, "dict", "bin", "CifCheck")
             thisCmd = " ; " + cmdPath + " -dictSdb " + self.__nameToDictPath("archive_current") + " -f " + iPath
             cmd += thisCmd + " 2> tmp 1> " + tPath + " ; cat tmp >> " + lPath + " ; touch " + iPath + "-parser.log ; cat " \
-                + iPath + "-parser.log >> " + lPath
+                   + iPath + "-parser.log >> " + lPath
 
         elif (op == "annot-check-xml-xmllint"):
             #
             cmdPath = os.path.join(self.__localAppsPath, "bin", "xmllint")
-            thisCmd = " ; " + cmdPath + " --noout --schema " + os.path.join(self.__cICommon.get_mmcif_dict_path(), "pdbx-v50.xsd")
+            thisCmd = " ; " + cmdPath + " --noout --schema " + os.path.join(self.__cICommon.get_mmcif_dict_path(),
+                                                                            "pdbx-v50.xsd")
             cmd += thisCmd + " " + iPath + " > " + tPath + " 2>&1 ; "
 
         elif (op == "annot-check-xml-stdinparse"):
             #
             cmdPath = os.path.join(self.__localAppsPath, "bin", "StdInParse")
-            thisCmd = " ; cp -f " + os.path.join(self.__cICommon.get_mmcif_dict_path(), "pdbx-v50.xsd") + " . ; " + cmdPath
+            thisCmd = " ; cp -f " + os.path.join(self.__cICommon.get_mmcif_dict_path(),
+                                                 "pdbx-v50.xsd") + " . ; " + cmdPath
             cmd += thisCmd + " -s -f -n -v=always < " + iPath + " >> " + tPath + " 2>&1 ; "
 
         elif (op == "annot-misc-checking"):
@@ -2238,7 +2267,7 @@ class RcsbDpUtility(object):
             cmd += " ; PRD_DICT_PATH=" + self.__prdDictPath + " ; export PRD_DICT_PATH "
             cmdPath = os.path.join(self.__annotAppsPath, "bin", "GetPrdMatch")
             cmd += " ; " + cmdPath + " -input " + iPath + " -output " + oPath \
-                + " -path . -index " + self.__prdSummarySerial + " -cc_index " + self.__ccDictPathIdx
+                   + " -path . -index " + self.__prdSummarySerial + " -cc_index " + self.__ccDictPathIdx
             if 'logfile' in self.__inputParamDict:
                 cmd += " -log " + self.__inputParamDict['logfile']
             if 'firstmodel' in self.__inputParamDict:
@@ -2311,7 +2340,8 @@ class RcsbDpUtility(object):
             ofh.write("LogFile:      %s\n" % lPath)
             ofh.write("Working path: %s\n" % self.__wrkPath)
             ofh.write("Date:         %s\n" % lt)
-            ofh.write("\nStep command:\n%s\n-------------------------------------------------\n" % cmd.replace(";", "\n"))
+            ofh.write(
+                "\nStep command:\n%s\n-------------------------------------------------\n" % cmd.replace(";", "\n"))
             ofh.close()
 
         iret = self.__run(cmd, lPathFull, op)
@@ -2550,16 +2580,19 @@ class RcsbDpUtility(object):
             # Here we manage copying the maps non-polymer CIF snippets and a defining index file to the user
             # specified output path --
             if (self.__verbose):
-                logger.info("+RcsbDpUtility._annotationStep()  - for operation %s return path %s\n", op, outDataPathFull)
+                logger.info("+RcsbDpUtility._annotationStep()  - for operation %s return path %s\n", op,
+                            outDataPathFull)
             pat = os.path.join(self.__wrkPath, '*.map')
             self.__resultMapPathList = glob.glob(pat)
             if (self.__debug):
-                logger.info("+RcsbDpUtility._annotationStep()  - pat %s resultMapPathList %s\n", pat, self.__resultMapPathList)
+                logger.info("+RcsbDpUtility._annotationStep()  - pat %s resultMapPathList %s\n", pat,
+                            self.__resultMapPathList)
             #
             pat = os.path.join(self.__wrkPath, '[0-9]*.cif')
             self.__resultCifPathList = glob.glob(pat)
             if (self.__debug):
-                logger.info("+RcsbDpUtility._annotationStep()  - pat %s resultCifPathList %s\n", pat, self.__resultCifPathList)
+                logger.info("+RcsbDpUtility._annotationStep()  - pat %s resultCifPathList %s\n", pat,
+                            self.__resultCifPathList)
             #
             try:
                 if (not os.path.isdir(outDataPathFull)):
@@ -2621,7 +2654,8 @@ class RcsbDpUtility(object):
                 self.__resultPathList.append("missing")
             #
 
-        elif ((op == "annot-check-sf-file") or (op == "annot-check-mr-file") or (op == "annot-check-cs-file") or (op == "annot-pdbx2nmrstar")):
+        elif ((op == "annot-check-sf-file") or (op == "annot-check-mr-file") or (op == "annot-check-cs-file") or (
+                op == "annot-pdbx2nmrstar")):
             for fileName in (oPath, tPath):
                 outFile = os.path.join(self.__wrkPath, fileName)
                 if os.access(outFile, os.F_OK):
@@ -2631,7 +2665,8 @@ class RcsbDpUtility(object):
                 #
             #
 
-        elif ((op == "annot-cif-to-public-pdbx") or (op == "annot-misc-checking") or (op == "annot-get-pdb-file") or (op == "annot-add-version-info")):
+        elif ((op == "annot-cif-to-public-pdbx") or (op == "annot-misc-checking") or (op == "annot-get-pdb-file") or (
+                op == "annot-add-version-info")):
             for fileName in (oPath, tPath, lPath):
                 outFile = os.path.join(self.__wrkPath, fileName)
                 if os.access(outFile, os.F_OK):
@@ -2670,7 +2705,7 @@ class RcsbDpUtility(object):
             #
 
         elif (op == "annot-release-update") or (op == "annot-get-pdb-bundle") or (op == "annot-get-biol-cif-file") or \
-             (op == "annot-get-biol-pdb-file") or (op == "annot-check-pdb-file"):
+                (op == "annot-get-biol-pdb-file") or (op == "annot-check-pdb-file"):
             for fileName in ("result.tar.gz", tPath, lPath):
                 outFile = os.path.join(self.__wrkPath, fileName)
                 if os.access(outFile, os.F_OK):
@@ -2754,7 +2789,7 @@ class RcsbDpUtility(object):
         #
         cmd += " ; RCSBROOT=" + self.__rcsbAppsPath + " ; export RCSBROOT  "
         cmd += " ; PDB2GLYCAN=" + os.path.join(os.path.abspath(self.__packagePath), "pdb2glycan", "bin", "PDB2Glycan") \
-            +  " ; export PDB2GLYCAN "
+               + " ; export PDB2GLYCAN "
         cmd += " ; COMP_PATH=" + self.__ccCvsPath + " ; export COMP_PATH  "
         valCmd = os.path.join(self.__rcsbAppsPath, "bin", "validation_with_cif_output")
 
@@ -2788,7 +2823,8 @@ class RcsbDpUtility(object):
             ofh.write("LogFile:      %s\n" % lPath)
             ofh.write("Working path: %s\n" % self.__wrkPath)
             ofh.write("Date:         %s\n" % lt)
-            ofh.write("\nStep command:\n%s\n-------------------------------------------------\n" % cmd.replace(";", "\n"))
+            ofh.write(
+                "\nStep command:\n%s\n-------------------------------------------------\n" % cmd.replace(";", "\n"))
             ofh.close()
 
         iret = self.__run(cmd, lPathFull, op)
@@ -2878,7 +2914,8 @@ class RcsbDpUtility(object):
             ofh.write("LogFile:      %s\n" % lPath)
             ofh.write("Working path: %s\n" % self.__wrkPath)
             ofh.write("Date:         %s\n" % lt)
-            ofh.write("\nStep command:\n%s\n-------------------------------------------------\n" % cmd.replace(";", "\n"))
+            ofh.write(
+                "\nStep command:\n%s\n-------------------------------------------------\n" % cmd.replace(";", "\n"))
             ofh.close()
 
         iret = self.__run(cmd, lPathFull, op)
@@ -2935,7 +2972,6 @@ class RcsbDpUtility(object):
             return out
 
         if (op == "em2em-spider"):
-
             # First step em2em spider -> ccp4
             imagicPath = os.path.join(self.__packagePath, "em2em_c5")
             binPath = os.path.join(self.__packagePath, "em2em_c5", "em2em.e")
@@ -3163,7 +3199,8 @@ class RcsbDpUtility(object):
             ofh.write("LogFile:      %s\n" % lPath)
             ofh.write("Working path: %s\n" % self.__wrkPath)
             ofh.write("Date:         %s\n" % lt)
-            ofh.write("\nStep command:\n%s\n-------------------------------------------------\n" % cmd.replace(";", "\n"))
+            ofh.write(
+                "\nStep command:\n%s\n-------------------------------------------------\n" % cmd.replace(";", "\n"))
             ofh.close()
 
         iret = self.__run(cmd, lPathFull, op)
@@ -3202,8 +3239,9 @@ class RcsbDpUtility(object):
                 cmd += "; cp " + pPath + " " + iPath
         #
         cmd += " ; RCSBROOT=" + self.__rcsbAppsPath + " ; export RCSBROOT "
-        cmd += " ; PDB2GLYCAN=" + os.path.join(os.path.abspath(self.__cICommon.get_site_packages_path()), "pdb2glycan", "bin", "PDB2Glycan") \
-            +  " ; export PDB2GLYCAN "
+        cmd += " ; PDB2GLYCAN=" + os.path.join(os.path.abspath(self.__cICommon.get_site_packages_path()), "pdb2glycan",
+                                               "bin", "PDB2Glycan") \
+               + " ; export PDB2GLYCAN "
         cmd += " ; COMP_PATH=" + self.__ccCvsPath + " ; export COMP_PATH ; "
         maxitCmd = os.path.join(self.__rcsbAppsPath, "bin", progName)
 
@@ -3279,7 +3317,8 @@ class RcsbDpUtility(object):
             ofh.write("LogFile:      %s\n" % lPath)
             ofh.write("Working path: %s\n" % self.__wrkPath)
             ofh.write("Date:         %s\n" % lt)
-            ofh.write("\nStep command:\n%s\n-------------------------------------------------\n" % cmd.replace(";", "\n"))
+            ofh.write(
+                "\nStep command:\n%s\n-------------------------------------------------\n" % cmd.replace(";", "\n"))
             ofh.write("\n")
             ofh.close()
 
@@ -3392,7 +3431,8 @@ class RcsbDpUtility(object):
             cmd += " ; BABEL_DIR=" + self.__babelDirPath + " ; export BABEL_DIR "
             cmd += " ; BABEL_DATADIR=" + self.__babelDataDirPath + " ; export BABEL_DATADIR "
             cmd += " ; CACTVS_DIR=" + self.__cactvsDirPath + " ; export CACTVS_DIR "
-            cmd += " ; LD_LIBRARY_PATH=" + self.__babelLibPath + ":" + os.path.join(self.__localAppsPath, "lib") + ":" + self.__acdDirPath + " ; export LD_LIBRARY_PATH "
+            cmd += " ; LD_LIBRARY_PATH=" + self.__babelLibPath + ":" + os.path.join(self.__localAppsPath,
+                                                                                    "lib") + ":" + self.__acdDirPath + " ; export LD_LIBRARY_PATH "
             cmdPath = os.path.join(self.__ccAppsPath, "bin", "annotateComp")
             thisCmd = " ; " + cmdPath + " -i " + iPath + " -op " + opAnnot + " -o " + oPath + " -export_format pdbx "
             cmd += thisCmd
@@ -3468,9 +3508,9 @@ class RcsbDpUtility(object):
             # thisCmd  = " ; " + cmdPath + " -dicSdb " + self.__pathPdbxDictSdb +  " -reorder  -strip -op in  -pdbids "
             # thisCmd = " ; " + cmdPath + " -dicSdb " + self.__pathPdbxDictSdb + " -pdbxDicSdb " + self.__pathPdbxV4DictSdb + " -reorder  -strip -op in  -pdbids "
             thisCmd = " ; " + cmdPath + " -dicSdb " \
-                + self.__nameToDictPath('deposit') + " -pdbxDicSdb " \
-                + self.__nameToDictPath('archive_current') \
-                + " -reorder  -strip -op in  -pdbids "
+                      + self.__nameToDictPath('deposit') + " -pdbxDicSdb " \
+                      + self.__nameToDictPath('archive_current') \
+                      + " -reorder  -strip -op in  -pdbids "
             cmd += thisCmd + " -input " + iPath + " -output " + oPath
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
 
@@ -3599,7 +3639,7 @@ class RcsbDpUtility(object):
             instId = self.__inputParamDict['cc_instance_id']
             cmd += " -i " + iPath + " -of " + oPath + " -o " + self.__wrkPath + " -ifmt comp -id " + entryId
             cmd += " -search_inst_id " + instId + " -libsdb " + self.__ccDictPathSdb + " -idxFile " \
-                + self.__ccDictPathIdx
+                   + self.__ccDictPathIdx
             #
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
         elif (op == "chem-comp-assign-validation"):
@@ -3753,7 +3793,8 @@ class RcsbDpUtility(object):
             ofh.write("LogFile:      %s\n" % lPath)
             ofh.write("Working path: %s\n" % self.__wrkPath)
             ofh.write("Date:         %s\n" % lt)
-            ofh.write("\nStep command:\n%s\n-------------------------------------------------\n" % cmd.replace(";", "\n"))
+            ofh.write(
+                "\nStep command:\n%s\n-------------------------------------------------\n" % cmd.replace(";", "\n"))
             ofh.close()
 
         iret = self.__run(cmd, lPathFull, op)
@@ -3809,7 +3850,8 @@ class RcsbDpUtility(object):
             pisaSession = None
         cmd += " ; PISA_TOP=" + os.path.abspath(pisaTopPath) + " ; export PISA_TOP "
         cmd += " ; PISA_SESSIONS=" + os.path.abspath(self.__wrkPath) + " ; export PISA_SESSIONS "
-        cmd += " ; PISA_CONF_FILE=" + os.path.abspath(os.path.join(pisaConfPath, "pisa-standalone.cfg")) + " ; export PISA_CONF_FILE "
+        cmd += " ; PISA_CONF_FILE=" + os.path.abspath(
+            os.path.join(pisaConfPath, "pisa-standalone.cfg")) + " ; export PISA_CONF_FILE "
         #
         # cmd += " ; PISA_CONF_FILE="   + os.path.abspath(os.path.join(pisaTopPath,"share","pisa","pisa.cfg")) + " ; export PISA_CONF_FILE "
         if (op == "pisa-analysis"):
@@ -3887,7 +3929,8 @@ class RcsbDpUtility(object):
             ofh.write("LogFile:      %s\n" % lPath)
             ofh.write("Working path: %s\n" % self.__wrkPath)
             ofh.write("Date:         %s\n" % lt)
-            ofh.write("\nStep command:\n%s\n-------------------------------------------------\n" % cmd.replace(";", "\n"))
+            ofh.write(
+                "\nStep command:\n%s\n-------------------------------------------------\n" % cmd.replace(";", "\n"))
             ofh.close()
 
         iret = self.__run(cmd, lPathFull, op)
@@ -3913,7 +3956,8 @@ class RcsbDpUtility(object):
 
         altPathList = []
         if altDbPaths is not None:
-            altPathList = list(map(lambda v : os.path.abspath(v), altDbPaths.split(":")))  # pylint: disable=unnecessary-lambda
+            altPathList = list(
+                map(lambda v: os.path.abspath(v), altDbPaths.split(":")))  # pylint: disable=unnecessary-lambda
 
         ncbiToolsPath = os.path.join(packagePath, 'ncbi-blast+')
 
@@ -3992,7 +4036,7 @@ class RcsbDpUtility(object):
             mySeqDbPath = self.__locateSeqDb(seqDbPath, altPathList, dbName + ".pal")
             cmd += " ; BLASTDB=" + os.path.abspath(mySeqDbPath) + " ; export BLASTDB "
             cmd += " ; " + cmdPath + " -outfmt 5  -num_threads " + numThreads + hOpt + " -evalue " + \
-                eValue + " -db " + os.path.join(mySeqDbPath, dbName) + " -query " + iPathFull + " -out " + oPath
+                   eValue + " -db " + os.path.join(mySeqDbPath, dbName) + " -query " + iPathFull + " -out " + oPath
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
         elif (op == "seq-blastn"):
             # -max_target_seqs
@@ -4005,7 +4049,7 @@ class RcsbDpUtility(object):
             mySeqDbPath = self.__locateSeqDb(seqDbPath, altPathList, dbName + ".nal")
             cmd += " ; BLASTDB=" + os.path.abspath(mySeqDbPath) + " ; export BLASTDB "
             cmd += " ; " + cmdPath + " -outfmt 5  -num_threads " + numThreads + hOpt + " -evalue " + \
-                eValue + " -db " + os.path.join(mySeqDbPath, dbName) + " -query " + iPathFull + " -out " + oPath
+                   eValue + " -db " + os.path.join(mySeqDbPath, dbName) + " -query " + iPathFull + " -out " + oPath
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
         else:
             return -1
@@ -4027,7 +4071,8 @@ class RcsbDpUtility(object):
             ofh.write("LogFile:      %s\n" % lPath)
             ofh.write("Working path: %s\n" % self.__wrkPath)
             ofh.write("Date:         %s\n" % lt)
-            ofh.write("\nStep command:\n%s\n-------------------------------------------------\n" % cmd.replace(";", "\n"))
+            ofh.write(
+                "\nStep command:\n%s\n-------------------------------------------------\n" % cmd.replace(";", "\n"))
             ofh.close()
 
         iret = self.__run(cmd, lPathFull, op)
@@ -4089,7 +4134,8 @@ class RcsbDpUtility(object):
         st = os.stat(cmdfile)
         os.chmod(cmdfile, st.st_mode | stat.S_IEXEC)
         logger.info("+RcsbDpUtility.__runTimeout() running command %r\n", cmdfile)
-        process = subprocess.Popen(cmdfile, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False, close_fds=True, preexec_fn=os.setsid)  # pylint: disable=subprocess-popen-preexec-fn
+        process = subprocess.Popen(cmdfile, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False, close_fds=True,
+                                   preexec_fn=os.setsid)  # pylint: disable=subprocess-popen-preexec-fn
         while process.poll() is None:
             time.sleep(0.1)
             now = datetime.datetime.now()
@@ -4097,7 +4143,8 @@ class RcsbDpUtility(object):
                 # os.kill(-process.pid, signal.SIGKILL)
                 os.killpg(process.pid, signal.SIGKILL)
                 os.waitpid(-1, os.WNOHANG)
-                logger.info("+ERROR RcsbDpUtility.__runTimeout() Execution terminated by timeout %d (seconds)\n", timeout)
+                logger.info("+ERROR RcsbDpUtility.__runTimeout() Execution terminated by timeout %d (seconds)\n",
+                            timeout)
                 if logPath is not None:
                     ofh = open(logPath, 'a')
                     ofh.write("+ERROR - Execution terminated by timeout %d (seconds)\n" % timeout)
@@ -4122,9 +4169,11 @@ class RcsbDpUtility(object):
             try:
                 retcode = call(command, shell=True)
                 if retcode != 0:
-                    logger.info("+RcsbDpUtility.__run() operation %s completed with return code %r\n", self.__stepOpList, retcode)
+                    logger.info("+RcsbDpUtility.__run() operation %s completed with return code %r\n",
+                                self.__stepOpList, retcode)
             except OSError as e:
-                logger.info("+RcsbDpUtility.__run() operation %s failed  with exception %r\n", self.__stepOpList, str(e))
+                logger.info("+RcsbDpUtility.__run() operation %s failed  with exception %r\n", self.__stepOpList,
+                            str(e))
             except Exception:
                 logger.info("+RcsbDpUtility.__run() operation %s failed  with exception\n", self.__stepOpList)
             return retcode
