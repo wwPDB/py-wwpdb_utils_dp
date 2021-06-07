@@ -4134,8 +4134,7 @@ class RcsbDpUtility(object):
         st = os.stat(cmdfile)
         os.chmod(cmdfile, st.st_mode | stat.S_IEXEC)
         logger.info("+RcsbDpUtility.__runTimeout() running command %r\n", cmdfile)
-        process = subprocess.Popen(cmdfile, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False, close_fds=True,
-                                   preexec_fn=os.setsid)  # pylint: disable=subprocess-popen-preexec-fn
+        process = subprocess.Popen(cmdfile, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False, close_fds=True, preexec_fn=os.setsid)  # pylint: disable=subprocess-popen-preexec-fn
         while process.poll() is None:
             time.sleep(0.1)
             now = datetime.datetime.now()
