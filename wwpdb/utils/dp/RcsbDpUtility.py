@@ -1216,8 +1216,8 @@ class RcsbDpUtility(object):
 
             thisCmd = " ; python -m wwpdb.apps.validation.src.validator"
 
-            cmd += thisCmd + " --mmciffile %s --xml %s --cif %s --pdf %s --fullpdf %s --png %s --svg %s --imagetar %s" % \
-                   (iPathFull, xmlPath, cifPath, pdfPath, pdfFullPath, pngPath, svgPath, imageTarPath)
+            cmd += thisCmd + " --mmciffile {} --xml {} --cif {} --pdf {} --fullpdf {} --png {} --svg {} --imagetar {}".format(
+                iPathFull, xmlPath, cifPath, pdfPath, pdfFullPath, pngPath, svgPath, imageTarPath)
             cmd += " --mode " + validation_mode
 
             # For deposit or validation server - provide a PDB id. Otherwise for annotation incorrect id would be used
@@ -2070,8 +2070,8 @@ class RcsbDpUtility(object):
             #
             cmdPath = os.path.join(self.__packagePath, "dict", "bin", "CifCheck")
             thisCmd = " ; " + cmdPath + " -dictSdb " + self.__nameToDictPath("archive_current") + " -f " + iPath
-            cmd += thisCmd + " 2> tmp 1> " + tPath + " ; cat tmp >> " + lPath + " ; touch " + iPath + "-parser.log ; cat " \
-                   + iPath + "-parser.log >> " + lPath
+            cmd += thisCmd + " 2> tmp 1> " + tPath + " ; cat tmp >> " + lPath + " ; "
+            cmd += " touch " + iPath + "-parser.log ; cat " + iPath + "-parser.log >> " + lPath
 
         elif (op == "annot-check-xml-xmllint"):
             #
