@@ -1179,7 +1179,7 @@ class RcsbDpUtility(object):
             edmapCoefPath = os.path.abspath(os.path.join(self.__wrkPath, "out.mtz"))
             imageTarPath = os.path.abspath(os.path.join(self.__wrkPath, "out_image.tar"))
 
-            chimerax_bin = "$PACKAGE_DIR/ChimeraX/bin"
+            chimerax_bin = self.__cIVal.get_chimerax()
 
             cmd += " ; %s " % self.__site_config_command
             cmd += ' ; export PATH="$PATH:{}"'.format(chimerax_bin)
