@@ -94,7 +94,7 @@ def convert_mdb_to_binary_cif(node_path,
             "asBinary": True
         },
         "outputFolder": working_dir,
-        "outputFilename": temp_out_file
+        "outputFilename": map_file_name
     }]
     if working_dir:
         working_json = os.path.join(working_dir, json_filename)
