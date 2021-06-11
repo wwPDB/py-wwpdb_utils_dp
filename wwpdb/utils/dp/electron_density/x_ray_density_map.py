@@ -73,7 +73,7 @@ class XrayVolumeServerMap:
         :param phi_column: PHI column
         :return: True if worked, False if failed
         """
-        st = gemmi.read_structure(self.coord_path)
+        st = gemmi.read_structure(self.coord_path, format=gemmi.CoorFormat.Mmcif)
         fbox = st.calculate_fractional_box(margin=5)
         if sf_mmcif_in:
             if os.path.exists(sf_mmcif_in):

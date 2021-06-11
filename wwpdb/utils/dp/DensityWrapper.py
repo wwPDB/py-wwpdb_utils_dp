@@ -23,7 +23,7 @@ class DensityWrapper(object):
         rdb.addInput(name='one_fo_fc_cif', value=in_fofc_cif)
         rdb.op('xray-density-bcif')
         rdb.exp(out_binary_volume)
-        rdb.cleanup()
+        # rdb.cleanup()
 
         if out_binary_volume:
             if os.path.exists(out_binary_volume):
