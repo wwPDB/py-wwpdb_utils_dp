@@ -3762,6 +3762,14 @@ class RcsbDpUtility(object):
             title = self.__inputParamDict['title']
             path = self.__inputParamDict['path']
             imagePath = self.__inputParamDict['image_path']
+            size = 300
+            labelAtomName = False
+
+            if 'size' in self.__inputParamDict:
+                size = self.__inputParamDict['size']
+            
+            if 'label' in self.__inputParamDict:
+                labelAtomName = self.__inputParamDict['labelAtomName']
 
             site_config_command = ". %s/init/env.sh -s %s -l %s" % (self.__siteConfigDir, self.__siteId, self.__siteLoc)
             cmd += " ; %s " % site_config_command
@@ -3770,7 +3778,7 @@ class RcsbDpUtility(object):
 
             thisCmd = " ; python -m wwpdb.apps.ccmodule.reports.ChemCompGenImage"
 
-            cmd += thisCmd + " -v -i %s -f %s -o %s" % (title, path, imagePath)
+            cmd += thisCmd + " -v -i %s -f %s -o %s --size %s --label %s" % (title, path, imagePath, size, labelAtomName)
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
         else:
             return -1
