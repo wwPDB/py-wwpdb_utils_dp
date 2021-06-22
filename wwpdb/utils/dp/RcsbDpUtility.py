@@ -3769,7 +3769,7 @@ class RcsbDpUtility(object):
                 size = self.__inputParamDict['size']
             
             if 'label' in self.__inputParamDict:
-                labelAtomName = self.__inputParamDict['labelAtomName']
+                labelAtomName = self.__inputParamDict['label']
 
             site_config_command = ". %s/init/env.sh -s %s -l %s" % (self.__siteConfigDir, self.__siteId, self.__siteLoc)
             cmd += " ; %s " % site_config_command
