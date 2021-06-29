@@ -3731,8 +3731,6 @@ class RcsbDpUtility(object):
         elif (op == "chem-comp-align-img-gen"):
             # set up
             #
-            site_config_command = ". %s/init/env.sh -s %s -l %s" % (self.__siteConfigDir, self.__siteId, self.__siteLoc)
-            cmd += " ; %s " % site_config_command
             cmd += " ; OE_DIR=" + self.__oeDirPath + " ; export OE_DIR "
             cmd += " ; OE_LICENSE=" + self.__oeLicensePath + " ; export OE_LICENSE "
 
@@ -3746,8 +3744,6 @@ class RcsbDpUtility(object):
             ccid = self.__inputParamDict['ccid']
             fileListPath = self.__inputParamDict['file_list_path']
 
-            site_config_command = ". %s/init/env.sh -s %s -l %s" % (self.__siteConfigDir, self.__siteId, self.__siteLoc)
-            cmd += " ; %s " % site_config_command
             cmd += " ; OE_DIR=" + self.__oeDirPath + " ; export OE_DIR "
             cmd += " ; OE_LICENSE=" + self.__oeLicensePath + " ; export OE_LICENSE "
 
@@ -3771,8 +3767,6 @@ class RcsbDpUtility(object):
             if 'label' in self.__inputParamDict:
                 labelAtomName = self.__inputParamDict['label']
 
-            site_config_command = ". %s/init/env.sh -s %s -l %s" % (self.__siteConfigDir, self.__siteId, self.__siteLoc)
-            cmd += " ; %s " % site_config_command
             cmd += " ; OE_DIR=" + self.__oeDirPath + " ; export OE_DIR "
             cmd += " ; OE_LICENSE=" + self.__oeLicensePath + " ; export OE_LICENSE "
 
