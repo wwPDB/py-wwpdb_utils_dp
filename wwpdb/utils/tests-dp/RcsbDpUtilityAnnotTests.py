@@ -42,7 +42,7 @@ if __package__ is None or __package__ == '':
 else:
     from .commonsetup import TESTOUTPUT, TOPDIR, toolsmissing
 
-from wwpdb.utils.config.ConfigInfo import ConfigInfo, getSiteId
+from wwpdb.utils.config.ConfigInfo import getSiteId
 from wwpdb.utils.dp.RcsbDpUtility import RcsbDpUtility
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(levelname)s]-%(module)s.%(funcName)s: %(message)s')
@@ -55,11 +55,10 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
         self.__siteId = getSiteId(defaultSiteId=None)
         logger.info("\nTesting with site environment for:  %s\n", self.__siteId)
         #
-        self.__cI = ConfigInfo(self.__siteId)
         #
         self.__tmpPath = TESTOUTPUT
         self.__testFilePath = os.path.join(TOPDIR, 'wwpdb', 'mock-data', 'dp-utils')
-        self.__testFileCif = '1xbb.cif'
+        # self.__testFileCif = '1xbb.cif'
 
         self.__testFileAnnotSS = '4deq.cif'
         self.__testFileAnnotSSTop = 'topology.txt'
@@ -79,22 +78,22 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
         # OK JDW
         self.__testFileAnnotRcsb = '3of4.cif'
         #
-        self.__testFilePdbPisa = '1xbb.pdb'
-        self.__testFileCifPisa = '1xbb.cif'
+        # self.__testFilePdbPisa = '1xbb.pdb'
+        # self.__testFileCifPisa = '1xbb.cif'
         #
-        self.__testFileStarCs = "2MMZ-cs.str"
-        self.__testFileCsRelatedCif = "cor_16703_test.cif"
+        # self.__testFileStarCs = "2MMZ-cs.str"
+        # self.__testFileCsRelatedCif = "cor_16703_test.cif"
         #
         self.__testFileValidateXyz = "1cbs.cif"
         self.__testFileValidateSf = "1cbs-sf.cif"
-        self.__testValidateIdList = ["1cbs", "3of4", "3oqp"]
+        # self.__testValidateIdList = ["1cbs", "3of4", "3oqp"]
         #
 
         self.__testFileMtzBad = "mtz-bad.mtz"
         self.__testFileMtzGood = "mtz-good.mtz"
 
         self.__testFileMtzRunaway = "bad-runaway.mtz"
-        self.__testFileXyzRunaway = "bad-runaway.cif"
+        # self.__testFileXyzRunaway = "bad-runaway.cif"
 
         self.__testMapNormal = "normal.map"
         self.__testMapSpider = "testmap.spi"

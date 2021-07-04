@@ -29,7 +29,7 @@ if __package__ is None or __package__ == '':
 else:
     from .commonsetup import TESTOUTPUT, TOPDIR, dictsmissing
 
-from wwpdb.utils.config.ConfigInfo import ConfigInfo, getSiteId
+from wwpdb.utils.config.ConfigInfo import getSiteId
 from wwpdb.utils.dp.RcsbDpUtility import RcsbDpUtility
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(levelname)s]-%(module)s.%(funcName)s: %(message)s')
@@ -45,7 +45,6 @@ class RcsbDpUtilityTests(unittest.TestCase):
         self.__siteId = getSiteId(defaultSiteId=None)
         logger.info("\nTesting with site environment for:  %s\n", self.__siteId)
         #
-        self.__cI = ConfigInfo(self.__siteId)
         self.__testFilePath = os.path.join(TOPDIR, 'wwpdb', 'mock-data', 'dp-utils')
         self.__testFileCif = '1xbb.cif'
 

@@ -29,61 +29,8 @@ logger = logging.getLogger(__name__)
 
 class PdbxStripCategory(object):
 
-    def __init__(self, verbose=False, log=sys.stderr):
-        self.__lfh = log
-        self.__verbose = verbose
-
-        self.__candidateList = ['atom_type',
-                                'chem_comp',
-                                'database',
-                                'diffrn_source',
-                                'entity_keywords',
-                                'entity_name_sys',
-                                'entity_poly',
-                                'entity_src_gen',
-                                'pdbx_coord',
-                                'pdbx_database_status',
-                                'pdbx_entity_nonpoly',
-                                'pdbx_inhibitor_info',
-                                'pdbx_ion_info',
-                                'pdbx_missing_residue_list',
-                                'pdbx_nonpoly_scheme',
-                                'pdbx_nonstandard_list',
-                                'pdbx_poly_seq_scheme',
-                                'pdbx_protein_info',
-                                'pdbx_solvent_info',
-                                'pdbx_struct_sheet_hbond',
-                                'pdbx_unobs_or_zero_occ_residues',
-                                'pdbx_validate_torsion',
-                                'refine_hist',
-                                'software',
-                                'struct',
-                                'struct_asym',
-                                'struct_biol_gen',
-                                'struct_conf',
-                                'struct_conf_type',
-                                'struct_mon_prot_cis',
-                                'struct_ncs_oper',
-                                'struct_sheet',
-                                'struct_sheet_order',
-                                'struct_sheet_range']
-
-        self.__stripList = ['pdbx_coord',
-                            # 'pdbx_entity_nonpoly',
-                            # 'pdbx_missing_residue_list',
-                            'pdbx_nonstandard_list',
-                            'pdbx_protein_info',
-                            'pdbx_solvent_info',
-                            'pdbx_struct_sheet_hbond',
-                            'pdbx_unobs_or_zero_occ_residues',
-                            'pdbx_validate_torsion',
-                            'struct_biol_gen',
-                            'struct_conf',
-                            'struct_conf_type',
-                            'struct_mon_prot_cis',
-                            'struct_sheet',
-                            'struct_sheet_order',
-                            'struct_sheet_range']
+    def __init__(self, verbose=False, log=sys.stderr):  # pylint: disable=unused-argument
+        pass
 
     def strip(self, inpPath, outPath, stripList=None):
         """ Strip categories from inpPath and write to outPath

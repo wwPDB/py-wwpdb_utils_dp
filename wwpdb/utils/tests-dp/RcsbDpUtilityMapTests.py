@@ -26,7 +26,7 @@ if __package__ is None or __package__ == '':
 else:
     from .commonsetup import TESTOUTPUT, TOPDIR, toolsmissing
 
-from wwpdb.utils.config.ConfigInfo import ConfigInfo, getSiteId
+from wwpdb.utils.config.ConfigInfo import getSiteId
 from wwpdb.utils.dp.RcsbDpUtility import RcsbDpUtility
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(levelname)s]-%(module)s.%(funcName)s: %(message)s')
@@ -42,7 +42,6 @@ class RcsbDpUtilityMapTests(unittest.TestCase):
         logger.info("\nTesting with site environment for:  %s\n", self.__siteId)
         #
         self.__tmpPath = TESTOUTPUT
-        self.__cI = ConfigInfo(self.__siteId)
         self.__testFilePath = os.path.join(TOPDIR, 'wwpdb', 'mock-data', 'dp-utils')
         #
         self.__testFileValidateXyz = "1cbs.cif"
@@ -54,7 +53,7 @@ class RcsbDpUtilityMapTests(unittest.TestCase):
         self.__testFileMtzGood = "mtz-good.mtz"
 
         self.__testFileMtzRunaway = "bad-runaway.mtz"
-        self.__testFileXyzRunaway = "bad-runaway.cif"
+        # self.__testFileXyzRunaway = "bad-runaway.cif"
 
     def tearDown(self):
         pass

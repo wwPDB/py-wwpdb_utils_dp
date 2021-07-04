@@ -24,7 +24,7 @@ if __package__ is None or __package__ == '':
 else:
     from .commonsetup import TESTOUTPUT, TOPDIR, toolsmissing
 
-from wwpdb.utils.config.ConfigInfo import ConfigInfo, getSiteId
+from wwpdb.utils.config.ConfigInfo import getSiteId
 from wwpdb.utils.dp.PdbxChemShiftReport import PdbxChemShiftReport
 from wwpdb.utils.dp.RcsbDpUtility import RcsbDpUtility
 
@@ -44,15 +44,12 @@ class RcsbDpUtilityNMRTests(unittest.TestCase):
         self.__siteId = getSiteId(defaultSiteId=None)
         logger.info("\nTesting with site environment for:  %s\n", self.__siteId)
         #
-        self.__cI = ConfigInfo(self.__siteId)
-
         self.__testFilePath = os.path.join(TOPDIR, 'wwpdb', 'mock-data', 'dp-utils')
         self.__tmpPath = TESTOUTPUT
         #
         self.__testFileStarCs = '2MMZ-cs.str'
         self.__testFileNmrModel = '2MMZ.cif'
         self.__testFileNmrModelAlt = '1MM0.cif'
-        self.__testFileNmrMr = '2MMZ.mr'
         self.__testConcatCS = '2mmz-cs-file-full-2.cif'
 
         #

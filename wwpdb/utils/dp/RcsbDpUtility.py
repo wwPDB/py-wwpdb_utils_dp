@@ -147,7 +147,7 @@ import subprocess
 import sys
 import tempfile
 import time
-from subprocess import Popen, call
+from subprocess import call
 
 try:
     from itertools import zip_longest
@@ -272,7 +272,7 @@ class RcsbDpUtility(object):
         self.__srcPath = None
         self.__dstPath = None
         self.__dstLogPath = None
-        self.__dstErrorPath = None
+        self.__dstErrorPath = None  # pylint: disable=unused-private-member
         #
         self.__stepOpList = []
         self.__stepNo = 0
@@ -308,7 +308,6 @@ class RcsbDpUtility(object):
         self.__rcsbAppsPath = None
         self.__localAppsPath = None
         self.__annotAppsPath = None
-        self.__toolsPath = None
         #
 
     def setDebugMode(self, flag=True):
@@ -412,7 +411,7 @@ class RcsbDpUtility(object):
         self.__dstPath = os.path.abspath(fPath)
 
     def setErrorDestination(self, fPath):
-        self.__dstErrorPath = os.path.abspath(fPath)
+        self.__dstErrorPath = os.path.abspath(fPath)  # pylint: disable=unused-private-member
 
     def setLogDestination(self, fPath):
         self.__dstLogPath = os.path.abspath(fPath)
@@ -691,7 +690,7 @@ class RcsbDpUtility(object):
         self.__deployPath = self.__getConfigPath('SITE_DEPLOY_PATH')
         self.__sfvalidPath = self.__cICommon.get_sf_valid()
         self.__siteLoc = self.__cI.get('WWPDB_SITE_LOC')
-        self.__ccDictPath = self.__cICommon.get_site_cc_dict_path()
+        # self.__ccDictPath = self.__cICommon.get_site_cc_dict_path()
         self.__ccCvsPath = self.__cICommon.get_site_cc_cvs_path()
         self.__prdccCvsPath = self.__cICommon.get_site_prdcc_cvs_path()
         self.__prdDictPath = self.__cICommon.get_site_prd_dict_path()
@@ -2751,7 +2750,7 @@ class RcsbDpUtility(object):
         self.__localAppsPath = self.__cICommon.get_site_local_apps_path()
         self.__packagePath = self.__cICommon.get_site_packages_path()
         self.__deployPath = self.__getConfigPath('SITE_DEPLOY_PATH')
-        self.__ccDictPath = self.__cICommon.get_site_cc_dict_path()
+        # self.__ccDictPath = self.__cICommon.get_site_cc_dict_path()
         self.__ccCvsPath = self.__cICommon.get_site_cc_cvs_path()
         self.__prdccCvsPath = self.__cICommon.get_site_prdcc_cvs_path()
         self.__prdDictPath = self.__cICommon.get_site_prd_dict_path()
@@ -3357,16 +3356,16 @@ class RcsbDpUtility(object):
         self.__pdbxDictName = self.__cICommon.get_mmcif_archive_next_dict_filename()
         self.__pdbxV4DictName = self.__cI.get('SITE_PDBX_V4_DICT_NAME', 'missing')
 
-        self.__ccDictPath = self.__cICommon.get_site_cc_dict_path()
+        # self.__ccDictPath = self.__cICommon.get_site_cc_dict_path()
         self.__ccCvsPath = self.__cICommon.get_site_cc_cvs_path()
 
         self.__patternPath = self.__cICommon.get_cc_fp_patterns()
-        self.__ccDictPathCif = self.__cICommon.get_cc_dict()
+        # self.__ccDictPathCif = self.__cICommon.get_cc_dict()
         self.__ccDictPathSdb = self.__cICommon.get_cc_dict_serial()
         self.__ccDictPathIdx = self.__cICommon.get_cc_dict_idx()
         #
         self.__pathDdlSdb = os.path.join(self.__pdbxDictPath, "mmcif_ddl.sdb")
-        self.__pathDdl = os.path.join(self.__pdbxDictPath, "mmcif_ddl.dic")
+        # self.__pathDdl = os.path.join(self.__pdbxDictPath, "mmcif_ddl.dic")
         self.__pathPdbxDictSdb = os.path.join(self.__pdbxDictPath, self.__pdbxDictName + '.sdb')
         self.__pathPdbxV4DictSdb = os.path.join(self.__pdbxDictPath, self.__pdbxV4DictName + '.sdb')
         self.__pathPdbxDictOdb = os.path.join(self.__pdbxDictPath, self.__pdbxDictName + '.odb')
@@ -4177,18 +4176,18 @@ class RcsbDpUtility(object):
                 logger.info("+RcsbDpUtility.__run() operation %s failed  with exception\n", self.__stepOpList)
             return retcode
 
-    def __runP(self, cmd):
-        retcode = -1000
-        try:
-            p1 = Popen(cmd, shell=True)
-            retcode = p1.wait()
-            if retcode != 0:
-                logger.info("+RcsbDpUtility.__run() completed with return code %r\n", retcode)
-        except OSError as e:
-            logger.info("+RcsbDpUtility.__run() failed  with exception %r\n", str(e))
-        except Exception:
-            logger.info("+RcsbDpUtility.__run() failed  with exception\n")
-        return retcode
+    # def __runP(self, cmd):
+    #     retcode = -1000
+    #     try:
+    #         p1 = Popen(cmd, shell=True)
+    #         retcode = p1.wait()
+    #         if retcode != 0:
+    #             logger.info("+RcsbDpUtility.__run() completed with return code %r\n", retcode)
+    #     except OSError as e:
+    #         logger.info("+RcsbDpUtility.__run() failed  with exception %r\n", str(e))
+    #     except Exception:
+    #         logger.info("+RcsbDpUtility.__run() failed  with exception\n")
+    #     return retcode
 
 
 if __name__ == '__main__':
