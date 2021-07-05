@@ -167,9 +167,9 @@ class RcsbDpUtility(object):
     """ Wrapper class for data processing and chemical component utilities.
     """
 
-    def __init__(self, tmpPath="/scratch", siteId='DEV', verbose=False, log=sys.stderr, testMode=False, debug=False):
+    def __init__(self, tmpPath="/scratch", siteId='DEV', verbose=False, log=sys.stderr, testMode=False):
         self.__verbose = verbose
-        self.__debug = debug
+        self.__debug = False
         self.__lfh = log
         self.__testMode = testMode
         #
