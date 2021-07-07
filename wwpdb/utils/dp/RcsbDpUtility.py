@@ -3763,7 +3763,7 @@ class RcsbDpUtility(object):
 
             if 'size' in self.__inputParamDict:
                 size = self.__inputParamDict['size']
-            
+
             if 'label' in self.__inputParamDict:
                 labelAtomName = self.__inputParamDict['label']
 
