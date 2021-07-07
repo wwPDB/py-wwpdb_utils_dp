@@ -3731,8 +3731,6 @@ class RcsbDpUtility(object):
         elif (op == "chem-comp-align-img-gen"):
             # set up
             #
-            site_config_command = ". %s/init/env.sh -s %s -l %s" % (self.__siteConfigDir, self.__siteId, self.__siteLoc)
-            cmd += " ; %s " % site_config_command
             cmd += " ; OE_DIR=" + self.__oeDirPath + " ; export OE_DIR "
             cmd += " ; OE_LICENSE=" + self.__oeLicensePath + " ; export OE_LICENSE "
 
@@ -3746,8 +3744,6 @@ class RcsbDpUtility(object):
             ccid = self.__inputParamDict['ccid']
             fileListPath = self.__inputParamDict['file_list_path']
 
-            site_config_command = ". %s/init/env.sh -s %s -l %s" % (self.__siteConfigDir, self.__siteId, self.__siteLoc)
-            cmd += " ; %s " % site_config_command
             cmd += " ; OE_DIR=" + self.__oeDirPath + " ; export OE_DIR "
             cmd += " ; OE_LICENSE=" + self.__oeLicensePath + " ; export OE_LICENSE "
 
@@ -3762,15 +3758,21 @@ class RcsbDpUtility(object):
             title = self.__inputParamDict['title']
             path = self.__inputParamDict['path']
             imagePath = self.__inputParamDict['image_path']
+            size = 300
+            labelAtomName = False
 
-            site_config_command = ". %s/init/env.sh -s %s -l %s" % (self.__siteConfigDir, self.__siteId, self.__siteLoc)
-            cmd += " ; %s " % site_config_command
+            if 'size' in self.__inputParamDict:
+                size = self.__inputParamDict['size']
+            
+            if 'label' in self.__inputParamDict:
+                labelAtomName = self.__inputParamDict['label']
+
             cmd += " ; OE_DIR=" + self.__oeDirPath + " ; export OE_DIR "
             cmd += " ; OE_LICENSE=" + self.__oeLicensePath + " ; export OE_LICENSE "
 
             thisCmd = " ; python -m wwpdb.apps.ccmodule.reports.ChemCompGenImage"
 
-            cmd += thisCmd + " -v -i %s -f %s -o %s" % (title, path, imagePath)
+            cmd += thisCmd + " -v -i %s -f %s -o %s --size %s --label %s" % (title, path, imagePath, size, labelAtomName)
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
         else:
             return -1
