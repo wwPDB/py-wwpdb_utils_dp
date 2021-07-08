@@ -705,6 +705,8 @@ class RcsbDpUtility(object):
         self.__site_config_command = ". %s/init/env.sh -s %s -l %s" % (self.__siteConfigDir,
                                                                        self.__siteId,
                                                                        self.__siteLoc)
+        #
+        onedepPathEnv = self.__cI.get('PATH')
 
         # JDW 2013-02-26
         self.__rcsbAppsPath = self.__cICommon.get_site_annot_tools_path()
@@ -2302,9 +2304,7 @@ class RcsbDpUtility(object):
             if (not resultFilePath) or not (logFilePath):
                 return -1
             #
-            site_config_command = ". %s/init/env.sh -s %s -l %s" % (self.__siteConfigDir, self.__siteId, self.__siteLoc)
-            cmd += " ; %s " % site_config_command
-
+            cmd += " ; export PATH=" + onedepPathEnv + " "
             thisCmd = " ; python -m wwpdb.apps.entity_transform.depict.ProcessSummary_main"
             cmd += thisCmd + " --input %s --path %s" % (resultFilePath, self.__tmpPath)
             cmd += " > " + logFilePath + " 2>&1 ; "
@@ -3384,6 +3384,8 @@ class RcsbDpUtility(object):
         #
         self.__siteConfigDir = self.__getConfigPath('TOP_WWPDB_SITE_CONFIG_DIR')
         self.__siteLoc = self.__cI.get('WWPDB_SITE_LOC')
+        #
+        onedepPathEnv = self.__cI.get('PATH')
 
         # -------------
         #
@@ -3731,6 +3733,7 @@ class RcsbDpUtility(object):
         elif (op == "chem-comp-align-img-gen"):
             # set up
             #
+            cmd += " ; export PATH=" + onedepPathEnv + " "
             cmd += " ; OE_DIR=" + self.__oeDirPath + " ; export OE_DIR "
             cmd += " ; OE_LICENSE=" + self.__oeLicensePath + " ; export OE_LICENSE "
 
@@ -3744,6 +3747,7 @@ class RcsbDpUtility(object):
             ccid = self.__inputParamDict['ccid']
             fileListPath = self.__inputParamDict['file_list_path']
 
+            cmd += " ; export PATH=" + onedepPathEnv + " "
             cmd += " ; OE_DIR=" + self.__oeDirPath + " ; export OE_DIR "
             cmd += " ; OE_LICENSE=" + self.__oeLicensePath + " ; export OE_LICENSE "
 
@@ -3767,6 +3771,7 @@ class RcsbDpUtility(object):
             if 'label' in self.__inputParamDict:
                 labelAtomName = self.__inputParamDict['label']
 
+            cmd += " ; export PATH=" + onedepPathEnv + " "
             cmd += " ; OE_DIR=" + self.__oeDirPath + " ; export OE_DIR "
             cmd += " ; OE_LICENSE=" + self.__oeLicensePath + " ; export OE_LICENSE "
 
