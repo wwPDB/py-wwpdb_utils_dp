@@ -2305,6 +2305,8 @@ class RcsbDpUtility(object):
                 return -1
             #
             cmd += " ; export PATH=" + onedepPathEnv + " "
+            cmd += " ; OE_DIR=" + self.__oeDirPath + " ; export OE_DIR "
+            cmd += " ; OE_LICENSE=" + self.__oeLicensePath + " ; export OE_LICENSE "
             thisCmd = " ; python -m wwpdb.apps.entity_transform.depict.ProcessSummary_main"
             cmd += thisCmd + " --input %s --path %s" % (resultFilePath, self.__tmpPath)
             cmd += " > " + logFilePath + " 2>&1 ; "
