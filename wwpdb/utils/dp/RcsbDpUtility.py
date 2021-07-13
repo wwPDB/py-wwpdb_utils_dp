@@ -1212,6 +1212,7 @@ class RcsbDpUtility(object):
             cmd += " ; %s --validation " % self.__site_config_command
             cmd += " ; OE_DIR=" + self.__oeDirPath + " ; export OE_DIR "
             cmd += " ; OE_LICENSE=" + self.__oeLicensePath + " ; export OE_LICENSE "
+            cmd += " ; PACKAGE_DIR=" + self.__packagePath + " ; export PACKAGE_DIR"
             # cmd += " ; env "
 
             thisCmd = " ; python -m wwpdb.apps.validation.src.validator"
