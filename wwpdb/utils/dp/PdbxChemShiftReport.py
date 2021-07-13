@@ -28,9 +28,7 @@ logger = logging.getLogger(__name__)
 
 class PdbxChemShiftReport(object):
 
-    def __init__(self, inputPath, verbose=False, log=sys.stderr):
-        self.__lfh = log
-        self.__verbose = verbose
+    def __init__(self, inputPath, verbose=False, log=sys.stderr):  # pylint: disable=unused-argument
         self.__myContainerList = []
         self.__read(inputPath)
 

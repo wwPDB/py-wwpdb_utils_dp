@@ -37,50 +37,50 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
         self.__tmpPath = tempfile.mkdtemp(dir=self.__siteWebAppsSessionsPath)
 
         self.__testFilePath = os.path.join(self.FILE_ROOT, 'data')
-        self.__testFileAnnotSS = 'rcsb070236.cif'
-        self.__testFileAnnotSSTop = 'topology.txt'
+        # self.__testFileAnnotSS = 'rcsb070236.cif'
+        # self.__testFileAnnotSSTop = 'topology.txt'
         #
-        self.__testFileAnnotLink = '3rij.cif'
-        self.__testFileAnnotCisPeptide = '5hoh.cif'
-        self.__testFileAnnotSolvent = 'D_900002_model_P1.cif'
-        self.__testFileAnnotValidate = '3rij.cif'
-        self.__testFileAnnotNA = '1o3q.cif'
+        # self.__testFileAnnotLink = '3rij.cif'
+        # self.__testFileAnnotCisPeptide = '5hoh.cif'
+        # self.__testFileAnnotSolvent = 'D_900002_model_P1.cif'
+        # self.__testFileAnnotValidate = '3rij.cif'
+        # self.__testFileAnnotNA = '1o3q.cif'
         self.__testFileAnnotSite = '1xbb.cif'
         self.__testIdAnnotSite = '1xbb'
         #
         self.__testFileAnnotSiteAlt = 'D_1000200391_model_P1.cif.V27'
-        self.__testIdAnnotSiteAlt = 'D_1000200391'
+        # self.__testIdAnnotSiteAlt = 'D_1000200391'
 
         #
         self.__testFileAnnotRcsb = 'rcsb033781.cif'
-        self.__testFileAnnotRcsbEps = 'rcsb013067.cifeps'
+        # self.__testFileAnnotRcsbEps = 'rcsb013067.cifeps'
         #
-        self.__testFilePdbPisa = self.__cI.get('DP_TEST_FILE_PDB_PISA')
-        self.__testFileCifPisa = self.__cI.get('DP_TEST_FILE_CIF_PISA')
+        # self.__testFilePdbPisa = self.__cI.get('DP_TEST_FILE_PDB_PISA')
+        # self.__testFileCifPisa = self.__cI.get('DP_TEST_FILE_CIF_PISA')
         #
-        self.__testFileStarCs = "star_16703_test_2.str"
-        self.__testFileCsRelatedCif = "cor_16703_test.cif"
+        # self.__testFileStarCs = "star_16703_test_2.str"
+        # self.__testFileCsRelatedCif = "cor_16703_test.cif"
         #
-        self.__testFileValidateXyz = "1cbs.cif"
-        self.__testFileValidateSf = "1cbs-sf.cif"
-        self.__testValidateIdList = ["1cbs", "3of4", "3oqp"]
-        self.__testArchiveIdList = [("D_900002", "4EC0"), ("D_600000", "4F3R")]
+        # self.__testFileValidateXyz = "1cbs.cif"
+        # self.__testFileValidateSf = "1cbs-sf.cif"
+        # self.__testValidateIdList = ["1cbs", "3of4", "3oqp"]
+        # self.__testArchiveIdList = [("D_900002", "4EC0"), ("D_600000", "4F3R")]
         #
-        self.__testFileCifSeq = "RCSB095269_model_P1.cif.V1"
-        self.__testFileSeqAssign = "RCSB095269_seq-assign_P1.cif.V1"
+        # self.__testFileCifSeq = "RCSB095269_model_P1.cif.V1"
+        # self.__testFileSeqAssign = "RCSB095269_seq-assign_P1.cif.V1"
 
-        self.__testFileMtzBad = "mtz-bad.mtz"
+        # self.__testFileMtzBad = "mtz-bad.mtz"
         self.__testFileMtzGood = "mtz-good.mtz"
 
-        self.__testFileMtzRunaway = "bad-runaway.mtz"
-        self.__testFileXyzRunaway = "bad-runaway.cif"
+        # self.__testFileMtzRunaway = "bad-runaway.mtz"
+        # self.__testFileXyzRunaway = "bad-runaway.cif"
 
         self.__testMapNormal = "normal.map"
-        self.__testMapSpider = "testmap.spi"
-        self.__testMapLarge = "large.map"
+        # self.__testMapSpider = "testmap.spi"
+        # self.__testMapLarge = "large.map"
 
         # self.__testFilePrdSearch       = '3RUN.cif'
-        self.__testFilePrdSearch = 'D_1200000237_model_P1.cif.V1'
+        # self.__testFilePrdSearch = 'D_1200000237_model_P1.cif.V1'
 
         self.__testValidateXrayIdList = ['1cbs', '4hea', '4u4r']
         self.__testValidateNmrIdList = ['2MM4', '2MMZ']
@@ -91,10 +91,10 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
         # self.__testValidateNmrIdList = ['2MM4']
         # self.__testValidateNmrLargeIdList = ['2MMZ']
 
-        self.__testDccModelId = '4wpo'
+        # self.__testDccModelId = '4wpo'
 
-        self.__testSpecialPosition = 'D_1000225739_model_P1.cif.V4'
-        self.__testDepAssembly = "testassem.cif"
+        # self.__testSpecialPosition = 'D_1000225739_model_P1.cif.V4'
+        # self.__testDepAssembly = "testassem.cif"
 
     def tearDown(self):
         pass

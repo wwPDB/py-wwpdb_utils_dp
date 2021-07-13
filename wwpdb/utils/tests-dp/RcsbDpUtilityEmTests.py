@@ -36,7 +36,7 @@ if __package__ is None or __package__ == '':
 else:
     from .commonsetup import TESTOUTPUT, TOPDIR, toolsmissing
 
-from wwpdb.utils.config.ConfigInfo import ConfigInfo, getSiteId
+from wwpdb.utils.config.ConfigInfo import getSiteId
 from wwpdb.utils.dp.RcsbDpUtility import RcsbDpUtility
 
 if not skiptest:
@@ -56,8 +56,6 @@ class RcsbDpUtilityEmTests(unittest.TestCase):
     def setUp(self):
         self.__siteId = getSiteId(defaultSiteId=None)
         logger.info("\nTesting with site environment for:  %s\n", self.__siteId)
-        #
-        self.__cI = ConfigInfo(self.__siteId)
         #
         self.__tmpPath = TESTOUTPUT
         self.__testFilePath = os.path.join(TOPDIR, 'wwpdb', 'mock-data', 'dp-utils')

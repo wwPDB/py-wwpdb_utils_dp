@@ -21,6 +21,7 @@ import sys
 from mmcif.io.IoAdapterCore import IoAdapterCore
 from wwpdb.utils.dp.RcsbDpUtility import RcsbDpUtility
 from wwpdb.utils.dp.PdbxSFMapCoefficients import PdbxSFMapCoefficients
+from wwpdb.io.file.DataFile import DataFile
 
 logger = logging.getLogger(__name__)
 
@@ -104,8 +105,18 @@ class ValidationWrapper(RcsbDpUtility):
             # Ensure map coefficients produced in conversion - returns True if present
             ret = psm.has_map_coeff()
             logger.debug("Check for map coeffcients returns %s", ret)
+            scrpath = self.getWorkingDir()
+            fotemp = os.path.join(scrpath, "fotemp.cif")
+            twofotemp = os.path.join(scrpath, "twofotemp.cif")
+
             if ret:
-                ret = psm.write_mmcif_coef(fopathout=outfosf, twofopathout=out2fosf, entry_id=pdbid.lower())
+                ret = psm.write_mmcif_coef(fopathout=fotemp, twofopathout=twofotemp, entry_id=pdbid.lower())
+                df = DataFile(fotemp)
+                if df.srcFileExists():
+                    df.copy(outfosf)
+                df = DataFile(twofotemp)
+                if df.srcFileExists():
+                    df.copy(out2fosf)
 
         logger.debug("Returning %s", ret)
         return ret

@@ -42,7 +42,7 @@ class DataFileAdapter(object):
         self.__debug = True
         self.__siteId = self.__reqObj.getValue("WWPDB_SITE_ID")
         self.__sObj = self.__reqObj.getSessionObj()
-        self.__sessionId = self.__sObj.getId()
+        # self.__sessionId = self.__sObj.getId()
         self.__sessionPath = self.__sObj.getPath()
 
     def pdbx2nmrstar(self, inpPath, outPath, pdbId=None):

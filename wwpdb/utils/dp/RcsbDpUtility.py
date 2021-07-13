@@ -147,7 +147,7 @@ import subprocess
 import sys
 import tempfile
 import time
-from subprocess import Popen, call
+from subprocess import call
 
 try:
     from itertools import zip_longest
@@ -256,7 +256,8 @@ class RcsbDpUtility(object):
                                 "annot-convert-close-contact-to-link",
                                 "em-density-bcif"]
 
-        self.__sequenceOps = ['seq-blastp', 'seq-blastn']
+        self.__sequenceOps = ['seq-blastp', 'seq-blastn', 'fetch-uniprot', 'fetch-gb', 'format-uniprot', 'format-gb',
+                              'backup-seqdb']
         self.__validateOps = ['validate-geometry']
         self.__dbOps = ['db-loader']
         self.__emOps = ['mapfix-big', 'em2em-spider', 'fsc_check',
@@ -272,7 +273,7 @@ class RcsbDpUtility(object):
         self.__srcPath = None
         self.__dstPath = None
         self.__dstLogPath = None
-        self.__dstErrorPath = None
+        self.__dstErrorPath = None  # pylint: disable=unused-private-member
         #
         self.__stepOpList = []
         self.__stepNo = 0
@@ -308,7 +309,6 @@ class RcsbDpUtility(object):
         self.__rcsbAppsPath = None
         self.__localAppsPath = None
         self.__annotAppsPath = None
-        self.__toolsPath = None
         #
 
     def setDebugMode(self, flag=True):
@@ -412,7 +412,7 @@ class RcsbDpUtility(object):
         self.__dstPath = os.path.abspath(fPath)
 
     def setErrorDestination(self, fPath):
-        self.__dstErrorPath = os.path.abspath(fPath)
+        self.__dstErrorPath = os.path.abspath(fPath)  # pylint: disable=unused-private-member
 
     def setLogDestination(self, fPath):
         self.__dstLogPath = os.path.abspath(fPath)
@@ -691,7 +691,7 @@ class RcsbDpUtility(object):
         self.__deployPath = self.__getConfigPath('SITE_DEPLOY_PATH')
         self.__sfvalidPath = self.__cICommon.get_sf_valid()
         self.__siteLoc = self.__cI.get('WWPDB_SITE_LOC')
-        self.__ccDictPath = self.__cICommon.get_site_cc_dict_path()
+        # self.__ccDictPath = self.__cICommon.get_site_cc_dict_path()
         self.__ccCvsPath = self.__cICommon.get_site_cc_cvs_path()
         self.__prdccCvsPath = self.__cICommon.get_site_prdcc_cvs_path()
         self.__prdDictPath = self.__cICommon.get_site_prd_dict_path()
@@ -2304,7 +2304,8 @@ class RcsbDpUtility(object):
             #
             site_config_command = ". %s/init/env.sh -s %s -l %s" % (self.__siteConfigDir, self.__siteId, self.__siteLoc)
             cmd += " ; %s " % site_config_command
-
+            cmd += " ; OE_DIR=" + self.__oeDirPath + " ; export OE_DIR "
+            cmd += " ; OE_LICENSE=" + self.__oeLicensePath + " ; export OE_LICENSE "
             thisCmd = " ; python -m wwpdb.apps.entity_transform.depict.ProcessSummary_main"
             cmd += thisCmd + " --input %s --path %s" % (resultFilePath, self.__tmpPath)
             cmd += " > " + logFilePath + " 2>&1 ; "
@@ -2751,7 +2752,7 @@ class RcsbDpUtility(object):
         self.__localAppsPath = self.__cICommon.get_site_local_apps_path()
         self.__packagePath = self.__cICommon.get_site_packages_path()
         self.__deployPath = self.__getConfigPath('SITE_DEPLOY_PATH')
-        self.__ccDictPath = self.__cICommon.get_site_cc_dict_path()
+        # self.__ccDictPath = self.__cICommon.get_site_cc_dict_path()
         self.__ccCvsPath = self.__cICommon.get_site_cc_cvs_path()
         self.__prdccCvsPath = self.__cICommon.get_site_prdcc_cvs_path()
         self.__prdDictPath = self.__cICommon.get_site_prd_dict_path()
@@ -3357,16 +3358,16 @@ class RcsbDpUtility(object):
         self.__pdbxDictName = self.__cICommon.get_mmcif_archive_next_dict_filename()
         self.__pdbxV4DictName = self.__cI.get('SITE_PDBX_V4_DICT_NAME', 'missing')
 
-        self.__ccDictPath = self.__cICommon.get_site_cc_dict_path()
+        # self.__ccDictPath = self.__cICommon.get_site_cc_dict_path()
         self.__ccCvsPath = self.__cICommon.get_site_cc_cvs_path()
 
         self.__patternPath = self.__cICommon.get_cc_fp_patterns()
-        self.__ccDictPathCif = self.__cICommon.get_cc_dict()
+        # self.__ccDictPathCif = self.__cICommon.get_cc_dict()
         self.__ccDictPathSdb = self.__cICommon.get_cc_dict_serial()
         self.__ccDictPathIdx = self.__cICommon.get_cc_dict_idx()
         #
         self.__pathDdlSdb = os.path.join(self.__pdbxDictPath, "mmcif_ddl.sdb")
-        self.__pathDdl = os.path.join(self.__pdbxDictPath, "mmcif_ddl.dic")
+        # self.__pathDdl = os.path.join(self.__pdbxDictPath, "mmcif_ddl.dic")
         self.__pathPdbxDictSdb = os.path.join(self.__pdbxDictPath, self.__pdbxDictName + '.sdb')
         self.__pathPdbxV4DictSdb = os.path.join(self.__pdbxDictPath, self.__pdbxV4DictName + '.sdb')
         self.__pathPdbxDictOdb = os.path.join(self.__pdbxDictPath, self.__pdbxDictName + '.odb')
@@ -3762,6 +3763,14 @@ class RcsbDpUtility(object):
             title = self.__inputParamDict['title']
             path = self.__inputParamDict['path']
             imagePath = self.__inputParamDict['image_path']
+            size = 300
+            labelAtomName = False
+
+            if 'size' in self.__inputParamDict:
+                size = self.__inputParamDict['size']
+
+            if 'label' in self.__inputParamDict:
+                labelAtomName = self.__inputParamDict['label']
 
             site_config_command = ". %s/init/env.sh -s %s -l %s" % (self.__siteConfigDir, self.__siteId, self.__siteLoc)
             cmd += " ; %s " % site_config_command
@@ -3770,7 +3779,7 @@ class RcsbDpUtility(object):
 
             thisCmd = " ; python -m wwpdb.apps.ccmodule.reports.ChemCompGenImage"
 
-            cmd += thisCmd + " -v -i %s -f %s -o %s" % (title, path, imagePath)
+            cmd += thisCmd + " -v -i %s -f %s -o %s --size %s --label %s" % (title, path, imagePath, size, labelAtomName)
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
         else:
             return -1
@@ -3951,8 +3960,12 @@ class RcsbDpUtility(object):
         """
         #
         packagePath = self.__cICommon.get_site_packages_path()
+        seqPath = self.__cICommon.get_site_refdata_sequence_path()
         seqDbPath = self.__cICommon.get_site_refdata_sequence_db_path()
         altDbPaths = self.__cI.get('SITE_REFDATA_ALT_SEQUENCE_DB_PATHS')
+
+        seqDbNewPath = os.path.join(seqPath, 'seq-db-new')
+        seqDbBackupPath = os.path.join(seqPath, "seq-backup")
 
         altPathList = []
         if altDbPaths is not None:
@@ -3960,6 +3973,12 @@ class RcsbDpUtility(object):
                 map(lambda v: os.path.abspath(v), altDbPaths.split(":")))  # pylint: disable=unnecessary-lambda
 
         ncbiToolsPath = os.path.join(packagePath, 'ncbi-blast+')
+        ncbiToolsPathBin = os.path.join(ncbiToolsPath, 'bin')
+        blastp_command = os.path.join(ncbiToolsPathBin, "blastp")
+        blastn_command = os.path.join(ncbiToolsPathBin, "blastn")
+        makeblastdb_command = os.path.join(ncbiToolsPathBin, "makeblastdb")
+
+        uniprot_files = ["uniprot_sprot.fasta.gz", "uniprot_sprot_varsplic.fasta.gz", "uniprot_trembl.fasta.gz"]
 
         #
         iPath = self.__getSourceWrkFile(self.__stepNo)
@@ -4022,7 +4041,7 @@ class RcsbDpUtility(object):
             sequence = str(self.__inputParamDict['one_letter_code_sequence'])
             self.__writeFasta(iPathFull, sequence, comment="myQuery")
 
-        if (op == "seq-blastp"):
+        if op == "seq-blastp":
             #
             # $NCBI_BIN/blastp -evalue 0.001 -db $SEQUENCE_DB/$1  -num_threads 4 -query $2 -outfmt 5 -out $3
             #
@@ -4031,30 +4050,74 @@ class RcsbDpUtility(object):
             else:
                 dbName = "my_uniprot_all"
 
-            cmdPath = os.path.join(ncbiToolsPath, "bin", "blastp")
+            cmdPath = blastp_command
 
             mySeqDbPath = self.__locateSeqDb(seqDbPath, altPathList, dbName + ".pal")
             cmd += " ; BLASTDB=" + os.path.abspath(mySeqDbPath) + " ; export BLASTDB "
             cmd += " ; " + cmdPath + " -outfmt 5  -num_threads " + numThreads + hOpt + " -evalue " + \
                    eValue + " -db " + os.path.join(mySeqDbPath, dbName) + " -query " + iPathFull + " -out " + oPath
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
-        elif (op == "seq-blastn"):
+
+        elif op == "seq-blastn":
             # -max_target_seqs
             if 'db_name' in self.__inputParamDict:
                 dbName = str(self.__inputParamDict['db_name'])
             else:
                 dbName = "my_ncbi_nt"
-            cmdPath = os.path.join(ncbiToolsPath, "bin", "blastn")
+            cmdPath = blastn_command
 
             mySeqDbPath = self.__locateSeqDb(seqDbPath, altPathList, dbName + ".nal")
             cmd += " ; BLASTDB=" + os.path.abspath(mySeqDbPath) + " ; export BLASTDB "
             cmd += " ; " + cmdPath + " -outfmt 5  -num_threads " + numThreads + hOpt + " -evalue " + \
                    eValue + " -db " + os.path.join(mySeqDbPath, dbName) + " -query " + iPathFull + " -out " + oPath
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
+
+        elif op == "fetch-uniprot":
+            cmd += " ; mkdir -p {}".format(seqDbNewPath)
+            cmd += " ; cd {}".format(seqDbNewPath)
+            for unp_file in uniprot_files:
+                cmd += " ; mv -f {0} {0}-last".format(unp_file)
+                wget_log = "wget-unp-{}-last.log".format(unp_file)
+                cmd += '; wget -q --tries=10 "ftp://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/complete/{}" -a {}'.format(
+                    unp_file, wget_log)
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
+
+        elif op == "fetch-gb":
+            cmd += " ; mkdir -p {}".format(seqDbNewPath)
+            cmd += " ; cd {}".format(seqDbNewPath)
+            fileList = "nt*.gz*"
+            cmd += ' ; rm -rf {}'.format(fileList)
+            wgetLog = "wget-gb-last.log"
+            cmd += '; wget -q  --tries=10 "ftp://ftp.ncbi.nih.gov/blast/db/{}" -a {}'.format(fileList, wgetLog)
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
+
+        elif op == 'backup-seqdb':
+            cmd += " ; mkdir -p {}".format(seqDbBackupPath)
+            cmd += " ; mkdir -p {}".format(seqDbPath)
+            cmd += " ; cp {}/* {}".format(seqDbPath, seqDbBackupPath)
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
+
+        elif op == 'format-uniprot':
+            cmd += " ; cd {}".format(seqDbNewPath)
+            cmd += " ; rm -f my_*"
+            cmd += ' ; gunzip -c {}'.format(' '.join(uniprot_files))
+            cmd += '| {} -dbtype prot -parse_seqids -title my_uniprot_all -out my_uniprot_all -max_file_sz 2000000000'.format(makeblastdb_command)
+            cmd += ' ; mv my_* {}'.format(seqDbPath)
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
+
+        elif op == 'format-gb':
+            cmd += " ; cd {}".format(seqDbNewPath)
+            cmd += ' ; for fn in nt*.gz; do gzip -d -c $fn | tar xf -; done'
+            cmd += ' ; flist=`ls -1 {}/nt* | grep -v .gz`'.format(seqDbNewPath)
+            cmd += ' ; for fn in $flist; do mv $fn {}; done'.format(seqDbPath)
+            cmd += ' ; rm -f {}/my_ncbi_nt.nal'.format(seqDbPath)
+            cmd += ' ; ln -s nt.nal {}/my_ncbi_nt.nal'.format(seqDbPath)
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
+
         else:
             return -1
         #
-        if (self.__debug):
+        if self.__debug:
             logger.info("+RcsbDpUtility._sequenceStep()  - Application string:\n%s\n", cmd.replace(";", "\n"))
         #
         # if (self.__debug):
@@ -4064,7 +4127,7 @@ class RcsbDpUtility(object):
 
         cmd += " ; cat " + ePathFull + " >> " + lPathFull
 
-        if (self.__debug):
+        if self.__debug:
             ofh = open(lPathFull, 'w')
             lt = time.strftime("%Y %m %d %H:%M:%S", time.localtime())
             ofh.write("\n\n-------------------------------------------------\n")
@@ -4177,18 +4240,18 @@ class RcsbDpUtility(object):
                 logger.info("+RcsbDpUtility.__run() operation %s failed  with exception\n", self.__stepOpList)
             return retcode
 
-    def __runP(self, cmd):
-        retcode = -1000
-        try:
-            p1 = Popen(cmd, shell=True)
-            retcode = p1.wait()
-            if retcode != 0:
-                logger.info("+RcsbDpUtility.__run() completed with return code %r\n", retcode)
-        except OSError as e:
-            logger.info("+RcsbDpUtility.__run() failed  with exception %r\n", str(e))
-        except Exception:
-            logger.info("+RcsbDpUtility.__run() failed  with exception\n")
-        return retcode
+    # def __runP(self, cmd):
+    #     retcode = -1000
+    #     try:
+    #         p1 = Popen(cmd, shell=True)
+    #         retcode = p1.wait()
+    #         if retcode != 0:
+    #             logger.info("+RcsbDpUtility.__run() completed with return code %r\n", retcode)
+    #     except OSError as e:
+    #         logger.info("+RcsbDpUtility.__run() failed  with exception %r\n", str(e))
+    #     except Exception:
+    #         logger.info("+RcsbDpUtility.__run() failed  with exception\n")
+    #     return retcode
 
 
 if __name__ == '__main__':
