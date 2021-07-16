@@ -1334,6 +1334,7 @@ class RcsbDpUtility(object):
             node_path = self.__cICommon.get_node_bin_path()
             volume_server_pack = self.__cICommon.get_volume_server_pack_path()
             volume_server_query = self.__cICommon.get_volume_server_query_path()
+            print(self.__inputParamDict)
             two_fo_fc = self.__inputParamDict['two_fo_fc_cif']
             one_fo_fc = self.__inputParamDict['one_fo_fc_cif']
 
