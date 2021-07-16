@@ -22,7 +22,7 @@ class DensityWrapper(object):
         rdb = RcsbDpUtility(tmpPath=working_dir, siteId=self.__site_id, verbose=True)
         rdb.imp(coord_file)
         rdb.addInput(name="two_fofc_cif", value=in_2fofc_cif, type='file')
-        rdb.addInput(name="one_fofc_cif", value=in_fofc_cif, type='type')
+        rdb.addInput(name="one_fofc_cif", value=in_fofc_cif, type='file')
         rdb.op('xray-density-bcif')
         rdb.exp(out_binary_volume)
         # rdb.cleanup()
