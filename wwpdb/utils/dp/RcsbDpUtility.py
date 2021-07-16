@@ -254,7 +254,8 @@ class RcsbDpUtility(object):
                                 "carbohydrate-remediation", "carbohydrate-remediation-test", "get-branch-polymer-info",
                                 "annot-get-close-contact",
                                 "annot-convert-close-contact-to-link",
-                                "em-density-bcif"]
+                                "em-density-bcif",
+                                "xray-density-bcif"]
 
         self.__sequenceOps = ['seq-blastp', 'seq-blastn', 'fetch-uniprot', 'fetch-gb', 'format-uniprot', 'format-gb',
                               'backup-seqdb']
