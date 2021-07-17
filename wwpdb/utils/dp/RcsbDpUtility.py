@@ -971,8 +971,9 @@ class RcsbDpUtility(object):
             thisCmd = " ; " + cmdPath
             assignPath = self.__inputParamDict['cc_assign_file_path']
             # selectPath = self.__inputParamDict['cc_select_file_path']
-            cmd += thisCmd + " -i " + iPath + " -o " + oPath + " -assign " + assignPath
+            cmd += thisCmd + " -i " + iPath + " -o " + oPath + " -assign " + assignPath + " -log annot-step.log "
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
+            cmd += " ; cat annot-step.log " + " >> " + lPath
 
         elif (op == "annot-rcsb2pdbx-alt"):
             cmd += " ; " + maxitCmd + " -single_quotation -o 9  -i " + iPath + " -log maxit.log "
