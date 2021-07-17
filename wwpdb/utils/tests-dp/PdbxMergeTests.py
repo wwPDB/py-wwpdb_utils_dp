@@ -20,7 +20,7 @@ from mmcif.api.PdbxContainers import DataContainer
 from mmcif.io.PdbxReader import PdbxReader
 from mmcif.io.PdbxWriter import PdbxWriter
 
-if __package__ is None or __package__ == '':
+if __package__ is None or __package__ == "":
     import sys
     from os import path
 
@@ -30,7 +30,8 @@ else:
     from .commonsetup import TESTOUTPUT
 
 from wwpdb.utils.dp.PdbxMergeCategory import PdbxMergeCategory
-logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(levelname)s]-%(module)s.%(funcName)s: %(message)s')
+
+logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s]-%(module)s.%(funcName)s: %(message)s")
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
@@ -49,23 +50,23 @@ class PdbxMergeTests(unittest.TestCase):
         acat.appendAttribute("name")
         acat.appendAttribute("value")
         acat.appendAttribute("detail")
-        acat.append(('1', '2', '3'))
+        acat.append(("1", "2", "3"))
 
         cur_container.append(acat)
 
         acat = DataCategory("exptl")
-        acat.appendAttribute('absorpt_coefficient_mu')
-        acat.appendAttribute('entry_id')
-        acat.appendAttribute('method')
-        acat.appendAttribute('details')
-        acat.append(('?', 'D_12345', 'X-RAY DIFFRACTION', 'some details'))
+        acat.appendAttribute("absorpt_coefficient_mu")
+        acat.appendAttribute("entry_id")
+        acat.appendAttribute("method")
+        acat.appendAttribute("details")
+        acat.append(("?", "D_12345", "X-RAY DIFFRACTION", "some details"))
 
         cur_container.append(acat)
 
         acat = DataCategory("struct")
-        acat.appendAttribute('title')
-        acat.appendAttribute('pdbx_descriptor')
-        acat.append(('Start title', 'Start Descriptor'))
+        acat.appendAttribute("title")
+        acat.appendAttribute("pdbx_descriptor")
+        acat.append(("Start title", "Start Descriptor"))
 
         cur_container.append(acat)
 
@@ -78,7 +79,7 @@ class PdbxMergeTests(unittest.TestCase):
         acat.appendAttribute("name")
         acat.appendAttribute("value")
         acat.appendAttribute("detail")
-        acat.append(('3', '2', '1'))
+        acat.append(("3", "2", "1"))
 
         cur_container.append(acat)
 
@@ -97,37 +98,37 @@ class PdbxMergeTests(unittest.TestCase):
 
         acat = DataCategory("new")
         acat.appendAttribute("item")
-        acat.append(('1',))
+        acat.append(("1",))
 
         cur_container.append(acat)
 
         acat = DataCategory("second_category")
-        acat.appendAttribute('row')
-        acat.appendAttribute('rowb')
-        acat.append(('1', '2'))
+        acat.appendAttribute("row")
+        acat.appendAttribute("rowb")
+        acat.append(("1", "2"))
 
         cur_container.append(acat)
 
         acat = DataCategory("third")
-        acat.appendAttribute('id')
-        acat.appendAttribute('val')
-        acat.append(('1', 'a'))
-        acat.append(('2', 'b'))
-        acat.append(('3', 'c'))
+        acat.appendAttribute("id")
+        acat.appendAttribute("val")
+        acat.append(("1", "a"))
+        acat.append(("2", "b"))
+        acat.append(("3", "c"))
 
         cur_container.append(acat)
 
         acat = DataCategory("exptl")
-        acat.appendAttribute('method')
-        acat.appendAttribute('entry_id')
-        acat.append(('NEW', 'something'))
+        acat.appendAttribute("method")
+        acat.appendAttribute("entry_id")
+        acat.append(("NEW", "something"))
 
         cur_container.append(acat)
 
         acat = DataCategory("struct")
-        acat.appendAttribute('new')
-        acat.appendAttribute('pdbx_descriptor')
-        acat.append(('Something to add', 'Override descriptor'))
+        acat.appendAttribute("new")
+        acat.appendAttribute("pdbx_descriptor")
+        acat.append(("Something to add", "Override descriptor"))
 
         cur_container.append(acat)
 
@@ -149,55 +150,50 @@ class PdbxMergeTests(unittest.TestCase):
             block = dlist[0]
 
             # Merge
-            cat = block.getObj('struct')
-            self.assertIsNotNone(cat, 'Missing struct category')
+            cat = block.getObj("struct")
+            self.assertIsNotNone(cat, "Missing struct category")
             self.assertEqual(cat.getRowCount(), 1, "Should only have a single row")
             rd = cat.getRowItemDict(0)
             # print(rd)
-            self.assertEqual(rd, {'_struct.title': 'Start title',
-                                  '_struct.pdbx_descriptor': 'Override descriptor',
-                                  '_struct.new': 'Something to add'},
-                             'struct category mismatch')
+            self.assertEqual(rd, {"_struct.title": "Start title", "_struct.pdbx_descriptor": "Override descriptor", "_struct.new": "Something to add"}, "struct category mismatch")
 
             # Merge
-            cat = block.getObj('exptl')
-            self.assertIsNotNone(cat, 'Missing exptl category')
+            cat = block.getObj("exptl")
+            self.assertIsNotNone(cat, "Missing exptl category")
             self.assertEqual(cat.getRowCount(), 1, "Should only have a single row")
             rd = cat.getRowItemDict(0)
             # print(rd)
-            self.assertEqual(rd, {'_exptl.method': 'NEW', '_exptl.entry_id': 'something',
-                                  '_exptl.absorpt_coefficient_mu': '?', '_exptl.details': 'some details'},
-                             'exptl category mismatch')
+            self.assertEqual(
+                rd, {"_exptl.method": "NEW", "_exptl.entry_id": "something", "_exptl.absorpt_coefficient_mu": "?", "_exptl.details": "some details"}, "exptl category mismatch"
+            )
 
             # Replace category non-existant
-            cat = block.getObj('third')
-            self.assertIsNotNone(cat, 'Missing third category')
+            cat = block.getObj("third")
+            self.assertIsNotNone(cat, "Missing third category")
             self.assertEqual(cat.getRowCount(), 3, "Should only have a single row")
             rd = cat.getRowItemDict(0)
-            self.assertEqual(rd, {'_third.id': '1', '_third.val': 'a'},
-                             'third category mismatch')
+            self.assertEqual(rd, {"_third.id": "1", "_third.val": "a"}, "third category mismatch")
             rd = cat.getRowItemDict(1)
-            self.assertEqual(rd, {'_third.id': '2', '_third.val': 'b'},
-                             'third category mismatch')
+            self.assertEqual(rd, {"_third.id": "2", "_third.val": "b"}, "third category mismatch")
 
     def testMerge(self):
-        f1name = os.path.join(TESTOUTPUT, 'test_merge1.cif')
+        f1name = os.path.join(TESTOUTPUT, "test_merge1.cif")
         self._createfile1(f1name)
 
-        f2name = os.path.join(TESTOUTPUT, 'test_merge2.cif')
+        f2name = os.path.join(TESTOUTPUT, "test_merge2.cif")
         self._createfile2(f2name)
 
-        f3name = os.path.join(TESTOUTPUT, 'test_merge3.cif')
+        f3name = os.path.join(TESTOUTPUT, "test_merge3.cif")
 
         if os.path.exists(f3name):
             os.unlink(f3name)
 
         pm = PdbxMergeCategory()
-        self.assertTrue(pm.merge(f1name, f2name, f3name, ['struct', 'exptl'], ['third']), "Merge failed")
+        self.assertTrue(pm.merge(f1name, f2name, f3name, ["struct", "exptl"], ["third"]), "Merge failed")
 
         self._testmerge(f3name)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # Run all tests --
     unittest.main()

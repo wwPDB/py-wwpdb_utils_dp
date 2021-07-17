@@ -18,8 +18,9 @@ import os
 import sys
 import unittest
 
-if __package__ is None or __package__ == '':
+if __package__ is None or __package__ == "":
     from os import path
+
     sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
     from commonsetup import TESTOUTPUT, TOPDIR, toolsmissing  # pylint: disable=import-error
 else:
@@ -29,24 +30,23 @@ from wwpdb.utils.config.ConfigInfo import getSiteId
 from wwpdb.utils.dp.RcsbDpUtility import RcsbDpUtility
 
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(levelname)s]-%(module)s.%(funcName)s: %(message)s')
+logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s]-%(module)s.%(funcName)s: %(message)s")
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 
 @unittest.skipIf(toolsmissing, "Tools not available for testing")
 class RcsbDpUtilityTests(unittest.TestCase):
-
     def setUp(self):
 
-        self.__siteId = getSiteId(defaultSiteId='WWPDB_DEPLOY_TEST')
+        self.__siteId = getSiteId(defaultSiteId="WWPDB_DEPLOY_TEST")
         logger.info("\nTesting with site environment for:  %s", self.__siteId)
         #
         self.__tmpPath = TESTOUTPUT
         #
-        self.__testFilePath = os.path.join(TOPDIR, 'wwpdb', 'mock-data', 'dp-utils')
-        self.__testFileFastaP = os.path.join(self.__testFilePath, '1KIP.fasta')
-        self.__testFileFastaN = os.path.join(self.__testFilePath, '2WDK.fasta')
+        self.__testFilePath = os.path.join(TOPDIR, "wwpdb", "mock-data", "dp-utils")
+        self.__testFileFastaP = os.path.join(self.__testFilePath, "1KIP.fasta")
+        self.__testFileFastaN = os.path.join(self.__testFilePath, "2WDK.fasta")
         #
         logger.info("\nTest fasta protein file path %s", self.__testFileFastaP)
         logger.info("\nTest fasta RNA     file path %s", self.__testFileFastaN)
@@ -55,8 +55,7 @@ class RcsbDpUtilityTests(unittest.TestCase):
         pass
 
     def testProteinSequenceSearch(self):
-        """
-        """
+        """ """
         logger.info("\nStarting RcsbDpUtilittySeqTests.testProteinSequenceSearch")
         try:
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
@@ -73,8 +72,7 @@ class RcsbDpUtilityTests(unittest.TestCase):
             self.fail()
 
     def testRnaSequenceSearch(self):
-        """
-        """
+        """ """
         logger.info("\nStarting RcsbDpUtilitySeqTests.testRnaSequenceSearch")
         try:
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
@@ -98,7 +96,7 @@ def suiteSequenceSearchTests():
     return suiteSelect
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     #
     mySuite = suiteSequenceSearchTests()
     unittest.TextTestRunner(verbosity=2).run(mySuite)

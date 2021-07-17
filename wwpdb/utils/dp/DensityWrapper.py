@@ -11,6 +11,7 @@ from wwpdb.utils.dp.RcsbDpUtility import RcsbDpUtility
 
 logger = logging.getLogger()
 
+
 class DensityWrapper(object):
     def __init__(self, site_id=None):
         self.__site_id = site_id if site_id else getSiteId()
@@ -56,7 +57,7 @@ def main():
                         default=logging.INFO)
 
     args = parser.parse_args()
-    logger = logging.getLogger()
+    # logger = logging.getLogger()
     logger.setLevel(args.loglevel)
 
     if not sys.argv[1:]:

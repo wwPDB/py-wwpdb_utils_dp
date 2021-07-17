@@ -17,8 +17,9 @@ import os
 import sys
 import unittest
 
-if __package__ is None or __package__ == '':
+if __package__ is None or __package__ == "":
     from os import path
+
     sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
     from commonsetup import TESTOUTPUT, TOPDIR, toolsmissing  # pylint: disable=import-error
 else:
@@ -29,14 +30,13 @@ from wwpdb.utils.dp.PdbxChemShiftReport import PdbxChemShiftReport
 from wwpdb.utils.dp.RcsbDpUtility import RcsbDpUtility
 
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(levelname)s]-%(module)s.%(funcName)s: %(message)s')
+logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s]-%(module)s.%(funcName)s: %(message)s")
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 
 @unittest.skipIf(toolsmissing, "Tools not available for testing")
 class RcsbDpUtilityNMRTests(unittest.TestCase):
-
     def setUp(self):
         self.__lfh = sys.stderr
         self.__verbose = True
@@ -44,13 +44,13 @@ class RcsbDpUtilityNMRTests(unittest.TestCase):
         self.__siteId = getSiteId(defaultSiteId=None)
         logger.info("\nTesting with site environment for:  %s\n", self.__siteId)
         #
-        self.__testFilePath = os.path.join(TOPDIR, 'wwpdb', 'mock-data', 'dp-utils')
+        self.__testFilePath = os.path.join(TOPDIR, "wwpdb", "mock-data", "dp-utils")
         self.__tmpPath = TESTOUTPUT
         #
-        self.__testFileStarCs = '2MMZ-cs.str'
-        self.__testFileNmrModel = '2MMZ.cif'
-        self.__testFileNmrModelAlt = '1MM0.cif'
-        self.__testConcatCS = '2mmz-cs-file-full-2.cif'
+        self.__testFileStarCs = "2MMZ-cs.str"
+        self.__testFileNmrModel = "2MMZ.cif"
+        self.__testFileNmrModelAlt = "1MM0.cif"
+        self.__testConcatCS = "2mmz-cs-file-full-2.cif"
 
         #
 
@@ -58,8 +58,7 @@ class RcsbDpUtilityNMRTests(unittest.TestCase):
         pass
 
     def testUploadShiftOneCheck(self):
-        """  Test upload check of one CS file  ---   upload single file
-        """
+        """Test upload check of one CS file  ---   upload single file"""
         logger.info("\nStarting")
         try:
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
@@ -68,7 +67,7 @@ class RcsbDpUtilityNMRTests(unittest.TestCase):
             outPath = "output-cs-file-full.cif"
             chkPath = "cs-diag-upload-check-1.cif"
             dp.addInput(name="chemical_shifts_file_path_list", value=[inpPath])
-            dp.addInput(name="chemical_shifts_auth_file_name_list", value=['cs_file_1'])
+            dp.addInput(name="chemical_shifts_auth_file_name_list", value=["cs_file_1"])
             dp.addInput(name="chemical_shifts_upload_check_file_path", value=chkPath)
 
             dp.op("annot-chem-shifts-upload-check")
@@ -80,8 +79,7 @@ class RcsbDpUtilityNMRTests(unittest.TestCase):
             self.fail()
 
     def testUploadShiftListCheck(self):
-        """  Test upload check of one CS file  ---  Upload multiple files
-        """
+        """Test upload check of one CS file  ---  Upload multiple files"""
         logger.info("\nStarting")
         try:
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
@@ -90,7 +88,7 @@ class RcsbDpUtilityNMRTests(unittest.TestCase):
             outPath = "output-cs-file-full-2.cif"
             chkPath = "cs-diag-upload-check-2.cif"
             dp.addInput(name="chemical_shifts_file_path_list", value=[inpPath, inpPath])
-            dp.addInput(name="chemical_shifts_auth_file_name_list", value=['cs_file_1', 'cs_file_2'])
+            dp.addInput(name="chemical_shifts_auth_file_name_list", value=["cs_file_1", "cs_file_2"])
             dp.addInput(name="chemical_shifts_upload_check_file_path", value=chkPath)
 
             dp.op("annot-chem-shifts-upload-check")
@@ -102,8 +100,7 @@ class RcsbDpUtilityNMRTests(unittest.TestCase):
             self.fail()
 
     def testChemicalShiftCoordinateCheck(self):
-        """  Test upload check of one CS file  ---   Using a PDB Archive STAR file -- (Does not work)
-        """
+        """Test upload check of one CS file  ---   Using a PDB Archive STAR file -- (Does not work)"""
         logger.info("\nStarting")
         try:
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
@@ -125,8 +122,7 @@ class RcsbDpUtilityNMRTests(unittest.TestCase):
             self.fail()
 
     def testChemicalShiftCoordinateCheck2(self):
-        """  Test upload check of one CS file  ---  Using a processed chemical shift file
-        """
+        """Test upload check of one CS file  ---  Using a processed chemical shift file"""
         logger.info("\nStarting")
         try:
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
@@ -148,8 +144,7 @@ class RcsbDpUtilityNMRTests(unittest.TestCase):
             self.fail()
 
     def testChemicalShiftCoordinateCheck2Alt(self):
-        """  Test upload check of one CS file  --- Using the wrong model to generate errors
-        """
+        """Test upload check of one CS file  --- Using the wrong model to generate errors"""
         logger.info("\nStarting")
         try:
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
@@ -171,10 +166,10 @@ class RcsbDpUtilityNMRTests(unittest.TestCase):
                 status = csr.getStatus()
                 logger.info("Status code: %s\n", status)
                 warnings = csr.getWarnings()
-                logger.info("\n\nWarning count : %d\n %s\n", len(warnings), ('\n').join(warnings))
+                logger.info("\n\nWarning count : %d\n %s\n", len(warnings), ("\n").join(warnings))
                 #
                 errors = csr.getErrors()
-                logger.info("\n\nError count : %d\n %s\n", len(errors), ('\n').join(errors))
+                logger.info("\n\nError count : %d\n %s\n", len(errors), ("\n").join(errors))
             #
             # dp.cleanup()
         except Exception as e:
@@ -193,7 +188,7 @@ def suiteAnnotNmrTests():
     return suiteSelect
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     #
 
     mySuite = suiteAnnotNmrTests()

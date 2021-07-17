@@ -24,13 +24,15 @@ try:
     import matplotlib.pyplot as plt
     import pygal
     from pygal.style import LightColorizedStyle, LightGreenStyle
+
     skiptest = False
 except ImportError:
     skiptest = True
 
 
-if __package__ is None or __package__ == '':
+if __package__ is None or __package__ == "":
     from os import path
+
     sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
     from commonsetup import TESTOUTPUT, TOPDIR, toolsmissing  # pylint: disable=import-error
 else:
@@ -40,41 +42,39 @@ from wwpdb.utils.config.ConfigInfo import getSiteId
 from wwpdb.utils.dp.RcsbDpUtility import RcsbDpUtility
 
 if not skiptest:
-    matplotlib.use('Agg')
+    matplotlib.use("Agg")
 
 skipnodisplay = True
-if os.getenv('DISPLAY'):
+if os.getenv("DISPLAY"):
     skipnodisplay = True
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(levelname)s]-%(module)s.%(funcName)s: %(message)s')
+logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s]-%(module)s.%(funcName)s: %(message)s")
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 
 class RcsbDpUtilityEmTests(unittest.TestCase):
-
     def setUp(self):
         self.__siteId = getSiteId(defaultSiteId=None)
         logger.info("\nTesting with site environment for:  %s\n", self.__siteId)
         #
         self.__tmpPath = TESTOUTPUT
-        self.__testFilePath = os.path.join(TOPDIR, 'wwpdb', 'mock-data', 'dp-utils')
+        self.__testFilePath = os.path.join(TOPDIR, "wwpdb", "mock-data", "dp-utils")
 
         self.__testMapSpider = "testmap.spi"
         #
         # Brian's protein dna complex 3IYD
-        self.__testMapEmd = 'emd_5127.map'
+        self.__testMapEmd = "emd_5127.map"
         self.__testMapNormal = self.__testMapEmd
         # XML header
-        self.__testXMLHeader = 'emd_8137_v2.xml'
+        self.__testXMLHeader = "emd_8137_v2.xml"
 
     def tearDown(self):
         pass
 
     @unittest.skipIf(toolsmissing, "Tools not available for testing")
     def testMapFix(self):
-        """  Test mapfix utility
-        """
+        """Test mapfix utility"""
         logger.info("\nStarting")
         try:
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
@@ -94,8 +94,7 @@ class RcsbDpUtilityEmTests(unittest.TestCase):
     @unittest.skipIf(toolsmissing, "Tools not available for testing")
     @unittest.skipIf(skipnodisplay, "DISPLAY environment not set")
     def testReadMapHeader(self):
-        """  Test read map header -- export JSON packet and plot density distribution -
-        """
+        """Test read map header -- export JSON packet and plot density distribution -"""
         logger.info("\nStarting")
         try:
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
@@ -109,19 +108,19 @@ class RcsbDpUtilityEmTests(unittest.TestCase):
             dp.exp(of)
             # dp.cleanup()
             #
-            mD = json.load(open(of, 'r'))
+            mD = json.load(open(of, "r"))
             logger.info("Map header keys: %r\n", mD.keys())
             logger.info("Map header: %r\n", mD.items())
 
-            logger.info("Input  header keys: %r\n", mD['input_header'].keys())
-            logger.info("Output header keys: %r\n", mD['output_header'].keys())
+            logger.info("Input  header keys: %r\n", mD["input_header"].keys())
+            logger.info("Output header keys: %r\n", mD["output_header"].keys())
             #
-            x = mD['input_histogram_categories']
-            y = mD['input_histogram_values']
+            x = mD["input_histogram_categories"]
+            y = mD["input_histogram_values"]
             logy = []
             for v in y:
                 if float(v) <= 0.0:
-                    logy.append(math.log10(.1))
+                    logy.append(math.log10(0.1))
                 else:
                     logy.append(math.log10(float(v)))
 
@@ -131,10 +130,10 @@ class RcsbDpUtilityEmTests(unittest.TestCase):
             logger.info("Starting plot\n")
             plt.bar(x, y, width, color="r", log=True)
             logger.info("Loaded data\n")
-            plt.title('Map density distribution')
+            plt.title("Map density distribution")
             logger.info("set title\n")
-            plt.ylabel('Voxels (log(10))')
-            plt.xlabel('Density')
+            plt.ylabel("Voxels (log(10))")
+            plt.xlabel("Density")
             logger.info("set labels\n")
             plotFileName = "map-density-plot-mpl.svg"
             plt.savefig(plotFileName, format="svg")
@@ -147,8 +146,7 @@ class RcsbDpUtilityEmTests(unittest.TestCase):
     @unittest.skipIf(skiptest, "Matplotlib")
     @unittest.skipIf(toolsmissing, "Tools not available for testing")
     def testReadMapHeaderPygal(self):
-        """  Test read map header -- export JSON packet and plot density distribution -
-        """
+        """Test read map header -- export JSON packet and plot density distribution -"""
         logger.info("\nStarting")
         try:
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
@@ -161,19 +159,19 @@ class RcsbDpUtilityEmTests(unittest.TestCase):
             dp.exp(of)
             dp.cleanup()
             #
-            mD = json.load(open(of, 'r'))
+            mD = json.load(open(of, "r"))
             logger.info("Map header keys: %r\n", mD.keys())
             logger.info("Map header: %r\n", mD.items())
 
-            logger.info("Input  header keys: %r\n", mD['input_header'].keys())
-            logger.info("Output header keys: %r\n", mD['output_header'].keys())
+            logger.info("Input  header keys: %r\n", mD["input_header"].keys())
+            logger.info("Output header keys: %r\n", mD["output_header"].keys())
             #
-            x = mD['input_histogram_categories']
-            y = mD['input_histogram_values']
+            x = mD["input_histogram_categories"]
+            y = mD["input_histogram_values"]
             logy = []
             for v in y:
                 if float(v) <= 0.0:
-                    logy.append(math.log10(.1))
+                    logy.append(math.log10(0.1))
                 else:
                     logy.append(math.log10(float(v)))
 
@@ -186,11 +184,11 @@ class RcsbDpUtilityEmTests(unittest.TestCase):
             if False:  # pylint: disable=using-constant-test
                 bar_chart = pygal.Bar(x_label_rotation=20, show_minor_x_labels=False, style=LightColorizedStyle)
             bar_chart = pygal.Bar(x_label_rotation=20, show_minor_x_labels=False, style=LightGreenStyle)
-            bar_chart.title = 'Map density distribution'
+            bar_chart.title = "Map density distribution"
             bar_chart.x_labels = map(str, [int(t) for t in x])
             bar_chart.x_labels_major = map(str, [int(t) for t in x[::nL]])
 
-            bar_chart.add('Voxels (log(10)', logy)
+            bar_chart.add("Voxels (log(10)", logy)
             plotFileName = "map-density-plot-pygal.svg"
             bar_chart.render_to_file(plotFileName)
 
@@ -203,8 +201,7 @@ class RcsbDpUtilityEmTests(unittest.TestCase):
 
     @unittest.skipIf(toolsmissing, "Tools not available for testing")
     def testEm2EmSpider(self):
-        """  Test mapfix utility
-        """
+        """Test mapfix utility"""
         logger.info("\nStarting")
         try:
 
@@ -227,8 +224,7 @@ class RcsbDpUtilityEmTests(unittest.TestCase):
 
     @unittest.skipIf(toolsmissing, "Tools not available for testing")
     def testXmlHeaderCheck(self):
-        """  Test xmllint
-        """
+        """Test xmllint"""
         logger.info("\nStarting")
         try:
 
@@ -256,12 +252,12 @@ def suiteAnnotEmTests():
     return suiteSelect
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # Run all tests --
     # unittest.main()
     #
     doAll = False
-    if (doAll):
+    if doAll:
 
         mySuite = suiteAnnotEmTests()
         unittest.TextTestRunner(verbosity=2).run(mySuite)

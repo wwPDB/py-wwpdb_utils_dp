@@ -18,8 +18,9 @@ import os
 import sys
 import unittest
 
-if __package__ is None or __package__ == '':
+if __package__ is None or __package__ == "":
     from os import path
+
     sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
     from commonsetup import TESTOUTPUT, TOPDIR, toolsmissing  # pylint: disable=import-error
 else:
@@ -29,7 +30,7 @@ from wwpdb.utils.config.ConfigInfo import getSiteId
 from wwpdb.utils.dp.RcsbDpUtility import RcsbDpUtility
 
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(levelname)s]-%(module)s.%(funcName)s: %(message)s')
+logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s]-%(module)s.%(funcName)s: %(message)s")
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
@@ -37,17 +38,16 @@ logger.setLevel(logging.INFO)
 @unittest.skipIf(toolsmissing, "Tools not available for testing")
 @unittest.skipIf(toolsmissing, "Tools not available for testing")
 class RcsbDpUtilityTests(unittest.TestCase):
-
     def setUp(self):
         # Pick up site information from the environment or failover to the development site id.
         self.__siteId = getSiteId(defaultSiteId=None)
         logger.info("\nTesting with site environment for:  %s\n", self.__siteId)
         #
-        self.__testFilePath = os.path.join(TOPDIR, 'wwpdb', 'mock-data', 'dp-utils')
+        self.__testFilePath = os.path.join(TOPDIR, "wwpdb", "mock-data", "dp-utils")
         self.__tmpPath = TESTOUTPUT
         #
-        self.__testFilePdbPisa = '3rer.pdb'
-        self.__testFileCifPisa = '3rer.cif'
+        self.__testFilePdbPisa = "3rer.pdb"
+        self.__testFileCifPisa = "3rer.cif"
         #
         logger.info("\nTest file path %s\n", self.__testFilePath)
         logger.info("\nCIF  file path %s\n", self.__testFileCifPisa)
@@ -56,8 +56,7 @@ class RcsbDpUtilityTests(unittest.TestCase):
         pass
 
     def testPisaAnalysisPdb(self):
-        """
-        """
+        """ """
         logger.info("\nStarting")
         try:
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
@@ -72,8 +71,7 @@ class RcsbDpUtilityTests(unittest.TestCase):
             self.fail()
 
     def testPisaAnalysisCif(self):
-        """
-        """
+        """ """
         logger.info("\nStarting")
         try:
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
@@ -88,8 +86,7 @@ class RcsbDpUtilityTests(unittest.TestCase):
             self.fail()
 
     def testPisaAssemblyReportXmlCif(self):
-        """
-        """
+        """ """
         logger.info("\nStarting")
         try:
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
@@ -111,8 +108,7 @@ class RcsbDpUtilityTests(unittest.TestCase):
             self.fail()
 
     def testPisaAssemblyReportXmlPdb(self):
-        """
-        """
+        """ """
         logger.info("\nStarting")
         try:
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
@@ -130,8 +126,7 @@ class RcsbDpUtilityTests(unittest.TestCase):
             self.fail()
 
     def testPisaAssemblyDownloadModelCif(self):
-        """
-        """
+        """ """
         logger.info("\nStarting")
         try:
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
@@ -144,10 +139,10 @@ class RcsbDpUtilityTests(unittest.TestCase):
             dp.exp("pisa-assembly-report-cif.xml")
             dp.expLog("pisa-report-xml-cif.log.gz")
             #
-            for assemId in ['1', '2', '3', '4', '5']:
+            for assemId in ["1", "2", "3", "4", "5"]:
                 dp.addInput(name="pisa_assembly_id", value=assemId)
-                oFileName = '3rer-assembly-' + assemId + '.cif.gz'
-                oLogName = '3rer-assembly-' + assemId + '-cif.log.gz'
+                oFileName = "3rer-assembly-" + assemId + ".cif.gz"
+                oLogName = "3rer-assembly-" + assemId + "-cif.log.gz"
                 dp.op("pisa-assembly-coordinates-cif")
                 dp.exp(oFileName)
                 dp.expLog(oLogName)
@@ -157,8 +152,7 @@ class RcsbDpUtilityTests(unittest.TestCase):
             self.fail()
 
     def testPisaAssemblyDownloadModelPdb(self):
-        """
-        """
+        """ """
         logger.info("\nStarting")
         try:
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
@@ -171,10 +165,10 @@ class RcsbDpUtilityTests(unittest.TestCase):
             dp.exp("pisa-assembly-report-cif.xml")
             dp.expLog("pisa-report-xml-cif.log.gz")
             #
-            for assemId in ['1', '2', '3', '4', '5']:
+            for assemId in ["1", "2", "3", "4", "5"]:
                 dp.addInput(name="pisa_assembly_id", value=assemId)
-                oFileName = '3rer-assembly-' + assemId + '.pdb.gz'
-                oLogName = '3rer-assembly-' + assemId + '-pdb.log.gz'
+                oFileName = "3rer-assembly-" + assemId + ".pdb.gz"
+                oLogName = "3rer-assembly-" + assemId + "-pdb.log.gz"
                 dp.op("pisa-assembly-coordinates-pdb")
                 dp.exp(oFileName)
                 dp.expLog(oLogName)
@@ -184,8 +178,7 @@ class RcsbDpUtilityTests(unittest.TestCase):
             self.fail()
 
     def testPisaAssemblyMergeModelCif(self):
-        """
-        """
+        """ """
         logger.info("\nStarting")
         try:
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
@@ -231,9 +224,9 @@ def suitePisaTestsPdb():
     return suiteSelect
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     #
-    if (False):  # pylint: disable=using-constant-test
+    if False:  # pylint: disable=using-constant-test
         mySuite = suitePisaTestsPdb()
         unittest.TextTestRunner(verbosity=2).run(mySuite)
     #

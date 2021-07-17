@@ -11,7 +11,7 @@ import unittest
 import sys
 import os
 
-if __package__ is None or __package__ == '':
+if __package__ is None or __package__ == "":
     from os import path
 
     sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
@@ -22,7 +22,7 @@ else:
 from wwpdb.utils.config.ConfigInfo import getSiteId
 from wwpdb.utils.dp.ValidationWrapper import ValidationWrapper
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(levelname)s]-%(module)s.%(funcName)s: %(message)s')
+logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s]-%(module)s.%(funcName)s: %(message)s")
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 logger.setLevel(logging.DEBUG)
@@ -39,16 +39,16 @@ class ValidationWrapperTests(unittest.TestCase):
     @unittest.skipIf(True, "Tests do not work yet - need site-config for validation")
     def testWrapper(self):
         """Tests wrapper"""
-        modelfile = os.path.join(mockTopPath, 'dp-utils', '1cbs.cif')
-        sffile = os.path.join(mockTopPath, 'dp-utils', '1cbs-sf.cif')
-        foout = os.path.join(TESTOUTPUT, '1cbs-fo.cif')
-        twofoout = os.path.join(TESTOUTPUT, '1cbs-2fo.cif')
-        pdf = os.path.join(TESTOUTPUT, '1cbs-val.pdf')
-        fullpdf = os.path.join(TESTOUTPUT, '1cbs-full-val.pdf')
-        xml = os.path.join(TESTOUTPUT, '1cbs-val.xml')
-        svg = os.path.join(TESTOUTPUT, '1cbs-val.svg')
-        png = os.path.join(TESTOUTPUT, '1cbs-val.png')
-        oflog = os.path.join(TESTOUTPUT, '1cbs-val.log')
+        modelfile = os.path.join(mockTopPath, "dp-utils", "1cbs.cif")
+        sffile = os.path.join(mockTopPath, "dp-utils", "1cbs-sf.cif")
+        foout = os.path.join(TESTOUTPUT, "1cbs-fo.cif")
+        twofoout = os.path.join(TESTOUTPUT, "1cbs-2fo.cif")
+        pdf = os.path.join(TESTOUTPUT, "1cbs-val.pdf")
+        fullpdf = os.path.join(TESTOUTPUT, "1cbs-full-val.pdf")
+        xml = os.path.join(TESTOUTPUT, "1cbs-val.xml")
+        svg = os.path.join(TESTOUTPUT, "1cbs-val.svg")
+        png = os.path.join(TESTOUTPUT, "1cbs-val.png")
+        oflog = os.path.join(TESTOUTPUT, "1cbs-val.log")
 
         # ofpdf, ofxml, offullpdf, ofpng, ofsvg, ofmtz
         if os.path.exists(foout):
@@ -64,9 +64,9 @@ class ValidationWrapperTests(unittest.TestCase):
         vw.imp(modelfile)
         vw.addInput(name="sf_file_path", value=sffile)
 
-        vw.addInput(name='step_list', value='mogul,percentiles,writexml,writepdf,eds')
+        vw.addInput(name="step_list", value="mogul,percentiles,writexml,writepdf,eds")
 
-        vw.addInput(name='run_dir', value=os.path.join(TESTOUTPUT, 'validation_run'))
+        vw.addInput(name="run_dir", value=os.path.join(TESTOUTPUT, "validation_run"))
         vw.addInput(name="request_annotation_context", value="yes")
         vw.addInput(name="always_clear_calcs", value="yes")
 
@@ -80,6 +80,6 @@ class ValidationWrapperTests(unittest.TestCase):
         self.assertTrue(os.path.exists(twofoout))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # Run all tests --
     unittest.main()

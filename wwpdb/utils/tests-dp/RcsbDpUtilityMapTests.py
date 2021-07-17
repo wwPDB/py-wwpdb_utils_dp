@@ -19,8 +19,9 @@ import os
 import sys
 import unittest
 
-if __package__ is None or __package__ == '':
+if __package__ is None or __package__ == "":
     from os import path
+
     sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
     from commonsetup import TESTOUTPUT, TOPDIR, toolsmissing  # pylint: disable=import-error
 else:
@@ -29,20 +30,19 @@ else:
 from wwpdb.utils.config.ConfigInfo import getSiteId
 from wwpdb.utils.dp.RcsbDpUtility import RcsbDpUtility
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(levelname)s]-%(module)s.%(funcName)s: %(message)s')
+logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s]-%(module)s.%(funcName)s: %(message)s")
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 
 @unittest.skipIf(toolsmissing, "Tools not available for testing")
 class RcsbDpUtilityMapTests(unittest.TestCase):
-
     def setUp(self):
         self.__siteId = getSiteId(defaultSiteId=None)
         logger.info("\nTesting with site environment for:  %s\n", self.__siteId)
         #
         self.__tmpPath = TESTOUTPUT
-        self.__testFilePath = os.path.join(TOPDIR, 'wwpdb', 'mock-data', 'dp-utils')
+        self.__testFilePath = os.path.join(TOPDIR, "wwpdb", "mock-data", "dp-utils")
         #
         self.__testFileValidateXyz = "1cbs.cif"
         self.__testFileValidateSf = "1cbs-sf.cif"
@@ -59,8 +59,7 @@ class RcsbDpUtilityMapTests(unittest.TestCase):
         pass
 
     def testAnnotMapCalc(self):
-        """  Test create density maps --
-        """
+        """Test create density maps --"""
         logger.info("\nStarting")
         try:
             for pdbId in self.__testValidateIdList:
@@ -85,8 +84,7 @@ class RcsbDpUtilityMapTests(unittest.TestCase):
             self.fail()
 
     def testAnnotOmitMapCalc(self):
-        """  Test create density maps --
-        """
+        """Test create density maps --"""
         logger.info("\nStarting")
         try:
             for pdbId in self.__testValidateIdList:
@@ -111,11 +109,10 @@ class RcsbDpUtilityMapTests(unittest.TestCase):
             self.fail()
 
     def testAnnotLigandMapCalc(self):
-        """  Test create non-polymer local density maps --
-        """
+        """Test create non-polymer local density maps --"""
         logger.info("\nStarting")
         try:
-            for pdbId in ['3of4']:
+            for pdbId in ["3of4"]:
 
                 testFileXyz = pdbId + ".cif"
                 testFileSf = pdbId + "-sf.cif"
@@ -125,8 +122,8 @@ class RcsbDpUtilityMapTests(unittest.TestCase):
                 xyzPath = os.path.join(self.__testFilePath, testFileXyz)
                 sfPath = os.path.join(self.__testFilePath, testFileSf)
                 #
-                outDataPath = os.path.join(self.__tmpPath, 'np-cc-maps')
-                outIndexPath = os.path.join(self.__tmpPath, 'np-cc-maps', 'np-cc-maps-index.cif')
+                outDataPath = os.path.join(self.__tmpPath, "np-cc-maps")
+                outIndexPath = os.path.join(self.__tmpPath, "np-cc-maps", "np-cc-maps-index.cif")
                 #
                 dp.imp(xyzPath)
                 dp.addInput(name="sf_file_path", value=sfPath)
@@ -135,14 +132,14 @@ class RcsbDpUtilityMapTests(unittest.TestCase):
                 dp.op("annot-make-ligand-maps")
                 dp.expLog(pdbId + "-annot-make-ligand-maps.log")
                 #
-                if (False):  # pylint: disable=using-constant-test
+                if False:  # pylint: disable=using-constant-test
                     dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
                     dp.setDebugMode(flag=True)
                     xyzPath = os.path.join(self.__testFilePath, testFileXyz)
                     sfPath = os.path.join(self.__testFilePath, testFileSf)
                     #
-                    outDataPath = os.path.join(self.__tmpPath, 'np-cc-omit-maps')
-                    outIndexPath = os.path.join(self.__tmpPath, 'np-cc-omit-maps', 'np-cc-omit-maps-index.cif')
+                    outDataPath = os.path.join(self.__tmpPath, "np-cc-omit-maps")
+                    outIndexPath = os.path.join(self.__tmpPath, "np-cc-omit-maps", "np-cc-omit-maps-index.cif")
                     #
                     dp.imp(xyzPath)
                     dp.addInput(name="omit_map", value=True)
@@ -161,8 +158,7 @@ class RcsbDpUtilityMapTests(unittest.TestCase):
             self.fail()
 
     def testAnnotDccReport(self):
-        """  Test create DCC report -
-        """
+        """Test create DCC report -"""
         logger.info("\nStarting")
         try:
             ofn = "dcc-report.cif"
@@ -182,8 +178,7 @@ class RcsbDpUtilityMapTests(unittest.TestCase):
             self.fail()
 
     def testAnnotMtz2PdbxGood(self):
-        """  Test mtz to pdbx conversion  (good mtz)
-        """
+        """Test mtz to pdbx conversion  (good mtz)"""
         logger.info("\nStarting")
         try:
             diagfn = "sf-convert-diags.cif"
@@ -204,8 +199,7 @@ class RcsbDpUtilityMapTests(unittest.TestCase):
             self.fail()
 
     def testAnnotMtz2PdbxBad(self):
-        """  Test mtz to pdbx conversion
-        """
+        """Test mtz to pdbx conversion"""
         logger.info("\nStarting")
         try:
             diagfn = "sf-convert-diags-bad.cif"
@@ -230,8 +224,7 @@ class RcsbDpUtilityMapTests(unittest.TestCase):
             self.fail()
 
     def testAnnotMtz2PdbxBadTimeout(self):
-        """  Test mtz to pdbx conversion
-        """
+        """Test mtz to pdbx conversion"""
         logger.info("\nStarting")
         try:
             diagfn = "sf-convert-diags-bad-runaway.cif"
@@ -274,11 +267,11 @@ def suiteAnnotDccTests():
     return suiteSelect
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # Run all tests --
     #
     doAll = True
-    if (doAll):
+    if doAll:
         mySuite = suiteMapCalcTests()
         unittest.TextTestRunner(verbosity=2).run(mySuite)
 
