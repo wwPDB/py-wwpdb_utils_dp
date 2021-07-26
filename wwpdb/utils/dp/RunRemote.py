@@ -111,9 +111,9 @@ class RunRemote:
             open(fname, 'a').close()
 
     def get_site_config_command(self, suffix=''):
-        site_config_init_path = self.cI.get('TOP_WWPDB_SITE_CONFIG_INIT')
+        site_config_path = self.cI.get('TOP_WWPDB_SITE_CONFIG_DIR')
         site_loc = self.cI.get('WWPDB_SITE_LOC')
-        site_config_command = '. {} --siteid {} --location {} {} > /dev/null;'.format(site_config_init_path,
+        site_config_command = '. {}/init/env.sh --siteid {} --location {} {} > /dev/null;'.format(site_config_path,
                                                                                       self.siteId, site_loc,
                                                                                       suffix)
         return site_config_command
