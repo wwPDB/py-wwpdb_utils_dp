@@ -28,13 +28,11 @@ logger = logging.getLogger(__name__)
 
 
 class PdbxStripCategory(object):
-
     def __init__(self, verbose=False, log=sys.stderr):  # pylint: disable=unused-argument
         pass
 
     def strip(self, inpPath, outPath, stripList=None):
-        """ Strip categories from inpPath and write to outPath
-        """
+        """Strip categories from inpPath and write to outPath"""
         if stripList is None:
             stripList = []
 
@@ -65,26 +63,28 @@ class PdbxStripCategory(object):
 
 
 def _maintest():
-    stripList = ['pdbx_coord',
-                 # 'pdbx_entity_nonpoly',
-                 # 'pdbx_missing_residue_list',
-                 'pdbx_nonstandard_list',
-                 'pdbx_protein_info',
-                 'pdbx_solvent_info',
-                 'pdbx_struct_sheet_hbond',
-                 'pdbx_unobs_or_zero_occ_residues',
-                 'pdbx_validate_torsion',
-                 'struct_biol_gen',
-                 'struct_conf',
-                 'struct_conf_type',
-                 'struct_mon_prot_cis',
-                 'struct_sheet',
-                 'struct_sheet_order',
-                 'struct_sheet_range']
+    stripList = [
+        "pdbx_coord",
+        # 'pdbx_entity_nonpoly',
+        # 'pdbx_missing_residue_list',
+        "pdbx_nonstandard_list",
+        "pdbx_protein_info",
+        "pdbx_solvent_info",
+        "pdbx_struct_sheet_hbond",
+        "pdbx_unobs_or_zero_occ_residues",
+        "pdbx_validate_torsion",
+        "struct_biol_gen",
+        "struct_conf",
+        "struct_conf_type",
+        "struct_mon_prot_cis",
+        "struct_sheet",
+        "struct_sheet_order",
+        "struct_sheet_range",
+    ]
 
     strp = PdbxStripCategory(verbose=True, log=sys.stderr)
-    strp.strip('test-in.cif', 'test-out.cif', stripList)
+    strp.strip("test-in.cif", "test-out.cif", stripList)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     _maintest()

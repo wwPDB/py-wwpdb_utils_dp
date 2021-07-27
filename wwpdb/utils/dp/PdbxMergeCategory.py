@@ -24,15 +24,15 @@ class PdbxMergeCategory(object):
 
     @staticmethod
     def merge(srcpath, newcontentpath, outpath, mergelist=None, replacelist=None):
-        """ Merges selected categories from newcontentpath (first block) into srcpath and outputs to outpath in
-                       first data block.
-            Categories in replacelist will replace category, if present in newcontentpath, otherwise leaves alone.
-            Categories in mergelist must be single row. Attributes will be replaced/appended. Attributes not in
-                       newcontentpath are ignored.
+        """Merges selected categories from newcontentpath (first block) into srcpath and outputs to outpath in
+                   first data block.
+        Categories in replacelist will replace category, if present in newcontentpath, otherwise leaves alone.
+        Categories in mergelist must be single row. Attributes will be replaced/appended. Attributes not in
+                   newcontentpath are ignored.
 
-            newcontentpath will contain to combined file
+        newcontentpath will contain to combined file
 
-            If the same category is in mergelist and replacelist, undefined behaviour
+        If the same category is in mergelist and replacelist, undefined behaviour
 
         """
         logger.debug("Starting merge %s %s %s", srcpath, newcontentpath, outpath)

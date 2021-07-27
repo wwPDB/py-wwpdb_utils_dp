@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 
 
 class PdbxSFMapCoefficients(object):
-    def __init__(self, siteid=None, tmppath='/tmp', cleanup=True):
+    def __init__(self, siteid=None, tmppath="/tmp", cleanup=True):
         self.__sf = None
         self.__siteid = getSiteId(siteid)
         self.__cleanup = cleanup
@@ -33,7 +33,7 @@ class PdbxSFMapCoefficients(object):
     def read_mmcif_sf(self, pathin):
         """Reads PDBx/mmCIF structure factor file with map coefficients
 
-           Return True on success, otherwise False
+        Return True on success, otherwise False
         """
 
         logger.debug("Starting read %s", pathin)
@@ -47,8 +47,7 @@ class PdbxSFMapCoefficients(object):
             return False
 
     def has_map_coeff(self):
-        """Returns True if read in SF file has map coefficients, else returns False
-        """
+        """Returns True if read in SF file has map coefficients, else returns False"""
         if self.__sf is None:
             return False
 
@@ -63,9 +62,7 @@ class PdbxSFMapCoefficients(object):
             return False
 
         alist = c0.getAttributeList()
-        for att in ["index_h", "index_k", "index_l", "fom",
-                    "pdbx_DELFWT", "pdbx_DELPHWT",
-                    "pdbx_FWT", "pdbx_PHWT"]:
+        for att in ["index_h", "index_k", "index_l", "fom", "pdbx_DELFWT", "pdbx_DELPHWT", "pdbx_FWT", "pdbx_PHWT"]:
             if att not in alist:
                 logger.debug("Missing %s from sf file", att)
                 return False
@@ -75,13 +72,13 @@ class PdbxSFMapCoefficients(object):
     def read_mtz_sf(self, pathin):
         """Reads MTZ structure factor file
 
-            Return True on success, otherwise False
+        Return True on success, otherwise False
         """
 
         logger.debug("Starting mtz read %s", pathin)
 
-        suffix = '-dir'
-        prefix = 'rcsb-'
+        suffix = "-dir"
+        prefix = "rcsb-"
         if self.__tmppath is not None and os.path.isdir(self.__tmppath):
             workpath = tempfile.mkdtemp(suffix, prefix, self.__tmppath)
         else:
@@ -94,7 +91,7 @@ class PdbxSFMapCoefficients(object):
 
         dp = RcsbDpUtility(siteId=self.__siteid, tmpPath=self.__tmppath)
         dp.imp(pathin)
-        dp.op('annot-sf-convert')
+        dp.op("annot-sf-convert")
         dp.expLog(logfn)
         dp.expList(dstPathList=[ciffn, diagfn, dmpfn])
         if os.path.exists(ciffn):
@@ -107,35 +104,29 @@ class PdbxSFMapCoefficients(object):
             shutil.rmtree(workpath, ignore_errors=True)
         return ret
 
-    def write_mmcif_coef(self, fopathout, twofopathout, entry_id='xxxx'):
+    def write_mmcif_coef(self, fopathout, twofopathout, entry_id="xxxx"):
         """Writes out two structure factor files with only fo-fc or 2fo-fc coefficients
 
-            Output files are dictionary compliant
+        Output files are dictionary compliant
 
-            entry.id will be set to entry_id
+        entry.id will be set to entry_id
         """
-        ret1 = self.__write_mmcif(fopathout, 'fo', entry_id)
-        ret2 = self.__write_mmcif(twofopathout, '2fo', entry_id)
+        ret1 = self.__write_mmcif(fopathout, "fo", entry_id)
+        ret2 = self.__write_mmcif(twofopathout, "2fo", entry_id)
         return ret1 and ret2
 
     def __write_mmcif(self, pathout, coef, entry_id):
-        """Writes out the specific map coefficients
-
-        """
+        """Writes out the specific map coefficients"""
 
         # Categories that will not be copied
-        _striplist = ['audit',
-                      'diffrn_radiation_wavelength',
-                      'exptl_crystal',
-                      'reflns_scale'
-                      ]
+        _striplist = ["audit", "diffrn_radiation_wavelength", "exptl_crystal", "reflns_scale"]
 
         # refln attributes to keep
-        _keepattr = ['index_h', 'index_k', 'index_l', 'fom']
-        if coef == 'fo':
-            _keepattr.extend(['pdbx_DELFWT', 'pdbx_DELPHWT'])
+        _keepattr = ["index_h", "index_k", "index_l", "fom"]
+        if coef == "fo":
+            _keepattr.extend(["pdbx_DELFWT", "pdbx_DELPHWT"])
         else:
-            _keepattr.extend(['pdbx_FWT', 'pdbx_PHWT'])
+            _keepattr.extend(["pdbx_FWT", "pdbx_PHWT"])
 
         # Datablockname
         blkname = "{}{}".format(entry_id, coef)
@@ -152,11 +143,11 @@ class PdbxSFMapCoefficients(object):
 
             # Make a copy of the original - as likely will need to modify
             modobj = copy.deepcopy(myobj)
-            if objname == 'entry':
-                modobj.setValue(entry_id, 'id', 0)
-            if objname in ['cell', 'symmetry']:
-                modobj.setValue(entry_id, 'entry_id', 0)
-            if objname == 'refln':
+            if objname == "entry":
+                modobj.setValue(entry_id, "id", 0)
+            if objname in ["cell", "symmetry"]:
+                modobj.setValue(entry_id, "entry_id", 0)
+            if objname == "refln":
                 # Remove all but what we want
                 # Make a copy to ensure not messed with during operation
                 for attr in list(modobj.getAttributeList()):

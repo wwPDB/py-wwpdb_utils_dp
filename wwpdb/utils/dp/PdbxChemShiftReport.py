@@ -27,14 +27,12 @@ logger = logging.getLogger(__name__)
 
 
 class PdbxChemShiftReport(object):
-
     def __init__(self, inputPath, verbose=False, log=sys.stderr):  # pylint: disable=unused-argument
         self.__myContainerList = []
         self.__read(inputPath)
 
     def __read(self, inputPath):
-        """ Read status file
-        """
+        """Read status file"""
         try:
             self.__myContainerList = []
             with open(inputPath, "r") as ifh:
@@ -46,13 +44,13 @@ class PdbxChemShiftReport(object):
         return False
 
     def getStatus(self):
-        return self.__get('pdbx_shift_check', 'status')
+        return self.__get("pdbx_shift_check", "status")
 
     def getWarnings(self):
-        return self.__get('pdbx_shift_check_warning_message', 'text')
+        return self.__get("pdbx_shift_check_warning_message", "text")
 
     def getErrors(self):
-        return self.__get('pdbx_shift_check_error_message', 'text')
+        return self.__get("pdbx_shift_check_error_message", "text")
 
     def __get(self, categoryName, attributeName):
         retVal = []
@@ -74,5 +72,5 @@ class PdbxChemShiftReport(object):
         return retVal
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     pass
