@@ -32,7 +32,7 @@ class RunRemote:
         self.bsub_login_node = self.cI.get("BSUB_LOGIN_NODE")
         self.bsub_timeout = self.cI.get("BSUB_TIMEOUT")
         self.bsub_retry_delay = self.cI.get("BSUB_RETRY_DELAY", 4)
-        self.command_prefix = self.cI.get('BSUB_COMMAND_PREFIX')
+        self.command_prefix = os.getenv('REMOTE_COMMAND_PREFIX')
         self.bsub_log_file = os.path.join(self.log_dir, self.job_name + ".log")
         self.bsub_out_file = os.path.join(self.log_dir, self.job_name + ".out")
         self.add_site_config = add_site_config
