@@ -31,7 +31,8 @@ class RunRemote:
         self.pdbe_memory_limit = 100000
         self.bsub_login_node = self.cI.get("BSUB_LOGIN_NODE")
         self.bsub_timeout = self.cI.get("BSUB_TIMEOUT")
-        self.bsub_retry_delay = self.cI.get("BSUB_RETRY_DELAY")
+        self.bsub_retry_delay = self.cI.get("BSUB_RETRY_DELAY", 4)
+        self.command_prefix = self.cI.get('BSUB_COMMAND_PREFIX')
         self.bsub_log_file = os.path.join(self.log_dir, self.job_name + ".log")
         self.bsub_out_file = os.path.join(self.log_dir, self.job_name + ".out")
         self.add_site_config = add_site_config
@@ -53,6 +54,8 @@ class RunRemote:
             self.pre_pend_sourcing_site_config(database=True)
         if self.add_site_config:
             self.pre_pend_sourcing_site_config()
+        if self.command_prefix:
+            self.prefix_command()
 
         if self.bsub_run_command:
             bsub_try = 1
@@ -120,9 +123,13 @@ class RunRemote:
         if database:
             self.command = "{} {}".format(self.get_site_config_command(suffix="--database"), self.command)
 
+    def prefix_command(self):
+        if self.command_prefix:
+            self.command = self.command_prefix + " " + self.command
+
     def check_bsub_finished(self):
         # pause to allow system to write out bsub out file.
-        time.sleep(10)
+        time.sleep(5)
         if not os.path.exists(self.bsub_out_file):
             retries = 0
             logging.info("bsub out file not present - waiting for bsub to finish")
