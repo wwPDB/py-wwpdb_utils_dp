@@ -40,7 +40,7 @@ class RunRemote:
         self.bsub_login_node = self.cI.get("BSUB_LOGIN_NODE")
         self.bsub_timeout = self.cI.get("BSUB_TIMEOUT")
         self.bsub_retry_delay = self.cI.get("BSUB_RETRY_DELAY", 4)
-        self.command_prefix = os.getenv('REMOTE_COMMAND_PREFIX')
+        self.command_prefix = self.cI.get('REMOTE_COMMAND_PREFIX')
         self.bsub_log_file = os.path.join(self.log_dir, self.job_name + ".log")
         self.bsub_out_file = os.path.join(self.log_dir, self.job_name + ".out")
         self.add_site_config = add_site_config
@@ -317,6 +317,7 @@ if __name__ == "__main__":
     parser.add_argument("--command", help="command to run", type=str, required=True)
     parser.add_argument("--job_name", help="name for the job", type=str, required=True)
     parser.add_argument("--log_dir", help="directory to store log file in", type=str, required=True)
+    parser.add_argument("--run_dir", help="directory to run", type=str)
     parser.add_argument("--memory_limit", help="starting memory limit", type=int, default=0)
     parser.add_argument("--num_processors", help="number of processors", type=int, default=1)
     parser.add_argument("--add_site_config", help="add site config to command", action="store_true")
@@ -329,6 +330,7 @@ if __name__ == "__main__":
         command=args.command,
         job_name=args.job_name,
         log_dir=args.log_dir,
+        run_dir=args.run_dir,
         memory_limit=args.memory_limit,
         number_of_processors=args.num_processors,
         add_site_config=args.add_site_config,
