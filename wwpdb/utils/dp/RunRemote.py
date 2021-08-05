@@ -10,7 +10,14 @@ logger = logging.getLogger()
 
 
 class RunRemote:
-    def __init__(self, command, job_name, log_dir, timeout=5600, memory_limit=0, number_of_processors=1, add_site_config=False, add_site_config_database=False):
+    def __init__(self, command, job_name,
+                 log_dir,
+                 run_dir,
+                 timeout=5600,
+                 memory_limit=0,
+                 number_of_processors=1,
+                 add_site_config=False,
+                 add_site_config_database=False):
         self.command = self.escape_substitution(command)
         if timeout:
             self.timeout = timeout
@@ -20,6 +27,7 @@ class RunRemote:
         self.number_of_processors = number_of_processors
         self.job_name = job_name
         self.log_dir = log_dir
+        self.run_dir = run_dir
         self.memory_used = 0
         self.memory_unit = "MB"
         self.bsub_exit_status = 0
@@ -37,6 +45,7 @@ class RunRemote:
         self.bsub_out_file = os.path.join(self.log_dir, self.job_name + ".out")
         self.add_site_config = add_site_config
         self.add_site_config_database = add_site_config_database
+        self.shell_script = os.path.join(run_dir, 'run.sh')
         self.out = None
         self.err = None
 
@@ -47,8 +56,17 @@ class RunRemote:
         command = command.replace("$", "\$")  # noqa: W605 pylint: disable=anomalous-backslash-in-string
         return command
 
+    def write_run_script(self):
+        self.command = self.escape_substitution(self.command)
+        with open(self.shell_script, 'w') as out_file:
+            out_file.write(self.command)
+        os.chmod(self.shell_script, 0o775)
+        self.command = self.shell_script
+
     def run(self):
         rc = 1
+
+        self.write_run_script()
 
         if self.add_site_config_database:
             self.pre_pend_sourcing_site_config(database=True)
@@ -119,9 +137,9 @@ class RunRemote:
 
     def pre_pend_sourcing_site_config(self, database=False):
 
-        self.command = "{} {}".format(self.get_site_config_command(), self.command)
+        self.command = "{}; {}".format(self.get_site_config_command(), self.command)
         if database:
-            self.command = "{} {}".format(self.get_site_config_command(suffix="--database"), self.command)
+            self.command = "{}; {}".format(self.get_site_config_command(suffix="--database"), self.command)
 
     def prefix_command(self):
         if self.command_prefix:
