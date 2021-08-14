@@ -12,7 +12,7 @@ logger = logging.getLogger()
 class RunRemote:
     def __init__(self, command, job_name,
                  log_dir,
-                 run_dir,
+                 run_dir=None,
                  timeout=5600,
                  memory_limit=0,
                  number_of_processors=1,
@@ -45,7 +45,7 @@ class RunRemote:
         self.bsub_out_file = os.path.join(self.log_dir, self.job_name + ".out")
         self.add_site_config = add_site_config
         self.add_site_config_database = add_site_config_database
-        self.shell_script = os.path.join(run_dir, 'run.sh')
+
         self.out = None
         self.err = None
 
@@ -58,10 +58,12 @@ class RunRemote:
 
     def write_run_script(self):
         self.command = self.escape_substitution(self.command)
-        with open(self.shell_script, 'w') as out_file:
-            out_file.write(self.command)
-        os.chmod(self.shell_script, 0o775)
-        self.command = self.shell_script
+        if self.run_dir:
+            shell_script = os.path.join(self.run_dir, 'run_{}.sh'.format(self.job_name))
+            with open(shell_script, 'w') as out_file:
+                out_file.write(self.command)
+            os.chmod(shell_script, 0o775)
+            self.command = shell_script
 
     def run(self):
         rc = 1
