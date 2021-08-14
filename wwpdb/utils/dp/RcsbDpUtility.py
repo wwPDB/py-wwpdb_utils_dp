@@ -4342,6 +4342,7 @@ class RcsbDpUtility(object):
                 command=command,
                 job_name=job_name,
                 log_dir=os.path.dirname(lPathFull),
+                run_dir=self.__tmpPath,
                 timeout=self.__timeout,
                 number_of_processors=self.__numThreads,
                 memory_limit=self.__startingMemory,
