@@ -166,7 +166,7 @@ class RunRemote:
     def run_command(self, command, log_file=None, new_env=None):
         # command_list = shlex.split(command)
         logging.info("Starting: %s", self.job_name)
-        logging.debug(command)
+        logging.info(command)
         if log_file:
             logging.info("logging to: {}".format(log_file))  # pylint: disable=logging-format-interpolation
             if not os.path.exists(os.path.dirname(log_file)):
@@ -232,6 +232,13 @@ class RunRemote:
             bsub_command.append("'")
 
         command_string = " ".join(bsub_command)
+
+        if self.run_dir:
+            shell_script = os.path.join(self.run_dir, 'bsub_command_{}.sh'.format(self.job_name))
+            with open(shell_script, 'w') as out_file:
+                out_file.write(command_string)
+            os.chmod(shell_script, 0o775)
+
         rc, out, err = self.run_command(command=command_string)
 
         return rc, out, err
