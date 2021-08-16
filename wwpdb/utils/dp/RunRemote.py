@@ -145,7 +145,7 @@ class RunRemote:
 
     def prefix_command(self):
         if self.command_prefix:
-            self.command = self.command_prefix + " " + self.command
+            self.command = "{} {}".format(self.command_prefix, self.command)
 
     def check_bsub_finished(self):
         # pause to allow system to write out bsub out file.
