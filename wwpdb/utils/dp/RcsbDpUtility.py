@@ -342,6 +342,7 @@ class RcsbDpUtility(object):
             "annot-convert-close-contact-to-link",
             "em-density-bcif",
             "xray-density-bcif",
+            "centre-of-mass",
         ]
 
         self.__sequenceOps = ["seq-blastp", "seq-blastn", "fetch-uniprot", "fetch-gb", "format-uniprot", "format-gb", "backup-seqdb"]
@@ -349,7 +350,7 @@ class RcsbDpUtility(object):
         self.__dbOps = ["db-loader"]
         self.__emOps = [
             "mapfix-big",
-            "em2em-spider",
+            "em2em-spider",s
             "fsc_check",
             "img-convert",
             "annot-read-map-header",
@@ -1430,6 +1431,17 @@ class RcsbDpUtility(object):
             cmd += "; {}".format(self.__site_config_command)
 
             cmd += " ; python -m wwpdb.utils.dp.electron_density.x_ray_density_map {}".format(" ".join(cmd_args))
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
+
+        elif op == "centre-of-mass":
+            cmd_args = [
+                "--model-file-in {}".format(iPath),
+                "--model-file-out {}".format(oPath)
+            ]
+
+            cmd += "; {}".format(self.__site_config_command)
+
+            cmd += " ; python -m wwpdb.utils.dp.CentreOfMass {}".format(" ".join(cmd_args))
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
 
         elif op == "annot-dcc-report":
