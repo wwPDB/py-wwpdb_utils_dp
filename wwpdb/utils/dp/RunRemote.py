@@ -233,11 +233,11 @@ class RunRemote:
 
         command_string = " ".join(bsub_command)
 
-        if self.run_dir:
-            shell_script = os.path.join(self.run_dir, 'bsub_command_{}.sh'.format(self.job_name))
-            with open(shell_script, 'w') as out_file:
-                out_file.write(command_string)
-            os.chmod(shell_script, 0o775)
+        #if self.run_dir:
+        #    shell_script = os.path.join(self.run_dir, 'bsub_command_{}.sh'.format(self.job_name))
+        #    with open(shell_script, 'w') as out_file:
+        #        out_file.write(command_string)
+        #    os.chmod(shell_script, 0o775)
 
         rc, out, err = self.run_command(command=command_string)
 
