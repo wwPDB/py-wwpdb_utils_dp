@@ -297,9 +297,10 @@ class RunRemote:
 
         # error codes
         # 0 everything is ok
+        # 143 memory limit reached
         # 159/153 file too large - need additional resources, trying again wont help
         # 255 is ssh connection dropped so task is still ongoing - this is also when lsf is not ready
-        allowed_codes = (0, 153, 159)
+        allowed_codes = (0, 143, 153, 159)
 
         while i < 10:
             rc, out, err = self.launch_bsub()
