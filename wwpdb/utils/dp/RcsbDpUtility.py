@@ -350,7 +350,7 @@ class RcsbDpUtility(object):
         self.__dbOps = ["db-loader"]
         self.__emOps = [
             "mapfix-big",
-            "em2em-spider",s
+            "em2em-spider",
             "fsc_check",
             "img-convert",
             "annot-read-map-header",
