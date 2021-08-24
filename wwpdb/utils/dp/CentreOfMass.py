@@ -8,18 +8,21 @@ from wwpdb.utils.config.ConfigInfo import getSiteId
 
 logger = logging.getLogger()
 
+
 def get_model_file(depid, version_id, mileStone=None):
     pi = PathInfo(siteId=getSiteId(), sessionPath='.', verbose=True, log=sys.stderr)
     mmcif = pi.getModelPdbxFilePath(dataSetId=depid, fileSource='archive',
-                            versionId=version_id, mileStone=mileStone)
-    logging.debug("mmcif file path: %s" % mmcif)
+                                    versionId=version_id, mileStone=mileStone)
+    logging.debug("mmcif file path: %s", mmcif)
     return mmcif
+
 
 def get_center_of_mass(data_block):
     st = gemmi.make_structure_from_block(data_block)
     model = st[0]
     center_of_mass = model.calculate_center_of_mass()
     return center_of_mass
+
 
 def get_deposition_ids(file):
     deposition_ids = []
@@ -28,9 +31,10 @@ def get_deposition_ids(file):
             deposition_ids.append(line.strip())
     return deposition_ids
 
+
 def process_entry(file_in, file_out):
     try:
-        cif_file = gemmi.cif.read(file_in)
+        cif_file = gemmi.cif.read(file_in)  # pylint: disable=no-member
         data_block = cif_file[0]
     except Exception as e:
         logger.error("Failed to read cif file in Gemmi")
@@ -43,7 +47,7 @@ def process_entry(file_in, file_out):
             'pdbx_center_of_mass_y': [com.y],
             'pdbx_center_of_mass_z': [com.z]
             }
-    logging.info("Writing mmcif file: %s"  % file_out)
+    logging.info("Writing mmcif file: %s", file_out)
     try:
         data_block.set_mmcif_category('_struct.', data)
         cif_file.write_file(file_out)
@@ -53,17 +57,18 @@ def process_entry(file_in, file_out):
         return 1
     return 0
 
+
 def calculate_for_list():
     logging.info("Calculating for list of entries")
     deposition_ids = get_deposition_ids(args.list)
     failed_dep_ids = []
     for depid in deposition_ids:
-        logging.info("Calculating for Dep ID: %s " % depid)
+        logging.info("Calculating for Dep ID: %s ", depid)
         latest_model = get_model_file(depid, 'latest')
         next_model = get_model_file(depid, 'next')
-        result = process_entry(latest_model, next_model )
+        result = process_entry(latest_model, next_model)
         if result:
-            logger.info("Failed to Calculate Centre of Mass for %s " % depid)
+            logger.info("Failed to Calculate Centre of Mass for %s", depid)
             failed_dep_ids.append(depid)
     return failed_dep_ids
 
@@ -74,18 +79,18 @@ def calculate_for_file():
     if result:
         logger.info("Failed to Calculate Centre of Mass")
 
+
 def main():
     if args.list and os.path.isfile(args.list):
         failures = calculate_for_list()
         if len(failures) > 0:
-            logger.info("Failed Dep Ids: \n%s" % '\n'.join(failures))
+            logger.info("Failed Dep Ids: \n%s", '\n'.join(failures))
 
     elif os.path.isfile(args.model_file_in):
         calculate_for_file()
     else:
         logger.error("Input model file doesn't exists")
         return 1
-
 
 
 if '__main__' in __name__:
