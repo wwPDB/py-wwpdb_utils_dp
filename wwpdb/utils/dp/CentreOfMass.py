@@ -54,7 +54,7 @@ def process_entry(file_in, file_out):
     return 0
 
 def calculate_for_list():
-    logging.info("Calculating for a list of entries")
+    logging.info("Calculating for list of entries")
     deposition_ids = get_deposition_ids(args.list)
     failed_dep_ids = []
     for depid in deposition_ids:
