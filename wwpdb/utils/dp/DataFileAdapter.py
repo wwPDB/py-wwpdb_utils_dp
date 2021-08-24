@@ -33,8 +33,8 @@ from wwpdb.utils.dp.RcsbDpUtility import RcsbDpUtility
 
 
 class DataFileAdapter(object):
-    """  Convenience methods to manage data model and structure factor format conversions.
-    """
+    """Convenience methods to manage data model and structure factor format conversions."""
+
     def __init__(self, reqObj, verbose=False, log=sys.stderr):
         self.__reqObj = reqObj
         self.__verbose = verbose
@@ -46,18 +46,17 @@ class DataFileAdapter(object):
         self.__sessionPath = self.__sObj.getPath()
 
     def pdbx2nmrstar(self, inpPath, outPath, pdbId=None):
-        """  PDBx to NMRSTAR
-        """
+        """PDBx to NMRSTAR"""
         try:
             dp = RcsbDpUtility(tmpPath=self.__sessionPath, siteId=self.__siteId, verbose=self.__verbose, log=self.__lfh)
             dp.imp(inpPath)
-            if (pdbId is not None):
-                dp.addInput(name="pdb_id", value=pdbId, type='param')
+            if pdbId is not None:
+                dp.addInput(name="pdb_id", value=pdbId, type="param")
             dp.op("annot-pdbx2nmrstar")
             logPath = os.path.join(self.__sessionPath, "annot-pdbx2nmrstar.log")
             dp.expLog(logPath)
             dp.exp(outPath)
-            if (not self.__debug):
+            if not self.__debug:
                 dp.cleanup()
         except:  # noqa: E722 pylint: disable=bare-except
             traceback.print_exc(file=self.__lfh)
@@ -66,8 +65,7 @@ class DataFileAdapter(object):
         return True
 
     def rcsb2Pdbx(self, inpPath, outPath, stripFlag=False, stripEntityFlag=False):
-        """  RCSB CIF -> PDBx conversion  (Using the smaller application in the annotation package)
-        """
+        """RCSB CIF -> PDBx conversion  (Using the smaller application in the annotation package)"""
         try:
             dp = RcsbDpUtility(tmpPath=self.__sessionPath, siteId=self.__siteId, verbose=self.__verbose, log=self.__lfh)
             dp.imp(inpPath)
@@ -83,7 +81,7 @@ class DataFileAdapter(object):
             logPath = os.path.join(self.__sessionPath, "annot-rcsb2pdbx.log")
             dp.expLog(logPath)
             dp.exp(outPath)
-            if (not self.__debug):
+            if not self.__debug:
                 dp.cleanup()
         except:  # noqa: E722 pylint: disable=bare-except
             traceback.print_exc(file=self.__lfh)
@@ -92,8 +90,7 @@ class DataFileAdapter(object):
         return True
 
     def rcsb2PdbxWithPdbId(self, inpPath, outPath):
-        """  RCSB CIF -> PDBx conversion  (converting to PDB ID entry/datablock id.)
-        """
+        """RCSB CIF -> PDBx conversion  (converting to PDB ID entry/datablock id.)"""
         try:
             dp = RcsbDpUtility(tmpPath=self.__sessionPath, siteId=self.__siteId, verbose=self.__verbose, log=self.__lfh)
             dp.imp(inpPath)
@@ -101,7 +98,7 @@ class DataFileAdapter(object):
             logPath = os.path.join(self.__sessionPath, "annot-rcsb2pdbx.log")
             dp.expLog(logPath)
             dp.exp(outPath)
-            if (not self.__debug):
+            if not self.__debug:
                 dp.cleanup()
         except:  # noqa: E722 pylint: disable=bare-except
             traceback.print_exc(file=self.__lfh)
@@ -110,8 +107,7 @@ class DataFileAdapter(object):
         return True
 
     def rcsb2PdbxWithPdbIdAlt(self, inpPath, outPath):
-        """  RCSB CIF -> PDBx conversion  (converting to PDB ID entry/datablock id.)
-        """
+        """RCSB CIF -> PDBx conversion  (converting to PDB ID entry/datablock id.)"""
         try:
             dp = RcsbDpUtility(tmpPath=self.__sessionPath, siteId=self.__siteId, verbose=self.__verbose, log=self.__lfh)
             dp.imp(inpPath)
@@ -119,7 +115,7 @@ class DataFileAdapter(object):
             logPath = os.path.join(self.__sessionPath, "annot-rcsb2pdbxalt.log")
             dp.expLog(logPath)
             dp.exp(outPath)
-            if (not self.__debug):
+            if not self.__debug:
                 dp.cleanup()
         except:  # noqa: E722 pylint: disable=bare-except
             traceback.print_exc(file=self.__lfh)
@@ -128,8 +124,7 @@ class DataFileAdapter(object):
         return True
 
     def rcsbEps2Pdbx(self, inpPath, outPath, stripFlag=False, stripEntityFlag=False):
-        """  RCSB CIFEPS -> PDBx conversion (This still requires using the full maxit application)
-        """
+        """RCSB CIFEPS -> PDBx conversion (This still requires using the full maxit application)"""
         try:
             dp = RcsbDpUtility(tmpPath=self.__sessionPath, siteId=self.__siteId, verbose=self.__verbose, log=self.__lfh)
             dp.imp(inpPath)
@@ -144,7 +139,7 @@ class DataFileAdapter(object):
             logPath = os.path.join(self.__sessionPath, "annot-rcsbeps2pdbx.log")
             dp.expLog(logPath)
             dp.exp(outPath)
-            if (not self.__debug):
+            if not self.__debug:
                 dp.cleanup()
         except:  # noqa: E722 pylint: disable=bare-except
             traceback.print_exc(file=self.__lfh)
@@ -153,8 +148,7 @@ class DataFileAdapter(object):
         return True
 
     def cif2Pdb(self, inpPath, outPath):
-        """   CIF -> PDB conversion  (Using the smaller application in the annotation package)
-        """
+        """CIF -> PDB conversion  (Using the smaller application in the annotation package)"""
         try:
             dp = RcsbDpUtility(tmpPath=self.__sessionPath, siteId=self.__siteId, verbose=self.__verbose, log=self.__lfh)
             dp.imp(inpPath)
@@ -162,7 +156,7 @@ class DataFileAdapter(object):
             logPath = os.path.join(self.__sessionPath, "annot-cif2pdb.log")
             dp.expLog(logPath)
             dp.exp(outPath)
-            if (not self.__debug):
+            if not self.__debug:
                 dp.cleanup()
         except:  # noqa: E722 pylint: disable=bare-except
             traceback.print_exc(file=self.__lfh)
@@ -171,8 +165,7 @@ class DataFileAdapter(object):
         return True
 
     def cif2Pdbx(self, inpPath, outPath):
-        """   CIF -> PDBx conversion  (public subset with PDBid conversion)
-        """
+        """CIF -> PDBx conversion  (public subset with PDBid conversion)"""
         try:
             dp = RcsbDpUtility(tmpPath=self.__sessionPath, siteId=self.__siteId, verbose=self.__verbose, log=self.__lfh)
             dp.imp(inpPath)
@@ -180,7 +173,7 @@ class DataFileAdapter(object):
             logPath = os.path.join(self.__sessionPath, "annot-cif2pdbx.log")
             dp.expLog(logPath)
             dp.exp(outPath)
-            if (not self.__debug):
+            if not self.__debug:
                 dp.cleanup()
         except:  # noqa: E722 pylint: disable=bare-except
             traceback.print_exc(file=self.__lfh)
@@ -188,31 +181,30 @@ class DataFileAdapter(object):
         #
         return True
 
-    def modelConvertToPdbx(self, filePath=None, fileType='pdbx', pdbxFilePath=None):
-        """ Convert input model file format to PDBx.   Converted file is stored in the session
+    def modelConvertToPdbx(self, filePath=None, fileType="pdbx", pdbxFilePath=None):
+        """Convert input model file format to PDBx.   Converted file is stored in the session
         directory using standard file naming.
 
         Return True for success or False otherwise.
         """
         if self.__verbose:
-            self.__lfh.write("+DataFileAdapter.modelConvertToPdbx() filePath %s fileType %s pdbxFilePath %s\n" %
-                             (filePath, fileType, pdbxFilePath))
+            self.__lfh.write("+DataFileAdapter.modelConvertToPdbx() filePath %s fileType %s pdbxFilePath %s\n" % (filePath, fileType, pdbxFilePath))
         try:
             ok = False
             if filePath is None or pdbxFilePath is None:
                 return ok
             #
-            if (fileType in ['pdbx-mmcif', 'pdbx', 'pdbx-cif']):
-                if (filePath != pdbxFilePath):
+            if fileType in ["pdbx-mmcif", "pdbx", "pdbx-cif"]:
+                if filePath != pdbxFilePath:
                     shutil.copyfile(filePath, pdbxFilePath)
                 ok = True
-            elif (fileType == "rcsb-mmcif"):
+            elif fileType == "rcsb-mmcif":
                 ok = self.rcsb2Pdbx(filePath, pdbxFilePath, stripFlag=False)
-            elif (fileType == "rcsb-mmcif-strip"):
+            elif fileType == "rcsb-mmcif-strip":
                 ok = self.rcsb2Pdbx(filePath, pdbxFilePath, stripFlag=True)
-            elif (fileType == "rcsb-cifeps"):
+            elif fileType == "rcsb-cifeps":
                 ok = self.rcsbEps2Pdbx(filePath, pdbxFilePath, stripFlag=False)
-            elif (fileType == "rcsb-cifeps-strip"):
+            elif fileType == "rcsb-cifeps-strip":
                 ok = self.rcsbEps2Pdbx(filePath, pdbxFilePath, stripFlag=True)
                 #
             else:
@@ -222,9 +214,8 @@ class DataFileAdapter(object):
             traceback.print_exc(file=self.__lfh)
             return False
 
-    def pdbx2Assemblies(self, idCode, inpFilePath, outPath='.', indexFilePath=None):
-        """Create model assemby files from input PDBx model file.
-        """
+    def pdbx2Assemblies(self, idCode, inpFilePath, outPath=".", indexFilePath=None):
+        """Create model assemby files from input PDBx model file."""
         try:
             pdbxPath = inpFilePath
             logPath = os.path.join(self.__sessionPath, "pdbx-assembly.log")
@@ -232,11 +223,11 @@ class DataFileAdapter(object):
             #
             dp = RcsbDpUtility(tmpPath=self.__sessionPath, siteId=self.__siteId, verbose=self.__verbose, log=self.__lfh)
             dp.imp(pdbxPath)
-            if (idCode is not None):
-                dp.addInput(name="deposition_data_set_id", value=idCode, type='param')
+            if idCode is not None:
+                dp.addInput(name="deposition_data_set_id", value=idCode, type="param")
 
-            if (indexFilePath is not None):
-                dp.addInput(name="index_file_path", value=indexFilePath, type='param')
+            if indexFilePath is not None:
+                dp.addInput(name="index_file_path", value=indexFilePath, type="param")
 
             dp.op("annot-gen-assem-pdbx")
             dp.expLog(logPath)
@@ -250,7 +241,7 @@ class DataFileAdapter(object):
             # if (not self.__debug):
             #     dp.cleanup()
             #
-            if (self.__verbose):
+            if self.__verbose:
                 self.__lfh.write("+DataFileAdapter.pdbx2Assemblies() - input  model file path: %s\n" % inpFilePath)
                 self.__lfh.write("+DataFileAdapter.pdbx2Assemblies() - assembly output paths:  %r\n" % pthList)
             return True
@@ -259,10 +250,8 @@ class DataFileAdapter(object):
             traceback.print_exc(file=self.__lfh)
             return False
 
-    def mtz2Pdbx(self, mtzFilePath, outSfFilePath, pdbxFilePath=None, logFilePath=None,
-                 diagsFilePath=None, dumpFilePath=None, timeout=120):  # pylint: disable=unused-argument
-        """ Convert input MTZ format to PDBx sf file.
-        """
+    def mtz2Pdbx(self, mtzFilePath, outSfFilePath, pdbxFilePath=None, logFilePath=None, diagsFilePath=None, dumpFilePath=None, timeout=120):  # pylint: disable=unused-argument
+        """Convert input MTZ format to PDBx sf file."""
         try:
             diagfn = logFilePath if logFilePath is not None else "sf-convert-diags.cif"
             dmpfn = dumpFilePath if dumpFilePath is not None else "sf-convert-mtzdmp.log"
@@ -276,7 +265,7 @@ class DataFileAdapter(object):
             dp.expLog(logFilePath)
             dp.expList(dstPathList=[outSfFilePath, diagfn, dmpfn])
 
-            if (not self.__debug):
+            if not self.__debug:
                 dp.cleanup()
             return True
         except:  # noqa: E722 pylint: disable=bare-except

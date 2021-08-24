@@ -27,7 +27,7 @@ logger = logging.getLogger(__name__)
 
 
 class ValidationWrapper(RcsbDpUtility):
-    def __init__(self, tmpPath="/scratch", siteId='DEV', verbose=False, log=sys.stderr):
+    def __init__(self, tmpPath="/scratch", siteId="DEV", verbose=False, log=sys.stderr):
         logger.debug("Starting")
         super(ValidationWrapper, self).__init__(tmpPath=tmpPath, siteId=siteId, verbose=verbose, log=log)
         self.__op = None
@@ -40,13 +40,13 @@ class ValidationWrapper(RcsbDpUtility):
         if not self.__modelfile:
             return None
         io = IoAdapterCore()
-        cont = io.readFile(self.__modelfile, selectList=['database_2'])
+        cont = io.readFile(self.__modelfile, selectList=["database_2"])
         if cont:
             block = cont[0]
-            catObj = block.getObj('database_2')
+            catObj = block.getObj("database_2")
             if catObj:
-                vals = catObj.selectValuesWhere('database_code', 'PDB', 'database_id')
-                if len(vals) > 0 and vals[0] and vals[0] and len(vals[0]) > 0 and vals[0] not in ['.', '?']:
+                vals = catObj.selectValuesWhere("database_code", "PDB", "database_id")
+                if len(vals) > 0 and vals[0] and vals[0] and len(vals[0]) > 0 and vals[0] not in [".", "?"]:
                     return vals[0]
 
         return None
@@ -82,7 +82,7 @@ class ValidationWrapper(RcsbDpUtility):
         basedst = dstPathList[0:7]
         outfosf = dstPathList[7]
         out2fosf = dstPathList[8]
-        mtzfile = os.path.join(self.getWorkingDir(), 'mapcoef.mtz')
+        mtzfile = os.path.join(self.getWorkingDir(), "mapcoef.mtz")
         basedst.append(mtzfile)
         ret = super(ValidationWrapper, self).expList(basedst)
 
@@ -93,9 +93,9 @@ class ValidationWrapper(RcsbDpUtility):
             return False
 
         pdbid = self.__getPDBId()
-        logger.info('pdbID %s', pdbid)
+        logger.info("pdbID %s", pdbid)
         if not pdbid:
-            pdbid = 'xxxx'
+            pdbid = "xxxx"
 
         psm = PdbxSFMapCoefficients(siteid=self.__siteId, tmppath=self._tmppath)
         ret = psm.read_mtz_sf(mtzfile)
