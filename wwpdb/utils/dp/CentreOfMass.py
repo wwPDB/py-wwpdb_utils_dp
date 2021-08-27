@@ -43,13 +43,16 @@ def process_entry(file_in, file_out):
 
     logging.info("Finding Centre of Mass")
     com = get_center_of_mass(data_block)
-    data = {'pdbx_center_of_mass_x': [com.x],
+    existing_data = data_block.get_mmcif_category('_struct.')
+    new_data = {
+            **existing_data,
+            'pdbx_center_of_mass_x': [com.x],
             'pdbx_center_of_mass_y': [com.y],
             'pdbx_center_of_mass_z': [com.z]
             }
     logging.info("Writing mmcif file: %s", file_out)
     try:
-        data_block.set_mmcif_category('_struct.', data)
+        data_block.set_mmcif_category('_struct.', new_data)
         cif_file.write_file(file_out)
     except Exception as e:
         logger.error("Failed to write cif file in Gemmi")
