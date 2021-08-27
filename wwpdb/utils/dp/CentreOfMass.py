@@ -45,11 +45,11 @@ def process_entry(file_in, file_out):
     com = get_center_of_mass(data_block)
     existing_data = data_block.get_mmcif_category('_struct.')
     new_data = {
-            **existing_data,
-            'pdbx_center_of_mass_x': [com.x],
-            'pdbx_center_of_mass_y': [com.y],
-            'pdbx_center_of_mass_z': [com.z]
-            }
+        **existing_data,
+        'pdbx_center_of_mass_x': [com.x],
+        'pdbx_center_of_mass_y': [com.y],
+        'pdbx_center_of_mass_z': [com.z]
+    }
     logging.info("Writing mmcif file: %s", file_out)
     try:
         data_block.set_mmcif_category('_struct.', new_data)
