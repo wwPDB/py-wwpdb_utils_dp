@@ -41,7 +41,9 @@ class RunRemote:
         self.bsub_timeout = self.cI.get("BSUB_TIMEOUT")
         self.bsub_retry_delay = self.cI.get("BSUB_RETRY_DELAY", 4)
         self.command_prefix = self.cI.get('REMOTE_COMMAND_PREFIX')
+        bsub_run_dir = run_dir if run_dir else log_dir
         self.bsub_log_file = os.path.join(self.log_dir, self.job_name + ".log")
+        self.bsub_in_file = os.path.join(bsub_run_dir, self.job_name + ".in")
         self.bsub_out_file = os.path.join(self.log_dir, self.job_name + ".out")
         self.add_site_config = add_site_config
         self.add_site_config_database = add_site_config_database
@@ -205,6 +207,9 @@ class RunRemote:
         if os.path.exists(self.bsub_out_file):
             os.remove(self.bsub_out_file)
 
+        if os.path.exists(self.bsub_in_file):
+            os.remove(self.bsub_in_file)
+
         bsub_command = list()
         if self.bsub_login_node:
             bsub_command.append("ssh {} '".format(self.bsub_login_node))
@@ -212,6 +217,7 @@ class RunRemote:
             bsub_command.append("{};".format(self.bsub_source_command))
         bsub_command.append(self.bsub_run_command)
         bsub_command.append("-J {}".format(self.job_name))
+        bsub_command.append('-E "touch {}'.format(self.bsub_in_file))
         bsub_command.append("-oo {}".format(self.bsub_log_file))
         bsub_command.append("-eo {}/{}_error.log".format(self.log_dir, self.job_name))
         bsub_command.append('-Ep "touch {}"'.format(self.bsub_out_file))
