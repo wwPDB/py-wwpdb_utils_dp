@@ -217,7 +217,7 @@ class RunRemote:
             bsub_command.append("{};".format(self.bsub_source_command))
         bsub_command.append(self.bsub_run_command)
         bsub_command.append("-J {}".format(self.job_name))
-        bsub_command.append('-E "touch {}'.format(self.bsub_in_file))
+        bsub_command.append('-E "touch {}"'.format(self.bsub_in_file))
         bsub_command.append("-oo {}".format(self.bsub_log_file))
         bsub_command.append("-eo {}/{}_error.log".format(self.log_dir, self.job_name))
         bsub_command.append('-Ep "touch {}"'.format(self.bsub_out_file))
