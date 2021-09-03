@@ -59,7 +59,7 @@ class RunRemote:
         return command
 
     def write_run_script(self):
-        self.command = self.escape_substitution(self.command)
+        # self.command = self.escape_substitution(self.command)
         if self.run_dir:
             shell_script = os.path.join(self.run_dir, 'run_{}.sh'.format(self.job_name))
             with open(shell_script, 'w') as out_file:
