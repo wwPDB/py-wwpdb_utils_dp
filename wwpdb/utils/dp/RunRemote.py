@@ -18,7 +18,8 @@ class RunRemote:
                  number_of_processors=1,
                  add_site_config=False,
                  add_site_config_database=False):
-        self.command = self.escape_substitution(command)
+        # self.command = self.escape_substitution(command)
+        self.command = command
         if timeout:
             self.timeout = timeout
         else:
