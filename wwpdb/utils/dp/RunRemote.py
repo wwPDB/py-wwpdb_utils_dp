@@ -137,7 +137,7 @@ class RunRemote:
     def get_site_config_command(self, suffix=""):
         site_config_path = self.cI.get("TOP_WWPDB_SITE_CONFIG_DIR")
         site_loc = self.cI.get("WWPDB_SITE_LOC")
-        site_config_command = ". {}/init/env.sh --siteid {} --location {} {} > /dev/null;".format(site_config_path, self.siteId, site_loc, suffix)
+        site_config_command = ". {}/init/env.sh --siteid {} --location {} {} > /dev/null".format(site_config_path, self.siteId, site_loc, suffix)
         return site_config_command
 
     def pre_pend_sourcing_site_config(self, database=False):
