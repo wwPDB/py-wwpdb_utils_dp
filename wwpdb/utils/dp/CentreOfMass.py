@@ -13,7 +13,7 @@ logger = logging.getLogger()
 
 def get_model_file(depid, version_id, mileStone=None, siteId=None):
     if siteId is None:
-        siteId = getSiteId
+        siteId = getSiteId()
     pi = PathInfo(siteId, sessionPath='.', verbose=True, log=sys.stderr)
     mmcif = pi.getModelPdbxFilePath(dataSetId=depid, fileSource='archive',
                                     versionId=version_id, mileStone=mileStone)
