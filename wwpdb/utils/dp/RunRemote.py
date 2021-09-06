@@ -284,6 +284,7 @@ class RunRemote:
                             logging.error(e)
 
                     if "TERM_MEMLIMIT" in l:
+                        logging.info('task killed due to hitting memory limit')
                         self.bsub_exit_status = 1
         if self.memory_unit == "GB":
             self.memory_unit = "MB"
