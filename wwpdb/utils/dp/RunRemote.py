@@ -184,6 +184,7 @@ class RunRemote:
         rc = child.returncode
         if rc != 0:
             logging.error("Exit status: %s - process failed: %s", rc, self.job_name)
+            logging.error(command)
         else:
             logging.info("process worked: %s", self.job_name)
 
