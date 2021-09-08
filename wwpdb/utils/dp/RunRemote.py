@@ -59,10 +59,13 @@ class RunRemote:
         command = command.replace("$", "\$")  # noqa: W605 pylint: disable=anomalous-backslash-in-string
         return command
 
+    def get_shell_script(self):
+        return os.path.join(self.run_dir, 'run_{}.sh'.format(self.job_name))
+
     def write_run_script(self):
         # self.command = self.escape_substitution(self.command)
         if self.run_dir:
-            shell_script = os.path.join(self.run_dir, 'run_{}.sh'.format(self.job_name))
+            shell_script = self.get_shell_script()
             with open(shell_script, 'w') as out_file:
                 out_file.write(self.command)
             os.chmod(shell_script, 0o775)
@@ -107,6 +110,12 @@ class RunRemote:
             logging.error("error: {}".format(self.err))  # pylint: disable=logging-format-interpolation
         else:
             logging.info("worked")
+            if os.path.exists(self.bsub_in_file):
+                os.remove(self.bsub_in_file)
+            if os.path.exists(self.bsub_out_file):
+                os.remove(self.bsub_out_file)
+            if os.path.exists(self.get_shell_script()):
+                os.remove(self.get_shell_script())
 
         return rc
 
