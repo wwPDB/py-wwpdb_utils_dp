@@ -18,7 +18,8 @@ class RunRemote:
                  number_of_processors=1,
                  add_site_config=False,
                  add_site_config_database=False):
-        self.command = self.escape_substitution(command)
+        # self.command = self.escape_substitution(command)
+        self.command = command
         if timeout:
             self.timeout = timeout
         else:
@@ -41,7 +42,9 @@ class RunRemote:
         self.bsub_timeout = self.cI.get("BSUB_TIMEOUT")
         self.bsub_retry_delay = self.cI.get("BSUB_RETRY_DELAY", 4)
         self.command_prefix = self.cI.get('REMOTE_COMMAND_PREFIX')
+        bsub_run_dir = run_dir if run_dir else log_dir
         self.bsub_log_file = os.path.join(self.log_dir, self.job_name + ".log")
+        self.bsub_in_file = os.path.join(bsub_run_dir, self.job_name + ".in")
         self.bsub_out_file = os.path.join(self.log_dir, self.job_name + ".out")
         self.add_site_config = add_site_config
         self.add_site_config_database = add_site_config_database
@@ -56,10 +59,13 @@ class RunRemote:
         command = command.replace("$", "\$")  # noqa: W605 pylint: disable=anomalous-backslash-in-string
         return command
 
+    def get_shell_script(self):
+        return os.path.join(self.run_dir, 'run_{}.sh'.format(self.job_name))
+
     def write_run_script(self):
-        self.command = self.escape_substitution(self.command)
+        # self.command = self.escape_substitution(self.command)
         if self.run_dir:
-            shell_script = os.path.join(self.run_dir, 'run_{}.sh'.format(self.job_name))
+            shell_script = self.get_shell_script()
             with open(shell_script, 'w') as out_file:
                 out_file.write(self.command)
             os.chmod(shell_script, 0o775)
@@ -104,6 +110,12 @@ class RunRemote:
             logging.error("error: {}".format(self.err))  # pylint: disable=logging-format-interpolation
         else:
             logging.info("worked")
+            if os.path.exists(self.bsub_in_file):
+                os.remove(self.bsub_in_file)
+            if os.path.exists(self.bsub_out_file):
+                os.remove(self.bsub_out_file)
+            if os.path.exists(self.get_shell_script()):
+                os.remove(self.get_shell_script())
 
         return rc
 
@@ -134,7 +146,7 @@ class RunRemote:
     def get_site_config_command(self, suffix=""):
         site_config_path = self.cI.get("TOP_WWPDB_SITE_CONFIG_DIR")
         site_loc = self.cI.get("WWPDB_SITE_LOC")
-        site_config_command = ". {}/init/env.sh --siteid {} --location {} {} > /dev/null;".format(site_config_path, self.siteId, site_loc, suffix)
+        site_config_command = ". {}/init/env.sh --siteid {} --location {} {} > /dev/null".format(site_config_path, self.siteId, site_loc, suffix)
         return site_config_command
 
     def pre_pend_sourcing_site_config(self, database=False):
@@ -181,6 +193,9 @@ class RunRemote:
         rc = child.returncode
         if rc != 0:
             logging.error("Exit status: %s - process failed: %s", rc, self.job_name)
+            logging.error(command)
+            logging.error(out)
+            logging.error(err)
         else:
             logging.info("process worked: %s", self.job_name)
 
@@ -205,6 +220,9 @@ class RunRemote:
         if os.path.exists(self.bsub_out_file):
             os.remove(self.bsub_out_file)
 
+        if os.path.exists(self.bsub_in_file):
+            os.remove(self.bsub_in_file)
+
         bsub_command = list()
         if self.bsub_login_node:
             bsub_command.append("ssh {} '".format(self.bsub_login_node))
@@ -212,6 +230,7 @@ class RunRemote:
             bsub_command.append("{};".format(self.bsub_source_command))
         bsub_command.append(self.bsub_run_command)
         bsub_command.append("-J {}".format(self.job_name))
+        bsub_command.append('-E "touch {}"'.format(self.bsub_in_file))
         bsub_command.append("-oo {}".format(self.bsub_log_file))
         bsub_command.append("-eo {}/{}_error.log".format(self.log_dir, self.job_name))
         bsub_command.append('-Ep "touch {}"'.format(self.bsub_out_file))
@@ -274,6 +293,7 @@ class RunRemote:
                             logging.error(e)
 
                     if "TERM_MEMLIMIT" in l:
+                        logging.info('task killed due to hitting memory limit')
                         self.bsub_exit_status = 1
         if self.memory_unit == "GB":
             self.memory_unit = "MB"
@@ -297,10 +317,11 @@ class RunRemote:
 
         # error codes
         # 0 everything is ok
+        # 130 memory limit reached
         # 143 memory limit reached
         # 159/153 file too large - need additional resources, trying again wont help
         # 255 is ssh connection dropped so task is still ongoing - this is also when lsf is not ready
-        allowed_codes = (0, 143, 153, 159)
+        allowed_codes = (0, 130, 143, 153, 159)
 
         while i < 10:
             rc, out, err = self.launch_bsub()
