@@ -60,7 +60,9 @@ class RunRemote:
         return command
 
     def get_shell_script(self):
-        return os.path.join(self.run_dir, 'run_{}.sh'.format(self.job_name))
+        if self.run_dir:
+            return os.path.join(self.run_dir, 'run_{}.sh'.format(self.job_name))
+        return None
 
     def write_run_script(self):
         # self.command = self.escape_substitution(self.command)
@@ -114,8 +116,9 @@ class RunRemote:
                 os.remove(self.bsub_in_file)
             if os.path.exists(self.bsub_out_file):
                 os.remove(self.bsub_out_file)
-            if os.path.exists(self.get_shell_script()):
-                os.remove(self.get_shell_script())
+            if self.get_shell_script():
+                if os.path.exists(self.get_shell_script()):
+                    os.remove(self.get_shell_script())
 
         return rc
 
