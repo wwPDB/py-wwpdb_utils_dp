@@ -255,12 +255,6 @@ class RunRemote:
 
         command_string = " ".join(bsub_command)
 
-        # if self.run_dir:
-        #     shell_script = os.path.join(self.run_dir, 'bsub_command_{}.sh'.format(self.job_name))
-        #     with open(shell_script, 'w') as out_file:
-        #         out_file.write(command_string)
-        #     os.chmod(shell_script, 0o775)
-
         rc, out, err = self.run_command(command=command_string)
 
         return rc, out, err
@@ -312,12 +306,13 @@ class RunRemote:
         if not os.path.exists(self.log_dir):
             os.makedirs(self.log_dir)
 
-        temp_file = os.path.join(self.log_dir, "bsub_temp_file.out")
+        temp_file = os.path.join(self.run_dir, "bsub_temp_file.out")
 
         # if get non ok exit status from bsub then wait 30 seconds and try again.
         i = 0
         rc, out, err = 0, None, None
 
+        """
         # error codes
         # 0 everything is ok
         # 130 memory limit reached
@@ -337,9 +332,14 @@ class RunRemote:
 
         if rc not in allowed_codes:
             return rc, out, err
+        """
 
+        # ensure NFS cache doesn't cause issues
         self.touch(temp_file)
-        self.check_bsub_finished()
+        os.remove(temp_file)
+        time.sleep(5)
+
+        # self.check_bsub_finished()
         self.parse_bsub_log()
 
         return rc, out, err
