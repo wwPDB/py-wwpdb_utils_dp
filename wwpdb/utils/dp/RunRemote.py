@@ -295,6 +295,7 @@ class RunRemote:
                                 self.memory_used = int(memory_used.split(" ")[0])
                         except Exception as e:
                             logging.error(e)
+                            logging.error(log_file_line)
 
                     if "TERM_MEMLIMIT" in log_file_line:
                         logging.info('task killed due to hitting memory limit')
@@ -305,6 +306,7 @@ class RunRemote:
                             self.time_taken = int(time_taken.split(" ")[0])
                         except Exception as e:
                             logging.error(e)
+                            logging.error(log_file_line)
         if self.memory_unit == "GB":
             self.memory_unit = "MB"
             self.memory_used = self.memory_used * 1024
