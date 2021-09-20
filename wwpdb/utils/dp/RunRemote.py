@@ -220,8 +220,8 @@ class RunRemote:
         # logging.info("Timing: %s took %s" %(name, ht[0]))
         logging.info("Finished: %s %s", self.job_name, ht[1])
 
-        if not self.was_executed(job_log_string=out):
-            logging.error('Error: task was not executed')
+        if not self.check_was_submitted(job_log_string=str(out)):
+            logging.error('Error: task was not submitted')
             return 255, out, err
 
         return rc, out, err
@@ -229,7 +229,7 @@ class RunRemote:
     @staticmethod
     def check_was_submitted(job_log_string):
         logging.info(job_log_string)
-        if "was submitted" in job_log_string:
+        if "is submitted to queue" in job_log_string:
             return True
         return False
 
