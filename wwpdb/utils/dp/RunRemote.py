@@ -301,7 +301,10 @@ class RunRemote:
                         self.bsub_exit_status = 1
                     if "Turnaround time" in log_file_line:
                         time_taken = log_file_line.split(":")[-1].strip()
-                        self.time_taken = int(time_taken.split(" ")[0])
+                        try:
+                            self.time_taken = int(time_taken.split(" ")[0])
+                        except Exception as e:
+                            logging.error(e)
         if self.memory_unit == "GB":
             self.memory_unit = "MB"
             self.memory_used = self.memory_used * 1024
