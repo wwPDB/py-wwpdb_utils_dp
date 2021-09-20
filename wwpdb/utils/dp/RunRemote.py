@@ -210,7 +210,7 @@ class RunRemote:
             with open(log_file, "wb") as lf:
                 if out:
                     lf.write(out)
-                    # logging.info(out)
+                    logging.info(out)
                 if err:
                     lf.write(err)
                     logging.error(err)
@@ -220,7 +220,23 @@ class RunRemote:
         # logging.info("Timing: %s took %s" %(name, ht[0]))
         logging.info("Finished: %s %s", self.job_name, ht[1])
 
+        if not self.was_executed(job_log_string=out):
+            logging.error('Error: task was not executed')
+            return 255, out, err
+
         return rc, out, err
+
+    @staticmethod
+    def check_was_submitted(job_log_string):
+        if "was submitted" in job_log_string:
+            return True
+        return False
+
+    @staticmethod
+    def was_executed(job_log_string):
+        if "Job was executed" in job_log_string:
+            return True
+        return False
 
     def launch_bsub(self):
 
