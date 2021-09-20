@@ -228,12 +228,14 @@ class RunRemote:
 
     @staticmethod
     def check_was_submitted(job_log_string):
+        logging.info(job_log_string)
         if "was submitted" in job_log_string:
             return True
         return False
 
     @staticmethod
     def was_executed(job_log_string):
+        logging.info(job_log_string)
         if "Job was executed" in job_log_string:
             return True
         return False
