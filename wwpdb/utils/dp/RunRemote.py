@@ -172,7 +172,7 @@ class RunRemote:
     def check_bsub_finished(self):
         # pause to allow system to write out bsub out file.
         i = 1
-        retry_times = 5
+        retry_times = 10
         while i < retry_times:
             if os.path.exists(self.bsub_out_file):
                 break
