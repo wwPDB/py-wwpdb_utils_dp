@@ -33,6 +33,7 @@ class RunRemote:
         self.memory_unit = "MB"
         self.time_taken = 0
         self.bsub_exit_status = 0
+        self.bsub_success = False
         self.siteId = getSiteId()
         self.cI = ConfigInfo(self.siteId)
         self.bsub_source_command = self.cI.get("BSUB_SOURCE")
@@ -301,10 +302,13 @@ class RunRemote:
         self.memory_used = 0
         self.memory_unit = "MB"
         self.time_taken = 0
+        self.bsub_success = False
         logging.info('reading: {}'.format(self.bsub_log_file))  # pylint: disable=logging-format-interpolation
         if os.path.exists(self.bsub_log_file):
             with open(self.bsub_log_file, "r") as log_file:
                 for log_file_line in log_file:
+                    if "Successfully completed." in log_file_line:
+                        self.bsub_success = True
                     if "Max Memory :" in log_file_line:
                         try:
                             memory_used = log_file_line.split(":")[-1].strip()
@@ -331,6 +335,8 @@ class RunRemote:
         elif self.memory_unit == "KB":
             self.memory_unit = "MB"
             self.memory_used = int(self.memory_used / 1024)
+        logging.info(
+            'Bsub successfully run: {}'.format(self.bsub_success))  # pylint: disable=logging-format-interpolation
         logging.info("memory used: {} {}".format(self.memory_used,
                                                  self.memory_unit))  # pylint: disable=logging-format-interpolation
         logging.info('Bsub time taken: {} secs'.format(self.time_taken))  # pylint: disable=logging-format-interpolation
