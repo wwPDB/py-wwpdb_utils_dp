@@ -31,6 +31,7 @@ class RunRemote:
         self.run_dir = run_dir
         self.memory_used = 0
         self.memory_unit = "MB"
+        self.time_taken = 0
         self.bsub_exit_status = 0
         self.siteId = getSiteId()
         self.cI = ConfigInfo(self.siteId)
@@ -217,7 +218,7 @@ class RunRemote:
         t2 = os.times()[4]
         ht = self.check_timing(t1, t2)
         # logging.info("Timing: %s took %s" %(name, ht[0]))
-        logging.info("Finished: %s, %s", self.job_name, ht[1])
+        logging.info("Finished: %s %s", self.job_name, ht[1])
 
         return rc, out, err
 
@@ -281,6 +282,7 @@ class RunRemote:
         self.bsub_exit_status = 0
         self.memory_used = 0
         self.memory_unit = "MB"
+        self.time_taken = 0
         logging.info('reading: {}'.format(self.bsub_log_file))  # pylint: disable=logging-format-interpolation
         if os.path.exists(self.bsub_log_file):
             with open(self.bsub_log_file, "r") as log_file:
@@ -297,6 +299,9 @@ class RunRemote:
                     if "TERM_MEMLIMIT" in log_file_line:
                         logging.info('task killed due to hitting memory limit')
                         self.bsub_exit_status = 1
+                    if "Turnaround time" in log_file_line:
+                        time_taken = log_file_line.split(":")[-1].strip()
+                        self.time_taken = int(time_taken.split(" ")[0])
         if self.memory_unit == "GB":
             self.memory_unit = "MB"
             self.memory_used = self.memory_used * 1024
@@ -305,8 +310,9 @@ class RunRemote:
             self.memory_used = int(self.memory_used / 1024)
         logging.info("memory used: {} {}".format(self.memory_used,
                                                  self.memory_unit))  # pylint: disable=logging-format-interpolation
+        logging.info('Bsub time taken: {} secs'.format(self.time_taken))  # pylint: disable=logging-format-interpolation
         logging.info(
-            "bsub exit status: {}".format(self.bsub_exit_status))  # pylint: disable=logging-format-interpolation
+            "Bsub exit status: {}".format(self.bsub_exit_status))  # pylint: disable=logging-format-interpolation
 
     def run_bsub(self):
 
