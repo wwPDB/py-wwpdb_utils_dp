@@ -309,8 +309,8 @@ class RunRemote:
         temp_file = os.path.join(self.run_dir, "bsub_temp_file.out")
 
         # if get non ok exit status from bsub then wait 30 seconds and try again.
-        i = 0
-        rc, out, err = 0, None, None
+        # i = 0
+        # rc, out, err = 0, None, None
 
         """
         # error codes
@@ -333,6 +333,8 @@ class RunRemote:
         if rc not in allowed_codes:
             return rc, out, err
         """
+        # run command
+        rc, out, err = self.launch_bsub()
 
         # ensure NFS cache doesn't cause issues
         self.touch(temp_file)
