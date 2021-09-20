@@ -103,7 +103,8 @@ class RunRemote:
                 else:
                     self.memory_limit = self.memory_limit + 10000
                 bsub_try += 1
-                logging.info("try {}, memory {}".format(bsub_try, self.memory_limit))  # pylint: disable=logging-format-interpolation
+                logging.info("try {}, memory {}".format(bsub_try,
+                                                        self.memory_limit))  # pylint: disable=logging-format-interpolation
                 rc, self.out, self.err = self.run_bsub()
 
         if rc != 0:
@@ -149,7 +150,9 @@ class RunRemote:
     def get_site_config_command(self, suffix=""):
         site_config_path = self.cI.get("TOP_WWPDB_SITE_CONFIG_DIR")
         site_loc = self.cI.get("WWPDB_SITE_LOC")
-        site_config_command = ". {}/init/env.sh --siteid {} --location {} {} > /dev/null".format(site_config_path, self.siteId, site_loc, suffix)
+        site_config_command = ". {}/init/env.sh --siteid {} --location {} {} > /dev/null".format(site_config_path,
+                                                                                                 self.siteId, site_loc,
+                                                                                                 suffix)
         return site_config_command
 
     def pre_pend_sourcing_site_config(self, database=False):
@@ -164,19 +167,19 @@ class RunRemote:
 
     def check_bsub_finished(self):
         # pause to allow system to write out bsub out file.
-        time.sleep(5)
-        if not os.path.exists(self.bsub_out_file):
-            retries = 0
-            logging.info("bsub out file not present - waiting for bsub to finish")
-            max_num_of_retries = int(self.bsub_timeout) / int(self.bsub_retry_delay)
-            while retries < max_num_of_retries:
-                if os.path.exists(self.bsub_out_file):
-                    logging.info("found bsub out file")
-                    break
-                else:
-                    retries += 1
-                    logging.info("try {} of {}, wait for {} seconds".format(retries, max_num_of_retries, self.bsub_retry_delay))  # pylint: disable=logging-format-interpolation
-                    time.sleep(int(self.bsub_retry_delay))
+        i = 1
+        retry_times = 5
+        while i < retry_times:
+            if os.path.exists(self.bsub_out_file):
+                break
+            else:
+                delay_time = i * 2
+                logging.info(
+                    "bsub out file {} not present - waiting {}secs (try {} of {}) for bsub to finish".format(
+                        self.bsub_out_file, delay_time, i,
+                        retry_times))  # pylint: disable=logging-format-interpolation
+                time.sleep(delay_time)
+                i += 1
 
     def run_command(self, command, log_file=None, new_env=None):
         # command_list = shlex.split(command)
@@ -278,18 +281,20 @@ class RunRemote:
         self.bsub_exit_status = 0
         self.memory_used = 0
         self.memory_unit = "MB"
+        logging.info('reading: {}'.format(self.bsub_log_file))  # pylint: disable=logging-format-interpolation
         if os.path.exists(self.bsub_log_file):
             with open(self.bsub_log_file, "r") as log_file:
-                for l in log_file:  # noqa: E741
-                    if "Max Memory :" in l:
+                for log_file_line in log_file:
+                    if "Max Memory :" in log_file_line:
                         try:
-                            memory_used = l.split(":")[-1].strip()
-                            self.memory_unit = memory_used.split(" ")[1]
-                            self.memory_used = int(memory_used.split(" ")[0])
+                            memory_used = log_file_line.split(":")[-1].strip()
+                            if memory_used:
+                                self.memory_unit = memory_used.split(" ")[1]
+                                self.memory_used = int(memory_used.split(" ")[0])
                         except Exception as e:
                             logging.error(e)
 
-                    if "TERM_MEMLIMIT" in l:
+                    if "TERM_MEMLIMIT" in log_file_line:
                         logging.info('task killed due to hitting memory limit')
                         self.bsub_exit_status = 1
         if self.memory_unit == "GB":
@@ -298,8 +303,10 @@ class RunRemote:
         elif self.memory_unit == "KB":
             self.memory_unit = "MB"
             self.memory_used = int(self.memory_used / 1024)
-        logging.info("memory used: {} {}".format(self.memory_used, self.memory_unit))  # pylint: disable=logging-format-interpolation
-        logging.info("bsub exit status: {}".format(self.bsub_exit_status))  # pylint: disable=logging-format-interpolation
+        logging.info("memory used: {} {}".format(self.memory_used,
+                                                 self.memory_unit))  # pylint: disable=logging-format-interpolation
+        logging.info(
+            "bsub exit status: {}".format(self.bsub_exit_status))  # pylint: disable=logging-format-interpolation
 
     def run_bsub(self):
 
@@ -339,9 +346,9 @@ class RunRemote:
         # ensure NFS cache doesn't cause issues
         self.touch(temp_file)
         os.remove(temp_file)
-        time.sleep(5)
+        if rc != 1:
+            self.check_bsub_finished()
 
-        # self.check_bsub_finished()
         self.parse_bsub_log()
 
         return rc, out, err
@@ -349,7 +356,8 @@ class RunRemote:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("-d", "--debug", help="debugging", action="store_const", dest="loglevel", const=logging.DEBUG, default=logging.INFO)
+    parser.add_argument("-d", "--debug", help="debugging", action="store_const", dest="loglevel", const=logging.DEBUG,
+                        default=logging.INFO)
     parser.add_argument("--command", help="command to run", type=str, required=True)
     parser.add_argument("--job_name", help="name for the job", type=str, required=True)
     parser.add_argument("--log_dir", help="directory to store log file in", type=str, required=True)
@@ -357,7 +365,8 @@ if __name__ == "__main__":
     parser.add_argument("--memory_limit", help="starting memory limit", type=int, default=0)
     parser.add_argument("--num_processors", help="number of processors", type=int, default=1)
     parser.add_argument("--add_site_config", help="add site config to command", action="store_true")
-    parser.add_argument("--add_site_config_with_database", help="add site config with database to command", action="store_true")
+    parser.add_argument("--add_site_config_with_database", help="add site config with database to command",
+                        action="store_true")
 
     args = parser.parse_args()
     logger.setLevel(args.loglevel)
