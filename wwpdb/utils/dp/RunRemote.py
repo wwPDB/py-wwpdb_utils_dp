@@ -42,9 +42,9 @@ class RunRemote:
         self.bsub_timeout = self.cI.get("BSUB_TIMEOUT")
         self.bsub_retry_delay = self.cI.get("BSUB_RETRY_DELAY", 4)
         self.command_prefix = self.cI.get('REMOTE_COMMAND_PREFIX')
-        bsub_run_dir = run_dir if run_dir else log_dir
+        self.bsub_run_dir = run_dir if run_dir else log_dir
         self.bsub_log_file = os.path.join(self.log_dir, self.job_name + ".log")
-        self.bsub_in_file = os.path.join(bsub_run_dir, self.job_name + ".in")
+        self.bsub_in_file = os.path.join(self.bsub_run_dir, self.job_name + ".in")
         self.bsub_out_file = os.path.join(self.log_dir, self.job_name + ".out")
         self.add_site_config = add_site_config
         self.add_site_config_database = add_site_config_database
@@ -313,11 +313,11 @@ class RunRemote:
         if not os.path.exists(self.log_dir):
             os.makedirs(self.log_dir)
 
-        temp_file = os.path.join(self.run_dir, "bsub_temp_file.out")
+        temp_file = os.path.join(self.bsub_run_dir, "bsub_temp_file.out")
 
         # if get non ok exit status from bsub then wait 30 seconds and try again.
         # i = 0
-        # rc, out, err = 0, None, None
+        rc, out, err = 0, None, None
 
         """
         # error codes
@@ -327,21 +327,20 @@ class RunRemote:
         # 159/153 file too large - need additional resources, trying again wont help
         # 255 is ssh connection dropped so task is still ongoing - this is also when lsf is not ready
         allowed_codes = (0, 130, 143, 153, 159)
-
-        while i < 10:
-            rc, out, err = self.launch_bsub()
-            if rc in allowed_codes:
-                break
-            delay_time = i * 2
-            logging.info("bsub return code of {}. Waiting for {}".format(rc, delay_time))  # pylint: disable=logging-format-interpolation
-            time.sleep(delay_time)
-            i += 1
-
-        if rc not in allowed_codes:
-            return rc, out, err
         """
         # run command
-        rc, out, err = self.launch_bsub()
+        i = 0
+        lsf_not_ready_codes = [255]
+        while i < 5:
+            rc, out, err = self.launch_bsub()
+            if rc not in lsf_not_ready_codes:
+                break
+            else:
+                delay_time = i * 2
+                logging.info("bsub return code of {}. Waiting for {}".format(rc,
+                                                                             delay_time))  # pylint: disable=logging-format-interpolation
+                time.sleep(delay_time)
+                i += 1
 
         # ensure NFS cache doesn't cause issues
         self.touch(temp_file)
