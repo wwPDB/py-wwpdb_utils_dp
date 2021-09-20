@@ -54,7 +54,8 @@ class RunRemote:
         self.out = None
         self.err = None
 
-    def escape_substitution(self, command):
+    @staticmethod
+    def escape_substitution(command):
         """
         Escapes dollars, stops variables being interpretted early when passed to bsub.
         """
@@ -67,13 +68,14 @@ class RunRemote:
         return None
 
     def write_run_script(self):
-        # self.command = self.escape_substitution(self.command)
-        if self.run_dir:
-            shell_script = self.get_shell_script()
+        shell_script = self.get_shell_script()
+        if shell_script:
             with open(shell_script, 'w') as out_file:
                 out_file.write(self.command)
             os.chmod(shell_script, 0o775)
             self.command = shell_script
+        else:
+            self.command = self.escape_substitution(self.command)
 
     def run(self):
         rc = 1
