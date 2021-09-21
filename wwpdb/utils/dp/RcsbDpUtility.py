@@ -4235,17 +4235,19 @@ class RcsbDpUtility(object):
 
         elif op == "format-uniprot":
             cmd += " ; cd {}".format(seqDbNewPath)
+            cmd += " ; mkdir -p {}".format(seqDbPath)
             cmd += " ; rm -f my_*"
             cmd += " ; gunzip -c {}".format(" ".join(uniprot_files))
             cmd += "| {} -dbtype prot -parse_seqids -title my_uniprot_all -out my_uniprot_all -max_file_sz 2000000000".format(makeblastdb_command)
-            cmd += " ; mv my_* {}".format(seqDbPath)
+            cmd += " ; mv my_* {}/".format(seqDbPath)
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
 
         elif op == "format-gb":
             cmd += " ; cd {}".format(seqDbNewPath)
+            cmd += " ; mkdir -p {}".format(seqDbPath)
             cmd += " ; for fn in nt*.gz; do gzip -d -c $fn | tar xf -; done"
             cmd += " ; flist=`ls -1 {}/nt* | grep -v .gz`".format(seqDbNewPath)
-            cmd += " ; for fn in $flist; do mv $fn {}; done".format(seqDbPath)
+            cmd += " ; for fn in $flist; do mv $fn {}/; done".format(seqDbPath)
             cmd += " ; rm -f {}/my_ncbi_nt.nal".format(seqDbPath)
             cmd += " ; ln -s nt.nal {}/my_ncbi_nt.nal".format(seqDbPath)
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
