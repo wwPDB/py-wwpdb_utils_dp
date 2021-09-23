@@ -368,7 +368,8 @@ class RunRemote:
         """
         # run command
         i = 0
-        lsf_not_ready_codes = [255, 127]
+        lsf_not_ready_codes = [255]
+        task_failed_codes = [1, 127]
         while i < 5:
             rc, out, err = self.launch_bsub()
             if rc not in lsf_not_ready_codes:
@@ -383,7 +384,7 @@ class RunRemote:
         # ensure NFS cache doesn't cause issues
         self.touch(temp_file)
         os.remove(temp_file)
-        if rc != 1:
+        if rc not in task_failed_codes:
             self.check_bsub_finished()
 
         self.parse_bsub_log()
