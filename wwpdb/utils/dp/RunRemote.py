@@ -369,7 +369,8 @@ class RunRemote:
         # run command
         i = 0
         lsf_not_ready_codes = [255]
-        task_failed_codes = [1, 127]
+        # task_failed_codes = [1, 127]
+        task_failed_codes = [1]
         while i < 5:
             rc, out, err = self.launch_bsub()
             if rc not in lsf_not_ready_codes:
