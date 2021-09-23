@@ -31,7 +31,9 @@ class RunRemote:
         self.run_dir = run_dir
         self.memory_used = 0
         self.memory_unit = "MB"
+        self.time_taken = 0
         self.bsub_exit_status = 0
+        self.bsub_success = False
         self.siteId = getSiteId()
         self.cI = ConfigInfo(self.siteId)
         self.bsub_source_command = self.cI.get("BSUB_SOURCE")
@@ -42,9 +44,9 @@ class RunRemote:
         self.bsub_timeout = self.cI.get("BSUB_TIMEOUT")
         self.bsub_retry_delay = self.cI.get("BSUB_RETRY_DELAY", 4)
         self.command_prefix = self.cI.get('REMOTE_COMMAND_PREFIX')
-        bsub_run_dir = run_dir if run_dir else log_dir
+        self.bsub_run_dir = run_dir if run_dir else log_dir
         self.bsub_log_file = os.path.join(self.log_dir, self.job_name + ".log")
-        self.bsub_in_file = os.path.join(bsub_run_dir, self.job_name + ".in")
+        self.bsub_in_file = os.path.join(self.bsub_run_dir, self.job_name + ".in")
         self.bsub_out_file = os.path.join(self.log_dir, self.job_name + ".out")
         self.add_site_config = add_site_config
         self.add_site_config_database = add_site_config_database
@@ -52,7 +54,8 @@ class RunRemote:
         self.out = None
         self.err = None
 
-    def escape_substitution(self, command):
+    @staticmethod
+    def escape_substitution(command):
         """
         Escapes dollars, stops variables being interpretted early when passed to bsub.
         """
@@ -65,13 +68,14 @@ class RunRemote:
         return None
 
     def write_run_script(self):
-        # self.command = self.escape_substitution(self.command)
-        if self.run_dir:
-            shell_script = self.get_shell_script()
+        shell_script = self.get_shell_script()
+        if shell_script:
             with open(shell_script, 'w') as out_file:
                 out_file.write(self.command)
             os.chmod(shell_script, 0o775)
             self.command = shell_script
+        else:
+            self.command = self.escape_substitution(self.command)
 
     def run(self):
         rc = 1
@@ -103,7 +107,8 @@ class RunRemote:
                 else:
                     self.memory_limit = self.memory_limit + 10000
                 bsub_try += 1
-                logging.info("try {}, memory {}".format(bsub_try, self.memory_limit))  # pylint: disable=logging-format-interpolation
+                logging.info("try {}, memory {}".format(bsub_try,
+                                                        self.memory_limit))  # pylint: disable=logging-format-interpolation
                 rc, self.out, self.err = self.run_bsub()
 
         if rc != 0:
@@ -149,7 +154,9 @@ class RunRemote:
     def get_site_config_command(self, suffix=""):
         site_config_path = self.cI.get("TOP_WWPDB_SITE_CONFIG_DIR")
         site_loc = self.cI.get("WWPDB_SITE_LOC")
-        site_config_command = ". {}/init/env.sh --siteid {} --location {} {} > /dev/null".format(site_config_path, self.siteId, site_loc, suffix)
+        site_config_command = ". {}/init/env.sh --siteid {} --location {} {} > /dev/null".format(site_config_path,
+                                                                                                 self.siteId, site_loc,
+                                                                                                 suffix)
         return site_config_command
 
     def pre_pend_sourcing_site_config(self, database=False):
@@ -164,19 +171,19 @@ class RunRemote:
 
     def check_bsub_finished(self):
         # pause to allow system to write out bsub out file.
-        time.sleep(5)
-        if not os.path.exists(self.bsub_out_file):
-            retries = 0
-            logging.info("bsub out file not present - waiting for bsub to finish")
-            max_num_of_retries = int(self.bsub_timeout) / int(self.bsub_retry_delay)
-            while retries < max_num_of_retries:
-                if os.path.exists(self.bsub_out_file):
-                    logging.info("found bsub out file")
-                    break
-                else:
-                    retries += 1
-                    logging.info("try {} of {}, wait for {} seconds".format(retries, max_num_of_retries, self.bsub_retry_delay))  # pylint: disable=logging-format-interpolation
-                    time.sleep(int(self.bsub_retry_delay))
+        i = 1
+        retry_times = 15
+        while i < retry_times:
+            if os.path.exists(self.bsub_out_file):
+                break
+            else:
+                delay_time = i * 2
+                logging.info(
+                    "bsub out file {} not present - waiting {}secs (try {} of {}) for bsub to finish".format(
+                        self.bsub_out_file, delay_time, i,
+                        retry_times))  # pylint: disable=logging-format-interpolation
+                time.sleep(delay_time)
+                i += 1
 
     def run_command(self, command, log_file=None, new_env=None):
         # command_list = shlex.split(command)
@@ -206,7 +213,7 @@ class RunRemote:
             with open(log_file, "wb") as lf:
                 if out:
                     lf.write(out)
-                    # logging.info(out)
+                    logging.info(out)
                 if err:
                     lf.write(err)
                     logging.error(err)
@@ -214,9 +221,27 @@ class RunRemote:
         t2 = os.times()[4]
         ht = self.check_timing(t1, t2)
         # logging.info("Timing: %s took %s" %(name, ht[0]))
-        logging.info("Finished: %s, %s", self.job_name, ht[1])
+        logging.info("Finished: %s %s", self.job_name, ht[1])
+
+        if not self.check_was_submitted(job_log_string=str(out)):
+            logging.error('Error: task was not submitted')
+            return 255, out, err
 
         return rc, out, err
+
+    @staticmethod
+    def check_was_submitted(job_log_string):
+        logging.info(job_log_string)
+        if "is submitted to queue" in job_log_string:
+            return True
+        return False
+
+    @staticmethod
+    def was_executed(job_log_string):
+        logging.info(job_log_string)
+        if "Job was executed" in job_log_string:
+            return True
+        return False
 
     def launch_bsub(self):
 
@@ -255,12 +280,6 @@ class RunRemote:
 
         command_string = " ".join(bsub_command)
 
-        # if self.run_dir:
-        #     shell_script = os.path.join(self.run_dir, 'bsub_command_{}.sh'.format(self.job_name))
-        #     with open(shell_script, 'w') as out_file:
-        #         out_file.write(command_string)
-        #     os.chmod(shell_script, 0o775)
-
         rc, out, err = self.run_command(command=command_string)
 
         return rc, out, err
@@ -284,62 +303,92 @@ class RunRemote:
         self.bsub_exit_status = 0
         self.memory_used = 0
         self.memory_unit = "MB"
+        self.time_taken = 0
+        self.bsub_success = False
+        logging.info('reading: {}'.format(self.bsub_log_file))  # pylint: disable=logging-format-interpolation
         if os.path.exists(self.bsub_log_file):
             with open(self.bsub_log_file, "r") as log_file:
-                for l in log_file:  # noqa: E741
-                    if "Max Memory :" in l:
+                for log_file_line in log_file:
+                    if "Successfully completed." in log_file_line:
+                        self.bsub_success = True
+                    if "Max Memory :" in log_file_line:
                         try:
-                            memory_used = l.split(":")[-1].strip()
-                            self.memory_unit = memory_used.split(" ")[1]
-                            self.memory_used = int(memory_used.split(" ")[0])
+                            memory_used = log_file_line.split(":")[-1].strip()
+                            if memory_used:
+                                self.memory_unit = memory_used.split(" ")[1]
+                                self.memory_used = int(memory_used.split(" ")[0])
                         except Exception as e:
                             logging.error(e)
+                            logging.error(log_file_line)
 
-                    if "TERM_MEMLIMIT" in l:
+                    if "TERM_MEMLIMIT" in log_file_line:
                         logging.info('task killed due to hitting memory limit')
                         self.bsub_exit_status = 1
+                    if "Turnaround time" in log_file_line:
+                        time_taken = log_file_line.split(":")[-1].strip()
+                        try:
+                            self.time_taken = int(time_taken.split(" ")[0])
+                        except Exception as e:
+                            logging.error(e)
+                            logging.error(log_file_line)
         if self.memory_unit == "GB":
             self.memory_unit = "MB"
             self.memory_used = self.memory_used * 1024
         elif self.memory_unit == "KB":
             self.memory_unit = "MB"
             self.memory_used = int(self.memory_used / 1024)
-        logging.info("memory used: {} {}".format(self.memory_used, self.memory_unit))  # pylint: disable=logging-format-interpolation
-        logging.info("bsub exit status: {}".format(self.bsub_exit_status))  # pylint: disable=logging-format-interpolation
+        logging.info(
+            'Bsub successfully run: {}'.format(self.bsub_success))  # pylint: disable=logging-format-interpolation
+        logging.info("memory used: {} {}".format(self.memory_used,
+                                                 self.memory_unit))  # pylint: disable=logging-format-interpolation
+        logging.info('Bsub time taken: {} secs'.format(self.time_taken))  # pylint: disable=logging-format-interpolation
+        logging.info(
+            "Bsub exit status: {}".format(self.bsub_exit_status))  # pylint: disable=logging-format-interpolation
 
     def run_bsub(self):
 
         if not os.path.exists(self.log_dir):
             os.makedirs(self.log_dir)
 
-        temp_file = os.path.join(self.log_dir, "bsub_temp_file.out")
+        temp_file = os.path.join(self.bsub_run_dir, "bsub_temp_file.out")
 
         # if get non ok exit status from bsub then wait 30 seconds and try again.
-        i = 0
+        # i = 0
         rc, out, err = 0, None, None
 
+        """
         # error codes
         # 0 everything is ok
+        # 127 task failed - retrying wont help
         # 130 memory limit reached
         # 143 memory limit reached
         # 159/153 file too large - need additional resources, trying again wont help
         # 255 is ssh connection dropped so task is still ongoing - this is also when lsf is not ready
         allowed_codes = (0, 130, 143, 153, 159)
-
-        while i < 10:
+        """
+        # run command
+        i = 0
+        lsf_not_ready_codes = [255]
+        # task_failed_codes = [1, 127]
+        task_failed_codes = [1]
+        while i < 5:
             rc, out, err = self.launch_bsub()
-            if rc in allowed_codes:
+            if rc not in lsf_not_ready_codes:
                 break
-            delay_time = i * 2
-            logging.info("bsub return code of {}. Waiting for {}".format(rc, delay_time))  # pylint: disable=logging-format-interpolation
-            time.sleep(delay_time)
-            i += 1
+            else:
+                delay_time = i * 2
+                logging.info("bsub return code of {}. Waiting for {}".format(rc,
+                                                                             delay_time))  # pylint: disable=logging-format-interpolation
+                time.sleep(delay_time)
+                i += 1
 
-        if rc not in allowed_codes:
-            return rc, out, err
-
+        # ensure NFS cache doesn't cause issues
         self.touch(temp_file)
-        self.check_bsub_finished()
+        if os.path.exists(temp_file):
+            os.remove(temp_file)
+        if rc not in task_failed_codes:
+            self.check_bsub_finished()
+
         self.parse_bsub_log()
 
         return rc, out, err
@@ -347,7 +396,8 @@ class RunRemote:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("-d", "--debug", help="debugging", action="store_const", dest="loglevel", const=logging.DEBUG, default=logging.INFO)
+    parser.add_argument("-d", "--debug", help="debugging", action="store_const", dest="loglevel", const=logging.DEBUG,
+                        default=logging.INFO)
     parser.add_argument("--command", help="command to run", type=str, required=True)
     parser.add_argument("--job_name", help="name for the job", type=str, required=True)
     parser.add_argument("--log_dir", help="directory to store log file in", type=str, required=True)
@@ -355,7 +405,8 @@ if __name__ == "__main__":
     parser.add_argument("--memory_limit", help="starting memory limit", type=int, default=0)
     parser.add_argument("--num_processors", help="number of processors", type=int, default=1)
     parser.add_argument("--add_site_config", help="add site config to command", action="store_true")
-    parser.add_argument("--add_site_config_with_database", help="add site config with database to command", action="store_true")
+    parser.add_argument("--add_site_config_with_database", help="add site config with database to command",
+                        action="store_true")
 
     args = parser.parse_args()
     logger.setLevel(args.loglevel)
