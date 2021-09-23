@@ -383,7 +383,8 @@ class RunRemote:
 
         # ensure NFS cache doesn't cause issues
         self.touch(temp_file)
-        os.remove(temp_file)
+        if os.path.exists(temp_file):
+            os.remove(temp_file)
         if rc not in task_failed_codes:
             self.check_bsub_finished()
 
