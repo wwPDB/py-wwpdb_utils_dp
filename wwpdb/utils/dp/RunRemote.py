@@ -1,3 +1,4 @@
+# pylint: disable=logging-format-interpolation
 import os
 import sys
 import time
@@ -108,7 +109,7 @@ class RunRemote:
                     self.memory_limit = self.memory_limit + 10000
                 bsub_try += 1
                 logging.info("try {}, memory {}".format(bsub_try,
-                                                        self.memory_limit))  # pylint: disable=logging-format-interpolation
+                                                        self.memory_limit))
                 rc, self.out, self.err = self.run_bsub()
 
         if rc != 0:
@@ -356,7 +357,7 @@ class RunRemote:
         # i = 0
         rc, out, err = 0, None, None
 
-        """
+        #
         # error codes
         # 0 everything is ok
         # 127 task failed - retrying wont help
@@ -364,8 +365,8 @@ class RunRemote:
         # 143 memory limit reached
         # 159/153 file too large - need additional resources, trying again wont help
         # 255 is ssh connection dropped so task is still ongoing - this is also when lsf is not ready
-        allowed_codes = (0, 130, 143, 153, 159)
-        """
+        # allowed_codes = (0, 130, 143, 153, 159)
+        #
         # run command
         i = 0
         lsf_not_ready_codes = [255]

@@ -724,7 +724,7 @@ class RcsbDpUtility(object):
         if self.__sourceFileList == []:
             ofh.write("%s\n" % self.__getSourceWrkFile(self.__stepNo))
         else:
-            for f in self.__sourceFileList == []:
+            for f in self.__sourceFileList:
                 ofh.write("%s\n", f)
         ofh.close()
         #
