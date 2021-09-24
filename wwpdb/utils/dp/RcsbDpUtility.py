@@ -1289,6 +1289,8 @@ class RcsbDpUtility(object):
 
             cmd += " ; %s " % self.__site_config_command
             cmd += ' ; export PATH="$PATH:{}"'.format(chimerax_bin)
+            # unset the DISPLAY variable for VA pack to use nogui in ChimeraX
+            cmd += " ; unset DISPLAY "
             cmd += " ; %s --validation " % self.__site_config_command
             cmd += " ; OE_DIR=" + self.__oeDirPath + " ; export OE_DIR "
             cmd += " ; OE_LICENSE=" + self.__oeLicensePath + " ; export OE_LICENSE "
