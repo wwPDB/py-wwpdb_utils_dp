@@ -71,6 +71,7 @@ class RunRemote:
     def write_run_script(self):
         shell_script = self.get_shell_script()
         if shell_script:
+            logging.info(self.command)
             with open(shell_script, 'w') as out_file:
                 out_file.write(self.command)
             os.chmod(shell_script, 0o775)
