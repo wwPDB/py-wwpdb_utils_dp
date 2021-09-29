@@ -10,6 +10,14 @@ from wwpdb.utils.config.ConfigInfo import ConfigInfo, getSiteId
 logger = logging.getLogger()
 
 
+def remove_file(file_path):
+    if os.path.exists(file_path):
+        try:
+            os.remove(file_path)
+        except Exception as e:
+            pass
+
+
 class RunRemote:
     def __init__(self, command, job_name,
                  log_dir,
@@ -119,13 +127,10 @@ class RunRemote:
             logging.error("error: {}".format(self.err))  # pylint: disable=logging-format-interpolation
         else:
             logging.info("worked")
-            if os.path.exists(self.bsub_in_file):
-                os.remove(self.bsub_in_file)
-            if os.path.exists(self.bsub_out_file):
-                os.remove(self.bsub_out_file)
+            remove_file(self.bsub_in_file)
+            remove_file(self.bsub_out_file)
             if self.get_shell_script():
-                if os.path.exists(self.get_shell_script()):
-                    os.remove(self.get_shell_script())
+                remove_file(self.get_shell_script())
 
         return rc
 
@@ -247,11 +252,9 @@ class RunRemote:
 
     def launch_bsub(self):
 
-        if os.path.exists(self.bsub_out_file):
-            os.remove(self.bsub_out_file)
+        remove_file(self.bsub_out_file)
 
-        if os.path.exists(self.bsub_in_file):
-            os.remove(self.bsub_in_file)
+        remove_file(self.bsub_in_file)
 
         bsub_command = list()
         if self.bsub_login_node:
@@ -386,8 +389,7 @@ class RunRemote:
 
         # ensure NFS cache doesn't cause issues
         self.touch(temp_file)
-        if os.path.exists(temp_file):
-            os.remove(temp_file)
+        remove_file(temp_file)
         if rc not in task_failed_codes:
             self.check_bsub_finished()
 
