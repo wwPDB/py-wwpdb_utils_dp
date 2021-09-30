@@ -233,6 +233,7 @@ class RcsbDpUtility(object):
             "chem-comp-align-images",
             "chem-comp-gen-images",
             "chem-comp-update-support-files",
+            "citation-search-and-auto-release",
         ]
         self.__pisaOps = [
             "pisa-analysis",
@@ -3905,6 +3906,9 @@ class RcsbDpUtility(object):
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
         elif op == 'chem-comp-update-support-files':
             cmd += ' ; python -m wwpdb.apps.chem_ref_data.utils.ChemRefDataDbExec -v --update'
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
+        elif op == 'citation-search-and-auto-release':
+            cmd += ' ; python -m wwpdb.apps.releasemodule.update.RunAutoReReleaseProcess'
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
         else:
             return -1
