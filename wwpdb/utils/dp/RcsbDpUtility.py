@@ -232,6 +232,7 @@ class RcsbDpUtility(object):
             "chem-comp-align-img-gen",
             "chem-comp-align-images",
             "chem-comp-gen-images",
+            "chem-comp-update-support-files",
         ]
         self.__pisaOps = [
             "pisa-analysis",
@@ -3901,6 +3902,9 @@ class RcsbDpUtility(object):
             thisCmd = " ; python -m wwpdb.apps.ccmodule.reports.ChemCompGenImage"
 
             cmd += thisCmd + " -v -i %s -f %s -o %s --size %s --label %s" % (title, path, imagePath, size, labelAtomName)
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
+        elif op == 'chem-comp-update-support-files':
+            cmd += ' ; python -m wwpdb.apps.chem_ref_data.utils.ChemRefDataDbExec -v --update'
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
         else:
             return -1
