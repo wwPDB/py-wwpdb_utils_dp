@@ -14,7 +14,7 @@ def remove_file(file_path):
     if os.path.exists(file_path):
         try:
             os.remove(file_path)
-        except Exception as e:
+        except Exception as _e:  # noqa: F841
             pass
 
 
