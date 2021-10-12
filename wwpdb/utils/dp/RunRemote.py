@@ -364,7 +364,7 @@ class RunRemote:
         #
         # error codes
         # 0 everything is ok
-        # 127 task failed - retrying wont help
+        # 127 task failed - retrying wont help - or LSF internal issue - retrying will help!
         # 130 memory limit reached
         # 143 memory limit reached
         # 159/153 file too large - need additional resources, trying again wont help
@@ -373,7 +373,7 @@ class RunRemote:
         #
         # run command
         i = 0
-        lsf_not_ready_codes = [255]
+        lsf_not_ready_codes = [-127, 127, 255]
         # task_failed_codes = [1, 127]
         task_failed_codes = [1]
         while i < 5:
