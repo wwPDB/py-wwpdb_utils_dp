@@ -18,6 +18,14 @@ def remove_file(file_path):
             pass
 
 
+def current_working_dir_exists():
+    cwd = os.getcwd()
+    logging.info('current working dir: {}'.format(cwd))
+    if os.path.exists(cwd):
+        return True
+    return False
+
+
 class RunRemote:
     def __init__(self, command, job_name,
                  log_dir,
@@ -261,6 +269,8 @@ class RunRemote:
             bsub_command.append("ssh {} '".format(self.bsub_login_node))
         if self.bsub_source_command:
             bsub_command.append("{};".format(self.bsub_source_command))
+        if not current_working_dir_exists():
+            bsub_command.append("cd ~;")
         bsub_command.append(self.bsub_run_command)
         bsub_command.append("-J {}".format(self.job_name))
         bsub_command.append('-E "touch {}"'.format(self.bsub_in_file))
