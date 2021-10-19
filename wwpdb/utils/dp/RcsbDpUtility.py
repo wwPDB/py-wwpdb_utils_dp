@@ -3361,8 +3361,8 @@ class RcsbDpUtility(object):
         #
         cmd += " ; RCSBROOT=" + self.__rcsbAppsPath + " ; export RCSBROOT "
         cmd += " ; PDB2GLYCAN=" + os.path.join(os.path.abspath(self.__cICommon.get_site_packages_path()), "pdb2glycan", "bin", "PDB2Glycan") + " ; export PDB2GLYCAN "
-        cmd += " ; COMP_PATH=" + self.__ccCvsPath + " ; export COMP_PATH ; "
-        cmd += " ; DICT_SDB=" + self.__pathPdbxDictSdb + " ; export DICT_SDB "
+        cmd += " ; COMP_PATH=" + self.__ccCvsPath + " ; export COMP_PATH "
+        cmd += " ; DICT_SDB=" + self.__pathPdbxDictSdb + " ; export DICT_SDB ; "
         maxitCmd = os.path.join(self.__rcsbAppsPath, "bin", progName)
 
         if op == "cif2cif":
