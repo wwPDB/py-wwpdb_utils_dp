@@ -785,6 +785,7 @@ class RcsbDpUtility(object):
         self.__validScrPath = self.__cI.get("VALID_SCR_PATH")
         self.__siteConfigDir = self.__getConfigPath("TOP_WWPDB_SITE_CONFIG_DIR")
         self.__ccDictPathIdx = self.__cICommon.get_cc_dict_idx()
+        self.__pathPdbxDictSdb = self.__cICommon.get_mmcif_next_dictionary_sdb_file_path()
         self.__site_config_command = ". %s/init/env.sh -s %s -l %s" % (self.__siteConfigDir, self.__siteId, self.__siteLoc)
 
         # JDW 2013-02-26
@@ -822,6 +823,7 @@ class RcsbDpUtility(object):
         cmd += " ; RCSBROOT=" + self.__rcsbAppsPath + " ; export RCSBROOT  "
         cmd += " ; PDB2GLYCAN=" + os.path.join(os.path.abspath(self.__packagePath), "pdb2glycan", "bin", "PDB2Glycan") + " ; export PDB2GLYCAN "
         cmd += " ; COMP_PATH=" + self.__ccCvsPath + " ; export COMP_PATH  "
+        cmd += " ; DICT_SDB=" + self.__pathPdbxDictSdb + " ; export DICT_SDB "
         maxitCmd = os.path.join(self.__rcsbAppsPath, "bin", "maxit")
 
         #
@@ -2877,6 +2879,7 @@ class RcsbDpUtility(object):
         self.__prdDictPath = self.__cICommon.get_site_prd_dict_path()
 
         self.__rcsbAppsPath = self.__cICommon.get_site_annot_tools_path()
+        self.__pathPdbxDictSdb = self.__cICommon.get_mmcif_next_dictionary_sdb_file_path()
         #
         #
         iPath = self.__getSourceWrkFile(self.__stepNo)
@@ -2910,6 +2913,7 @@ class RcsbDpUtility(object):
         cmd += " ; RCSBROOT=" + self.__rcsbAppsPath + " ; export RCSBROOT  "
         cmd += " ; PDB2GLYCAN=" + os.path.join(os.path.abspath(self.__packagePath), "pdb2glycan", "bin", "PDB2Glycan") + " ; export PDB2GLYCAN "
         cmd += " ; COMP_PATH=" + self.__ccCvsPath + " ; export COMP_PATH  "
+        cmd += " ; DICT_SDB=" + self.__pathPdbxDictSdb + " ; export DICT_SDB "
         valCmd = os.path.join(self.__rcsbAppsPath, "bin", "validation_with_cif_output")
 
         #
@@ -3333,6 +3337,7 @@ class RcsbDpUtility(object):
         if self.__rcsbAppsPath is None:
             self.__rcsbAppsPath = self.__cICommon.get_site_annot_tools_path()
         self.__ccCvsPath = self.__cICommon.get_site_cc_cvs_path()
+        self.__pathPdbxDictSdb = self.__cICommon.get_mmcif_next_dictionary_sdb_file_path()
         #
         iPath = self.__getSourceWrkFile(self.__stepNo)
         # iPathList = self.__getSourceWrkFileList(self.__stepNo)
@@ -3356,7 +3361,8 @@ class RcsbDpUtility(object):
         #
         cmd += " ; RCSBROOT=" + self.__rcsbAppsPath + " ; export RCSBROOT "
         cmd += " ; PDB2GLYCAN=" + os.path.join(os.path.abspath(self.__cICommon.get_site_packages_path()), "pdb2glycan", "bin", "PDB2Glycan") + " ; export PDB2GLYCAN "
-        cmd += " ; COMP_PATH=" + self.__ccCvsPath + " ; export COMP_PATH ; "
+        cmd += " ; COMP_PATH=" + self.__ccCvsPath + " ; export COMP_PATH "
+        cmd += " ; DICT_SDB=" + self.__pathPdbxDictSdb + " ; export DICT_SDB ; "
         maxitCmd = os.path.join(self.__rcsbAppsPath, "bin", progName)
 
         if op == "cif2cif":
@@ -3478,9 +3484,9 @@ class RcsbDpUtility(object):
         #
         self.__pathDdlSdb = os.path.join(self.__pdbxDictPath, "mmcif_ddl.sdb")
         # self.__pathDdl = os.path.join(self.__pdbxDictPath, "mmcif_ddl.dic")
-        self.__pathPdbxDictSdb = os.path.join(self.__pdbxDictPath, self.__pdbxDictName + ".sdb")
+        self.__pathPdbxDictSdb = self.__cICommon.get_mmcif_next_dictionary_sdb_file_path()
         self.__pathPdbxV4DictSdb = os.path.join(self.__pdbxDictPath, self.__pdbxV4DictName + ".sdb")
-        self.__pathPdbxDictOdb = os.path.join(self.__pdbxDictPath, self.__pdbxDictName + ".odb")
+        self.__pathPdbxDictOdb = self.__cICommon.get_mmcif_next_dictionary_odb_file_path()
         #
         self.__oeDirPath = self.__cICommon.get_site_cc_oe_dir()
         self.__oeLicensePath = self.__cICommon.get_site_cc_oe_licence()
