@@ -3471,7 +3471,6 @@ class RcsbDpUtility(object):
         #
         self.__ccAppsPath = self.__cICommon.get_site_cc_apps_path()
         self.__pdbxDictPath = self.__cICommon.get_mmcif_dict_path()
-        self.__pdbxDictName = self.__cICommon.get_mmcif_archive_next_dict_filename()
         self.__pdbxV4DictName = self.__cI.get("SITE_PDBX_V4_DICT_NAME", "missing")
 
         # self.__ccDictPath = self.__cICommon.get_site_cc_dict_path()
