@@ -2420,8 +2420,7 @@ class RcsbDpUtility(object):
             if (not resultFilePath) or not (logFilePath):
                 return -1
             #
-            site_config_command = ". %s/init/env.sh -s %s -l %s" % (self.__siteConfigDir, self.__siteId, self.__siteLoc)
-            cmd += " ; %s " % site_config_command
+            cmd += "; {}".format(self.__site_config_command)
             cmd += " ; OE_DIR=" + self.__oeDirPath + " ; export OE_DIR "
             cmd += " ; OE_LICENSE=" + self.__oeLicensePath + " ; export OE_LICENSE "
             thisCmd = " ; python -m wwpdb.apps.entity_transform.depict.ProcessSummary_main"
@@ -3500,6 +3499,8 @@ class RcsbDpUtility(object):
         #
         self.__siteConfigDir = self.__getConfigPath("TOP_WWPDB_SITE_CONFIG_DIR")
         self.__siteLoc = self.__cI.get("WWPDB_SITE_LOC")
+        self.__site_config_command = ". %s/init/env.sh -s %s -l %s" % (
+        self.__siteConfigDir, self.__siteId, self.__siteLoc)
 
         # -------------
         #
@@ -3860,8 +3861,7 @@ class RcsbDpUtility(object):
         elif op == "chem-comp-align-img-gen":
             # set up
             #
-            site_config_command = ". %s/init/env.sh -s %s -l %s" % (self.__siteConfigDir, self.__siteId, self.__siteLoc)
-            cmd += " ; %s " % site_config_command
+            cmd += " ; {} ".format(self.__site_config_command)
             cmd += " ; OE_DIR=" + self.__oeDirPath + " ; export OE_DIR "
             cmd += " ; OE_LICENSE=" + self.__oeLicensePath + " ; export OE_LICENSE "
 
@@ -3875,8 +3875,7 @@ class RcsbDpUtility(object):
             ccid = self.__inputParamDict["ccid"]
             fileListPath = self.__inputParamDict["file_list_path"]
 
-            site_config_command = ". %s/init/env.sh -s %s -l %s" % (self.__siteConfigDir, self.__siteId, self.__siteLoc)
-            cmd += " ; %s " % site_config_command
+            cmd += " ; {} ".format(self.__site_config_command)
             cmd += " ; OE_DIR=" + self.__oeDirPath + " ; export OE_DIR "
             cmd += " ; OE_LICENSE=" + self.__oeLicensePath + " ; export OE_LICENSE "
 
@@ -3900,8 +3899,7 @@ class RcsbDpUtility(object):
             if "label" in self.__inputParamDict:
                 labelAtomName = self.__inputParamDict["label"]
 
-            site_config_command = ". %s/init/env.sh -s %s -l %s" % (self.__siteConfigDir, self.__siteId, self.__siteLoc)
-            cmd += " ; %s " % site_config_command
+            cmd += " ; {} ".format(self.__site_config_command)
             cmd += " ; OE_DIR=" + self.__oeDirPath + " ; export OE_DIR "
             cmd += " ; OE_LICENSE=" + self.__oeLicensePath + " ; export OE_LICENSE "
 
@@ -3913,6 +3911,7 @@ class RcsbDpUtility(object):
             cmd += ' ; python -m wwpdb.apps.chem_ref_data.utils.ChemRefDataDbExec -v --update'
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
         elif op == 'citation-search-and-auto-release':
+            cmd += " ; {} ".format(self.__site_config_command)
             cmd += ' ; python -m wwpdb.apps.releasemodule.update.RunAutoReReleaseProcess'
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
         else:
