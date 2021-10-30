@@ -3908,6 +3908,7 @@ class RcsbDpUtility(object):
             cmd += thisCmd + " -v -i %s -f %s -o %s --size %s --label %s" % (title, path, imagePath, size, labelAtomName)
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
         elif op == 'chem-comp-update-support-files':
+            cmd += " ; {} ".format(self.__site_config_command)
             cmd += ' ; python -m wwpdb.apps.chem_ref_data.utils.ChemRefDataDbExec -v --update'
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
         elif op == 'citation-search-and-auto-release':
