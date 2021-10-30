@@ -3500,7 +3500,7 @@ class RcsbDpUtility(object):
         self.__siteConfigDir = self.__getConfigPath("TOP_WWPDB_SITE_CONFIG_DIR")
         self.__siteLoc = self.__cI.get("WWPDB_SITE_LOC")
         self.__site_config_command = ". %s/init/env.sh -s %s -l %s" % (
-        self.__siteConfigDir, self.__siteId, self.__siteLoc)
+            self.__siteConfigDir, self.__siteId, self.__siteLoc)
 
         # -------------
         #
