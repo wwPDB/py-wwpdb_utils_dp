@@ -14,9 +14,8 @@ logger = logging.getLogger()
 def get_model_file(depid, version_id, mileStone=None, siteId=None):
     if siteId is None:
         siteId = getSiteId()
-    pi = PathInfo(siteId, sessionPath='.', verbose=True, log=sys.stderr)
-    mmcif = pi.getModelPdbxFilePath(dataSetId=depid, fileSource='archive',
-                                    versionId=version_id, mileStone=mileStone)
+    pi = PathInfo(siteId, sessionPath=".", verbose=True, log=sys.stderr)
+    mmcif = pi.getModelPdbxFilePath(dataSetId=depid, fileSource="archive", versionId=version_id, mileStone=mileStone)
     logging.debug("mmcif file path: %s", mmcif)
     return mmcif
 
@@ -76,10 +75,7 @@ def process_entry(file_in, file_out):
         obj.setValue(eid, "entry_id", 0)
         ccL[0].append(obj)
 
-    newdata = [['pdbx_center_of_mass_x', com.x],
-               ['pdbx_center_of_mass_y', com.y],
-               ['pdbx_center_of_mass_z', com.z]
-               ]
+    newdata = [["pdbx_center_of_mass_x", com.x], ["pdbx_center_of_mass_y", com.y], ["pdbx_center_of_mass_z", com.z]]
     for [it, val] in newdata:
         if it not in obj.getAttributeList():
             obj.appendAttribute(it)
@@ -119,8 +115,8 @@ def calculate_for_list(siteId=None):
     failed_dep_ids = []
     for depid in deposition_ids:
         logging.info("Calculating for Dep ID: %s ", depid)
-        latest_model = get_model_file(depid, 'latest', siteId=siteId)
-        next_model = get_model_file(depid, 'next', siteId=siteId)
+        latest_model = get_model_file(depid, "latest", siteId=siteId)
+        next_model = get_model_file(depid, "next", siteId=siteId)
         result = process_entry(latest_model, next_model)
         if result:
             logger.info("Failed to Calculate Centre of Mass for %s", depid)
@@ -139,7 +135,7 @@ def main():
     if args.list and os.path.isfile(args.list):
         failures = calculate_for_list()
         if len(failures) > 0:
-            logger.info("Failed Dep Ids: \n%s", '\n'.join(failures))
+            logger.info("Failed Dep Ids: \n%s", "\n".join(failures))
 
     elif os.path.isfile(args.model_file_in):
         calculate_for_file()
@@ -148,13 +144,13 @@ def main():
         return 1
 
 
-if '__main__' in __name__:
+if "__main__" in __name__:
     parser = argparse.ArgumentParser()
-    parser.add_argument('-i', '--model-file-in', help='Coordinate file to add centre of Mass', type=str)
-    parser.add_argument('-o', '--model-file-out', help='Output Coordinate file, with added items', type=str)
-    parser.add_argument('-l', '--list', help='list of Deposition Ids to calculate and append centre of Mass', type=str)
-    parser.add_argument('-log', '--log-level', help='Log level', type=str, default='INFO')
-    parser.add_argument('-s', '--siteid', help='optional siteId', type=str)
+    parser.add_argument("-i", "--model-file-in", help="Coordinate file to add centre of Mass", type=str)
+    parser.add_argument("-o", "--model-file-out", help="Output Coordinate file, with added items", type=str)
+    parser.add_argument("-l", "--list", help="list of Deposition Ids to calculate and append centre of Mass", type=str)
+    parser.add_argument("-log", "--log-level", help="Log level", type=str, default="INFO")
+    parser.add_argument("-s", "--siteid", help="optional siteId", type=str)
 
     args = parser.parse_args()
     logger.setLevel(args.log_level)

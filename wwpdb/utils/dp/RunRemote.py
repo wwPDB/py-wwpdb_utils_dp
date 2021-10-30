@@ -19,14 +19,7 @@ def remove_file(file_path):
 
 
 class RunRemote:
-    def __init__(self, command, job_name,
-                 log_dir,
-                 run_dir=None,
-                 timeout=5600,
-                 memory_limit=0,
-                 number_of_processors=1,
-                 add_site_config=False,
-                 add_site_config_database=False):
+    def __init__(self, command, job_name, log_dir, run_dir=None, timeout=5600, memory_limit=0, number_of_processors=1, add_site_config=False, add_site_config_database=False):
         # self.command = self.escape_substitution(command)
         self.command = command
         if timeout:
@@ -52,7 +45,7 @@ class RunRemote:
         self.bsub_login_node = self.cI.get("BSUB_LOGIN_NODE")
         self.bsub_timeout = self.cI.get("BSUB_TIMEOUT")
         self.bsub_retry_delay = self.cI.get("BSUB_RETRY_DELAY", 4)
-        self.command_prefix = self.cI.get('REMOTE_COMMAND_PREFIX')
+        self.command_prefix = self.cI.get("REMOTE_COMMAND_PREFIX")
         self.bsub_run_dir = run_dir if run_dir else log_dir
         self.bsub_log_file = os.path.join(self.log_dir, self.job_name + ".log")
         self.bsub_in_file = os.path.join(self.bsub_run_dir, self.job_name + ".in")
@@ -73,14 +66,14 @@ class RunRemote:
 
     def get_shell_script(self):
         if self.run_dir:
-            return os.path.join(self.run_dir, 'run_{}.sh'.format(self.job_name))
+            return os.path.join(self.run_dir, "run_{}.sh".format(self.job_name))
         return None
 
     def write_run_script(self):
         shell_script = self.get_shell_script()
         if shell_script:
             logging.info(self.command)
-            with open(shell_script, 'w') as out_file:
+            with open(shell_script, "w") as out_file:
                 out_file.write(self.command)
             os.chmod(shell_script, 0o775)
             self.command = shell_script
@@ -117,8 +110,7 @@ class RunRemote:
                 else:
                     self.memory_limit = self.memory_limit + 10000
                 bsub_try += 1
-                logging.info("try {}, memory {}".format(bsub_try,
-                                                        self.memory_limit))
+                logging.info("try {}, memory {}".format(bsub_try, self.memory_limit))
                 rc, self.out, self.err = self.run_bsub()
 
         if rc != 0:
@@ -161,9 +153,7 @@ class RunRemote:
     def get_site_config_command(self, suffix=""):
         site_config_path = self.cI.get("TOP_WWPDB_SITE_CONFIG_DIR")
         site_loc = self.cI.get("WWPDB_SITE_LOC")
-        site_config_command = ". {}/init/env.sh --siteid {} --location {} {} > /dev/null".format(site_config_path,
-                                                                                                 self.siteId, site_loc,
-                                                                                                 suffix)
+        site_config_command = ". {}/init/env.sh --siteid {} --location {} {} > /dev/null".format(site_config_path, self.siteId, site_loc, suffix)
         return site_config_command
 
     def pre_pend_sourcing_site_config(self, database=False):
@@ -186,9 +176,8 @@ class RunRemote:
             else:
                 delay_time = i * 2
                 logging.info(
-                    "bsub out file {} not present - waiting {}secs (try {} of {}) for bsub to finish".format(
-                        self.bsub_out_file, delay_time, i,
-                        retry_times))  # pylint: disable=logging-format-interpolation
+                    "bsub out file {} not present - waiting {}secs (try {} of {}) for bsub to finish".format(self.bsub_out_file, delay_time, i, retry_times)
+                )  # pylint: disable=logging-format-interpolation
                 time.sleep(delay_time)
                 i += 1
 
@@ -231,7 +220,7 @@ class RunRemote:
         logging.info("Finished: %s %s", self.job_name, ht[1])
 
         if not self.check_was_submitted(job_log_string=str(out)):
-            logging.error('Error: task was not submitted')
+            logging.error("Error: task was not submitted")
             return 255, out, err
 
         return rc, out, err
@@ -310,7 +299,7 @@ class RunRemote:
         self.memory_unit = "MB"
         self.time_taken = 0
         self.bsub_success = False
-        logging.info('reading: {}'.format(self.bsub_log_file))  # pylint: disable=logging-format-interpolation
+        logging.info("reading: {}".format(self.bsub_log_file))  # pylint: disable=logging-format-interpolation
         if os.path.exists(self.bsub_log_file):
             with open(self.bsub_log_file, "r") as log_file:
                 for log_file_line in log_file:
@@ -327,7 +316,7 @@ class RunRemote:
                             logging.error(log_file_line)
 
                     if "TERM_MEMLIMIT" in log_file_line:
-                        logging.info('task killed due to hitting memory limit')
+                        logging.info("task killed due to hitting memory limit")
                         self.bsub_exit_status = 1
                     if "Turnaround time" in log_file_line:
                         time_taken = log_file_line.split(":")[-1].strip()
@@ -342,13 +331,10 @@ class RunRemote:
         elif self.memory_unit == "KB":
             self.memory_unit = "MB"
             self.memory_used = int(self.memory_used / 1024)
-        logging.info(
-            'Bsub successfully run: {}'.format(self.bsub_success))  # pylint: disable=logging-format-interpolation
-        logging.info("memory used: {} {}".format(self.memory_used,
-                                                 self.memory_unit))  # pylint: disable=logging-format-interpolation
-        logging.info('Bsub time taken: {} secs'.format(self.time_taken))  # pylint: disable=logging-format-interpolation
-        logging.info(
-            "Bsub exit status: {}".format(self.bsub_exit_status))  # pylint: disable=logging-format-interpolation
+        logging.info("Bsub successfully run: {}".format(self.bsub_success))  # pylint: disable=logging-format-interpolation
+        logging.info("memory used: {} {}".format(self.memory_used, self.memory_unit))  # pylint: disable=logging-format-interpolation
+        logging.info("Bsub time taken: {} secs".format(self.time_taken))  # pylint: disable=logging-format-interpolation
+        logging.info("Bsub exit status: {}".format(self.bsub_exit_status))  # pylint: disable=logging-format-interpolation
 
     def run_bsub(self):
 
@@ -382,8 +368,7 @@ class RunRemote:
                 break
             else:
                 delay_time = i * 2
-                logging.info("bsub return code of {}. Waiting for {}".format(rc,
-                                                                             delay_time))  # pylint: disable=logging-format-interpolation
+                logging.info("bsub return code of {}. Waiting for {}".format(rc, delay_time))  # pylint: disable=logging-format-interpolation
                 time.sleep(delay_time)
                 i += 1
 
@@ -400,8 +385,7 @@ class RunRemote:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("-d", "--debug", help="debugging", action="store_const", dest="loglevel", const=logging.DEBUG,
-                        default=logging.INFO)
+    parser.add_argument("-d", "--debug", help="debugging", action="store_const", dest="loglevel", const=logging.DEBUG, default=logging.INFO)
     parser.add_argument("--command", help="command to run", type=str, required=True)
     parser.add_argument("--job_name", help="name for the job", type=str, required=True)
     parser.add_argument("--log_dir", help="directory to store log file in", type=str, required=True)
@@ -409,8 +393,7 @@ if __name__ == "__main__":
     parser.add_argument("--memory_limit", help="starting memory limit", type=int, default=0)
     parser.add_argument("--num_processors", help="number of processors", type=int, default=1)
     parser.add_argument("--add_site_config", help="add site config to command", action="store_true")
-    parser.add_argument("--add_site_config_with_database", help="add site config with database to command",
-                        action="store_true")
+    parser.add_argument("--add_site_config_with_database", help="add site config with database to command", action="store_true")
 
     args = parser.parse_args()
     logger.setLevel(args.loglevel)

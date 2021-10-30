@@ -1440,10 +1440,7 @@ class RcsbDpUtility(object):
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
 
         elif op == "centre-of-mass":
-            cmd_args = [
-                "--model-file-in {}".format(iPath),
-                "--model-file-out {}".format(oPath)
-            ]
+            cmd_args = ["--model-file-in {}".format(iPath), "--model-file-out {}".format(oPath)]
 
             cmd += "; {}".format(self.__site_config_command)
 
@@ -3499,8 +3496,7 @@ class RcsbDpUtility(object):
         #
         self.__siteConfigDir = self.__getConfigPath("TOP_WWPDB_SITE_CONFIG_DIR")
         self.__siteLoc = self.__cI.get("WWPDB_SITE_LOC")
-        self.__site_config_command = ". %s/init/env.sh -s %s -l %s" % (
-            self.__siteConfigDir, self.__siteId, self.__siteLoc)
+        self.__site_config_command = ". %s/init/env.sh -s %s -l %s" % (self.__siteConfigDir, self.__siteId, self.__siteLoc)
 
         # -------------
         #
@@ -3907,13 +3903,13 @@ class RcsbDpUtility(object):
 
             cmd += thisCmd + " -v -i %s -f %s -o %s --size %s --label %s" % (title, path, imagePath, size, labelAtomName)
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
-        elif op == 'chem-comp-update-support-files':
+        elif op == "chem-comp-update-support-files":
             cmd += " ; {} ".format(self.__site_config_command)
-            cmd += ' ; python -m wwpdb.apps.chem_ref_data.utils.ChemRefDataDbExec -v --update'
+            cmd += " ; python -m wwpdb.apps.chem_ref_data.utils.ChemRefDataDbExec -v --update"
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
-        elif op == 'citation-search-and-auto-release':
+        elif op == "citation-search-and-auto-release":
             cmd += " ; {} ".format(self.__site_config_command)
-            cmd += ' ; python -m wwpdb.apps.releasemodule.update.RunAutoReReleaseProcess'
+            cmd += " ; python -m wwpdb.apps.releasemodule.update.RunAutoReReleaseProcess"
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
         else:
             return -1
@@ -4344,7 +4340,9 @@ class RcsbDpUtility(object):
         st = os.stat(cmdfile)
         os.chmod(cmdfile, st.st_mode | stat.S_IEXEC)
         logger.info("+RcsbDpUtility.__runTimeout() running command %r\n", cmdfile)
-        process = subprocess.Popen(cmdfile, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False, close_fds=True, preexec_fn=os.setsid)  # pylint: disable=subprocess-popen-preexec-fn
+        process = subprocess.Popen(  # pylint: disable=subprocess-popen-preexec-fn
+            cmdfile, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False, close_fds=True, preexec_fn=os.setsid
+        )  # pylint: disable=subprocess-popen-preexec-fn
 
         while process.poll() is None:
             time.sleep(0.1)
