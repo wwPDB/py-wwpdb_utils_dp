@@ -3,4 +3,4 @@
 #
 include HISTORY.txt
 #
-exclude .gitignore .gitmodules tox.ini
+# exclude .gitignore .gitmodules tox.ini
