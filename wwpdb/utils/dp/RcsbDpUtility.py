@@ -234,7 +234,7 @@ class RcsbDpUtility(object):
             "chem-comp-gen-images",
             "chem-comp-update-support-files",
             "citation-search-and-auto-release",
-            "update-depui-taxonomy"
+            "update-depui-taxonomy",
         ]
         self.__pisaOps = [
             "pisa-analysis",
