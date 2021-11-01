@@ -234,6 +234,7 @@ class RcsbDpUtility(object):
             "chem-comp-gen-images",
             "chem-comp-update-support-files",
             "citation-search-and-auto-release",
+            "update-depui-taxonomy"
         ]
         self.__pisaOps = [
             "pisa-analysis",
@@ -3910,6 +3911,10 @@ class RcsbDpUtility(object):
         elif op == "citation-search-and-auto-release":
             cmd += " ; {} ".format(self.__site_config_command)
             cmd += " ; python -m wwpdb.apps.releasemodule.update.RunAutoReReleaseProcess"
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
+        elif op == "update-depui-taxonomy":
+            cmd += " ; {} ".format(self.__site_config_command)
+            cmd += " ; python -m wwpdb.apps.deposit.depui.taxonomy.loadTaxonomyFromFTP --write_sql"
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
         else:
             return -1
