@@ -235,6 +235,11 @@ class RcsbDpUtility(object):
             "chem-comp-update-support-files",
             "citation-search-and-auto-release",
             "update-depui-taxonomy",
+            "chem-ref-checkout",
+            "chem-ref-sync",
+            "chem-ref-load",
+            "chem-ref-run-setup",
+            "chem-ref-run-update",
         ]
         self.__pisaOps = [
             "pisa-analysis",
@@ -3915,6 +3920,42 @@ class RcsbDpUtility(object):
         elif op == "update-depui-taxonomy":
             cmd += " ; {} ".format(self.__site_config_command)
             cmd += " ; python -m wwpdb.apps.deposit.depui.taxonomy.loadTaxonomyFromFTP --write_sql"
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
+        elif op == "chem-ref-checkout":
+            # set up
+            #
+            db = self.__inputParamDict.get("db")
+
+            cmd += " ; {} ".format(self.__site_config_command)
+            cmd += " ; python -m wwpdb.apps.chem_ref_data.utils.ChemRefDataDbExec --checkout --db %s -v" % db
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
+        elif op == "chem-ref-sync":
+            # set up
+            #
+            db = self.__inputParamDict.get("db")
+
+            cmd += " ; {} ".format(self.__site_config_command)
+            cmd += " ; python -m wwpdb.apps.chem_ref_data.utils.ChemRefDataDbExec --sync --db %s -v" % db
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
+        elif op == "chem-ref-load":
+            # set up
+            #
+            db = self.__inputParamDict.get("db")
+
+            cmd += " ; {} ".format(self.__site_config_command)
+            cmd += " ; python -m wwpdb.apps.chem_ref_data.utils.ChemRefDataDbExec --load --db %s -v" % db
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
+        elif op == "chem-ref-run-setup":
+            # set up
+            #
+            cmd += " ; {} ".format(self.__site_config_command)
+            cmd += " ; python -m wwpdb.apps.chem_ref_data.utils.ChemRefDataDbExec --run_setup -v"
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
+        elif op == "chem-ref-run-update":
+            # set up
+            #
+            cmd += " ; {} ".format(self.__site_config_command)
+            cmd += " ; python -m wwpdb.apps.chem_ref_data.utils.ChemRefDataDbExec --run_update -v"
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
         else:
             return -1
