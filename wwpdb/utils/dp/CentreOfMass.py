@@ -21,10 +21,14 @@ def get_model_file(depid, version_id, mileStone=None, siteId=None):
 
 
 def get_center_of_mass(data_block):
-    st = gemmi.make_structure_from_block(data_block)
-    model = st[0]
-    center_of_mass = model.calculate_center_of_mass()
-    return center_of_mass
+    try:
+        st = gemmi.make_structure_from_block(data_block)
+        model = st[0]
+        center_of_mass = model.calculate_center_of_mass()
+        return center_of_mass
+    except Exception as e:
+        logging.error(e)
+        return False
 
 
 def get_deposition_ids(file):
@@ -46,6 +50,8 @@ def process_entry(file_in, file_out):
 
     logging.info("Finding Centre of Mass")
     com = get_center_of_mass(data_block)
+    if not com:
+        return 1
 
     try:
         io = IoAdapterCore()
