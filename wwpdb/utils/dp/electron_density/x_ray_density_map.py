@@ -212,8 +212,9 @@ def run_process_with_gemmi(
 
     return ret
 
+
 def main():  # pragma: no cover
-    FORMAT = '[%(levelname)s]-%(module)s.%(funcName)s: %(message)s'
+    FORMAT = "[%(levelname)s]-%(module)s.%(funcName)s: %(message)s"
     logging.basicConfig(format=FORMAT)
 
     parser = argparse.ArgumentParser()
