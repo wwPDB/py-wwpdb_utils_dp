@@ -3,6 +3,7 @@ import gemmi
 import logging
 import os
 import sys
+import shutil
 import tempfile
 
 from wwpdb.utils.dp.electron_density.common_functions import run_command_and_check_output_file, convert_mdb_to_binary_cif
@@ -203,10 +204,18 @@ def run_process_with_gemmi(
         fofc_mmcif_map_coeff_in=fofc_mmcif_map_coeff_in,
         volume_server_query_path=volume_server_query_path,
     )
-    return xrsm.run_process()
 
+    ret = xrsm.run_process()
+
+    # Cleanup
+    shutil.rmtree(run_working_directory, ignore_errors=True)
+
+    return ret
 
 def main():  # pragma: no cover
+    FORMAT = '[%(levelname)s]-%(module)s.%(funcName)s: %(message)s'
+    logging.basicConfig(format=FORMAT)
+
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--two_fofc_mmcif_map_coeff_in",
