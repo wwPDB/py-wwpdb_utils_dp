@@ -309,6 +309,7 @@ class RcsbDpUtility(object):
             "annot-cif2pdbx-withpdbid",
             "annot-validate-geometry",
             "annot-update-dep-assembly-info",
+            "annot-add-default-assembly-info",
             "annot-chem-shifts-update-with-check",
             "annot-chem-shifts-atom-name-check",
             "annot-chem-shifts-upload-check",
@@ -1934,6 +1935,14 @@ class RcsbDpUtility(object):
 
         elif op == "annot-update-dep-assembly-info":
             cmdPath = os.path.join(self.__annotAppsPath, "bin", "UpdateDepositorAssemblyInfo")
+            thisCmd = " ; " + cmdPath
+            cmd += thisCmd + " -input " + iPath + " -output " + oPath + " -log annot-step.log "
+            #
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
+            cmd += " ; cat annot-step.log " + " >> " + lPath
+
+        elif op == "annot-add-default-assembly-info":
+            cmdPath = os.path.join(self.__annotAppsPath, "bin", "AddDefaultAssembly")
             thisCmd = " ; " + cmdPath
             cmd += thisCmd + " -input " + iPath + " -output " + oPath + " -log annot-step.log "
             #
