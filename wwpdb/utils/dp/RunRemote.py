@@ -257,9 +257,9 @@ class RunRemote:
         bsub_command.append("-eo {}/{}_error.log".format(self.log_dir, self.job_name))
         bsub_command.append('-Ep "touch {}"'.format(self.bsub_out_file))
         if self.pdbe_memory_limit and self.memory_limit > self.pdbe_memory_limit:
-            bsub_command.append("-P {}".format("bigmem"))
-
-        bsub_command.append("-q {}".format(self.pdbe_cluster_queue))
+            bsub_command.append("-q {}".format("bigmem"))
+        else:
+            bsub_command.append("-q {}".format(self.pdbe_cluster_queue))
         if "LSB_JOBGROUP" in os.environ and os.environ["LSB_JOBGROUP"]:
             bsub_command.append("-g {}".format(os.environ["LSB_JOBGROUP"]))
 
