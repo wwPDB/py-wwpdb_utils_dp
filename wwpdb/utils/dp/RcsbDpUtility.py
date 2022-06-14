@@ -2203,6 +2203,9 @@ class RcsbDpUtility(object):
             #
             cmdPath = os.path.join(self.__packagePath, "dict", "bin", "CifCheck")
             thisCmd = " ; " + cmdPath + " -dictSdb " + self.__nameToDictPath("archive_current") + " -f " + iPath
+            if "first_block" in self.__inputParamDict:
+                cmd += " -checkFirstBlock"
+
             cmd += thisCmd + " 2> tmp 1> " + tPath + " ; cat tmp >> " + lPath + " ; "
             cmd += " touch " + iPath + "-parser.log ; cat " + iPath + "-parser.log >> " + lPath
 
@@ -3598,6 +3601,8 @@ class RcsbDpUtility(object):
             thisCmd = " ; " + cmdPath
             cmd += thisCmd + " -f " + iPath
             cmd += " -dictSdb " + self.__pathPdbxDictSdb
+            if "first_block" in self.__inputParamDict:
+                cmd += " -checkFirstBlock"
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
             cmd += " ; touch " + iPath + "-diag.log "
             cmd += " ; touch " + iPath + "-parser.log "
@@ -3609,6 +3614,8 @@ class RcsbDpUtility(object):
             thisCmd = " ; " + cmdPath
             cmd += thisCmd + " -f " + iPath
             cmd += " -dictSdb " + self.__pathPdbxV4DictSdb
+            if "first_block" in self.__inputParamDict:
+                cmd += " -checkFirstBlock"
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
             cmd += " ; touch " + iPath + "-diag.log "
             # cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
@@ -3622,6 +3629,8 @@ class RcsbDpUtility(object):
             thisCmd = " ; " + cmdPath
             cmd += thisCmd + " -f " + iPath
             cmd += " -dictSdb " + dictSdbPath
+            if "first_block" in self.__inputParamDict:
+                cmd += " -checkFirstBlock"
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
             cmd += " ; touch " + iPath + "-diag.log "
             cmd += " ; touch " + iPath + "-parser.log "
