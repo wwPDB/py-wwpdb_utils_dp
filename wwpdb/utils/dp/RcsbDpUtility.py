@@ -3018,14 +3018,20 @@ class RcsbDpUtility(object):
 
             mappingfile = self.__inputParamDict.get("mapping_file", "None")
 
+            firstBlock = self.__inputParamDict.get("first_block", None)
+
             if filelist:
                 filecmd = " -list " + iPath
             else:
                 filecmd = " -f " + iPath
 
+            firstcmd = ""
+            if firstBlock:
+                firstcmd = " -firstDataBlock"
+
             cmd += "; rm -f DB_LOADER.sql "
             thisCmd = " ; " + dbLoaderCmd
-            cmd += thisCmd + " -server mysql " + filecmd + " -map " + mappingfile + " -db " + dbServer
+            cmd += thisCmd + " -server mysql " + filecmd + " -map " + mappingfile + " -db " + dbServer + firstcmd
             #
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
             cmd += " ; cp DB_LOADER.sql " + oPath
