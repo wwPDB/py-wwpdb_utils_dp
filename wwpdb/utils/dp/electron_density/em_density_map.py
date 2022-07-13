@@ -64,7 +64,7 @@ class EmVolumes:
             output_file=self.bcif_map_path,
             working_dir=self.workdir,
             mdb_map_path=self.mdb_map_path,
-            detail=3,
+            detail=5,
         )
 
 
