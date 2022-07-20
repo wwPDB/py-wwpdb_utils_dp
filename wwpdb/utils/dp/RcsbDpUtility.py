@@ -1297,9 +1297,10 @@ class RcsbDpUtility(object):
             imageTarPath = os.path.abspath(os.path.join(self.__wrkPath, "out_image.tar"))
 
             chimerax_bin = self.__cIVal.get_chimerax()
+            chimera_bin = self.__cIVal.get_chimera()
 
             cmd += " ; %s " % self.__site_config_command
-            cmd += ' ; export PATH="$PATH:{}"'.format(chimerax_bin)
+            cmd += ' ; export PATH="$PATH:{path1}:{path2}"'.format(path1=chimerax_bin, path2=chimera_bin)
             # unset the DISPLAY variable for VA pack to use nogui in ChimeraX
             cmd += " ; unset DISPLAY "
             cmd += " ; %s --validation " % self.__site_config_command
