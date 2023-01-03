@@ -1263,11 +1263,6 @@ class RcsbDpUtility(object):
             else:
                 nmrRestPathFull = None
 
-            # Revised validation code requires CS file as restraints file - even if not set. 2022-12-05 EP
-            if nmrRestPathFull is None and csPathFull:
-                nmrRestPath = csPath
-                nmrRestPathFull = csPathFull
-
             if "vol_file_path" in self.__inputParamDict:
                 volPath = self.__inputParamDict["vol_file_path"]
                 volPathFull = os.path.abspath(volPath)
