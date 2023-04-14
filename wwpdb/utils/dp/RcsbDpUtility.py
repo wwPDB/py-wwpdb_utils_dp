@@ -3060,7 +3060,7 @@ class RcsbDpUtility(object):
         cmd += " ) > %s 2>&1 " % ePathFull
 
         cmd += " ; cat " + ePathFull + " >> " + lPathFull
-        print(cmd)
+
         if self.__debug:
             ofh = open(lPathFull, "w")
             lt = time.strftime("%Y %m %d %H:%M:%S", time.localtime())
