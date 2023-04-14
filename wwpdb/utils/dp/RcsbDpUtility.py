@@ -2977,6 +2977,9 @@ class RcsbDpUtility(object):
         # Set application specific path details here -
         #
         self.__packagePath = self.__cICommon.get_site_packages_path()
+        self.__siteConfigDir = self.__getConfigPath("TOP_WWPDB_SITE_CONFIG_DIR")
+        self.__siteLoc = self.__cI.get("WWPDB_SITE_LOC")
+        self.__site_config_command = ". %s/init/env.sh -s %s -l %s" % (self.__siteConfigDir, self.__siteId, self.__siteLoc)
 
         #
         #
@@ -3036,11 +3039,12 @@ class RcsbDpUtility(object):
             #
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
             cmd += " ; cp DB_LOADER.sql " + oPath
-        if op == "sync-depositors":
+        elif op == "sync-depositors":
             depId = self.__inputParamDict.get("depId", None)
             modelFilePath = self.__inputParamDict.get("modelFilePath", None)
 
-            cmd += "; python -m wwpdb.apps.deposit.scripts.sync_depositors --dep-id " + depId + " --model-file " + modelFilePath
+            cmd += "; {}".format(self.__site_config_command)
+            cmd += " ; python -m wwpdb.apps.deposit.scripts.sync_depositors --dep-id " + depId + " --model-file " + modelFilePath
             #
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
         else:
@@ -3056,7 +3060,7 @@ class RcsbDpUtility(object):
         cmd += " ) > %s 2>&1 " % ePathFull
 
         cmd += " ; cat " + ePathFull + " >> " + lPathFull
-
+        print(cmd)
         if self.__debug:
             ofh = open(lPathFull, "w")
             lt = time.strftime("%Y %m %d %H:%M:%S", time.localtime())
