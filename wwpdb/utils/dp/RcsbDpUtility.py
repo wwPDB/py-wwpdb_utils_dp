@@ -3037,7 +3037,7 @@ class RcsbDpUtility(object):
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
             cmd += " ; cp DB_LOADER.sql " + oPath
         if op == "sync-depositors":
-            depId = self.__inputParamDict.get("dep_id", None)
+            depId = self.__inputParamDict.get("depId", None)
             modelFilePath = self.__inputParamDict.get("modelFilePath", None)
 
             cmd += "; python -m wwpdb.apps.deposit.scripts.sync_depositors --dep-id " + depId + " --model-file " + modelFilePath
