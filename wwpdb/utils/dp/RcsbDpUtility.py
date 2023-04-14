@@ -356,7 +356,7 @@ class RcsbDpUtility(object):
 
         self.__sequenceOps = ["seq-blastp", "seq-blastn", "fetch-uniprot", "fetch-gb", "format-uniprot", "format-gb", "backup-seqdb"]
         self.__validateOps = ["validate-geometry"]
-        self.__dbOps = ["db-loader"]
+        self.__dbOps = ["db-loader", "sync-depositors"]
         self.__emOps = [
             "mapfix-big",
             "em2em-spider",
@@ -2977,6 +2977,9 @@ class RcsbDpUtility(object):
         # Set application specific path details here -
         #
         self.__packagePath = self.__cICommon.get_site_packages_path()
+        self.__siteConfigDir = self.__getConfigPath("TOP_WWPDB_SITE_CONFIG_DIR")
+        self.__siteLoc = self.__cI.get("WWPDB_SITE_LOC")
+        self.__site_config_command = ". %s/init/env.sh -s %s -l %s" % (self.__siteConfigDir, self.__siteId, self.__siteLoc)
 
         #
         #
@@ -3036,6 +3039,14 @@ class RcsbDpUtility(object):
             #
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
             cmd += " ; cp DB_LOADER.sql " + oPath
+        elif op == "sync-depositors":
+            depId = self.__inputParamDict.get("depId", None)
+            modelFilePath = self.__inputParamDict.get("modelFilePath", None)
+
+            cmd += "; {}".format(self.__site_config_command)
+            cmd += " ; python -m wwpdb.apps.deposit.scripts.sync_depositors --dep-id " + depId + " --model-file " + modelFilePath
+            #
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
         else:
             return -1
         #
