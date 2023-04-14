@@ -356,7 +356,7 @@ class RcsbDpUtility(object):
 
         self.__sequenceOps = ["seq-blastp", "seq-blastn", "fetch-uniprot", "fetch-gb", "format-uniprot", "format-gb", "backup-seqdb"]
         self.__validateOps = ["validate-geometry"]
-        self.__dbOps = ["db-loader"]
+        self.__dbOps = ["db-loader", "sync-depositors"]
         self.__emOps = [
             "mapfix-big",
             "em2em-spider",
@@ -3036,6 +3036,13 @@ class RcsbDpUtility(object):
             #
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
             cmd += " ; cp DB_LOADER.sql " + oPath
+        if op == "sync-depositors":
+            depId = self.__inputParamDict.get("dep_id", None)
+            modelFilePath = self.__inputParamDict.get("modelFilePath", None)
+
+            cmd += "; python -m wwpdb.apps.deposit.scripts.sync_depositors --dep-id " + depId + " --model-file " + modelFilePath
+            #
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
         else:
             return -1
         #
