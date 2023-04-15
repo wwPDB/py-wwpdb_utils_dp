@@ -2028,7 +2028,7 @@ class RcsbDpUtility(object):
 
             # First add data items to the model
             cmd += " ; " + maxitCmd + " -o 8  -i " + xyzWrkPath + " -dep -log maxit.log "
-            cmd += " ; mv -f " + xyzWrkPath + ".cif " + xyzCnvWrkPath
+            cmd += " ; mv -f " + xyzWrkPath + ".cif " + xyzCnvWrkPath  # pylint: disable=used-before-assignment
             #
             cmd += thisCmd + " -input " + iPath + " -output " + oPath + " -ciffile " + xyzCnvWrkPath + " -log " + lCheckPath
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
@@ -3236,7 +3236,7 @@ class RcsbDpUtility(object):
             jarPath = os.path.join(self.__packagePath, "mapFix", "mapFixAnot.jar")
             cmd += self.__javaPath + " -Xms256m -Xmx256m -jar " + jarPath
             # -out is a temporary file place holder --
-            cmd += " -in " + inpMapFilePath + " -out  dummy-out.map "
+            cmd += " -in " + inpMapFilePath + " -out  dummy-out.map "  # pylint: disable=used-before-assignment
             # these dummy arguments required to run this code --
             cmd += " -voxel 1.0 1.0 1.0 -label test "
             # oPath here will be the JSON  output containing may header details --
@@ -3265,7 +3265,7 @@ class RcsbDpUtility(object):
             jarPath = os.path.join(self.__packagePath, "mapFix", "mapFixAnot.jar")
             cmd += self.__javaPath + " -Xms256m -Xmx256m -jar " + jarPath
             # -out is a temporary file place holder --
-            cmd += " -in " + inpMapFilePath + " -out  " + outMapFilePath
+            cmd += " -in " + inpMapFilePath + " -out  " + outMapFilePath  # pylint: disable=used-before-assignment
             #
             if "voxel" in self.__inputParamDict:
                 argVal = self.__inputParamDict["voxel"]
