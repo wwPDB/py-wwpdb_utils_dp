@@ -41,7 +41,7 @@ setup(
     ],
     entry_points={"console_scripts": []},
     #
-    install_requires=["future", "mmcif ~= 0.18", "wwpdb.utils.config >= 0.32", "wwpdb.io", "gemmi >= 0.4"],
+    install_requires=["future", "mmcif ~= 0.18", "wwpdb.utils.config >= 0.34", "wwpdb.io", "gemmi >= 0.4"],
     packages=find_packages(exclude=["wwpdb.mock-data", "wwpdb.utils.tests-dp", "tests.*"]),
     package_data={
         # If any package contains *.md or *.rst ...  files, include them:
