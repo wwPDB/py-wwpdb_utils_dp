@@ -356,7 +356,7 @@ class RcsbDpUtility(object):
 
         self.__sequenceOps = ["seq-blastp", "seq-blastn", "fetch-uniprot", "fetch-gb", "format-uniprot", "format-gb", "backup-seqdb"]
         self.__validateOps = ["validate-geometry"]
-        self.__dbOps = ["db-loader"]
+        self.__dbOps = ["db-loader", "sync-depositors"]
         self.__emOps = [
             "mapfix-big",
             "em2em-spider",
@@ -2031,7 +2031,7 @@ class RcsbDpUtility(object):
 
             # First add data items to the model
             cmd += " ; " + maxitCmd + " -o 8  -i " + xyzWrkPath + " -dep -log maxit.log "
-            cmd += " ; mv -f " + xyzWrkPath + ".cif " + xyzCnvWrkPath
+            cmd += " ; mv -f " + xyzWrkPath + ".cif " + xyzCnvWrkPath  # pylint: disable=used-before-assignment
             #
             cmd += thisCmd + " -input " + iPath + " -output " + oPath + " -ciffile " + xyzCnvWrkPath + " -log " + lCheckPath
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
@@ -2980,6 +2980,9 @@ class RcsbDpUtility(object):
         # Set application specific path details here -
         #
         self.__packagePath = self.__cICommon.get_site_packages_path()
+        self.__siteConfigDir = self.__getConfigPath("TOP_WWPDB_SITE_CONFIG_DIR")
+        self.__siteLoc = self.__cI.get("WWPDB_SITE_LOC")
+        self.__site_config_command = ". %s/init/env.sh -s %s -l %s" % (self.__siteConfigDir, self.__siteId, self.__siteLoc)
 
         #
         #
@@ -3039,6 +3042,14 @@ class RcsbDpUtility(object):
             #
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
             cmd += " ; cp DB_LOADER.sql " + oPath
+        elif op == "sync-depositors":
+            depId = self.__inputParamDict.get("depId", None)
+            modelFilePath = self.__inputParamDict.get("modelFilePath", None)
+
+            cmd += "; {}".format(self.__site_config_command)
+            cmd += " ; python -m wwpdb.apps.deposit.scripts.sync_depositors --dep-id " + depId + " --model-file " + modelFilePath
+            #
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
         else:
             return -1
         #
@@ -3228,7 +3239,7 @@ class RcsbDpUtility(object):
             jarPath = os.path.join(self.__packagePath, "mapFix", "mapFixAnot.jar")
             cmd += self.__javaPath + " -Xms256m -Xmx256m -jar " + jarPath
             # -out is a temporary file place holder --
-            cmd += " -in " + inpMapFilePath + " -out  dummy-out.map "
+            cmd += " -in " + inpMapFilePath + " -out  dummy-out.map "  # pylint: disable=used-before-assignment
             # these dummy arguments required to run this code --
             cmd += " -voxel 1.0 1.0 1.0 -label test "
             # oPath here will be the JSON  output containing may header details --
@@ -3257,7 +3268,7 @@ class RcsbDpUtility(object):
             jarPath = os.path.join(self.__packagePath, "mapFix", "mapFixAnot.jar")
             cmd += self.__javaPath + " -Xms256m -Xmx256m -jar " + jarPath
             # -out is a temporary file place holder --
-            cmd += " -in " + inpMapFilePath + " -out  " + outMapFilePath
+            cmd += " -in " + inpMapFilePath + " -out  " + outMapFilePath  # pylint: disable=used-before-assignment
             #
             if "voxel" in self.__inputParamDict:
                 argVal = self.__inputParamDict["voxel"]
