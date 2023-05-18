@@ -156,7 +156,7 @@ except ImportError:
 
 from wwpdb.io.file.DataFile import DataFile
 from wwpdb.utils.config.ConfigInfo import ConfigInfo
-from wwpdb.utils.config.ConfigInfoApp import ConfigInfoAppEm, ConfigInfoAppCommon, ConfigInfoAppValidation
+from wwpdb.utils.config.ConfigInfoApp import ConfigInfoAppEm, ConfigInfoAppCommon, ConfigInfoAppValidation, ConfigInfoAppCc
 from wwpdb.utils.dp.PdbxStripCategory import PdbxStripCategory
 from wwpdb.utils.dp.RunRemote import RunRemote
 
@@ -388,6 +388,7 @@ class RcsbDpUtility(object):
 
         self.__cI = ConfigInfo(self.__siteId)
         self.__cICommon = ConfigInfoAppCommon(self.__siteId)
+        self.__cIAppCc = ConfigInfoAppCc(self.__siteId)
         self.__cIVal = ConfigInfoAppValidation(self.__siteId)
         self.__initPath()
         self.__getRunRemote()
@@ -781,17 +782,19 @@ class RcsbDpUtility(object):
         self.__deployPath = self.__getConfigPath("SITE_DEPLOY_PATH")
         self.__sfvalidPath = self.__cICommon.get_sf_valid()
         self.__siteLoc = self.__cI.get("WWPDB_SITE_LOC")
+
         # self.__ccDictPath = self.__cICommon.get_site_cc_dict_path()
-        self.__ccCvsPath = self.__cICommon.get_site_cc_cvs_path()
-        self.__prdccCvsPath = self.__cICommon.get_site_prdcc_cvs_path()
-        self.__prdDictPath = self.__cICommon.get_site_prd_dict_path()
-        self.__prdSummarySerial = self.__cICommon.get_prd_summary_sdb()
+        self.__ccCvsPath = self.__cIAppCc.get_site_cc_cvs_path()
+        self.__prdccCvsPath = self.__cIAppCc.get_site_prdcc_cvs_path()
+        self.__prdDictPath = self.__cIAppCc.get_site_prd_dict_path()
+        self.__prdSummarySerial = self.__cIAppCc.get_prd_summary_sdb()
+        self.__ccDictPathIdx = self.__cIAppCc.get_cc_dict_idx()
+
         self.__oeDirPath = self.__cICommon.get_site_cc_oe_dir()
         self.__oeLicensePath = self.__cICommon.get_site_cc_oe_licence()
         self.__siteWebAppsSessionsPath = self.__cICommon.get_site_web_apps_sessions_path()
         self.__validScrPath = self.__cI.get("VALID_SCR_PATH")
         self.__siteConfigDir = self.__getConfigPath("TOP_WWPDB_SITE_CONFIG_DIR")
-        self.__ccDictPathIdx = self.__cICommon.get_cc_dict_idx()
         self.__pathPdbxDictSdb = self.__cICommon.get_mmcif_next_dictionary_sdb_file_path()
         self.__site_config_command = ". %s/init/env.sh -s %s -l %s" % (self.__siteConfigDir, self.__siteId, self.__siteLoc)
 
@@ -2889,9 +2892,9 @@ class RcsbDpUtility(object):
         self.__packagePath = self.__cICommon.get_site_packages_path()
         self.__deployPath = self.__getConfigPath("SITE_DEPLOY_PATH")
         # self.__ccDictPath = self.__cICommon.get_site_cc_dict_path()
-        self.__ccCvsPath = self.__cICommon.get_site_cc_cvs_path()
-        self.__prdccCvsPath = self.__cICommon.get_site_prdcc_cvs_path()
-        self.__prdDictPath = self.__cICommon.get_site_prd_dict_path()
+        self.__ccCvsPath = self.__cIAppCc.get_site_cc_cvs_path()
+        self.__prdccCvsPath = self.__cIAppCc.get_site_prdcc_cvs_path()
+        self.__prdDictPath = self.__cIAppCc.get_site_prd_dict_path()
 
         self.__rcsbAppsPath = self.__cICommon.get_site_annot_tools_path()
         self.__pathPdbxDictSdb = self.__cICommon.get_mmcif_next_dictionary_sdb_file_path()
@@ -3357,7 +3360,7 @@ class RcsbDpUtility(object):
         # If this has not been initialized take if from the configuration class.
         if self.__rcsbAppsPath is None:
             self.__rcsbAppsPath = self.__cICommon.get_site_annot_tools_path()
-        self.__ccCvsPath = self.__cICommon.get_site_cc_cvs_path()
+        self.__ccCvsPath = self.__cIAppCc.get_site_cc_cvs_path()
         self.__pathPdbxDictSdb = self.__cICommon.get_mmcif_next_dictionary_sdb_file_path()
         #
         iPath = self.__getSourceWrkFile(self.__stepNo)
@@ -3495,12 +3498,12 @@ class RcsbDpUtility(object):
         self.__pdbxV4DictName = self.__cI.get("SITE_PDBX_V4_DICT_NAME", "missing")
 
         # self.__ccDictPath = self.__cICommon.get_site_cc_dict_path()
-        self.__ccCvsPath = self.__cICommon.get_site_cc_cvs_path()
+        self.__ccCvsPath = self.__cIAppCc.get_site_cc_cvs_path()
 
-        self.__patternPath = self.__cICommon.get_cc_fp_patterns()
+        self.__patternPath = self.__cIAppCc.get_cc_fp_patterns()
         # self.__ccDictPathCif = self.__cICommon.get_cc_dict()
-        self.__ccDictPathSdb = self.__cICommon.get_cc_dict_serial()
-        self.__ccDictPathIdx = self.__cICommon.get_cc_dict_idx()
+        self.__ccDictPathSdb = self.__cIAppCc.get_cc_dict_serial()
+        self.__ccDictPathIdx = self.__cIAppCc.get_cc_dict_idx()
         #
         self.__pathDdlSdb = os.path.join(self.__pdbxDictPath, "mmcif_ddl.sdb")
         # self.__pathDdl = os.path.join(self.__pdbxDictPath, "mmcif_ddl.dic")
