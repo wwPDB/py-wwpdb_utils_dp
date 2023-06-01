@@ -366,6 +366,7 @@ class RcsbDpUtility(object):
             "annot-read-map-header-in-place",
             "annot-update-map-header-in-place",
             "deposit-update-map-header-in-place",
+            "em-map-model-upload-check"
         ]
 
         #
@@ -3330,6 +3331,15 @@ class RcsbDpUtility(object):
 
             cmd += " ; } 2> " + ePath + " 1> " + oPath
             cmd += " ; cat " + ePath + " > " + lPath
+        elif op == "em-map-model-upload-check":
+            if "input_map_file_path" in self.__inputParamDict:
+                inpMapFilePath = self.__inputParamDict["input_map_file_path"]
+            if "input_model_file_path" in self.__inputParamDict:
+                inpModelFilePath = self.__inputParamDict["input_model_file_path"]
+            if "output_file_path" in self.__inputParamDict:
+                outFilePath = self.__inputParamDict["output_file_path"]
+
+            cmd = f"python -m wwpdb.utils.emdb.atomcheck.atomcheck -m {inpMapFilePath} -d {inpModelFilePath} -o {outFilePath}"
         else:
             pass
 
@@ -3342,6 +3352,7 @@ class RcsbDpUtility(object):
             "annot-read-map-header-in-place",
             "annot-update-map-header-in-place",
             "deposit-update-map-header-in-place",
+            "em-map-model-upload-check"
         ):
             return -1
         #
