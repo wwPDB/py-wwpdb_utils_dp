@@ -3332,6 +3332,9 @@ class RcsbDpUtility(object):
             cmd += " ; } 2> " + ePath + " 1> " + oPath
             cmd += " ; cat " + ePath + " > " + lPath
         elif op == "em-map-model-upload-check":
+            inpMapFilePath = None
+            inpModelFilePath = None
+            outFilePath = None
             if "input_map_file_path" in self.__inputParamDict:
                 inpMapFilePath = self.__inputParamDict["input_map_file_path"]
             if "input_model_file_path" in self.__inputParamDict:
