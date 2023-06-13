@@ -125,6 +125,7 @@
 # 30-Jun-2020 zf  Add image tar file output after svg file for "annot-wwpdb-validate-all" & "annot-wwpdb-validate-all-v2"
 # 08-Jul-2020 zf  Add "get-branch-polymer-info"
 # 28-Sep-2020 zf  Add "annot-get-close-contact" & "annot-convert-close-contact-to-link"
+# 26-May-2023 zf  Add "annot-public-pdbx-to-xml-noatom"
 ##
 """
 Wrapper class for data processing and chemical component utilities.
@@ -331,6 +332,7 @@ class RcsbDpUtility(object):
             "annot-correct-freer-set",
             "annot-cif-to-public-pdbx",
             "annot-public-pdbx-to-xml",
+            "annot-public-pdbx-to-xml-noatom",
             "annot-release-update",
             "annot-get-pdb-bundle",
             "annot-get-biol-cif-file",
@@ -2204,6 +2206,13 @@ class RcsbDpUtility(object):
             cmd += thisCmd + " -f " + iPath
             cmd += " 2> " + tPath + " 1> " + lPath
 
+        elif op == "annot-public-pdbx-to-xml-noatom":
+            #
+            cmdPath = os.path.join(self.__packagePath, "dict", "bin", "mmcif2XML")
+            thisCmd = " ; " + cmdPath + " -prefix  pdbx-v50 -ns PDBx -funct mmcif2xmlnoatom -dictName mmcif_pdbx.dic -df " + self.__nameToDictPath("archive_current", suffix=".odb")
+            cmd += thisCmd + " -f " + iPath
+            cmd += " 2> " + tPath + " 1> " + lPath
+
         elif op == "annot-check-cif":
             #
             cmdPath = os.path.join(self.__packagePath, "dict", "bin", "CifCheck")
@@ -2814,6 +2823,16 @@ class RcsbDpUtility(object):
 
         elif op == "annot-public-pdbx-to-xml":
             for fileName in (iPath + ".xml", iPath + ".xml-noatom", iPath + ".xml-extatom", lPath, tPath):
+                outFile = os.path.join(self.__wrkPath, fileName)
+                if os.access(outFile, os.F_OK):
+                    self.__resultPathList.append(outFile)
+                else:
+                    self.__resultPathList.append("missing")
+                #
+            #
+
+        elif op == "annot-public-pdbx-to-xml-noatom":
+            for fileName in (iPath + ".xml-noatom", lPath, tPath):
                 outFile = os.path.join(self.__wrkPath, fileName)
                 if os.access(outFile, os.F_OK):
                     self.__resultPathList.append(outFile)
