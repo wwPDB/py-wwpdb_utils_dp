@@ -126,6 +126,7 @@
 # 08-Jul-2020 zf  Add "get-branch-polymer-info"
 # 28-Sep-2020 zf  Add "annot-get-close-contact" & "annot-convert-close-contact-to-link"
 # 26-May-2023 zf  Add "annot-public-pdbx-to-xml-noatom"
+# 23-Aug-2023 zf  Add "annot-cif-to-pdbx-em-header"
 ##
 """
 Wrapper class for data processing and chemical component utilities.
@@ -331,6 +332,7 @@ class RcsbDpUtility(object):
             "annot-dcc-validation",
             "annot-correct-freer-set",
             "annot-cif-to-public-pdbx",
+            "annot-cif-to-pdbx-em-header",
             "annot-public-pdbx-to-xml",
             "annot-public-pdbx-to-xml-noatom",
             "annot-release-update",
@@ -2199,6 +2201,21 @@ class RcsbDpUtility(object):
             cmd += thisCmd + " -input " + iPath + " -output " + oPath
             cmd += " 2> " + lPath + " 1> " + tPath
 
+        elif op == "annot-cif-to-pdbx-em-header":
+            #
+            cmdPath = os.path.join(self.__packagePath, "dict", "bin", "cifexch2")
+            thisCmd = (
+                " ; "
+                + cmdPath
+                + " -dicSdb "
+                + self.__nameToDictPath("archive_current")
+                + " -pdbxDicSdb "
+                + self.__nameToDictPath("archive_current")
+                + " -reorder  -strip -op in  -emdbids -privatectx "
+            )
+            cmd += thisCmd + " -input " + iPath + " -output " + oPath
+            cmd += " 2> " + lPath + " 1> " + tPath
+
         elif op == "annot-public-pdbx-to-xml":
             #
             cmdPath = os.path.join(self.__packagePath, "dict", "bin", "mmcif2XML")
@@ -2811,7 +2828,8 @@ class RcsbDpUtility(object):
                 #
             #
 
-        elif (op == "annot-cif-to-public-pdbx") or (op == "annot-misc-checking") or (op == "annot-get-pdb-file") or (op == "annot-add-version-info"):
+        elif (op == "annot-cif-to-public-pdbx") or (op == "annot-cif-to-pdbx-em-header") or (op == "annot-misc-checking") or \
+             (op == "annot-get-pdb-file") or (op == "annot-add-version-info"):
             for fileName in (oPath, tPath, lPath):
                 outFile = os.path.join(self.__wrkPath, fileName)
                 if os.access(outFile, os.F_OK):
@@ -4292,6 +4310,7 @@ class RcsbDpUtility(object):
                 dbName = str(self.__inputParamDict["db_name"])
             else:
                 dbName = "my_uniprot_all"
+            #
 
             cmdPath = blastp_command
 
