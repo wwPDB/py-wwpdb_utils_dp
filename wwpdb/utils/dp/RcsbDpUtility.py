@@ -719,7 +719,7 @@ class RcsbDpUtility(object):
         """Cleanup temporary files and directories"""
         try:
             logger.info("+RcsbDpUtility.cleanup() removing working path %s\n", self.__wrkPath)
-            # shutil.rmtree(self.__wrkPath, ignore_errors=True)
+            shutil.rmtree(self.__wrkPath, ignore_errors=True)
             return True
         except Exception:
             logger.info("+RcsbDpUtility.cleanup() removal failed for working path %s\n", self.__wrkPath)
@@ -4034,10 +4034,7 @@ class RcsbDpUtility(object):
             # set up
             #
             db = self.__inputParamDict.get("db")
-            numproc = int(self.__inputParamDict.get("numproc"))
-
-            if numproc < 1:
-                numproc = 8
+            numproc = int(self.__inputParamDict.get("numproc", 8))
 
             cmd += " ; {} ".format(self.__site_config_command)
             cmd += " ; python -m wwpdb.apps.chem_ref_data.utils.ChemRefDataDbExec --load --db %s --numproc %s -v" % (db, numproc)
