@@ -127,6 +127,7 @@
 # 28-Sep-2020 zf  Add "annot-get-close-contact" & "annot-convert-close-contact-to-link"
 # 26-May-2023 zf  Add "annot-public-pdbx-to-xml-noatom"
 # 23-Aug-2023 zf  Add "annot-cif-to-pdbx-em-header"
+# 10-Nov-2023 zf  Add shortSeqOptions to "seq-blastp"
 ##
 """
 Wrapper class for data processing and chemical component utilities.
@@ -4314,6 +4315,11 @@ class RcsbDpUtility(object):
 
             cmdPath = blastp_command
 
+            shortSeqOptions = ""
+            if ("short_seq" in self.__inputParamDict) and self.__inputParamDict["short_seq"]:
+                shortSeqOptions = " -word_size 2 -gapopen 9 -matrix PAM30 -threshold 16 -comp_based_stats 0 -window_size 15 "
+            #
+
             mySeqDbPath = self.__locateSeqDb(seqDbPath, altPathList, dbName + ".pal")
             cmd += " ; BLASTDB=" + os.path.abspath(mySeqDbPath) + " ; export BLASTDB "
             cmd += (
@@ -4324,6 +4330,7 @@ class RcsbDpUtility(object):
                 + hOpt
                 + " -evalue "
                 + eValue
+                + shortSeqOptions
                 + " -db "
                 + os.path.join(mySeqDbPath, dbName)
                 + " -query "
