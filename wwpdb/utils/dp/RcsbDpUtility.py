@@ -4035,9 +4035,10 @@ class RcsbDpUtility(object):
             # set up
             #
             db = self.__inputParamDict.get("db")
+            numproc = int(self.__inputParamDict.get("numproc", 8))
 
             cmd += " ; {} ".format(self.__site_config_command)
-            cmd += " ; python -m wwpdb.apps.chem_ref_data.utils.ChemRefDataDbExec --load --db %s -v" % db
+            cmd += " ; python -m wwpdb.apps.chem_ref_data.utils.ChemRefDataDbExec --load --db %s --numproc %s -v" % (db, numproc)
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
         elif op == "chem-ref-run-setup":
             # set up
