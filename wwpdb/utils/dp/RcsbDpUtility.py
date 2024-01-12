@@ -3383,6 +3383,8 @@ class RcsbDpUtility(object):
             cmd = f"python -m wwpdb.utils.emdb.atomcheck.atomcheck -m {inpMapFilePath} -d {inpModelFilePath} -o {outFilePath}"
         elif op == "check-uploaded-em-map-model":
             inpMapFilePath = None
+            inpHalfMap1FilePath = None
+            inpHalfMap2FilePath = None
             inpModelFilePath = None
             outFilePath = None
             if "input_map_file_path" in self.__inputParamDict:
