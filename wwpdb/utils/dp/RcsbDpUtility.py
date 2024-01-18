@@ -371,7 +371,8 @@ class RcsbDpUtility(object):
             "annot-read-map-header-in-place",
             "annot-update-map-header-in-place",
             "deposit-update-map-header-in-place",
-            "em-map-model-upload-check"
+            "em-map-model-upload-check",
+            "check-uploaded-em-map-model"
         ]
 
         #
@@ -3123,13 +3124,19 @@ class RcsbDpUtility(object):
         # Set application specific path details here -
         #
         self.__packagePath = self.__cICommon.get_site_packages_path()
+        print(f"self.__packagePath: {self.__packagePath}")
+
         self.__deployPath = self.__getConfigPath("SITE_DEPLOY_PATH")
+        print(f"self.__deployPath: {self.__deployPath}")
+
         self.__localAppsPath = self.__cICommon.get_site_local_apps_path()
+        print(f"self.__localAppsPath: {self.__localAppsPath}")
 
         if self.__siteId in ["WWPDB_DEPLOY_MACOSX"]:
             self.__javaPath = "/usr/bin/java"
         else:
             self.__javaPath = os.path.join(self.__packagePath, "java", "jre", "bin", "java")
+        print(f"self.__javaPath: {self.__javaPath}")
 
         #
         #
@@ -3380,26 +3387,35 @@ class RcsbDpUtility(object):
             if "output_file_path" in self.__inputParamDict:
                 outFilePath = self.__inputParamDict["output_file_path"]
 
-            cmd = f"python -m wwpdb.utils.emdb.atomcheck.atomcheck -m {inpMapFilePath} -d {inpModelFilePath} -o {outFilePath}"
+            cmd += f"{self.__localAppsPath}/bin/"
+            thisCmd = f"python3 -m wwpdb.utils.emdb.atomcheck.atomcheck -m {inpMapFilePath} -d {inpModelFilePath} -o {outFilePath}"
+            cmd += thisCmd
+            cmd += " ; } 2>&1 ;"
+        
         elif op == "check-uploaded-em-map-model":
-            inpMapFilePath = None
-            inpHalfMap1FilePath = None
-            inpHalfMap2FilePath = None
-            inpModelFilePath = None
-            outFilePath = None
-            if "input_map_file_path" in self.__inputParamDict:
-                inpMapFilePath = self.__inputParamDict["input_map_file_path"]
-            if "input_half_map_file_path_1" in self.__inputParamDict:
-                inpHalfMap1FilePath = self.__inputParamDict["input_half_map_file_path_1"]
-            if "input_half_map_file_path_2" in self.__inputParamDict:
-                inpHalfMap2FilePath = self.__inputParamDict["input_half_map_file_path_2"]
-            if "input_model_file_path" in self.__inputParamDict:
-                inpModelFilePath = self.__inputParamDict["input_model_file_path"]
-            if "output_file_path" in self.__inputParamDict:
-                outFilePath = self.__inputParamDict["output_file_path"]
-            half_maps_par = f"--halfmaps {inpHalfMap1FilePath} {inpHalfMap2FilePath} " if inpHalfMap1FilePath and inpHalfMap2FilePath else " "
-            model_par = f"--model {inpModelFilePath} " if inpModelFilePath else " "
-            cmd = f"python checkemupload.py {inpMapFilePath}{half_maps_par}{model_par} --output {outFilePath}"
+            inpMapFilePath = self.__inputParamDict.get("input_map_file_path", None)
+            print(f"DAOTHER-7631-II: +RcsbDpUtility._emStep()  - inpMapFilePath: {inpMapFilePath}")
+            inpHalfMap1FilePath = self.__inputParamDict.get("input_half_map_file_path_1", None)
+            print(f"DAOTHER-7631-II: +RcsbDpUtility._emStep()  - inpHalfMap1FilePath: {inpHalfMap1FilePath}")
+            inpHalfMap2FilePath = self.__inputParamDict.get("input_half_map_file_path_2", None)
+            print(f"DAOTHER-7631-II: +RcsbDpUtility._emStep()  - inpHalfMap2FilePath: {inpHalfMap2FilePath}")
+            inpModelFilePath = self.__inputParamDict.get("input_model_file_path", None)
+            print(f"DAOTHER-7631-II: +RcsbDpUtility._emStep()  - inpModelFilePath: {inpModelFilePath}")
+            outFilePath = self.__inputParamDict.get("output_file_path", None)
+            print(f"DAOTHER-7631-II: +RcsbDpUtility._emStep()  - outFilePath: {outFilePath}")
+            half_maps_par = f"--halfmaps {inpHalfMap1FilePath} {inpHalfMap2FilePath} " if inpHalfMap1FilePath and inpHalfMap2FilePath else ""
+            print(f"DAOTHER-7631-II: +RcsbDpUtility._emStep()  - half_maps_par: {half_maps_par}")
+            model_par = f"--model {inpModelFilePath} " if inpModelFilePath else ""
+            print(f"DAOTHER-7631-II: +RcsbDpUtility._emStep()  - model_par: {model_par}")
+
+            cmd += f"{self.__localAppsPath}/bin/"
+            thisCmd = f"python3 -m wwpdb.utils.emdb.checkemupload.checkemupload {inpMapFilePath} {half_maps_par}{model_par}--output {outFilePath}"
+            print(f"DAOTHER-7631-II: +RcsbDpUtility._emStep()  - thisCmd: {thisCmd}")
+            cmd += thisCmd
+            cmd += " ; } 2>&1 ;"
+
+            print(f"DAOTHER-7631-II: +RcsbDpUtility._emStep()  - cmd: {cmd}")
+
         else:
             pass
 
