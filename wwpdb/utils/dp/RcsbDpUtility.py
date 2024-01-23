@@ -128,6 +128,7 @@
 # 26-May-2023 zf  Add "annot-public-pdbx-to-xml-noatom"
 # 23-Aug-2023 zf  Add "annot-cif-to-pdbx-em-header"
 # 10-Nov-2023 zf  Add shortSeqOptions to "seq-blastp"
+# 22-Jan-2024 zf  Add "annot-get-covalent-bond" & "annot-remove-covalent-bond"
 ##
 """
 Wrapper class for data processing and chemical component utilities.
@@ -354,6 +355,8 @@ class RcsbDpUtility(object):
             "get-branch-polymer-info",
             "annot-get-close-contact",
             "annot-convert-close-contact-to-link",
+            "annot-get-covalent-bond",
+            "annot-remove-covalent-bond",
             "em-density-bcif",
             "xray-density-bcif",
             "centre-of-mass",
@@ -2406,6 +2409,24 @@ class RcsbDpUtility(object):
                 return -1
             #
             cmdPath = os.path.join(self.__annotAppsPath, "bin", "ConvertContactToLink")
+            thisCmd = " ; " + cmdPath
+            cmd += thisCmd + " -input " + iPath + " -datafile " + dataFilePath + " -output " + oPath + " -log " + lPath + " > " + tPath + " 2>&1 "
+
+        elif op == "annot-get-covalent-bond":
+            #
+            cmdPath = os.path.join(self.__annotAppsPath, "bin", "DepictCovalentBond")
+            thisCmd = " ; " + cmdPath
+            cmd += thisCmd + " -input " + iPath + " -output " + oPath + " -log " + lPath + " > " + tPath + " 2>&1 "
+
+        elif op == "annot-remove-covalent-bond":
+            #
+            dataFilePath = ""
+            if "datafile" in self.__inputParamDict:
+                dataFilePath = self.__inputParamDict["datafile"]
+            else:
+                return -1
+            #
+            cmdPath = os.path.join(self.__annotAppsPath, "bin", "RemoveCovalentBond")
             thisCmd = " ; " + cmdPath
             cmd += thisCmd + " -input " + iPath + " -datafile " + dataFilePath + " -output " + oPath + " -log " + lPath + " > " + tPath + " 2>&1 "
 
