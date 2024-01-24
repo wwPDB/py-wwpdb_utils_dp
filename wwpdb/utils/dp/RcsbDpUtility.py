@@ -3392,16 +3392,29 @@ class RcsbDpUtility(object):
             cmd += " ; cat " + ePath + " > " + lPath
         elif op == "em-map-model-upload-check":
             inpMapFilePath = None
+            inpHalfMapFilePath1 = None
+            inpHalfMapFilePath2 = None
             inpModelFilePath = None
             outFilePath = None
             if "input_map_file_path" in self.__inputParamDict:
                 inpMapFilePath = self.__inputParamDict["input_map_file_path"]
+            if "input_half_map_file_path_1" in self.__inputParamDict:
+                inpHalfMapFilePath1 = self.__inputParamDict["input_half_map_file_path_1"]
+            if "input_half_map_file_path_2" in self.__inputParamDict:
+                inpHalfMapFilePath2 = self.__inputParamDict["input_half_map_file_path_2"]
             if "input_model_file_path" in self.__inputParamDict:
                 inpModelFilePath = self.__inputParamDict["input_model_file_path"]
             if "output_file_path" in self.__inputParamDict:
                 outFilePath = self.__inputParamDict["output_file_path"]
 
-            cmd = f"python -m wwpdb.utils.emdb.atomcheck.atomcheck -m {inpMapFilePath} -d {inpModelFilePath} -o {outFilePath}"
+            # cmd = f"python -m wwpdb.utils.emdb.atomcheck.atomcheck -m {inpMapFilePath} -d {inpModelFilePath} -o {outFilePath}"
+            cmd = f"python -m wwpdb.utils.emdb.checkemupload.checkemupload {inpMapFilePath}"
+            if inpModelFilePath:
+                cmd += f" --model {inpModelFilePath}"
+            if inpHalfMapFilePath1 and inpHalfMapFilePath2:
+                cmd += f" --halfmaps {inpHalfMapFilePath1} {inpHalfMapFilePath2}"
+            if outFilePath:
+                cmd += f" --output {outFilePath}"
         else:
             pass
 
