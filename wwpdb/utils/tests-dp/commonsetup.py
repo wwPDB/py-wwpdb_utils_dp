@@ -18,9 +18,12 @@ mockTopPath = os.path.join(TOPDIR, "wwpdb", "mock-data")
 SiteConfigSetup().setupEnvironment(TESTOUTPUT, mockTopPath)
 
 from wwpdb.utils.config.ConfigInfo import ConfigInfo  # noqa: E402
+from wwpdb.utils.config.ConfigInfoApp import ConfigInfoAppCommon  # noqa: E402
 
 cI = ConfigInfo()
-packagedir = cI.get("SITE_PACKAGES_PATH")
+cIA = ConfigInfoAppCommon()
+
+packagedir = cIA.get_site_packages_path()
 
 if packagedir and os.path.exists(packagedir):
     toolsmissing = False
