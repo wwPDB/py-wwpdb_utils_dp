@@ -80,9 +80,9 @@ class XrayVolumeServerMap:
             if os.path.exists(sf_mmcif_in):
                 doc = gemmi.cif.read(sf_mmcif_in)  # pylint: disable=no-member
                 rblocks = gemmi.as_refln_blocks(doc)
-                if f_column in rblocks[0].column_labels() and phi_column in rblocks[0].column_labels():
+                if f_column in rblocks[0].column_labels() and phi_column in rblocks[0].column_labels():  # pylint: disable=unsubscriptable-object
                     ccp4 = gemmi.Ccp4Map()
-                    ccp4.grid = rblocks[0].transform_f_phi_to_map(f_column, phi_column)
+                    ccp4.grid = rblocks[0].transform_f_phi_to_map(f_column, phi_column)  # pylint: disable=unsubscriptable-object
                     ccp4.update_ccp4_header(2, True)
                     ccp4.set_extent(fbox)
                     ccp4.write_ccp4_map(map_out)
