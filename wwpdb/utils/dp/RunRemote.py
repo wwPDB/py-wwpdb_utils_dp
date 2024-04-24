@@ -1,5 +1,6 @@
 # pylint: disable=logging-format-interpolation
 import os
+import re
 import sys
 import time
 import logging
@@ -19,7 +20,7 @@ def remove_file(file_path):
 
 
 class RunRemote:
-    def __init__(self, command, job_name, log_dir, run_dir=None, timeout=5600, memory_limit=0, number_of_processors=1, add_site_config=False, add_site_config_database=False):
+    def __init__(self, command, job_name, log_dir, run_dir=None, timeout=5600, memory_limit=16000, number_of_processors=1, add_site_config=False, add_site_config_database=False):
         # self.command = self.escape_substitution(command)
         self.command = command
         if timeout:
@@ -34,22 +35,22 @@ class RunRemote:
         self.memory_used = 0
         self.memory_unit = "MB"
         self.time_taken = 0
-        self.bsub_exit_status = 0
-        self.bsub_success = False
+        self.slurm_exit_status = 0
+        self.slurm_success = False
         self.siteId = getSiteId()
         self.cI = ConfigInfo(self.siteId)
-        self.bsub_source_command = self.cI.get("BSUB_SOURCE")
-        self.bsub_run_command = self.cI.get("BSUB_COMMAND")
+        self.slurm_source_command = self.cI.get("BSUB_SOURCE")
+        self.slurm_run_command = self.cI.get("BSUB_COMMAND")
         self.pdbe_cluster_queue = self.cI.get("PDBE_CLUSTER_QUEUE")
         self.pdbe_memory_limit = 100000
-        self.bsub_login_node = self.cI.get("BSUB_LOGIN_NODE")
-        self.bsub_timeout = self.cI.get("BSUB_TIMEOUT")
-        self.bsub_retry_delay = self.cI.get("BSUB_RETRY_DELAY", 4)
+        self.slurm_login_node = self.cI.get("BSUB_LOGIN_NODE")
+        self.slurm_timeout = self.cI.get("BSUB_TIMEOUT")
+        self.slurm_retry_delay = self.cI.get("BSUB_RETRY_DELAY", 4)
         self.command_prefix = self.cI.get("REMOTE_COMMAND_PREFIX")
-        self.bsub_run_dir = run_dir if run_dir else log_dir
-        self.bsub_log_file = os.path.join(self.log_dir, self.job_name + ".log")
-        self.bsub_in_file = os.path.join(self.bsub_run_dir, self.job_name + ".in")
-        self.bsub_out_file = os.path.join(self.log_dir, self.job_name + ".out")
+        self.slurm_run_dir = run_dir if run_dir else log_dir
+        self.slurm_log_file = os.path.join(self.log_dir, self.job_name + ".log")
+        self.slurm_in_file = os.path.join(self.slurm_run_dir, self.job_name + ".in")
+        self.slurm_out_file = os.path.join(self.log_dir, self.job_name + ".out")
         self.add_site_config = add_site_config
         self.add_site_config_database = add_site_config_database
 
@@ -59,7 +60,7 @@ class RunRemote:
     @staticmethod
     def escape_substitution(command):
         """
-        Escapes dollars, stops variables being interpretted early when passed to bsub.
+        Escapes dollars, stops variables being interpretted early when passed to slurm.
         """
         command = command.replace("$", "\$")  # noqa: W605 pylint: disable=anomalous-backslash-in-string
         return command
@@ -92,10 +93,10 @@ class RunRemote:
         if self.command_prefix:
             self.prefix_command()
 
-        if self.bsub_run_command:
-            bsub_try = 1
-            rc, self.out, self.err = self.run_bsub()
-            while self.bsub_exit_status != 0:
+        if self.slurm_run_command:
+            run_try = 1
+            rc, self.out, self.err = self.run_slurm()
+            while self.slurm_exit_status != 0:
                 if self.memory_used:
                     try:
                         if self.memory_used > self.memory_limit:
@@ -109,9 +110,9 @@ class RunRemote:
                     self.memory_limit = self.memory_limit + 30000
                 else:
                     self.memory_limit = self.memory_limit + 10000
-                bsub_try += 1
-                logging.info("try {}, memory {}".format(bsub_try, self.memory_limit))
-                rc, self.out, self.err = self.run_bsub()
+                run_try += 1
+                logging.info("try {}, memory {}".format(run_try, self.memory_limit))
+                rc, self.out, self.err = self.run_slurm()
 
         if rc != 0:
             logging.error("return code: {}".format(rc))  # pylint: disable=logging-format-interpolation
@@ -119,8 +120,8 @@ class RunRemote:
             logging.error("error: {}".format(self.err))  # pylint: disable=logging-format-interpolation
         else:
             logging.info("worked")
-            remove_file(self.bsub_in_file)
-            remove_file(self.bsub_out_file)
+            remove_file(self.slurm_in_file)
+            remove_file(self.slurm_out_file)
             if self.get_shell_script():
                 remove_file(self.get_shell_script())
 
@@ -165,21 +166,28 @@ class RunRemote:
     def prefix_command(self):
         if self.command_prefix:
             self.command = "{} {}".format(self.command_prefix, self.command)
+    
+    def extract_state(self, output):
+        if isinstance(output, bytes):
+            output = output.decode('utf-8')
 
-    def check_bsub_finished(self):
-        # pause to allow system to write out bsub out file.
-        i = 1
-        retry_times = 15
-        while i < retry_times:
-            if os.path.exists(self.bsub_out_file):
-                break
-            else:
-                delay_time = i * 2
-                logging.info(
-                    "bsub out file {} not present - waiting {}secs (try {} of {}) for bsub to finish".format(self.bsub_out_file, delay_time, i, retry_times)
-                )  # pylint: disable=logging-format-interpolation
-                time.sleep(delay_time)
-                i += 1
+        match = re.search(r'State\s*:\s*(\S+)', output)
+        if match:
+            return match.group(1)
+        else:
+            return None
+
+    def check_sbatch_finished(self, job_id):
+        # pause to allow system to write out sbatch out file.
+        rc, out, err = self.run_command(command="jobinfo {}".format(job_id))
+        state = self.extract_state(out)
+
+        while state in ('PENDING', 'RUNNING', 'COMPLETING'):
+            time.sleep(60)
+            rc, out, err = self.run_command(command="jobinfo {}".format(job_id))
+            state = self.extract_state(out)
+
+        return state
 
     def run_command(self, command, log_file=None, new_env=None):
         # command_list = shlex.split(command)
@@ -239,72 +247,73 @@ class RunRemote:
             return True
         return False
 
-    def launch_bsub(self):
+    def launch_sbatch(self):
 
-        remove_file(self.bsub_out_file)
+        remove_file(self.slurm_out_file)
 
-        remove_file(self.bsub_in_file)
+        remove_file(self.slurm_in_file)
 
-        bsub_command = list()
-        if self.bsub_login_node:
-            bsub_command.append("ssh {} '".format(self.bsub_login_node))
-        if self.bsub_source_command:
-            bsub_command.append("{};".format(self.bsub_source_command))
-        bsub_command.append(self.bsub_run_command)
-        bsub_command.append("-J {}".format(self.job_name))
-        bsub_command.append('-E "touch {}"'.format(self.bsub_in_file))
-        bsub_command.append("-oo {}".format(self.bsub_log_file))
-        bsub_command.append("-eo {}/{}_error.log".format(self.log_dir, self.job_name))
-        bsub_command.append('-Ep "touch {}"'.format(self.bsub_out_file))
+        slurm_command = list()
+        if self.slurm_login_node:
+            slurm_command.append("ssh {} '".format(self.slurm_login_node))
+        if self.slurm_source_command:
+            slurm_command.append("{};".format(self.slurm_source_command))
+        slurm_command.append(self.slurm_run_command)
+        slurm_command.append("-J {}".format(self.job_name))
+        slurm_command.append("-o {}".format(self.slurm_log_file))
+        slurm_command.append("-e {}/{}_error.log".format(self.log_dir, self.job_name))
         if self.pdbe_memory_limit and self.memory_limit > self.pdbe_memory_limit:
-            bsub_command.append("-q {}".format("bigmem"))
+            slurm_command.append("-p {}".format("bigmem"))
         else:
-            bsub_command.append("-q {}".format(self.pdbe_cluster_queue))
-        if "LSB_JOBGROUP" in os.environ and os.environ["LSB_JOBGROUP"]:
-            bsub_command.append("-g {}".format(os.environ["LSB_JOBGROUP"]))
+            slurm_command.append("-p {}".format(self.pdbe_cluster_queue))
 
-        bsub_command.append("-n {}".format(self.number_of_processors))
-        bsub_command.append("-W {}".format(self.timeout))
-        if self.memory_limit:
-            bsub_command.append('-R "rusage[mem={0}]" -M {0}'.format(self.memory_limit))
-        bsub_command.append('-K "{}"'.format(self.command))
-        # bsub_command.append('"{}"'.format(self.command))
-        if self.bsub_login_node:
-            bsub_command.append("'")
+        slurm_command.append("-n {}".format(self.number_of_processors))
+        slurm_command.append("-t {}".format(self.timeout))
+        slurm_command.append('--mem={0}'.format(self.memory_limit))
+        slurm_command.append('--wrap="{}"'.format(self.command))
+        if self.slurm_login_node:
+            slurm_command.append("'")
 
-        command_string = " ".join(bsub_command)
+        command_string = " ".join(slurm_command)
 
+        rc, out, err = self.run_command(command=command_string)
+
+        if isinstance(out, bytes):
+            out = out.decode('utf-8')
+
+        # Regular expression to find the job id
+        match = re.search(r'Submitted batch job (\d+)', out)
+        if match:
+            return match.group(1), out, err
+        else:
+            return None, out, err
+
+    def launch_sbatch_wait_process(self):
+        sbatch_command = list()
+        sbatch_command.append("{};".format(self.slurm_source_command))
+        sbatch_command.append(self.slurm_run_command)
+        sbatch_command.append('-J "end_{}"'.format(self.job_name))
+        sbatch_command.append('-o "{}/{}_wait.log"'.format(self.log_dir, self.job_name))
+        sbatch_command.append('-e "{}/{}_wait_error.log"'.format(self.log_dir, self.job_name))
+        sbatch_command.append("-p {}".format(self.pdbe_cluster_queue))
+        sbatch_command.append('--wrap="uname -a; date"')
+        command_string = " ".join(sbatch_command)
         rc, out, err = self.run_command(command=command_string)
 
         return rc, out, err
 
-    def launch_bsub_wait_process(self):
-        bsub_command = list()
-        bsub_command.append("{};".format(self.bsub_source_command))
-        bsub_command.append(self.bsub_run_command)
-        bsub_command.append('-J "end_{}"'.format(self.job_name))
-        bsub_command.append('-w "ended({})"'.format(self.job_name))
-        bsub_command.append('-oo "{}/{}_wait.log"'.format(self.log_dir, self.job_name))
-        bsub_command.append('-eo "{}/{}_wait_error.log"'.format(self.log_dir, self.job_name))
-        bsub_command.append("-q {}".format(self.pdbe_cluster_queue))
-        bsub_command.append('-K "uname -a; date"')
-        command_string = " ".join(bsub_command)
-        rc, out, err = self.run_command(command=command_string)
-
-        return rc, out, err
-
-    def parse_bsub_log(self):
-        self.bsub_exit_status = 0
+    def parse_sbatch_log(self):
+        self.slurm_exit_status = 0
         self.memory_used = 0
         self.memory_unit = "MB"
         self.time_taken = 0
-        self.bsub_success = False
-        logging.info("reading: {}".format(self.bsub_log_file))  # pylint: disable=logging-format-interpolation
-        if os.path.exists(self.bsub_log_file):
-            with open(self.bsub_log_file, "r") as log_file:
+        self.slurm_success = False
+        logging.info("reading: {}".format(self.slurm_log_file))  # pylint: disable=logging-format-interpolation
+        if os.path.exists(self.slurm_log_file):
+            with open(self.slurm_log_file, "r") as log_file:
                 for log_file_line in log_file:
                     if "Successfully completed." in log_file_line:
-                        self.bsub_success = True
+                        self.slurm_success = True
                     if "Max Memory :" in log_file_line:
                         try:
                             memory_used = log_file_line.split(":")[-1].strip()
@@ -317,7 +326,7 @@ class RunRemote:
 
                     if "TERM_MEMLIMIT" in log_file_line:
                         logging.info("task killed due to hitting memory limit")
-                        self.bsub_exit_status = 1
+                        self.slurm_exit_status = 1
                     if "Turnaround time" in log_file_line:
                         time_taken = log_file_line.split(":")[-1].strip()
                         try:
@@ -331,56 +340,37 @@ class RunRemote:
         elif self.memory_unit == "KB":
             self.memory_unit = "MB"
             self.memory_used = int(self.memory_used / 1024)
-        logging.info("Bsub successfully run: {}".format(self.bsub_success))  # pylint: disable=logging-format-interpolation
+        logging.info("Bsub successfully run: {}".format(self.slurm_success))  # pylint: disable=logging-format-interpolation
         logging.info("memory used: {} {}".format(self.memory_used, self.memory_unit))  # pylint: disable=logging-format-interpolation
         logging.info("Bsub time taken: {} secs".format(self.time_taken))  # pylint: disable=logging-format-interpolation
-        logging.info("Bsub exit status: {}".format(self.bsub_exit_status))  # pylint: disable=logging-format-interpolation
+        logging.info("Bsub exit status: {}".format(self.slurm_exit_status))  # pylint: disable=logging-format-interpolation
 
-    def run_bsub(self):
+    def run_slurm(self):
 
         if not os.path.exists(self.log_dir):
             os.makedirs(self.log_dir)
 
-        temp_file = os.path.join(self.bsub_run_dir, "bsub_temp_file.out")
+        temp_file = os.path.join(self.slurm_run_dir, "slurm_temp_file.out")
 
-        # if get non ok exit status from bsub then wait 30 seconds and try again.
+        # if get non ok exit status from sbatch then wait 30 seconds and try again.
         # i = 0
-        rc, out, err = 0, None, None
+        job_id, out, err = 0, None, None
 
-        #
-        # error codes
-        # 0 everything is ok
-        # 127 task failed - retrying wont help - or LSF internal issue - retrying will help!
-        # 130 memory limit reached
-        # 143 memory limit reached
-        # 159/153 file too large - need additional resources, trying again wont help
-        # 255 is ssh connection dropped so task is still ongoing - this is also when lsf is not ready
-        # allowed_codes = (0, 130, 143, 153, 159)
         #
         # run command
-        i = 0
-        lsf_not_ready_codes = [-127, 127, 255]
-        # task_failed_codes = [1, 127]
-        task_failed_codes = [1]
-        while i < 5:
-            rc, out, err = self.launch_bsub()
-            if rc not in lsf_not_ready_codes:
-                break
-            else:
-                delay_time = i * 2
-                logging.info("bsub return code of {}. Waiting for {}".format(rc, delay_time))  # pylint: disable=logging-format-interpolation
-                time.sleep(delay_time)
-                i += 1
+        job_id, out, err = self.launch_sbatch()
 
-        # ensure NFS cache doesn't cause issues
-        self.touch(temp_file)
-        remove_file(temp_file)
-        if rc not in task_failed_codes:
-            self.check_bsub_finished()
+        if job_id is None:
+            logging.error("sbatch failed to run")
+            return None, out, err
+        
+        logging.info("sbatch job id: {}".format(job_id))  # pylint: disable=logging-format-interpolation
 
-        self.parse_bsub_log()
+        self.check_sbatch_finished(job_id=job_id)
 
-        return rc, out, err
+        self.parse_sbatch_log()
+
+        return job_id, out, err
 
 
 if __name__ == "__main__":
