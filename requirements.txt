@@ -1,4 +1,3 @@
-future
 mmcif
 wwpdb.utils.config
 wwpdb.utils.testing

@@ -41,7 +41,12 @@ setup(
     ],
     entry_points={"console_scripts": []},
     #
-    install_requires=["future", "mmcif ~= 0.18", "wwpdb.utils.config >= 0.34", "wwpdb.io", "gemmi >= 0.4"],
+    install_requires=[
+        "mmcif ~= 0.18",
+        "wwpdb.utils.config >= 0.34",
+        "wwpdb.io",
+        "gemmi >= 0.4",
+    ],
     packages=find_packages(exclude=["wwpdb.mock-data", "wwpdb.utils.tests-dp", "tests.*"]),
     package_data={
         # If any package contains *.md or *.rst ...  files, include them:
@@ -58,7 +63,13 @@ setup(
         "test": ["coverage"],
     },
     # Added for
-    command_options={"build_sphinx": {"project": ("setup.py", thisPackage), "version": ("setup.py", version), "release": ("setup.py", version)}},
+    command_options={
+        "build_sphinx": {
+            "project": ("setup.py", thisPackage),
+            "version": ("setup.py", version),
+            "release": ("setup.py", version),
+        }
+    },
     # This setting for namespace package support -
     zip_safe=False,
 )
