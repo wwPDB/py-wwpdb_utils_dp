@@ -374,7 +374,7 @@ class RcsbDpUtility(object):
             "annot-read-map-header-in-place",
             "annot-update-map-header-in-place",
             "deposit-update-map-header-in-place",
-            "em-map-model-upload-check"
+            "em-map-model-upload-check",
         ]
 
         #
@@ -2850,8 +2850,13 @@ class RcsbDpUtility(object):
                 #
             #
 
-        elif (op == "annot-cif-to-public-pdbx") or (op == "annot-cif-to-pdbx-em-header") or (op == "annot-misc-checking") or \
-             (op == "annot-get-pdb-file") or (op == "annot-add-version-info"):
+        elif (
+            (op == "annot-cif-to-public-pdbx")
+            or (op == "annot-cif-to-pdbx-em-header")
+            or (op == "annot-misc-checking")
+            or (op == "annot-get-pdb-file")
+            or (op == "annot-add-version-info")
+        ):
             for fileName in (oPath, tPath, lPath):
                 outFile = os.path.join(self.__wrkPath, fileName)
                 if os.access(outFile, os.F_OK):
@@ -3427,7 +3432,7 @@ class RcsbDpUtility(object):
             "annot-read-map-header-in-place",
             "annot-update-map-header-in-place",
             "deposit-update-map-header-in-place",
-            "em-map-model-upload-check"
+            "em-map-model-upload-check",
         ):
             return -1
         #
