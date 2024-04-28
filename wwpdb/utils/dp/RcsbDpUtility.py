@@ -360,6 +360,7 @@ class RcsbDpUtility(object):
             "em-density-bcif",
             "xray-density-bcif",
             "centre-of-mass",
+            "annot-complexity",
         ]
 
         self.__sequenceOps = ["seq-blastp", "seq-blastn", "fetch-uniprot", "fetch-gb", "format-uniprot", "format-gb", "backup-seqdb"]
@@ -1465,6 +1466,16 @@ class RcsbDpUtility(object):
             cmd += "; {}".format(self.__site_config_command)
 
             cmd += " ; python -m wwpdb.utils.dp.CentreOfMass {}".format(" ".join(cmd_args))
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
+
+        elif op == "annot-complexity":
+            cmd_path = "python -m wwpdb.utils.dp.PdbxModelComplexity"
+
+            cmd += "; " + cmd_path + " --model " + iPath + " --output " + oPath
+
+            if "threshold" in self.__inputParamDict:
+                cmd += " --threshold " + self.__inputParamDict["threshold"]
+
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
 
         elif op == "annot-dcc-report":
