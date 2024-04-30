@@ -39,13 +39,13 @@ class RunRemote:
         self.slurm_success = False
         self.siteId = getSiteId()
         self.cI = ConfigInfo(self.siteId)
-        self.slurm_source_command = self.cI.get("BSUB_SOURCE")
-        self.slurm_run_command = self.cI.get("BSUB_COMMAND")
+        self.slurm_source_command = self.cI.get("SLURM_SOURCE")
+        self.slurm_run_command = self.cI.get("SLURM_COMMAND")
         self.pdbe_cluster_queue = self.cI.get("PDBE_CLUSTER_QUEUE")
         self.pdbe_memory_limit = 100000
-        self.slurm_login_node = self.cI.get("BSUB_LOGIN_NODE")
-        self.slurm_timeout = self.cI.get("BSUB_TIMEOUT")
-        self.slurm_retry_delay = self.cI.get("BSUB_RETRY_DELAY", 4)
+        self.slurm_login_node = self.cI.get("SLURM_LOGIN_NODE")
+        self.slurm_timeout = self.cI.get("SLURM_TIMEOUT")
+        self.slurm_retry_delay = self.cI.get("SLURM_RETRY_DELAY", 4)
         self.command_prefix = self.cI.get("REMOTE_COMMAND_PREFIX")
         self.slurm_run_dir = run_dir if run_dir else log_dir
         self.slurm_log_file = os.path.join(self.log_dir, self.job_name + ".log")
@@ -168,6 +168,9 @@ class RunRemote:
             self.command = "{} {}".format(self.command_prefix, self.command)
     
     def extract_state(self, output):
+        """This method can be expanded to parse the entire
+        output.
+        """
         if isinstance(output, bytes):
             output = output.decode('utf-8')
 
@@ -178,7 +181,6 @@ class RunRemote:
             return None
 
     def check_sbatch_finished(self, job_id):
-        # pause to allow system to write out sbatch out file.
         rc, out, err = self.run_command(command="jobinfo {}".format(job_id))
         state = self.extract_state(out)
 
@@ -186,6 +188,8 @@ class RunRemote:
             time.sleep(60)
             rc, out, err = self.run_command(command="jobinfo {}".format(job_id))
             state = self.extract_state(out)
+        
+        logging.info("Job {} finished with state: {}".format(self.job_name, state))  # pylint: disable=logging-format-interpolation
 
         return state
 
@@ -284,9 +288,9 @@ class RunRemote:
         # Regular expression to find the job id
         match = re.search(r'Submitted batch job (\d+)', out)
         if match:
-            return match.group(1), out, err
+            return match.group(1), rc, out, err
         else:
-            return None, out, err
+            return None, rc, out, err
 
     def launch_sbatch_wait_process(self):
         sbatch_command = list()
@@ -302,49 +306,6 @@ class RunRemote:
 
         return rc, out, err
 
-    def parse_sbatch_log(self):
-        self.slurm_exit_status = 0
-        self.memory_used = 0
-        self.memory_unit = "MB"
-        self.time_taken = 0
-        self.slurm_success = False
-        logging.info("reading: {}".format(self.slurm_log_file))  # pylint: disable=logging-format-interpolation
-        if os.path.exists(self.slurm_log_file):
-            with open(self.slurm_log_file, "r") as log_file:
-                for log_file_line in log_file:
-                    if "Successfully completed." in log_file_line:
-                        self.slurm_success = True
-                    if "Max Memory :" in log_file_line:
-                        try:
-                            memory_used = log_file_line.split(":")[-1].strip()
-                            if memory_used:
-                                self.memory_unit = memory_used.split(" ")[1]
-                                self.memory_used = int(memory_used.split(" ")[0])
-                        except Exception as e:
-                            logging.error(e)
-                            logging.error(log_file_line)
-
-                    if "TERM_MEMLIMIT" in log_file_line:
-                        logging.info("task killed due to hitting memory limit")
-                        self.slurm_exit_status = 1
-                    if "Turnaround time" in log_file_line:
-                        time_taken = log_file_line.split(":")[-1].strip()
-                        try:
-                            self.time_taken = int(time_taken.split(" ")[0])
-                        except Exception as e:
-                            logging.error(e)
-                            logging.error(log_file_line)
-        if self.memory_unit == "GB":
-            self.memory_unit = "MB"
-            self.memory_used = self.memory_used * 1024
-        elif self.memory_unit == "KB":
-            self.memory_unit = "MB"
-            self.memory_used = int(self.memory_used / 1024)
-        logging.info("Bsub successfully run: {}".format(self.slurm_success))  # pylint: disable=logging-format-interpolation
-        logging.info("memory used: {} {}".format(self.memory_used, self.memory_unit))  # pylint: disable=logging-format-interpolation
-        logging.info("Bsub time taken: {} secs".format(self.time_taken))  # pylint: disable=logging-format-interpolation
-        logging.info("Bsub exit status: {}".format(self.slurm_exit_status))  # pylint: disable=logging-format-interpolation
-
     def run_slurm(self):
 
         if not os.path.exists(self.log_dir):
@@ -358,19 +319,17 @@ class RunRemote:
 
         #
         # run command
-        job_id, out, err = self.launch_sbatch()
+        job_id, rc, out, err = self.launch_sbatch()
 
         if job_id is None:
             logging.error("sbatch failed to run")
-            return None, out, err
+            return rc, out, err
         
         logging.info("sbatch job id: {}".format(job_id))  # pylint: disable=logging-format-interpolation
 
         self.check_sbatch_finished(job_id=job_id)
 
-        self.parse_sbatch_log()
-
-        return job_id, out, err
+        return rc, out, err
 
 
 if __name__ == "__main__":
