@@ -252,7 +252,7 @@ class RunRemote:
     @staticmethod
     def check_was_submitted(job_log_string):
         logging.info(job_log_string)
-        if "is submitted to queue" in job_log_string:
+        if "Submitted batch job" in job_log_string:
             return True
         return False
 
@@ -339,6 +339,7 @@ class RunRemote:
         
         logging.info("sbatch job id: {}".format(job_id))  # pylint: disable=logging-format-interpolation
 
+        time.sleep(5)
         self.check_sbatch_finished(job_id=job_id)
 
         return rc, out, err
