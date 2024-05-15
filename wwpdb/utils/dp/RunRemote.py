@@ -181,14 +181,26 @@ class RunRemote:
             return None
 
     def check_sbatch_finished(self, job_id):
-        rc, out, err = self.run_command(command="jobinfo {}".format(job_id))
+        slurm_command = list()
+        if self.slurm_login_node:
+            slurm_command.append("ssh {} '".format(self.slurm_login_node))
+        if self.slurm_source_command:
+            slurm_command.append("{};".format(self.slurm_source_command))
+        slurm_command.append("jobinfo {}".format(job_id))
+        if self.slurm_login_node:
+            slurm_command.append("'")
+
+        command_string = " ".join(slurm_command)
+    
+        rc, out, err = self.run_command(command=command_string)
+        # rc, out, err = self.run_command(command="jobinfo {}".format(job_id))
         state = self.extract_state(out)
 
         while state in ('PENDING', 'RUNNING', 'COMPLETING'):
             time.sleep(60)
-            rc, out, err = self.run_command(command="jobinfo {}".format(job_id))
+            rc, out, err = self.run_command(command=command_string)
             state = self.extract_state(out)
-        
+
         logging.info("Job {} finished with state: {}".format(self.job_name, state))  # pylint: disable=logging-format-interpolation
 
         return state
