@@ -21,7 +21,7 @@ if __package__ is None or __package__ == "":
     sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
     from commonsetup import TESTOUTPUT, TOPDIR, modified_environ  # pylint: disable=import-error
 else:
-    from .commonsetup import TESTOUTPUT, TOPDIR
+    from .commonsetup import TESTOUTPUT, TOPDIR, modified_environ
 
 from wwpdb.utils.config.ConfigInfo import getSiteId
 from wwpdb.utils.dp.RcsbDpUtility import RcsbDpUtility

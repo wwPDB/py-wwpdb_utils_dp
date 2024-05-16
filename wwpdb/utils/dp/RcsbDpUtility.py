@@ -2571,7 +2571,7 @@ class RcsbDpUtility(object):
             ]
 
             strpCt = PdbxStripCategory(verbose=self.__verbose, log=self.__lfh)
-            strpCt.strip(oPath2Full, oPathFull, stripList)
+            strpCt.strip(oPath2Full, oPathFull, stripList)  # This is defined for this op  # pylint: disable=used-before-assignment
 
         if (op == "annot-rcsb2pdbx-strip") or (op == "annot-rcsbeps2pdbx-strip"):
             # remove these derived categories for now --
@@ -2686,7 +2686,7 @@ class RcsbDpUtility(object):
                     self.__resultPathList.append("missing")
 
             # Cleanup workdir
-            if deleteRunDir:
+            if deleteRunDir:  # This is defined for this op  # pylint: disable=used-before-assignment
                 try:
                     logger.info("+RcsbDpUtility.__annotationStep() removing working path %s\n", runDir)
                     shutil.rmtree(runDir, ignore_errors=True)
@@ -2713,17 +2713,17 @@ class RcsbDpUtility(object):
             #
             # Push the output converted and diagnostic files onto the resultPathList.
             #
-            if os.access(sfCifPath, os.F_OK):
+            if os.access(sfCifPath, os.F_OK):  # This is defined for this op  # pylint: disable=used-before-assignment
                 self.__resultPathList.append(sfCifPath)
             else:
                 self.__resultPathList.append("missing")
 
-            if os.access(sfDiagPath, os.F_OK):
+            if os.access(sfDiagPath, os.F_OK):  # This is defined for this op  # pylint: disable=used-before-assignment
                 self.__resultPathList.append(sfDiagPath)
             else:
                 self.__resultPathList.append("missing")
 
-            if os.access(mtzDmpPath, os.F_OK):
+            if os.access(mtzDmpPath, os.F_OK):  # This is defined for this op  # pylint: disable=used-before-assignment
                 self.__resultPathList.append(mtzDmpPath)
             else:
                 self.__resultPathList.append("missing")
@@ -2780,7 +2780,7 @@ class RcsbDpUtility(object):
             # Here we manage copying the maps non-polymer CIF snippets and a defining index file to the user
             # specified output path --
             if self.__verbose:
-                logger.info("+RcsbDpUtility._annotationStep()  - for operation %s return path %s\n", op, outDataPathFull)
+                logger.info("+RcsbDpUtility._annotationStep()  - for operation %s return path %s\n", op, outDataPathFull)  # This is defined for this op  # pylint: disable=used-before-assignment
             pat = os.path.join(self.__wrkPath, "*.map")
             self.__resultMapPathList = glob.glob(pat)
             if self.__debug:
@@ -2797,7 +2797,7 @@ class RcsbDpUtility(object):
                 # index file --
                 ipT = os.path.join(self.__wrkPath, "LIG_PEPTIDE.cif")
                 if os.access(ipT, os.R_OK):
-                    shutil.copyfile(ipT, outIndexPathFull)
+                    shutil.copyfile(ipT, outIndexPathFull)  # This is defined for this op  # pylint: disable=used-before-assignment
                 else:
                     if self.__verbose:
                         logger.info("+RcsbDpUtility._annotationStep()  - missing map index file %s\n", ipT)
@@ -2826,7 +2826,7 @@ class RcsbDpUtility(object):
 
         elif op in ["annot-chem-shifts-atom-name-check", "annot-chem-shifts-upload-check"]:
             if os.access(lCheckPath, os.R_OK):
-                shutil.copyfile(lCheckPath, chkPath)
+                shutil.copyfile(lCheckPath, chkPath)  # This is defined for this op  # pylint: disable=used-before-assignment
             #
 
         elif op == "annot-depict-molecule-json":
@@ -3785,7 +3785,7 @@ class RcsbDpUtility(object):
                 dDictSdb = self.__nameToDictPath("archive_next")
 
             cmdPath = os.path.join(self.__packagePath, "dict", "bin", "cifexch2")
-            thisCmd = " ; " + cmdPath + " -dicSdb " + sDictSdb + " -pdbxDicSdb " + dDictSdb + " -reorder  -strip -op in  -pdbids "
+            thisCmd = " ; " + cmdPath + " -dicSdb " + sDictSdb + " -pdbxDicSdb " + dDictSdb + " -reorder  -strip -op in  -pdbids "  # If not set, crash is ok  # pylint: disable=possibly-used-before-assignment
             cmd += thisCmd + " -input " + iPath + " -output " + oPath
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
 
