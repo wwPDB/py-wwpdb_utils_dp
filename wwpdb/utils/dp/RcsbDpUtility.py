@@ -3433,6 +3433,7 @@ class RcsbDpUtility(object):
                 cmd += f" --output {outFilePath}"
             cmd += f" 2> {ePath} 1> {oPath}"
             cmd += f" ; cat {ePath} > {lPath}"
+            cmd += f" ; cat {oPath} >> {lPath}"
 
         else:
             pass
