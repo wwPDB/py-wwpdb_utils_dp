@@ -3431,6 +3431,9 @@ class RcsbDpUtility(object):
                 cmd += f" --halfmaps {inpHalfMapFilePath1} {inpHalfMapFilePath2}"
             if outFilePath:
                 cmd += f" --output {outFilePath}"
+            cmd += f" > {oPath} 2> {ePath}"
+            cmd += f" ; cat {ePath} > {lPath}"
+
         else:
             pass
 
