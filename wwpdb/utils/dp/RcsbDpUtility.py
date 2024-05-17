@@ -3785,7 +3785,7 @@ class RcsbDpUtility(object):
                 dDictSdb = self.__nameToDictPath("archive_next")
 
             cmdPath = os.path.join(self.__packagePath, "dict", "bin", "cifexch2")
-            thisCmd = " ; " + cmdPath + " -dicSdb " + sDictSdb + " -pdbxDicSdb " + dDictSdb + " -reorder  -strip -op in  -pdbids "  # Not set, crash  # pylint: disable=possibly-used-before-assignment
+            thisCmd = " ; " + cmdPath + " -dicSdb " + sDictSdb + " -pdbxDicSdb " + dDictSdb + " -reorder  -strip -op in  -pdbids "  # If not set, crash is ok  # noqa: E501 pylint: disable=possibly-used-before-assignment
             cmd += thisCmd + " -input " + iPath + " -output " + oPath
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
 
