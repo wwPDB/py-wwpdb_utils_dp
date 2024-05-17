@@ -2780,7 +2780,7 @@ class RcsbDpUtility(object):
             # Here we manage copying the maps non-polymer CIF snippets and a defining index file to the user
             # specified output path --
             if self.__verbose:
-                logger.info("+RcsbDpUtility._annotationStep()  - for operation %s return path %s\n", op, outDataPathFull)  # This is defined for this op  # pylint: disable=used-before-assignment
+                logger.info("+RcsbDpUtility._annotationStep()  - for operation %s return path %s\n", op, outDataPathFull)  # Is defined for op  # pylint: disable=used-before-assignment
             pat = os.path.join(self.__wrkPath, "*.map")
             self.__resultMapPathList = glob.glob(pat)
             if self.__debug:
@@ -3785,7 +3785,7 @@ class RcsbDpUtility(object):
                 dDictSdb = self.__nameToDictPath("archive_next")
 
             cmdPath = os.path.join(self.__packagePath, "dict", "bin", "cifexch2")
-            thisCmd = " ; " + cmdPath + " -dicSdb " + sDictSdb + " -pdbxDicSdb " + dDictSdb + " -reorder  -strip -op in  -pdbids "  # If not set, crash is ok  # pylint: disable=possibly-used-before-assignment
+            thisCmd = " ; " + cmdPath + " -dicSdb " + sDictSdb + " -pdbxDicSdb " + dDictSdb + " -reorder  -strip -op in  -pdbids "  # Not set, crash  # pylint: disable=possibly-used-before-assignment
             cmd += thisCmd + " -input " + iPath + " -output " + oPath
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
 
