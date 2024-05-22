@@ -140,7 +140,7 @@ def main():
     parser.add_argument(
         "--threshold",
         type=float,
-        default=1e6,
+        default=1e8,
         help="threshold value to use as cutoff (1.0E+6 default)",
     )
     args = parser.parse_args()
