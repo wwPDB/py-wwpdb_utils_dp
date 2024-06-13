@@ -115,7 +115,7 @@ def process_entry(file_in, file_out):
     return 0
 
 
-def calculate_for_list(siteId=None):
+def calculate_for_list(args, siteId=None):
     logging.info("Calculating for list of entries")
     deposition_ids = get_deposition_ids(args.list)
     failed_dep_ids = []
@@ -130,27 +130,27 @@ def calculate_for_list(siteId=None):
     return failed_dep_ids
 
 
-def calculate_for_file():
+def calculate_for_file(args):
     logging.info("Calculating for a single file")
     result = process_entry(args.model_file_in, args.model_file_out)
     if result:
         logger.info("Failed to Calculate Centre of Mass")
 
 
-def main():
+def main(args):
     if args.list and os.path.isfile(args.list):
-        failures = calculate_for_list()
+        failures = calculate_for_list(args)
         if len(failures) > 0:
             logger.info("Failed Dep Ids: \n%s", "\n".join(failures))
 
     elif os.path.isfile(args.model_file_in):
-        calculate_for_file()
+        calculate_for_file(args)
     else:
         logger.error("Input model file doesn't exists")
         return 1
 
 
-if "__main__" in __name__:
+def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("-i", "--model-file-in", help="Coordinate file to add centre of Mass", type=str)
     parser.add_argument("-o", "--model-file-out", help="Output Coordinate file, with added items", type=str)
@@ -165,4 +165,8 @@ if "__main__" in __name__:
         parser.print_help()
         exit()
 
-    main()
+    main(args)
+
+
+if "__main__" in __name__:
+    parse_args()

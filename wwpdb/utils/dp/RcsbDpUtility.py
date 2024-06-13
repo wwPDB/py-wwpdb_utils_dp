@@ -128,6 +128,7 @@
 # 26-May-2023 zf  Add "annot-public-pdbx-to-xml-noatom"
 # 23-Aug-2023 zf  Add "annot-cif-to-pdbx-em-header"
 # 10-Nov-2023 zf  Add shortSeqOptions to "seq-blastp"
+# 22-Jan-2024 zf  Add "annot-get-covalent-bond" & "annot-remove-covalent-bond"
 ##
 """
 Wrapper class for data processing and chemical component utilities.
@@ -354,9 +355,12 @@ class RcsbDpUtility(object):
             "get-branch-polymer-info",
             "annot-get-close-contact",
             "annot-convert-close-contact-to-link",
+            "annot-get-covalent-bond",
+            "annot-remove-covalent-bond",
             "em-density-bcif",
             "xray-density-bcif",
             "centre-of-mass",
+            "annot-complexity",
         ]
 
         self.__sequenceOps = ["seq-blastp", "seq-blastn", "fetch-uniprot", "fetch-gb", "format-uniprot", "format-gb", "backup-seqdb"]
@@ -371,7 +375,7 @@ class RcsbDpUtility(object):
             "annot-read-map-header-in-place",
             "annot-update-map-header-in-place",
             "deposit-update-map-header-in-place",
-            "em-map-model-upload-check"
+            "em-map-model-upload-check",
         ]
 
         #
@@ -1464,6 +1468,16 @@ class RcsbDpUtility(object):
             cmd += " ; python -m wwpdb.utils.dp.CentreOfMass {}".format(" ".join(cmd_args))
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
 
+        elif op == "annot-complexity":
+            cmd_path = "python -m wwpdb.utils.dp.PdbxModelComplexity"
+
+            cmd += "; " + cmd_path + " --model " + iPath + " --output " + oPath
+
+            if "threshold" in self.__inputParamDict:
+                cmd += " --threshold " + self.__inputParamDict["threshold"]
+
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
+
         elif op == "annot-dcc-report":
             # The sf-valid package is currently set to self configure in a wrapper
             # shell script.  PACKAGE_DIR and TOOLS_DIR only need to be set here.
@@ -2409,6 +2423,24 @@ class RcsbDpUtility(object):
             thisCmd = " ; " + cmdPath
             cmd += thisCmd + " -input " + iPath + " -datafile " + dataFilePath + " -output " + oPath + " -log " + lPath + " > " + tPath + " 2>&1 "
 
+        elif op == "annot-get-covalent-bond":
+            #
+            cmdPath = os.path.join(self.__annotAppsPath, "bin", "DepictCovalentBond")
+            thisCmd = " ; " + cmdPath
+            cmd += thisCmd + " -input " + iPath + " -output " + oPath + " -log " + lPath + " > " + tPath + " 2>&1 "
+
+        elif op == "annot-remove-covalent-bond":
+            #
+            dataFilePath = ""
+            if "datafile" in self.__inputParamDict:
+                dataFilePath = self.__inputParamDict["datafile"]
+            else:
+                return -1
+            #
+            cmdPath = os.path.join(self.__annotAppsPath, "bin", "RemoveCovalentBond")
+            thisCmd = " ; " + cmdPath
+            cmd += thisCmd + " -input " + iPath + " -datafile " + dataFilePath + " -output " + oPath + " -log " + lPath + " > " + tPath + " 2>&1 "
+
         elif op == "carbohydrate-remediation":
             cmdPath = os.path.join(self.__annotAppsPath, "bin", "CarbohydrateRemediation")
             thisCmd = " ; " + cmdPath
@@ -2539,7 +2571,7 @@ class RcsbDpUtility(object):
             ]
 
             strpCt = PdbxStripCategory(verbose=self.__verbose, log=self.__lfh)
-            strpCt.strip(oPath2Full, oPathFull, stripList)
+            strpCt.strip(oPath2Full, oPathFull, stripList)  # This is defined for this op  # pylint: disable=used-before-assignment
 
         if (op == "annot-rcsb2pdbx-strip") or (op == "annot-rcsbeps2pdbx-strip"):
             # remove these derived categories for now --
@@ -2654,7 +2686,7 @@ class RcsbDpUtility(object):
                     self.__resultPathList.append("missing")
 
             # Cleanup workdir
-            if deleteRunDir:
+            if deleteRunDir:  # This is defined for this op  # pylint: disable=used-before-assignment
                 try:
                     logger.info("+RcsbDpUtility.__annotationStep() removing working path %s\n", runDir)
                     shutil.rmtree(runDir, ignore_errors=True)
@@ -2681,17 +2713,17 @@ class RcsbDpUtility(object):
             #
             # Push the output converted and diagnostic files onto the resultPathList.
             #
-            if os.access(sfCifPath, os.F_OK):
+            if os.access(sfCifPath, os.F_OK):  # This is defined for this op  # pylint: disable=used-before-assignment
                 self.__resultPathList.append(sfCifPath)
             else:
                 self.__resultPathList.append("missing")
 
-            if os.access(sfDiagPath, os.F_OK):
+            if os.access(sfDiagPath, os.F_OK):  # This is defined for this op  # pylint: disable=used-before-assignment
                 self.__resultPathList.append(sfDiagPath)
             else:
                 self.__resultPathList.append("missing")
 
-            if os.access(mtzDmpPath, os.F_OK):
+            if os.access(mtzDmpPath, os.F_OK):  # This is defined for this op  # pylint: disable=used-before-assignment
                 self.__resultPathList.append(mtzDmpPath)
             else:
                 self.__resultPathList.append("missing")
@@ -2748,7 +2780,7 @@ class RcsbDpUtility(object):
             # Here we manage copying the maps non-polymer CIF snippets and a defining index file to the user
             # specified output path --
             if self.__verbose:
-                logger.info("+RcsbDpUtility._annotationStep()  - for operation %s return path %s\n", op, outDataPathFull)
+                logger.info("+RcsbDpUtility._annotationStep()  - for operation %s return path %s\n", op, outDataPathFull)  # Is defined for op  # pylint: disable=used-before-assignment
             pat = os.path.join(self.__wrkPath, "*.map")
             self.__resultMapPathList = glob.glob(pat)
             if self.__debug:
@@ -2765,7 +2797,7 @@ class RcsbDpUtility(object):
                 # index file --
                 ipT = os.path.join(self.__wrkPath, "LIG_PEPTIDE.cif")
                 if os.access(ipT, os.R_OK):
-                    shutil.copyfile(ipT, outIndexPathFull)
+                    shutil.copyfile(ipT, outIndexPathFull)  # This is defined for this op  # pylint: disable=used-before-assignment
                 else:
                     if self.__verbose:
                         logger.info("+RcsbDpUtility._annotationStep()  - missing map index file %s\n", ipT)
@@ -2794,7 +2826,7 @@ class RcsbDpUtility(object):
 
         elif op in ["annot-chem-shifts-atom-name-check", "annot-chem-shifts-upload-check"]:
             if os.access(lCheckPath, os.R_OK):
-                shutil.copyfile(lCheckPath, chkPath)
+                shutil.copyfile(lCheckPath, chkPath)  # This is defined for this op  # pylint: disable=used-before-assignment
             #
 
         elif op == "annot-depict-molecule-json":
@@ -2829,8 +2861,13 @@ class RcsbDpUtility(object):
                 #
             #
 
-        elif (op == "annot-cif-to-public-pdbx") or (op == "annot-cif-to-pdbx-em-header") or (op == "annot-misc-checking") or \
-             (op == "annot-get-pdb-file") or (op == "annot-add-version-info"):
+        elif (
+            (op == "annot-cif-to-public-pdbx")
+            or (op == "annot-cif-to-pdbx-em-header")
+            or (op == "annot-misc-checking")
+            or (op == "annot-get-pdb-file")
+            or (op == "annot-add-version-info")
+        ):
             for fileName in (oPath, tPath, lPath):
                 outFile = os.path.join(self.__wrkPath, fileName)
                 if os.access(outFile, os.F_OK):
@@ -3369,18 +3406,31 @@ class RcsbDpUtility(object):
 
             cmd += " ; } 2> " + ePath + " 1> " + oPath
             cmd += " ; cat " + ePath + " > " + lPath
-        elif op == "em-map-model-upload-check":
-            inpMapFilePath = None
-            inpModelFilePath = None
-            outFilePath = None
-            if "input_map_file_path" in self.__inputParamDict:
-                inpMapFilePath = self.__inputParamDict["input_map_file_path"]
-            if "input_model_file_path" in self.__inputParamDict:
-                inpModelFilePath = self.__inputParamDict["input_model_file_path"]
-            if "output_file_path" in self.__inputParamDict:
-                outFilePath = self.__inputParamDict["output_file_path"]
 
-            cmd = f"python -m wwpdb.utils.emdb.atomcheck.atomcheck -m {inpMapFilePath} -d {inpModelFilePath} -o {outFilePath}"
+        elif op == "em-map-model-upload-check":
+            outFilePath = self.__inputParamDict.get("output_file_path")
+            if "input_file_path" in self.__inputParamDict:
+                cmd = f"python -m wwpdb.utils.emdb.checkemupload.checkemupload --input {self.__inputParamDict['input_file_path']}"
+            else:
+                inpMapFilePath = self.__inputParamDict.get("input_map_file_path")
+                inpHalfMapFilePath1 = self.__inputParamDict.get("input_half_map_file_path_1")
+                inpHalfMapFilePath2 = self.__inputParamDict.get("input_half_map_file_path_2")
+                inpModelFilePath = self.__inputParamDict.get("input_model_file_path")
+                cmd = f"python -m wwpdb.utils.emdb.checkemupload.checkemupload --primmap {inpMapFilePath}"
+                if inpModelFilePath:
+                    cmd += f" --model {inpModelFilePath}"
+                if inpHalfMapFilePath1 and inpHalfMapFilePath2:
+                    cmd += f" --halfmaps {inpHalfMapFilePath1} {inpHalfMapFilePath2}"
+            if outFilePath:
+                cmd += f" --output {outFilePath}"
+                outDirPath = os.path.dirname(outFilePath)
+            else:
+                outDirPath = self.__wrkPath
+            if not os.path.exists(outDirPath):
+                os.makedirs(outDirPath)
+            logFilePath = os.path.join(outDirPath, f'{op}.log')
+            cmd += f" > {logFilePath} 2>&1 ;"
+
         else:
             pass
 
@@ -3393,7 +3443,7 @@ class RcsbDpUtility(object):
             "annot-read-map-header-in-place",
             "annot-update-map-header-in-place",
             "deposit-update-map-header-in-place",
-            "em-map-model-upload-check"
+            "em-map-model-upload-check",
         ):
             return -1
         #
@@ -3735,7 +3785,7 @@ class RcsbDpUtility(object):
                 dDictSdb = self.__nameToDictPath("archive_next")
 
             cmdPath = os.path.join(self.__packagePath, "dict", "bin", "cifexch2")
-            thisCmd = " ; " + cmdPath + " -dicSdb " + sDictSdb + " -pdbxDicSdb " + dDictSdb + " -reorder  -strip -op in  -pdbids "
+            thisCmd = " ; " + cmdPath + " -dicSdb " + sDictSdb + " -pdbxDicSdb " + dDictSdb + " -reorder  -strip -op in  -pdbids "  # If not set, crash is ok  # noqa: E501 pylint: disable=possibly-used-before-assignment
             cmd += thisCmd + " -input " + iPath + " -output " + oPath
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
 
@@ -4035,9 +4085,10 @@ class RcsbDpUtility(object):
             # set up
             #
             db = self.__inputParamDict.get("db")
+            numproc = int(self.__inputParamDict.get("numproc", 8))
 
             cmd += " ; {} ".format(self.__site_config_command)
-            cmd += " ; python -m wwpdb.apps.chem_ref_data.utils.ChemRefDataDbExec --load --db %s -v" % db
+            cmd += " ; python -m wwpdb.apps.chem_ref_data.utils.ChemRefDataDbExec --load --db %s --numproc %s -v" % (db, numproc)
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
         elif op == "chem-ref-run-setup":
             # set up
