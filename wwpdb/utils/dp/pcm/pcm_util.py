@@ -1,0 +1,2 @@
+class ProteinModificationUtil:
+    pass
