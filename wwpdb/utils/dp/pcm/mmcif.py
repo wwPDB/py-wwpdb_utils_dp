@@ -468,18 +468,27 @@ class mmcifHandling:
                     cat_dict[key[0]] = key[1]
         return cat_dict
 
-    def get_category_list_of_dictionaries(self, category):
+    def get_category_list_of_dictionaries(self, category, default=""):
         return_list = []
         cat_items = self.get_category_keys(category=category)
         cat_data = self.get_category(category=category)
+
         if cat_data is not None:
             for row in range(len(cat_data.data)):
                 row_dict = {}
                 for item in cat_items:
-                    value = cat_data.getValueOrDefault(
-                        attributeName=item, defaultValue="", rowIndex=row
-                    )
+                    if default is not False:
+                        value = cat_data.getValueOrDefault(
+                            attributeName=item, defaultValue=default, rowIndex=row
+                        )
+
+                    else:
+                        value = cat_data.getValue(
+                            attributeName=item, rowIndex=row
+                        )
+
                     row_dict[item] = value
+
                 return_list.append(row_dict)
         return return_list
 

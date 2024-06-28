@@ -12,9 +12,11 @@ Test cases for PCM calculation
 """
 import logging
 import os
-import sys
+import shutil
 import unittest
 import tempfile
+
+from unittest.mock import patch
 
 # if __package__ is None or __package__ == "":
 #     from os import path
@@ -40,32 +42,38 @@ class ProteinModificationTests(unittest.TestCase):
         self.__tmpPath = TESTOUTPUT
         #
         self.__siteId = getSiteId(defaultSiteId=None)
-        logger.info("\nTesting with site environment for:  %s\n", self.__siteId)
+        logger.info("\nTesting with site environment for:  %s\n Temppath is %s", self.__siteId, self.__tmpPath)
         #
         self.__testFilePath = os.path.join(TOPDIR, "wwpdb", "mock-data", "MODELS")
         self.__testFileCif = "1kip.cif"
     
     def tearDown(self):
+        # if os.path.exists(self.__tmpPath):
+        #     shutil.rmtree(self.__tmpPath)
         pass
 
-    def testMmcifOutput(self):
-        output_mmcif = ""
-        pcm = ProteinModificationUtil(dep_id="D_1000000001")
-        pcm.create_modified_mmcif(output_path=output_mmcif)
+    @patch("wwpdb.utils.dp.pcm.pcm_util.mmcifHandling.get_latest_model")
+    def testOutputFiles(self, glm_mock):
+        glm_mock.return_value = os.path.join(self.__testFilePath, self.__testFileCif)
+
+        output_mmcif = os.path.join(self.__tmpPath, "1kip_mod.cif")
+        output_csv = os.path.join(self.__tmpPath, "missing_data.csv")
+        pcm = ProteinModificationUtil(dep_id="D_1000000001", output_cif=output_mmcif, output_csv=output_csv)
+        pcm.run()
 
         with open(output_mmcif, "r") as f:
             content = f.read()
-            self.assertTrue("MODRES" in content)
-
-    def testCsvOutput(self):
-        output_csv = ""
-        pcm = ProteinModificationUtil(dep_id="D_1000000001")
-        pcm.create_missing_data_csv(output_path=output_csv)
-
+            self.assertTrue("_pdbx_modification_feature" in content)
+            self.assertTrue("_pdbx_entry_details" in content)
+        
         with open(output_csv, "r") as f:
             content = f.readlines()
-            self.assertTrue(content[0] == "Dep_ID,Comp_id,Modified_residue_id,Type,Category,Position,Polypeptide_position,Comp_id_linking_atom,Modified_residue_id_linking_atom,First_instance_model_db_code")
+            self.assertTrue(content[0] == "Comp_id,Modified_residue_id,Type,Category,Position,Polypeptide_position,Comp_id_linking_atom,Modified_residue_id_linking_atom,First_instance_model_db_code")
             self.assertTrue(content[-1] == "")
+
+    def testMissingModel(self):
+        with self.assertRaises(FileNotFoundError):
+            ProteinModificationUtil(dep_id="D_1000000001", output_cif="", output_csv="")
 
 
 if __name__ == "__main__":
