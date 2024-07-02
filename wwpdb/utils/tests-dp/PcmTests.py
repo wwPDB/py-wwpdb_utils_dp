@@ -45,7 +45,7 @@ class ProteinModificationTests(unittest.TestCase):
         logger.info("\nTesting with site environment for:  %s\n Temppath is %s", self.__siteId, self.__tmpPath)
         #
         self.__testFilePath = os.path.join(TOPDIR, "wwpdb", "mock-data", "MODELS")
-        self.__testFileCif = "1kip.cif"
+        self.__testFileCif = "1ac5_updated.cif"
     
     def tearDown(self):
         # if os.path.exists(self.__tmpPath):
@@ -56,7 +56,7 @@ class ProteinModificationTests(unittest.TestCase):
     def testOutputFiles(self, glm_mock):
         glm_mock.return_value = os.path.join(self.__testFilePath, self.__testFileCif)
 
-        output_mmcif = os.path.join(self.__tmpPath, "1kip_mod.cif")
+        output_mmcif = os.path.join(self.__tmpPath, "1ac5_mod.cif")
         output_csv = os.path.join(self.__tmpPath, "missing_data.csv")
         pcm = ProteinModificationUtil(dep_id="D_1000000001", output_cif=output_mmcif, output_csv=output_csv)
         pcm.run()
@@ -68,8 +68,8 @@ class ProteinModificationTests(unittest.TestCase):
         
         with open(output_csv, "r") as f:
             content = f.readlines()
-            self.assertTrue(content[0] == "Comp_id,Modified_residue_id,Type,Category,Position,Polypeptide_position,Comp_id_linking_atom,Modified_residue_id_linking_atom,First_instance_model_db_code")
-            self.assertTrue(content[-1] == "")
+            self.assertTrue("Comp_id,Modified_residue_id,Type,Category,Position,Polypeptide_position,Comp_id_linking_atom,Modified_residue_id_linking_atom,First_instance_model_db_code" in content[0])
+            self.assertTrue("NAG,ASN,missing,missing,missing,missing,C1,ND2,1AC5" in content[-1])
 
     def testMissingModel(self):
         with self.assertRaises(FileNotFoundError):

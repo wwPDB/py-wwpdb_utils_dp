@@ -861,27 +861,16 @@ class RcsbDpUtility(object):
             cmd += " ; cat annot-step.log " + " >> " + lPath
 
         elif op == "annot-pcm-check-ccd-ann":
-            # #
-            # txtPath = os.path.abspath(os.path.join(self.__wrkPath, "chainids.txt"))
-            # cifPath = os.path.abspath(os.path.join(self.__wrkPath, "index.cif"))
-            # #
-            # cmdPath = os.path.join(self.__annotAppsPath, "bin", "DepictMolecule_Json")
-            # thisCmd = " ; " + cmdPath
-            # cmd += thisCmd + " -input " + iPath + " -output " + oPath + " -output_2 " + txtPath + " -output_3 " + cifPath + " -log " + lPath
-            # #
-            # cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
-            logger.info("Saving output dummy csv file to %s", oPath)
-
-            with open(os.path.join(self.__wrkPath, oPath), "w") as fp:
-                fp.write("Comp_id,Modified_residue_id,Type,Category,Position,Polypeptide_position,Comp_id_linking_atom,Modified_residue_id_linking_atom,First_instance_model_db_code\n")
-                fp.write("MLU,missing,missing,missing,missing,missing,.,.,1PN3\n")
-                fp.write("OMZ,missing,missing,missing,missing,missing,.,.,1PN3\n")
-                fp.write("GHP,missing,missing,missing,missing,missing,.,.,1PN3\n")
-                fp.write("BGC,GHP,missing,missing,missing,missing,C1,O4,1PN3\n")
-                fp.write("OMY,missing,missing,missing,missing,missing,.,.,1PN3\n")
-                fp.write("3FG,missing,missing,missing,missing,missing,.,.,1PN3")
-
-            cmd += ""
+            entryId = self.__inputParamDict["id"]
+            csvPath = os.path.join(self.__wrkPath, oPath)
+            cifPath = os.path.abspath(os.path.join(self.__wrkPath, "model_updated.cif"))
+            #
+            cmd += " ; {}".format(self.__site_config_command)
+            cmd += " ; python -m wwpdb.utils.dp.pcm.pcm_util"
+            cmd += " --dep-id {} --output-csv {} --output-mmcif {}".format(
+                entryId, csvPath, cifPath
+            )
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
 
         elif op == "annot-consolidated-tasks":
 

@@ -1,6 +1,7 @@
 import os
 import csv
 import logging
+import argparse
 
 from wwpdb.utils.config.ConfigInfoApp import ConfigInfoAppCommon
 
@@ -31,10 +32,9 @@ class ProteinModificationUtil:
         self._model_handle.set_output_mmcif(self._output_cif)
         self._model_handle.write_mmcif()
 
-    def _create_missing_data_csv(self, data: list) -> None:
-        if data is None:
+    def _create_missing_data_csv(self, data: list = []) -> None:
+        if not data:
             logging.warning("No missing data found")
-            return
 
         col_names = [
             "Comp_id",
@@ -54,11 +54,24 @@ class ProteinModificationUtil:
             writer.writerows(data)
 
     def run(self):
+        logging.info("Input mmcif file: %s", self._latest_model)
         self._model_handle.set_input_mmcif(self._latest_model)
         self._model_handle.parse_mmcif()
 
         gen_has_protein_modification(self._model_handle)
         missing_data = gen_pdbx_modification_feature(self._ci, self._model_handle)
 
+        logging.info("Missing data: %s", missing_data)
         self._create_missing_data_csv(data=missing_data)
         self._create_modified_mmcif()
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Protein Modification Utility")
+    parser.add_argument("--dep-id", type=str, help="Dep ID")
+    parser.add_argument("--output-csv", type=str, help="Output CSV file")
+    parser.add_argument("--output-mmcif", type=str, help="Output MMCIF file")
+    args = parser.parse_args()
+
+    util = ProteinModificationUtil(args.dep_id, args.output_mmcif, args.output_csv)
+    util.run()
