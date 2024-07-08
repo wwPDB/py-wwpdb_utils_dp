@@ -3199,7 +3199,6 @@ class RcsbDpUtility(object):
                 logging.info("MAPFIX OPTIONS: %s", options)
                 if options != "None":  # Unbelievable!
                     out += " " + options
-            logging.info("MAPFIX COMMAND: %s", out)
             return out
 
         if op == "em2em-spider":
@@ -3232,12 +3231,10 @@ class RcsbDpUtility(object):
 
             cmd += mapfix_command("tmp.map")
             cmd += " ; } 2>> " + ePath + " 1> " + lPath
-            logging.info("MAPFIX COMMAND: %s", cmd)
 
         if op == "mapfix-big":
             cmd += mapfix_command(iPath)
             cmd += " ; } 2> " + ePath + " 1> " + lPath
-            logging.info("MAPFIX COMMAND: %s", cmd)
 
         elif op == "fsc_check":
             system_path = os.path.join(self.__packagePath, "..")
@@ -3300,7 +3297,6 @@ class RcsbDpUtility(object):
             # oPath here will be the JSON  output containing may header details --
             cmd += " ; } 2> " + ePath + " 1> " + oPath
             cmd += " ; cat " + ePath + " > " + lPath
-            logging.info("MAPFIX COMMAND: %s", cmd)
 
         elif op == "annot-read-map-header-in-place":
             # update the header of the map file avoiding a local copy -
@@ -3326,7 +3322,6 @@ class RcsbDpUtility(object):
             # oPath here will be the JSON  output containing may header details --
             cmd += " ; } 2> " + ePath + " 1> " + oPath
             cmd += " ; cat " + ePath + " > " + lPath
-            logging.info("MAPFIX COMMAND: %s", cmd)
 
         elif op == "annot-update-map-header-in-place":
             # update the header of the map file avoiding a local copy -
@@ -3375,7 +3370,6 @@ class RcsbDpUtility(object):
 
             cmd += " ; } 2> " + ePath + " 1> " + oPath
             cmd += " ; cat " + ePath + " > " + lPath
-            logging.info("MAPFIX COMMAND: %s", cmd)
         elif op == "deposit-update-map-header-in-place":
             # Both options -in and -out must be specified.
             #  -in  <filename>           : input map
@@ -3408,7 +3402,6 @@ class RcsbDpUtility(object):
 
             cmd += " ; } 2> " + ePath + " 1> " + oPath
             cmd += " ; cat " + ePath + " > " + lPath
-            logging.info("MAPFIX COMMAND: %s", cmd)
 
         elif op == "em-map-model-upload-check":
             outFilePath = self.__inputParamDict.get("output_file_path")
