@@ -3316,7 +3316,7 @@ class RcsbDpUtility(object):
             # -out is a temporary file place holder --
             cmd += " -in " + iPath + " -out  dummy-out.map "
             # these dummy arguments required to run this code --
-            cmd += " -voxel 1.0 1.0 1.0 -label test "
+            cmd += " -voxel 1.0 1.0 1.0 "
             # oPath here will be the JSON  output containing may header details --
             cmd += " ; } 2> " + ePath + " 1> " + oPath
             cmd += " ; cat " + ePath + " > " + lPath
@@ -3341,7 +3341,7 @@ class RcsbDpUtility(object):
             # -out is a temporary file place holder --
             cmd += " -in " + inpMapFilePath + " -out  dummy-out.map "  # pylint: disable=used-before-assignment
             # these dummy arguments required to run this code --
-            cmd += " -voxel 1.0 1.0 1.0 -label test "
+            cmd += " -voxel 1.0 1.0 1.0 "
             # oPath here will be the JSON  output containing may header details --
             cmd += " ; } 2> " + ePath + " 1> " + oPath
             cmd += " ; cat " + ePath + " > " + lPath
@@ -3377,10 +3377,6 @@ class RcsbDpUtility(object):
             if "cell" in self.__inputParamDict:
                 argVal = self.__inputParamDict["cell"]
                 cmd += " -cell " + argVal
-
-            if "label" in self.__inputParamDict:
-                argVal = self.__inputParamDict["label"]
-                cmd += " -label " + argVal
 
             if "gridsampling" in self.__inputParamDict:
                 argVal = self.__inputParamDict["gridsampling"]
@@ -3421,7 +3417,6 @@ class RcsbDpUtility(object):
                 argVal = self.__inputParamDict["voxel"]
                 cmd += " -voxel " + argVal
                 argVal = self.__inputParamDict["label"]
-                cmd += " -label " + argVal
 
             # any options ---
             if "options" in self.__inputParamDict:
