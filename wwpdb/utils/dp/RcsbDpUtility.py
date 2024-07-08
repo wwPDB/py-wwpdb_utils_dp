@@ -3196,7 +3196,6 @@ class RcsbDpUtility(object):
             out += " -in " + inputPath + " -out " + oPath
             if "options" in self.__inputParamDict:
                 options = self.__inputParamDict["options"]
-                logging.info("MAPFIX OPTIONS: %s", options)
                 if options != "None":  # Unbelievable!
                     out += " " + options
             return out
