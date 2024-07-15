@@ -12,12 +12,23 @@ from wwpdb.io.locator.PathInfo import PathInfo
 from wwpdb.io.locator.ChemRefPathInfo import ChemRefPathInfo
 
 
-from wwpdb.utils.dp.pcm.ligand import (
-    std_amino_acids,
-    std_amino_acids_ACE_NH2,
-)
-
 logger = logging.getLogger(__name__)
+
+std_amino_acids = [
+    "ALA", "ARG", "ASN", "ASP", "CYS", "GLN", "GLU", "GLY", "HIS", "ILE", "LEU", "LYS", "MET",
+    "PHE", "PRO", "PYL", "SEC", "SER", "THR", "TRP", "TYR", "VAL", "DAL", "DAR", "DSG", "DAS",
+    "DCY", "DGN", "DGL", "DHI", "DIL", "DLE", "DLY", "MED", "DPN", "DPR", "DSN", "DTH", "DTR",
+    "DTY", "DVA",
+]
+
+# All amino acids CCD IDs + ACE/NH2 that occur naturally in polypeptides
+# (incl. D-amino acids)
+std_amino_acids_ACE_NH2 = [
+    "ACE", "ALA", "ARG", "ASN", "ASP", "CYS", "GLN", "GLU", "GLY", "HIS", "ILE", "LEU", "LYS",
+    "MET", "NH2", "PHE", "PRO", "PYL", "SEC", "SER", "THR", "TRP", "TYR", "VAL", "DAL", "DAR",
+    "DSG", "DAS", "DCY", "DGN", "DGL", "DHI", "DIL", "DLE", "DLY", "MED", "DPN", "DPR", "DSN",
+    "DTH", "DTR", "DTY", "DVA",
+]
 
 
 class ProteinModificationUtil:
