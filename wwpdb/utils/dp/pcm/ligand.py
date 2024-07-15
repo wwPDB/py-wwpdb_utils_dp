@@ -5,7 +5,7 @@ import sys
 
 from mmcif.io.IoAdapterCore import IoAdapterCore as IoAdapterCore
 
-from wwpdb.utils.dp.pcm.mmcif import mmcifHandling
+from wwpdb.utils.dp.pcm.intmmcif import mmcifHandling
 
 # All the amino acids CCD IDs that occur naturally in polypeptides (incl. D-amino acids)
 std_amino_acids = [

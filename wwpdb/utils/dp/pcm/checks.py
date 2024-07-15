@@ -8,7 +8,7 @@ from wwpdb.io.file.mmCIFUtil import mmCIFUtil
 from wwpdb.utils.config.ConfigInfo import ConfigInfo, getSiteId
 from wwpdb.utils.config.ConfigInfoApp import ConfigInfoAppCommon
 
-from wwpdb.utils.dp.pcm.mmcif import mmcifHandling
+from wwpdb.utils.dp.pcm.intmmcif import mmcifHandling
 
 
 def check_entries_uncompressed(entry_list):

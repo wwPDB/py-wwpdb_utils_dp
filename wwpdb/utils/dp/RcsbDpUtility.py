@@ -2552,6 +2552,9 @@ class RcsbDpUtility(object):
             ofh.write("Date:         %s\n" % lt)
             ofh.write("\nStep command:\n%s\n-------------------------------------------------\n" % cmd.replace(";", "\n"))
             ofh.close()
+        
+        with open("/nfs/public/release/msd/services/onedep/lastcmd", "w") as fp:
+            fp.write(cmd)
 
         iret = self.__run(cmd, lPathFull, op)
 

@@ -12,7 +12,6 @@ Test cases for PCM calculation
 """
 import logging
 import os
-import shutil
 import unittest
 import tempfile
 
