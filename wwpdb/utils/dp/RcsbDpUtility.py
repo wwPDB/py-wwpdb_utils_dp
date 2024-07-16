@@ -866,7 +866,7 @@ class RcsbDpUtility(object):
             cifPath = os.path.abspath(os.path.join(self.__wrkPath, "model_updated.cif"))
             #
             cmd += " ; {}".format(self.__site_config_command)
-            cmd += " ; python -m wwpdb.utils.dp.pcm.pcm_util"
+            cmd += " ; python -m wwpdb.apps.ann_tasks_v2.pcm.ProteinModificationUtil"
             cmd += " --dep-id {} --output-csv {} --output-mmcif {}".format(
                 entryId, csvPath, cifPath
             )
