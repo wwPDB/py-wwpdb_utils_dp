@@ -129,6 +129,8 @@
 # 23-Aug-2023 zf  Add "annot-cif-to-pdbx-em-header"
 # 10-Nov-2023 zf  Add shortSeqOptions to "seq-blastp"
 # 22-Jan-2024 zf  Add "annot-get-covalent-bond" & "annot-remove-covalent-bond"
+# 12-Aug-2024 zf  Add self.__pointsuiteOps, self.__pointsuiteStep, & "annot-merge-pointsuite-info"
+# 26-Aug-2024 zf  Add "annot-link-ssbond-with-ptm"
 ##
 """
 Wrapper class for data processing and chemical component utilities.
@@ -258,6 +260,7 @@ class RcsbDpUtility(object):
         self.__annotationOps = [
             "annot-secondary-structure",
             "annot-link-ssbond",
+            "annot-link-ssbond-with-ptm",
             "annot-cis-peptide",
             "annot-distant-solvent",
             "annot-merge-struct-site",
@@ -362,6 +365,7 @@ class RcsbDpUtility(object):
             "centre-of-mass",
             "annot-complexity",
             "annot-pcm-check-ccd-ann",
+            "annot-merge-pointsuite-info"
         ]
 
         self.__sequenceOps = ["seq-blastp", "seq-blastn", "fetch-uniprot", "fetch-gb", "format-uniprot", "format-gb", "backup-seqdb"]
@@ -378,6 +382,8 @@ class RcsbDpUtility(object):
             "deposit-update-map-header-in-place",
             "em-map-model-upload-check",
         ]
+
+        self.__pointsuiteOps = [ "pointsuite-importmats", "pointsuite-findframe", "pointsuite-makeassembly" ]
 
         #
 
@@ -575,6 +581,10 @@ class RcsbDpUtility(object):
         elif op in self.__emOps:
             self.__stepNo += 1
             return self.__emStep(op)
+
+        elif op in self.__pointsuiteOps:
+            self.__stepNo += 1
+            return self.__pointsuiteStep(op)
 
         else:
             logger.info("+RcsbDpUtility.op() ++ Error  - Unknown operation %s\n", op)
@@ -910,6 +920,14 @@ class RcsbDpUtility(object):
             cmdPath = os.path.join(self.__annotAppsPath, "bin", "GetLinkAndSSBond")
             thisCmd = " ; " + cmdPath
             cmd += thisCmd + " -input " + iPath + " -output " + oPath + " -log annot-step.log  -link -ssbond "
+            #
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
+            cmd += " ; cat annot-step.log " + " >> " + lPath
+
+        elif op == "annot-link-ssbond-with-ptm":
+            cmdPath = os.path.join(self.__annotAppsPath, "bin", "GetLinkAndSSBond")
+            thisCmd = " ; " + cmdPath
+            cmd += thisCmd + " -input " + iPath + " -output " + oPath + " -ptm_pcm_output pcm.csv -log annot-step.log  -link -ssbond "
             #
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
             cmd += " ; cat annot-step.log " + " >> " + lPath
@@ -2539,6 +2557,19 @@ class RcsbDpUtility(object):
             cmd += thisCmd + " -family " + iPath
             cmd += " -output " + oPath
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " > " + lPath
+
+        elif op == "annot-merge-pointsuite-info":
+            cmdPath = os.path.join(self.__annotAppsPath, "bin", "MergePointSuiteResult")
+            thisCmd = " ; " + cmdPath
+            cmd += thisCmd + " -input " + iPath + " -output " + oPath
+            #
+            if "support" in self.__inputParamDict:
+                cmd += " -support " + self.__inputParamDict["support"] + " "
+            else:
+                return -1
+            #
+            cmd += " > " + lPath + " 2>&1 "
+
         else:
 
             return -1
@@ -2717,6 +2748,20 @@ class RcsbDpUtility(object):
                     return True
                 except Exception:
                     logger.info("+RcsbDpUtility.__annotationStep() removal failed for working path %s\n", runDir)
+
+        elif op == "annot-link-ssbond-with-ptm":
+            outFile = os.path.join(self.__wrkPath, oPath)
+            if os.access(outFile, os.F_OK):
+                self.__resultPathList.append(outFile)
+            else:
+                self.__resultPathList.append("missing")
+            #
+            pcmFile = os.path.join(self.__wrkPath, "pcm.csv")
+            if os.access(pcmFile, os.F_OK):
+                self.__resultPathList.append(pcmFile)
+            else:
+                self.__resultPathList.append("missing")
+            #
 
         elif op == "annot-chem-shifts-update-with-check":
             outFile = os.path.join(self.__wrkPath, oPath)
@@ -4286,6 +4331,122 @@ class RcsbDpUtility(object):
 
         # iret = os.system(cmd)
         #
+        return iret
+
+    def __pointsuiteStep(self, op):
+        """ Internal method that performs point suite operations.
+        """
+        #
+        # Set application specific path details here -
+        #
+        self.__packagePath = self.__cICommon.get_site_packages_path()
+        self.__pointsuitePath = os.path.join(os.path.abspath(self.__packagePath), "pointsuite")
+        #
+        iPath = self.__getSourceWrkFile(self.__stepNo)
+        lPath = self.__getLogWrkFile(self.__stepNo)
+        ePath = self.__getErrWrkFile(self.__stepNo)
+        #
+        if self.__wrkPath is not None:
+            iPathFull = os.path.abspath(os.path.join(self.__wrkPath, iPath))
+            lPathFull = os.path.join(self.__wrkPath, lPath)
+            ePathFull = os.path.join(self.__wrkPath, ePath)
+            cmd = "(cd " + self.__wrkPath
+        else:
+            iPathFull = iPath
+            lPathFull = lPath
+            ePathFull = ePath
+            cmd = "("
+        #
+        if self.__stepNo > 1:
+            pPath = self.__updateInputPath()
+            if os.access(pPath, os.F_OK):
+                cmd += "; cp " + pPath + " " + iPath
+            #
+        #
+        cmd += " ; PTSUITE=" + self.__pointsuitePath + " ; export PTSUITE "
+        #
+        if op == "pointsuite-importmats":
+            cmd += " ; ${PTSUITE}/bin/importmats " + iPath + " > " + lPath + " 2>&1 "
+
+        elif op == "pointsuite-findframe":
+            if "biomt" in self.__inputParamDict:
+                cmd += " ; ${PTSUITE}/bin/findframe " + iPath + " " + self.__inputParamDict["biomt"] + " > " + lPath + " 2>&1 "
+            else:
+                return -1
+            #
+
+        elif op == "pointsuite-makeassembly":
+            if "transmt" in self.__inputParamDict:
+                cmd += " ; ${PTSUITE}/bin/makeassembly " + iPath + " " + self.__inputParamDict["transmt"] + " > " + lPath + " 2>&1 "
+            else:
+                return -1
+            #
+
+        else:
+            return -1
+        #
+        if self.__debug:
+            logger.info("+RcsbDpUtility._annotationStep()  - Application string:\n%s\n", cmd.replace(";", "\n"))
+        #
+        cmd += " ) > %s 2>&1 " % ePathFull
+        cmd += " ; cat " + ePathFull + " >> " + lPathFull
+        #
+        if self.__debug:
+            ofh = open(lPathFull, "w")
+            lt = time.strftime("%Y %m %d %H:%M:%S", time.localtime())
+            ofh.write("\n\n-------------------------------------------------\n")
+            ofh.write("LogFile:      %s\n" % lPath)
+            ofh.write("Working path: %s\n" % self.__wrkPath)
+            ofh.write("Date:         %s\n" % lt)
+            ofh.write("\nStep command:\n%s\n-------------------------------------------------\n" % cmd.replace(";", "\n"))
+            ofh.close()
+        #
+        iret = self.__run(cmd, lPathFull, op)
+
+        if op == "pointsuite-importmats":
+            biomtPath = os.path.abspath(os.path.join(self.__wrkPath, "import.biomt"))
+            cifPath = os.path.abspath(os.path.join(self.__wrkPath, "import.cif"))
+            matrixPath = os.path.abspath(os.path.join(self.__wrkPath, "import.matrix"))
+            #
+            self.__resultPathList = []
+            #
+            # Push the output files onto the resultPathList.
+            #
+            if os.access(biomtPath, os.F_OK):
+                self.__resultPathList.append(biomtPath)
+            else:
+                self.__resultPathList.append("missing")
+            #
+            if os.access(cifPath, os.F_OK):
+                self.__resultPathList.append(cifPath)
+            else:
+                self.__resultPathList.append("missing")
+            #
+            if os.access(matrixPath, os.F_OK):
+                self.__resultPathList.append(matrixPath)
+            else:
+                self.__resultPathList.append("missing")
+            #
+        elif (op == "pointsuite-findframe") or (op == "pointsuite-makeassembly"):
+            if op == "pointsuite-findframe":
+                outName = "findframe.cif"
+            else:
+                outName = "assembly.cif"
+            #
+            rfName = self.__getResultWrkFile(self.__stepNo)
+            if self.__wrkPath is not None:
+                outPath = os.path.abspath(os.path.join(self.__wrkPath, outName))
+                rfPath = os.path.abspath(os.path.join(self.__wrkPath, rfName))
+            else:
+                outPath = outName
+                rfPath = rfName
+            #
+            dfObj = DataFile(outPath)
+            if dfObj.srcFileExists():
+                dfObj.copy(rfPath)
+            #
+        #
+
         return iret
 
     def __locateSeqDb(self, defPath, altPathList, fName):
