@@ -383,7 +383,7 @@ class RcsbDpUtility(object):
             "em-map-model-upload-check",
         ]
 
-        self.__pointsuiteOps = [ "pointsuite-importmats", "pointsuite-findframe", "pointsuite-makeassembly" ]
+        self.__pointsuiteOps = ["pointsuite-importmats", "pointsuite-findframe", "pointsuite-makeassembly"]
 
         #
 
@@ -4347,12 +4347,12 @@ class RcsbDpUtility(object):
         ePath = self.__getErrWrkFile(self.__stepNo)
         #
         if self.__wrkPath is not None:
-            iPathFull = os.path.abspath(os.path.join(self.__wrkPath, iPath))
+            # iPathFull = os.path.abspath(os.path.join(self.__wrkPath, iPath))
             lPathFull = os.path.join(self.__wrkPath, lPath)
             ePathFull = os.path.join(self.__wrkPath, ePath)
             cmd = "(cd " + self.__wrkPath
         else:
-            iPathFull = iPath
+            # iPathFull = iPath
             lPathFull = lPath
             ePathFull = ePath
             cmd = "("
