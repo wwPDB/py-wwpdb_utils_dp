@@ -130,7 +130,7 @@
 # 10-Nov-2023 zf  Add shortSeqOptions to "seq-blastp"
 # 22-Jan-2024 zf  Add "annot-get-covalent-bond" & "annot-remove-covalent-bond"
 # 12-Aug-2024 zf  Add self.__pointsuiteOps, self.__pointsuiteStep, & "annot-merge-pointsuite-info"
-# 26-Aug-2024 zf  Add "annot-link-ssbond-with-ptm"
+# 26-Aug-2024 zf  Add "annot-link-ssbond-with-ptm", "annot-pcm-check-ccd-ann"
 ##
 """
 Wrapper class for data processing and chemical component utilities.
@@ -871,27 +871,12 @@ class RcsbDpUtility(object):
             cmd += " ; cat annot-step.log " + " >> " + lPath
 
         elif op == "annot-pcm-check-ccd-ann":
-            # #
-            # txtPath = os.path.abspath(os.path.join(self.__wrkPath, "chainids.txt"))
-            # cifPath = os.path.abspath(os.path.join(self.__wrkPath, "index.cif"))
-            # #
-            # cmdPath = os.path.join(self.__annotAppsPath, "bin", "DepictMolecule_Json")
-            # thisCmd = " ; " + cmdPath
-            # cmd += thisCmd + " -input " + iPath + " -output " + oPath + " -output_2 " + txtPath + " -output_3 " + cifPath + " -log " + lPath
-            # #
-            # cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
-            logger.info("Saving output dummy csv file to %s", oPath)
-
-            with open(os.path.join(self.__wrkPath, oPath), "w") as fp:
-                fp.write("Comp_id,Modified_residue_id,Type,Category,Position,Polypeptide_position,Comp_id_linking_atom,Modified_residue_id_linking_atom,First_instance_model_db_code\n")
-                fp.write("MLU,missing,missing,missing,missing,missing,.,.,1PN3\n")
-                fp.write("OMZ,missing,missing,missing,missing,missing,.,.,1PN3\n")
-                fp.write("GHP,missing,missing,missing,missing,missing,.,.,1PN3\n")
-                fp.write("BGC,GHP,missing,missing,missing,missing,C1,O4,1PN3\n")
-                fp.write("OMY,missing,missing,missing,missing,missing,.,.,1PN3\n")
-                fp.write("3FG,missing,missing,missing,missing,missing,.,.,1PN3")
-
-            cmd += ""
+            cmdPath = os.path.join(self.__annotAppsPath, "bin", "UpdatePTMAnnotation")
+            thisCmd = " ; " + cmdPath
+            cmd += thisCmd + " -input " + iPath + " -output " + oPath + " -ptm_pcm_output pcm.csv -log annot-step.log "
+            #
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
+            cmd += " ; cat annot-step.log " + " >> " + lPath
 
         elif op == "annot-consolidated-tasks":
 
@@ -2749,7 +2734,7 @@ class RcsbDpUtility(object):
                 except Exception:
                     logger.info("+RcsbDpUtility.__annotationStep() removal failed for working path %s\n", runDir)
 
-        elif op == "annot-link-ssbond-with-ptm":
+        elif (op == "annot-link-ssbond-with-ptm") or (op == "annot-pcm-check-ccd-ann"):
             outFile = os.path.join(self.__wrkPath, oPath)
             if os.access(outFile, os.F_OK):
                 self.__resultPathList.append(outFile)
