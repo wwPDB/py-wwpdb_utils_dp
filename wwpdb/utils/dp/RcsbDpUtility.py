@@ -131,6 +131,8 @@
 # 22-Jan-2024 zf  Add "annot-get-covalent-bond" & "annot-remove-covalent-bond"
 # 12-Aug-2024 zf  Add self.__pointsuiteOps, self.__pointsuiteStep, & "annot-merge-pointsuite-info"
 # 26-Aug-2024 zf  Add "annot-link-ssbond-with-ptm", "annot-pcm-check-ccd-ann"
+# 05-Sep-2024 zf  Add "-ptm_pcm_output pcm.csv" option to "annot-convert-close-contact-to-link" and "annot-remove-covalent-bond" operators
+#                 Add "annot-check-ccd-definition" operator
 ##
 """
 Wrapper class for data processing and chemical component utilities.
@@ -365,7 +367,8 @@ class RcsbDpUtility(object):
             "centre-of-mass",
             "annot-complexity",
             "annot-pcm-check-ccd-ann",
-            "annot-merge-pointsuite-info"
+            "annot-merge-pointsuite-info",
+            "annot-check-ccd-definition"
         ]
 
         self.__sequenceOps = ["seq-blastp", "seq-blastn", "fetch-uniprot", "fetch-gb", "format-uniprot", "format-gb", "backup-seqdb"]
@@ -2448,7 +2451,8 @@ class RcsbDpUtility(object):
             #
             cmdPath = os.path.join(self.__annotAppsPath, "bin", "ConvertContactToLink")
             thisCmd = " ; " + cmdPath
-            cmd += thisCmd + " -input " + iPath + " -datafile " + dataFilePath + " -output " + oPath + " -log " + lPath + " > " + tPath + " 2>&1 "
+            cmd += thisCmd + " -input " + iPath + " -datafile " + dataFilePath + " -output " + oPath + " -ptm_pcm_output pcm.csv -log " \
+                 + lPath + " > " + tPath + " 2>&1 "
 
         elif op == "annot-get-covalent-bond":
             #
@@ -2466,7 +2470,8 @@ class RcsbDpUtility(object):
             #
             cmdPath = os.path.join(self.__annotAppsPath, "bin", "RemoveCovalentBond")
             thisCmd = " ; " + cmdPath
-            cmd += thisCmd + " -input " + iPath + " -datafile " + dataFilePath + " -output " + oPath + " -log " + lPath + " > " + tPath + " 2>&1 "
+            cmd += thisCmd + " -input " + iPath + " -datafile " + dataFilePath + " -output " + oPath + " -ptm_pcm_output pcm.csv -log " \
+                 + lPath + " > " + tPath + " 2>&1 "
 
         elif op == "carbohydrate-remediation":
             cmdPath = os.path.join(self.__annotAppsPath, "bin", "CarbohydrateRemediation")
@@ -2552,6 +2557,19 @@ class RcsbDpUtility(object):
                 cmd += " -support " + self.__inputParamDict["support"] + " "
             else:
                 return -1
+            #
+            cmd += " > " + lPath + " 2>&1 "
+
+        elif op == "annot-check-ccd-definition":
+            cmdPath = os.path.join(self.__annotAppsPath, "bin", "ChemCompDefChecker")
+            thisCmd = " ; " + cmdPath
+            cmd += thisCmd + " -input " + iPath + " -output " + oPath
+            #
+            if "pcm_support_file" in self.__inputParamDict:
+                cmd += " -pcm_support_file " + self.__inputParamDict["pcm_support_file"] + " "
+            #
+            if "set_stripped_down_flag" in self.__inputParamDict:
+                cmd += " -set_stripped_down_flag "
             #
             cmd += " > " + lPath + " 2>&1 "
 
@@ -2734,7 +2752,8 @@ class RcsbDpUtility(object):
                 except Exception:
                     logger.info("+RcsbDpUtility.__annotationStep() removal failed for working path %s\n", runDir)
 
-        elif (op == "annot-link-ssbond-with-ptm") or (op == "annot-pcm-check-ccd-ann"):
+        elif (op == "annot-convert-close-contact-to-link") or (op == "annot-link-ssbond-with-ptm") or \
+             (op == "annot-pcm-check-ccd-ann") or (op == "annot-remove-covalent-bond"):
             outFile = os.path.join(self.__wrkPath, oPath)
             if os.access(outFile, os.F_OK):
                 self.__resultPathList.append(outFile)
