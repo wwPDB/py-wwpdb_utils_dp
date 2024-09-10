@@ -2571,7 +2571,10 @@ class RcsbDpUtility(object):
             if "set_stripped_down_flag" in self.__inputParamDict:
                 cmd += " -set_stripped_down_flag "
             #
-            cmd += " -unset_ok_flag > " + lPath + " 2>&1 "
+            if "set_ok_flag" in self.__inputParamDict:
+                cmd += " -set_ok_flag "
+            #
+            cmd += " > " + lPath + " 2>&1 "
 
         else:
 
