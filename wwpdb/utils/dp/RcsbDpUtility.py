@@ -2452,7 +2452,7 @@ class RcsbDpUtility(object):
             cmdPath = os.path.join(self.__annotAppsPath, "bin", "ConvertContactToLink")
             thisCmd = " ; " + cmdPath
             cmd += thisCmd + " -input " + iPath + " -datafile " + dataFilePath + " -output " + oPath + " -ptm_pcm_output pcm.csv -log " \
-                 + lPath + " > " + tPath + " 2>&1 "
+                + lPath + " > " + tPath + " 2>&1 "
 
         elif op == "annot-get-covalent-bond":
             #
@@ -2471,7 +2471,7 @@ class RcsbDpUtility(object):
             cmdPath = os.path.join(self.__annotAppsPath, "bin", "RemoveCovalentBond")
             thisCmd = " ; " + cmdPath
             cmd += thisCmd + " -input " + iPath + " -datafile " + dataFilePath + " -output " + oPath + " -ptm_pcm_output pcm.csv -log " \
-                 + lPath + " > " + tPath + " 2>&1 "
+                + lPath + " > " + tPath + " 2>&1 "
 
         elif op == "carbohydrate-remediation":
             cmdPath = os.path.join(self.__annotAppsPath, "bin", "CarbohydrateRemediation")
