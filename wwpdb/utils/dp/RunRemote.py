@@ -166,7 +166,7 @@ class RunRemote:
     def prefix_command(self):
         if self.command_prefix:
             self.command = "{} {}".format(self.command_prefix, self.command)
-    
+
     def extract_state(self, output):
         """This method can be expanded to parse the entire
         output.
@@ -191,7 +191,7 @@ class RunRemote:
             slurm_command.append("'")
 
         command_string = " ".join(slurm_command)
-    
+
         rc, out, err = self.run_command(command=command_string)
         # rc, out, err = self.run_command(command="jobinfo {}".format(job_id))
         state = self.extract_state(out)
@@ -323,7 +323,7 @@ class RunRemote:
         if not os.path.exists(self.log_dir):
             os.makedirs(self.log_dir)
 
-        temp_file = os.path.join(self.slurm_run_dir, "slurm_temp_file.out")
+        # temp_file = os.path.join(self.slurm_run_dir, "slurm_temp_file.out")
 
         # if get non ok exit status from sbatch then wait 30 seconds and try again.
         # i = 0
@@ -336,7 +336,7 @@ class RunRemote:
         if job_id is None:
             logging.error("sbatch failed to run")
             return rc, out, err
-        
+
         logging.info("sbatch job id: {}".format(job_id))  # pylint: disable=logging-format-interpolation
 
         time.sleep(5)
