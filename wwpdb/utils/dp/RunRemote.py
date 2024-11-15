@@ -192,13 +192,13 @@ class RunRemote:
 
         command_string = " ".join(slurm_command)
 
-        rc, out, err = self.run_command(command=command_string)
+        _rc, out, _err = self.run_command(command=command_string)
         # rc, out, err = self.run_command(command="jobinfo {}".format(job_id))
         state = self.extract_state(out)
 
         while state in ('PENDING', 'RUNNING', 'COMPLETING'):
             time.sleep(60)
-            rc, out, err = self.run_command(command=command_string)
+            _rc, out, _err = self.run_command(command=command_string)
             state = self.extract_state(out)
 
         logging.info("Job {} finished with state: {}".format(self.job_name, state))  # pylint: disable=logging-format-interpolation
