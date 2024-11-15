@@ -402,7 +402,7 @@ class RcsbDpUtility(object):
         self.__stepNoSaved = None
         self.__timeout = 0
         self.__numThreads = 1  # this is used by RunRemote to set the number of cores requested
-        self.__startingMemory = 0  # this is used by RunRemote to set the starting RAM to be requested
+        self.__startingMemory = 2000  # this is used by RunRemote to set the starting RAM to be requested
 
         self.__run_remote = False
 
