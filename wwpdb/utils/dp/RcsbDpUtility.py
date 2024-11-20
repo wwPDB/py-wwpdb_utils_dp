@@ -3489,6 +3489,7 @@ class RcsbDpUtility(object):
 
         elif op == "em-map-model-upload-check":
             cmd += " :; } ; "
+            cmd += self.__site_config_command + " ; "
             outFilePath = self.__inputParamDict.get("output_file_path")
             if "input_file_path" in self.__inputParamDict:
                 cmd += f"python -m wwpdb.utils.emdb.checkemupload.checkemupload --input {self.__inputParamDict['input_file_path']}"
