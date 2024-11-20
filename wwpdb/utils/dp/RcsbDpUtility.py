@@ -3239,6 +3239,10 @@ class RcsbDpUtility(object):
         self.__deployPath = self.__getConfigPath("SITE_DEPLOY_PATH")
         self.__localAppsPath = self.__cICommon.get_site_local_apps_path()
 
+        self.__siteConfigDir = self.__getConfigPath("TOP_WWPDB_SITE_CONFIG_DIR")
+        self.__siteLoc = self.__cI.get("WWPDB_SITE_LOC")
+        self.__site_config_command = ". %s/init/env.sh -s %s -l %s" % (self.__siteConfigDir, self.__siteId, self.__siteLoc)
+
         if self.__siteId in ["WWPDB_DEPLOY_MACOSX"]:
             self.__javaPath = "/usr/bin/java"
         else:
@@ -3484,15 +3488,16 @@ class RcsbDpUtility(object):
             cmd += " ; cat " + ePath + " > " + lPath
 
         elif op == "em-map-model-upload-check":
+            cmd += " :; } ; "
             outFilePath = self.__inputParamDict.get("output_file_path")
             if "input_file_path" in self.__inputParamDict:
-                cmd = f"python -m wwpdb.utils.emdb.checkemupload.checkemupload --input {self.__inputParamDict['input_file_path']}"
+                cmd += f"python -m wwpdb.utils.emdb.checkemupload.checkemupload --input {self.__inputParamDict['input_file_path']}"
             else:
                 inpMapFilePath = self.__inputParamDict.get("input_map_file_path")
                 inpHalfMapFilePath1 = self.__inputParamDict.get("input_half_map_file_path_1")
                 inpHalfMapFilePath2 = self.__inputParamDict.get("input_half_map_file_path_2")
                 inpModelFilePath = self.__inputParamDict.get("input_model_file_path")
-                cmd = f"python -m wwpdb.utils.emdb.checkemupload.checkemupload --primmap {inpMapFilePath}"
+                cmd += f"python -m wwpdb.utils.emdb.checkemupload.checkemupload --primmap {inpMapFilePath}"
                 if inpModelFilePath:
                     cmd += f" --model {inpModelFilePath}"
                 if inpHalfMapFilePath1 and inpHalfMapFilePath2:
