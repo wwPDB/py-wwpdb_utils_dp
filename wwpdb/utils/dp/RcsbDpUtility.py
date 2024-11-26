@@ -4769,6 +4769,7 @@ class RcsbDpUtility(object):
                 timeout=self.__timeout,
                 number_of_processors=self.__numThreads,
                 memory_limit=self.__startingMemory,
+                add_site_config=True,
             ).run()
 
         if self.__timeout > 0:
