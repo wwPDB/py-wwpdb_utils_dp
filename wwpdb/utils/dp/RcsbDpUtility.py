@@ -133,6 +133,7 @@
 # 26-Aug-2024 zf  Add "annot-link-ssbond-with-ptm", "annot-pcm-check-ccd-ann"
 # 05-Sep-2024 zf  Add "-ptm_pcm_output pcm.csv" option to "annot-convert-close-contact-to-link" and "annot-remove-covalent-bond" operators
 #                 Add "annot-check-ccd-definition" operator
+# 19-Jan-2025 zf  Add "annot-get-em-exp-info"
 ##
 """
 Wrapper class for data processing and chemical component utilities.
@@ -368,7 +369,8 @@ class RcsbDpUtility(object):
             "annot-complexity",
             "annot-pcm-check-ccd-ann",
             "annot-merge-pointsuite-info",
-            "annot-check-ccd-definition"
+            "annot-check-ccd-definition",
+            "annot-get-em-exp-info"
         ]
 
         self.__sequenceOps = ["seq-blastp", "seq-blastn", "fetch-uniprot", "fetch-gb", "format-uniprot", "format-gb", "backup-seqdb"]
@@ -2576,6 +2578,12 @@ class RcsbDpUtility(object):
             #
             cmd += " > " + lPath + " 2>&1 "
 
+        elif op == "annot-get-em-exp-info":
+            #
+            cmdPath = os.path.join(self.__annotAppsPath, "bin", "ReleaseUpdateGetEmInfo")
+            thisCmd = " ; " + cmdPath
+            cmd += thisCmd + " -input " + iPath + " -output " + oPath + " -log " + tPath + " > " + lPath + " 2>&1 "
+
         else:
 
             return -1
@@ -2943,6 +2951,7 @@ class RcsbDpUtility(object):
             or (op == "annot-misc-checking")
             or (op == "annot-get-pdb-file")
             or (op == "annot-add-version-info")
+            or (op == "annot-get-em-exp-info")
         ):
             for fileName in (oPath, tPath, lPath):
                 outFile = os.path.join(self.__wrkPath, fileName)
