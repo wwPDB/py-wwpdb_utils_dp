@@ -1331,6 +1331,9 @@ class RcsbDpUtility(object):
             else:
                 stepList = None
 
+            multithread = "--multithread"
+            if "skip_multi" in self.__inputParamDict:
+                multithread = None
             #
             xmlPath = os.path.abspath(os.path.join(self.__wrkPath, "out.xml"))
             cifPath = os.path.abspath(os.path.join(self.__wrkPath, "out.cif"))
@@ -1360,6 +1363,8 @@ class RcsbDpUtility(object):
                 iPathFull, xmlPath, cifPath, pdfPath, pdfFullPath, pngPath, svgPath, imageTarPath
             )
             cmd += " --mode " + validation_mode
+            if multithread:
+                cmd += " " + multithread
 
             # For deposit or validation server - provide a PDB id. Otherwise for annotation incorrect id would be used
             if validation_mode in ["server", "deposit"]:
