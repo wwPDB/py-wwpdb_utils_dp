@@ -12,7 +12,7 @@ from textwrap import dedent
 
 from wwpdb.utils.config.ConfigInfo import ConfigInfo, getSiteId
 
-logger = logging.getLogger()
+logger = logging.getLogger(__name__)
 
 
 def remove_file(file_path):
@@ -60,7 +60,7 @@ class RunRemote:
         logger.info(f"Requeued failed job {job_id}")
 
     @staticmethod
-    def _get_job_status_by_id(job_id) -> str:
+    def get_job_status_by_id(job_id) -> str:
         """Get the status of a single job by ID."""
         cmd = [
             "squeue",
@@ -127,7 +127,7 @@ class RunRemote:
             self.timeout,
             "--chdir",
             self.run_dir,
-            "--open-mode",
+            "--output",
             self._stdout_file,
             "--error",
             self._stderr_file
@@ -199,7 +199,7 @@ if __name__ == "__main__":
     parser.add_argument("--job_name", help="name for the job", type=str, required=True)
     parser.add_argument("--log_dir", help="directory to store log file in", type=str, required=True)
     parser.add_argument("--run_dir", help="directory to run", type=str)
-    parser.add_argument("--memory_limit", help="starting memory limit", type=int, default=0)
+    parser.add_argument("--memory_limit", help="starting memory limit", type=int, default=16000)
     parser.add_argument("--num_processors", help="number of processors", type=int, default=1)
     parser.add_argument("--add_site_config", help="add site config to command", action="store_true")
     parser.add_argument("--add_site_config_with_database", help="add site config with database to command", action="store_true")
@@ -219,4 +219,4 @@ if __name__ == "__main__":
     )
 
     status = run_remote.run()
-    logger.info(f"Job finisehd with status: {status}")
+    print(f"Job finished with status: {status}")
