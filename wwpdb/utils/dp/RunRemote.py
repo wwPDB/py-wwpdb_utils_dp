@@ -12,7 +12,9 @@ from textwrap import dedent
 
 from wwpdb.utils.config.ConfigInfo import ConfigInfo, getSiteId
 
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 
 def remove_file(file_path):
@@ -48,7 +50,7 @@ class RunRemote:
         self._shell_script = os.path.join(self.run_dir, "run_{}.sh".format(self.job_name))
 
         self.cI = ConfigInfo(getSiteId())
-        self.pdbe_cluster_queue = self.cI.get("PDBE_CLUSTER_QUEUE")
+        self.pdbe_cluster_queue = str(self.cI.get("PDBE_CLUSTER_QUEUE"))
         self._stdout_file = os.path.join(self.log_dir, self.job_name + ".out")
         self._stderr_file = os.path.join(self.log_dir, self.job_name + ".err")
 
@@ -89,6 +91,8 @@ class RunRemote:
     @staticmethod
     def monitor(job_id, frequency=5):
         """Monitor a job by ID, requeueing if it fails."""
+        logging.info(f"Monitoring job {job_id}")
+
         while True:
             status = RunRemote.get_job_status_by_id(job_id)
 
@@ -168,7 +172,7 @@ class RunRemote:
             wf_command = self._source_site_config(database=self.add_site_config_database)
 
         sbatch_cmd = self._build_sbatch_command(command=wf_command)
-        logger.debug(sbatch_cmd)
+        logger.debug(" ".join(sbatch_cmd))
 
         output = subprocess.run(sbatch_cmd, check=True, capture_output=True)
         job_id = int(output.stdout.decode("utf-8").split()[-1])
@@ -178,45 +182,47 @@ class RunRemote:
 
         return self.monitor(job_id=job_id)
 
-    # def extract_state(self, output):
-    #     """This method can be expanded to parse the entire
-    #     output.
-    #     """
-    #     if isinstance(output, bytes):
-    #         output = output.decode('utf-8')
-
-    #     match = re.search(r'State\s*:\s*(\S+)', output)
-    #     if match:
-    #         return match.group(1)
-    #     else:
-    #         return None
-
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("-d", "--debug", help="debugging", action="store_const", dest="loglevel", const=logging.DEBUG, default=logging.INFO)
-    parser.add_argument("--command", help="command to run", type=str, required=True)
-    parser.add_argument("--job_name", help="name for the job", type=str, required=True)
-    parser.add_argument("--log_dir", help="directory to store log file in", type=str, required=True)
-    parser.add_argument("--run_dir", help="directory to run", type=str)
-    parser.add_argument("--memory_limit", help="starting memory limit", type=int, default=16000)
-    parser.add_argument("--num_processors", help="number of processors", type=int, default=1)
-    parser.add_argument("--add_site_config", help="add site config to command", action="store_true")
-    parser.add_argument("--add_site_config_with_database", help="add site config with database to command", action="store_true")
+    subparsers = parser.add_subparsers(dest='comm')
+
+    parser_run = subparsers.add_parser('run')
+    parser_run.add_argument("-d", "--debug", help="debugging", action="store_const", dest="loglevel", const=logging.DEBUG, default=logging.INFO)
+    parser_run.add_argument("--command", help="command to run", type=str, required=True)
+    parser_run.add_argument("--job_name", help="name for the job", type=str, required=True)
+    parser_run.add_argument("--log_dir", help="directory to store log file in", type=str, required=True)
+    parser_run.add_argument("--run_dir", help="directory to run", type=str)
+    parser_run.add_argument("--memory_limit", help="starting memory limit", type=int, default=16000)
+    parser_run.add_argument("--num_processors", help="number of processors", type=int, default=1)
+    parser_run.add_argument("--add_site_config", help="add site config to command", action="store_true")
+    parser_run.add_argument("--add_site_config_with_database", help="add site config with database to command", action="store_true")
+
+    # Parser for the "monitor" command
+    parser_monitor = subparsers.add_parser('monitor')
+    parser_monitor.add_argument("--job_id", help="ID of the job to monitor", type=str, required=True)
+    parser_monitor.add_argument("--frequency", help="frequency of monitoring", type=int, default=10)
 
     args = parser.parse_args()
-    logger.setLevel(args.loglevel)
 
-    run_remote = RunRemote(
-        command=args.command,
-        job_name=args.job_name,
-        log_dir=args.log_dir,
-        run_dir=args.run_dir,
-        memory_limit=args.memory_limit,
-        number_of_processors=args.num_processors,
-        add_site_config=args.add_site_config,
-        add_site_config_database=args.add_site_config_with_database,
-    )
+    logger.info(f"Running command: {args.comm}")
+    if args.comm == 'run':
+        run_remote = RunRemote(
+            command=args.command,
+            job_name=args.job_name,
+            log_dir=args.log_dir,
+            run_dir=args.run_dir,
+            memory_limit=args.memory_limit,
+            number_of_processors=args.num_processors,
+            add_site_config=args.add_site_config,
+            add_site_config_database=args.add_site_config_with_database,
+        )
+        status = run_remote.run()
+        logger.info(f"Job finished with status: {status}")
 
-    status = run_remote.run()
-    print(f"Job finished with status: {status}")
+    elif args.comm == 'monitor':
+        status = RunRemote.monitor(
+            job_id=args.job_id,
+            frequency=args.frequency
+        )
+        logger.info(f"Job finished with status: {status}")
