@@ -19,20 +19,22 @@
 Encapsulate data model format type conversions.
 
 """
+
 __docformat__ = "restructuredtext en"
 __author__ = "John Westbrook"
 __email__ = "jwest@rcsb.rutgers.edu"
 __license__ = "Creative Commons Attribution 3.0 Unported"
 __version__ = "V0.07"
 
-import sys
 import os.path
 import shutil
+import sys
 import traceback
+
 from wwpdb.utils.dp.RcsbDpUtility import RcsbDpUtility
 
 
-class DataFileAdapter(object):
+class DataFileAdapter:
     """Convenience methods to manage data model and structure factor format conversions."""
 
     def __init__(self, reqObj, verbose=False, log=sys.stderr):
@@ -61,7 +63,6 @@ class DataFileAdapter(object):
         except:  # noqa: E722 pylint: disable=bare-except
             traceback.print_exc(file=self.__lfh)
             return False
-        #
         return True
 
     def rcsb2Pdbx(self, inpPath, outPath, stripFlag=False, stripEntityFlag=False):
@@ -86,7 +87,6 @@ class DataFileAdapter(object):
         except:  # noqa: E722 pylint: disable=bare-except
             traceback.print_exc(file=self.__lfh)
             return False
-        #
         return True
 
     def rcsb2PdbxWithPdbId(self, inpPath, outPath):
@@ -103,7 +103,6 @@ class DataFileAdapter(object):
         except:  # noqa: E722 pylint: disable=bare-except
             traceback.print_exc(file=self.__lfh)
             return False
-        #
         return True
 
     def rcsb2PdbxWithPdbIdAlt(self, inpPath, outPath):
@@ -120,7 +119,6 @@ class DataFileAdapter(object):
         except:  # noqa: E722 pylint: disable=bare-except
             traceback.print_exc(file=self.__lfh)
             return False
-        #
         return True
 
     def rcsbEps2Pdbx(self, inpPath, outPath, stripFlag=False, stripEntityFlag=False):
@@ -144,7 +142,6 @@ class DataFileAdapter(object):
         except:  # noqa: E722 pylint: disable=bare-except
             traceback.print_exc(file=self.__lfh)
             return False
-        #
         return True
 
     def cif2Pdb(self, inpPath, outPath):
@@ -161,7 +158,6 @@ class DataFileAdapter(object):
         except:  # noqa: E722 pylint: disable=bare-except
             traceback.print_exc(file=self.__lfh)
             return False
-        #
         return True
 
     def cif2Pdbx(self, inpPath, outPath):
@@ -178,7 +174,6 @@ class DataFileAdapter(object):
         except:  # noqa: E722 pylint: disable=bare-except
             traceback.print_exc(file=self.__lfh)
             return False
-        #
         return True
 
     def modelConvertToPdbx(self, filePath=None, fileType="pdbx", pdbxFilePath=None):
@@ -193,7 +188,6 @@ class DataFileAdapter(object):
             ok = False
             if filePath is None or pdbxFilePath is None:
                 return ok
-            #
             if fileType in ["pdbx-mmcif", "pdbx", "pdbx-cif"]:
                 if filePath != pdbxFilePath:
                     shutil.copyfile(filePath, pdbxFilePath)
@@ -206,7 +200,6 @@ class DataFileAdapter(object):
                 ok = self.rcsbEps2Pdbx(filePath, pdbxFilePath, stripFlag=False)
             elif fileType == "rcsb-cifeps-strip":
                 ok = self.rcsbEps2Pdbx(filePath, pdbxFilePath, stripFlag=True)
-                #
             else:
                 ok = False
             return ok
@@ -250,12 +243,20 @@ class DataFileAdapter(object):
             traceback.print_exc(file=self.__lfh)
             return False
 
-    def mtz2Pdbx(self, mtzFilePath, outSfFilePath, pdbxFilePath=None, logFilePath=None, diagsFilePath=None, dumpFilePath=None, timeout=120):  # pylint: disable=unused-argument
+    def mtz2Pdbx(
+        self,
+        mtzFilePath,
+        outSfFilePath,
+        pdbxFilePath=None,
+        logFilePath=None,
+        diagsFilePath=None,  # noqa: ARG002
+        dumpFilePath=None,
+        timeout=120,
+    ):  # noqa: ARG002 pylint: disable=unused-argument
         """Convert input MTZ format to PDBx sf file."""
         try:
             diagfn = logFilePath if logFilePath is not None else "sf-convert-diags.cif"
             dmpfn = dumpFilePath if dumpFilePath is not None else "sf-convert-mtzdmp.log"
-            #
             dp = RcsbDpUtility(tmpPath=self.__sessionPath, siteId=self.__siteId, verbose=self.__verbose, log=self.__lfh)
             dp.imp(mtzFilePath)
             dp.setTimeout(timeout)

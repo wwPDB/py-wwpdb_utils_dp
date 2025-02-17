@@ -1,13 +1,13 @@
 """Functionailty to calculate the complexit of coordinate model"""
 
 import argparse
-import os
 import logging
+import os
 import sys
 
-from mmcif.io.IoAdapterCore import IoAdapterCore as IoAdapter
-from mmcif.api.PdbxContainers import DataContainer
 from mmcif.api.DataCategory import DataCategory
+from mmcif.api.PdbxContainers import DataContainer
+from mmcif.io.IoAdapterCore import IoAdapterCore as IoAdapter
 
 logger = logging.getLogger(__name__)
 
@@ -81,7 +81,7 @@ class PdbxModelCompletity:
                     entry_complexity += entity_complexity
                     non_poly_complexity += entity_complexity
 
-            is_complex = True if entry_complexity > self.__threshold else False
+            is_complex = True if entry_complexity > self.__threshold else False  # noqa: SIM210
 
             self.__data = {
                 "is_complex": is_complex,
@@ -90,7 +90,7 @@ class PdbxModelCompletity:
                 "non_poly_complexity": non_poly_complexity,
             }
 
-            return True
+        return True
 
     def write_output(self, fpath):
         """Writes out the"""
@@ -101,7 +101,7 @@ class PdbxModelCompletity:
         entry_complexity = str(self.__data.get("entry_complexity", 0))
         polymer_complexity = str(self.__data.get("polymer_complexity", 0))
         non_poly_complexity = str(self.__data.get("non_poly_complexity", 0))
-        threshold = "{:.2e}".format(self.__threshold)
+        threshold = f"{self.__threshold:.2e}"
 
         attrlist = [
             "is_complex",
@@ -154,7 +154,7 @@ def main():
     if ok:
         pmc.write_output(output)
     else:
-        print("Could not parse input file %s" % modelpath)
+        print("Could not parse input file %s" % modelpath)  # noqa: T201
         sys.exit(1)
 
     sys.exit(0)

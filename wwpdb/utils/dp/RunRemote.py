@@ -1,11 +1,12 @@
 # pylint: disable=logging-format-interpolation
+import argparse
+import logging
 import os
 import re
+import subprocess
 import sys
 import time
-import logging
-import subprocess
-import argparse
+
 from wwpdb.utils.config.ConfigInfo import ConfigInfo, getSiteId
 
 logger = logging.getLogger()
@@ -20,7 +21,18 @@ def remove_file(file_path):
 
 
 class RunRemote:
-    def __init__(self, command, job_name, log_dir, run_dir=None, timeout=5600, memory_limit=16000, number_of_processors=1, add_site_config=False, add_site_config_database=False):
+    def __init__(
+        self,
+        command,
+        job_name,
+        log_dir,
+        run_dir=None,
+        timeout=5600,
+        memory_limit=16000,
+        number_of_processors=1,
+        add_site_config=False,
+        add_site_config_database=False,
+    ):
         # self.command = self.escape_substitution(command)
         self.command = command
         if timeout:
@@ -47,7 +59,7 @@ class RunRemote:
         self.slurm_timeout = self.cI.get("SLURM_TIMEOUT")
         self.slurm_retry_delay = self.cI.get("SLURM_RETRY_DELAY", 4)
         self.command_prefix = self.cI.get("REMOTE_COMMAND_PREFIX")
-        self.slurm_run_dir = run_dir if run_dir else log_dir
+        self.slurm_run_dir = run_dir or log_dir
         self.slurm_log_file = os.path.join(self.log_dir, self.job_name + ".log")
         self.slurm_in_file = os.path.join(self.slurm_run_dir, self.job_name + ".in")
         self.slurm_out_file = os.path.join(self.log_dir, self.job_name + ".out")
@@ -158,7 +170,6 @@ class RunRemote:
         return site_config_command
 
     def pre_pend_sourcing_site_config(self, database=False):
-
         self.command = "{}; {}".format(self.get_site_config_command(), self.command)
         if database:
             self.command = "{}; {}".format(self.get_site_config_command(suffix="--database"), self.command)
@@ -172,13 +183,12 @@ class RunRemote:
         output.
         """
         if isinstance(output, bytes):
-            output = output.decode('utf-8')
+            output = output.decode("utf-8")
 
-        match = re.search(r'State\s*:\s*(\S+)', output)
+        match = re.search(r"State\s*:\s*(\S+)", output)
         if match:
             return match.group(1)
-        else:
-            return None
+        return None
 
     def check_sbatch_finished(self, job_id):
         slurm_command = list()
@@ -196,7 +206,7 @@ class RunRemote:
         # rc, out, err = self.run_command(command="jobinfo {}".format(job_id))
         state = self.extract_state(out)
 
-        while state in ('PENDING', 'RUNNING', 'COMPLETING'):
+        while state in ("PENDING", "RUNNING", "COMPLETING"):
             time.sleep(60)
             _rc, out, _err = self.run_command(command=command_string)
             state = self.extract_state(out)
@@ -264,7 +274,6 @@ class RunRemote:
         return False
 
     def launch_sbatch(self):
-
         remove_file(self.slurm_out_file)
 
         remove_file(self.slurm_in_file)
@@ -285,7 +294,7 @@ class RunRemote:
 
         slurm_command.append("-n {}".format(self.number_of_processors))
         slurm_command.append("-t {}".format(self.timeout))
-        slurm_command.append('--mem={0}'.format(self.memory_limit))
+        slurm_command.append("--mem={0}".format(self.memory_limit))
         slurm_command.append('--wrap="{}"'.format(self.command))
         if self.slurm_login_node:
             slurm_command.append("'")
@@ -295,14 +304,13 @@ class RunRemote:
         rc, out, err = self.run_command(command=command_string)
 
         if isinstance(out, bytes):
-            out = out.decode('utf-8')
+            out = out.decode("utf-8")
 
         # Regular expression to find the job id
-        match = re.search(r'Submitted batch job (\d+)', out)
+        match = re.search(r"Submitted batch job (\d+)", out)
         if match:
             return match.group(1), rc, out, err
-        else:
-            return None, rc, out, err
+        return None, rc, out, err
 
     def launch_sbatch_wait_process(self):
         sbatch_command = list()
@@ -319,7 +327,6 @@ class RunRemote:
         return rc, out, err
 
     def run_slurm(self):
-
         if not os.path.exists(self.log_dir):
             os.makedirs(self.log_dir)
 
@@ -347,7 +354,15 @@ class RunRemote:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("-d", "--debug", help="debugging", action="store_const", dest="loglevel", const=logging.DEBUG, default=logging.INFO)
+    parser.add_argument(
+        "-d",
+        "--debug",
+        help="debugging",
+        action="store_const",
+        dest="loglevel",
+        const=logging.DEBUG,
+        default=logging.INFO,
+    )
     parser.add_argument("--command", help="command to run", type=str, required=True)
     parser.add_argument("--job_name", help="name for the job", type=str, required=True)
     parser.add_argument("--log_dir", help="directory to store log file in", type=str, required=True)

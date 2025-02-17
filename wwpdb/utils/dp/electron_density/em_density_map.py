@@ -20,7 +20,6 @@ class EmVolumes:
         binary_map_out,
         working_dir,
     ):
-
         self.em_map = em_map
         self.em_map_name = os.path.basename(em_map)
         self.mdb_map = "em_map.mdb"
@@ -29,7 +28,7 @@ class EmVolumes:
         self.volume_server_query_path = volume_server_query_path
         self.mdb_map_path = None
         self.bcif_map_path = binary_map_out
-        self.workdir = working_dir if working_dir else os.getcwd()
+        self.workdir = working_dir or os.getcwd()
 
     def run_conversion(self):
         bcif_dir_out = os.path.dirname(self.bcif_map_path)
@@ -50,9 +49,10 @@ class EmVolumes:
         if os.path.exists(self.em_map):
             command = "%s %s em %s %s" % (self.node_path, self.volume_server_pack_path, self.em_map, self.mdb_map_path)
             logging.debug(command)
-            return run_command_and_check_output_file(command=command, process_name="make Volume server map", workdir=self.workdir, output_file=self.mdb_map_path)
-        else:
-            logging.error("input map file missing: %s", self.em_map)
+            return run_command_and_check_output_file(
+                command=command, process_name="make Volume server map", workdir=self.workdir, output_file=self.mdb_map_path
+            )
+        logging.error("input map file missing: %s", self.em_map)
         return False
 
     def convert_map_to_binary_cif(self):
@@ -84,7 +84,7 @@ def main():  # pragma: no cover
 
     if not sys.argv[1:]:
         parser.print_help()
-        exit()
+        sys.exit()
 
     em = EmVolumes(
         em_map=args.em_map,
@@ -95,7 +95,7 @@ def main():  # pragma: no cover
         working_dir=args.working_dir,
     )
     worked = em.run_conversion()
-    logging.info("EM map conversion worked: {}".format(worked))  # pylint: disable=logging-format-interpolation
+    logging.info("EM map conversion worked: {}".format(worked))  # noqa: G001 pylint: disable=logging-format-interpolation
     if not worked:
         sys.exit(1)
 

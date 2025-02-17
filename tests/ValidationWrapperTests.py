@@ -6,18 +6,19 @@
 Test cases for validation wrapper
 
 """
+
 import logging
-import unittest
-import sys
 import os
+import sys
+import unittest
 
 if __package__ is None or __package__ == "":
     from os import path
 
-    sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
-    from commonsetup import TESTOUTPUT, toolsmissing, mockTopPath  # pylint: disable=import-error
+    sys.path.append(path.dirname(path.abspath(__file__)))
+    from commonsetup import TESTOUTPUT, mockTopPath, toolsmissing  # pylint: disable=import-error
 else:
-    from .commonsetup import TESTOUTPUT, toolsmissing, mockTopPath
+    from .commonsetup import TESTOUTPUT, mockTopPath, toolsmissing
 
 from wwpdb.utils.config.ConfigInfo import getSiteId
 from wwpdb.utils.dp.ValidationWrapper import ValidationWrapper

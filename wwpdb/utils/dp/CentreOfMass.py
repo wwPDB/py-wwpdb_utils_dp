@@ -1,12 +1,14 @@
 import argparse
 import logging
-import sys
 import os
+import sys
+
 import gemmi
+from mmcif.api.DataCategory import DataCategory
+from mmcif.io.IoAdapterCore import IoAdapterCore
+
 from wwpdb.io.locator.PathInfo import PathInfo
 from wwpdb.utils.config.ConfigInfo import getSiteId
-from mmcif.io.IoAdapterCore import IoAdapterCore
-from mmcif.api.DataCategory import DataCategory
 
 logger = logging.getLogger()
 
@@ -26,7 +28,7 @@ def get_center_of_mass(data_block):
         model = st[0]
         center_of_mass = model.calculate_center_of_mass()
         return center_of_mass
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         logging.error(e)
         return False
 
@@ -43,7 +45,7 @@ def process_entry(file_in, file_out):
     try:
         cif_file = gemmi.cif.read(file_in)  # pylint: disable=no-member
         data_block = cif_file[0]
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         logger.error("Failed to read cif file in Gemmi")
         logger.error(e)
         return 1
@@ -56,7 +58,7 @@ def process_entry(file_in, file_out):
     try:
         io = IoAdapterCore()
         ccL = io.readFile(file_in)
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         logger.error("Failed to read cif file using IoAdapterCore %s", e)
         return 1
 
@@ -93,7 +95,7 @@ def process_entry(file_in, file_out):
         if not ret:
             logger.info("Writing failed error %s", ret)
             return 1
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         logger.error("Failed to write ccif file in IoAdapater %s", e)
         return 1
 
@@ -142,12 +144,16 @@ def main(args):
         failures = calculate_for_list(args)
         if len(failures) > 0:
             logger.info("Failed Dep Ids: \n%s", "\n".join(failures))
+            return 1
 
     elif os.path.isfile(args.model_file_in):
         calculate_for_file(args)
+        return 0
     else:
         logger.error("Input model file doesn't exists")
         return 1
+
+    return 0
 
 
 def parse_args():
@@ -163,7 +169,7 @@ def parse_args():
 
     if not sys.argv[1:]:
         parser.print_help()
-        exit()
+        sys.exit()
 
     main(args)
 
