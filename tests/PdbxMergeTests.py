@@ -11,9 +11,10 @@
 Test cases for EM map annotation tools --
 
 """
+
 import logging
-import unittest
 import os
+import unittest
 
 from mmcif.api.DataCategory import DataCategory
 from mmcif.api.PdbxContainers import DataContainer
@@ -24,7 +25,7 @@ if __package__ is None or __package__ == "":
     import sys
     from os import path
 
-    sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
+    sys.path.append(path.dirname(path.abspath(__file__)))
     from commonsetup import TESTOUTPUT  # pylint: disable=import-error
 else:
     from .commonsetup import TESTOUTPUT
@@ -140,7 +141,7 @@ class PdbxMergeTests(unittest.TestCase):
             pdbxw.write(my_data_list)
 
     def _testmerge(self, pathin):
-        with open(pathin, "r") as ifh:
+        with open(pathin) as ifh:
             pdbxr = PdbxReader(ifh)
             dlist = []
             pdbxr.read(dlist)
@@ -155,7 +156,15 @@ class PdbxMergeTests(unittest.TestCase):
             self.assertEqual(cat.getRowCount(), 1, "Should only have a single row")
             rd = cat.getRowItemDict(0)
             # print(rd)
-            self.assertEqual(rd, {"_struct.title": "Start title", "_struct.pdbx_descriptor": "Override descriptor", "_struct.new": "Something to add"}, "struct category mismatch")
+            self.assertEqual(
+                rd,
+                {
+                    "_struct.title": "Start title",
+                    "_struct.pdbx_descriptor": "Override descriptor",
+                    "_struct.new": "Something to add",
+                },
+                "struct category mismatch",
+            )
 
             # Merge
             cat = block.getObj("exptl")
@@ -164,7 +173,14 @@ class PdbxMergeTests(unittest.TestCase):
             rd = cat.getRowItemDict(0)
             # print(rd)
             self.assertEqual(
-                rd, {"_exptl.method": "NEW", "_exptl.entry_id": "something", "_exptl.absorpt_coefficient_mu": "?", "_exptl.details": "some details"}, "exptl category mismatch"
+                rd,
+                {
+                    "_exptl.method": "NEW",
+                    "_exptl.entry_id": "something",
+                    "_exptl.absorpt_coefficient_mu": "?",
+                    "_exptl.details": "some details",
+                },
+                "exptl category mismatch",
             )
 
             # Replace category non-existant

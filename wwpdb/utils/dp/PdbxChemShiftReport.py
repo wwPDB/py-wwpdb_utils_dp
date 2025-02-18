@@ -7,9 +7,7 @@
 # Updated:
 #
 ##
-"""  Read diagnostics in the chemical shift diagnostics report.
-
-"""
+"""Read diagnostics in the chemical shift diagnostics report."""
 
 __docformat__ = "restructuredtext en"
 __author__ = "John Westbrook"
@@ -26,8 +24,8 @@ from mmcif.io.PdbxReader import PdbxReader
 logger = logging.getLogger(__name__)
 
 
-class PdbxChemShiftReport(object):
-    def __init__(self, inputPath, verbose=False, log=sys.stderr):  # pylint: disable=unused-argument
+class PdbxChemShiftReport:
+    def __init__(self, inputPath, verbose=False, log=sys.stderr):  # noqa: ARG002 pylint: disable=unused-argument
         self.__myContainerList = []
         self.__read(inputPath)
 
@@ -35,7 +33,7 @@ class PdbxChemShiftReport(object):
         """Read status file"""
         try:
             self.__myContainerList = []
-            with open(inputPath, "r") as ifh:
+            with open(inputPath) as ifh:
                 pRd = PdbxReader(ifh)
                 pRd.read(self.__myContainerList)
             return True
@@ -56,7 +54,6 @@ class PdbxChemShiftReport(object):
         retVal = []
         try:
             c0 = self.__myContainerList[0]
-            #
             catObj = c0.getObj(categoryName)
             if catObj is None:
                 return retVal
@@ -66,7 +63,7 @@ class PdbxChemShiftReport(object):
                 idx = aList.index(attributeName)
                 for r in rList:
                     retVal.append(str(r[idx]).strip())
-        except Exception:
+        except Exception:  # noqa: BLE001
             pass
 
         return retVal

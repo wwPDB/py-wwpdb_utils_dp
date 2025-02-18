@@ -1,8 +1,7 @@
-import shlex
-
 import json
 import logging
 import os
+import shlex
 import shutil
 import subprocess
 
@@ -35,7 +34,7 @@ def run_command(command, process_name, workdir=None):
             return False
         logger.info("process worked: {}".format(process_name))  # pylint: disable=logging-format-interpolation
         return True
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         logger.error(e)
     return False
 
@@ -56,8 +55,7 @@ def run_command_and_check_output_file(command, process_name, output_file, workdi
             if os.path.exists(output_file):
                 logger.debug("file exists")
                 return True
-            else:
-                logger.error("output file missing: {}".format(output_file))  # pylint: disable=logging-format-interpolation
+            logger.error("output file missing: {}".format(output_file))  # pylint: disable=logging-format-interpolation
         else:
             logger.error("command returned non-zero exit status")
     else:

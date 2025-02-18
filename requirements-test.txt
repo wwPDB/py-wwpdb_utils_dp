@@ -1,0 +1,8 @@
+mmcif
+wwpdb.utils.config
+wwpdb.utils.testing
+wwpdb.io
+gemmi >= 0.4
+# For testing
+matplotlib
+pygal

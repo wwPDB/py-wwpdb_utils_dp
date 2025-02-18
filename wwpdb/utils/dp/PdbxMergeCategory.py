@@ -1,8 +1,8 @@
 ##
 # File:    PdbxMergeCategory.py
 ##
-"""  Merge/replace selected categories from the first data container and
-     write the result.
+"""Merge/replace selected categories from the first data container and
+write the result.
 """
 
 __docformat__ = "restructuredtext en"
@@ -18,7 +18,7 @@ from mmcif.io.IoAdapterCore import IoAdapterCore
 logger = logging.getLogger(__name__)
 
 
-class PdbxMergeCategory(object):
+class PdbxMergeCategory:
     def __init__(self):
         pass
 

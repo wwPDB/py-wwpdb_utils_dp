@@ -1,30 +1,30 @@
 #
 # File:    PdbxSFMapCoefficients.py
 ##
-"""  Classes to aid in conversion and manipulation of SF map coefficient files from the validation package.
-"""
+"""Classes to aid in conversion and manipulation of SF map coefficient files from the validation package."""
 
 __docformat__ = "restructuredtext en"
 __author__ = "Ezra Peisach"
 __email__ = "ezra.peisach@rcsb.org"
 __license__ = "Apache 2.0"
 
-import logging
 import copy
-import tempfile
-import shutil
+import logging
 import os
+import shutil
+import tempfile
 
-from mmcif.io.IoAdapterCore import IoAdapterCore
 from mmcif.api.PdbxContainers import DataContainer
-from wwpdb.utils.dp.RcsbDpUtility import RcsbDpUtility
+from mmcif.io.IoAdapterCore import IoAdapterCore
+
 from wwpdb.utils.config.ConfigInfo import getSiteId
+from wwpdb.utils.dp.RcsbDpUtility import RcsbDpUtility
 
 logger = logging.getLogger(__name__)
 
 
-class PdbxSFMapCoefficients(object):
-    def __init__(self, siteid=None, tmppath="/tmp", cleanup=True):
+class PdbxSFMapCoefficients:
+    def __init__(self, siteid=None, tmppath="/tmp", cleanup=True):  # noqa: S108
         self.__sf = None
         self.__siteid = getSiteId(siteid)
         self.__cleanup = cleanup
@@ -129,7 +129,7 @@ class PdbxSFMapCoefficients(object):
             _keepattr.extend(["pdbx_FWT", "pdbx_PHWT"])
 
         # Datablockname
-        blkname = "{}{}".format(entry_id, coef)
+        blkname = f"{entry_id}{coef}"
         new_cont = DataContainer(blkname)
 
         # Only care about first block
