@@ -49,7 +49,8 @@ class RunRemote:
             self.run_dir = tempfile.mkdtemp(prefix="run_remote_")
         self._shell_script = os.path.join(self.run_dir, "run_{}.sh".format(self.job_name))
 
-        self.cI = ConfigInfo(getSiteId())
+        self.siteId = getSiteId()
+        self.cI = ConfigInfo(self.siteId)
         self.pdbe_cluster_queue = str(self.cI.get("PDBE_CLUSTER_QUEUE"))
         self._stdout_file = os.path.join(self.log_dir, self.job_name + ".out")
         self._stderr_file = os.path.join(self.log_dir, self.job_name + ".err")
@@ -172,7 +173,7 @@ class RunRemote:
             wf_command = self._source_site_config(database=self.add_site_config_database)
 
         sbatch_cmd = self._build_sbatch_command(command=wf_command)
-        logger.debug(" ".join(sbatch_cmd))
+        logger.info(" ".join(sbatch_cmd))
 
         output = subprocess.run(sbatch_cmd, check=True, capture_output=True)
         job_id = int(output.stdout.decode("utf-8").split()[-1])
