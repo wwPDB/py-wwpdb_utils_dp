@@ -13,7 +13,6 @@ class DepositorSyncUtil:
         self.__sessionId = None
         self.__sessionPath = None
         self.__siteId = str(self.__reqObj.getValue("WWPDB_SITE_ID"))
-        #
         self.__getSession()
 
     def syncWithDatabase(self, depId, modelFilePath):
@@ -31,7 +30,6 @@ class DepositorSyncUtil:
 
     def __getSession(self):
         """Join existing session or create new session as required."""
-        #
         self.__sObj = self.__reqObj.newSessionObj()
         self.__sessionId = self.__sObj.getId()
         self.__sessionPath = self.__sObj.getPath()

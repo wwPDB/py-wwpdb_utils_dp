@@ -3,10 +3,10 @@
 # Updates:
 # 30-Jun-2020 zf  Add image tar file output after svg file for "annot-wwpdb-validate-all", "annot-wwpdb-validate-all-v2" & "annot-wwpdb-validate-all-sf"
 ##
-""" Class to act as a front end to validation calculations and repackaging.
-    Access pattern mirrors RscbDpUtility.
+"""Class to act as a front end to validation calculations and repackaging.
+Access pattern mirrors RscbDpUtility.
 
-    Provides an op annot-wwpdb-validate-all-sf which provides SF coefficients by intercepting output ops
+Provides an op annot-wwpdb-validate-all-sf which provides SF coefficients by intercepting output ops
 """
 
 __docformat__ = "restructuredtext en"
@@ -19,9 +19,10 @@ import os
 import sys
 
 from mmcif.io.IoAdapterCore import IoAdapterCore
-from wwpdb.utils.dp.RcsbDpUtility import RcsbDpUtility
-from wwpdb.utils.dp.PdbxSFMapCoefficients import PdbxSFMapCoefficients
+
 from wwpdb.io.file.DataFile import DataFile
+from wwpdb.utils.dp.PdbxSFMapCoefficients import PdbxSFMapCoefficients
+from wwpdb.utils.dp.RcsbDpUtility import RcsbDpUtility
 
 logger = logging.getLogger(__name__)
 

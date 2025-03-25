@@ -1,11 +1,11 @@
 # Common setup for tests as unittest runner loads files in any order
 
+import contextlib
 import os
 import platform
-import contextlib
 
 HERE = os.path.abspath(os.path.dirname(__file__))
-TOPDIR = os.path.dirname(os.path.dirname(os.path.dirname(HERE)))
+TOPDIR = os.path.dirname(HERE)
 TESTOUTPUT = os.path.join(HERE, "test-output", platform.python_version())
 if not os.path.exists(TESTOUTPUT):
     os.makedirs(TESTOUTPUT)
@@ -38,7 +38,7 @@ else:
     dictsmissing = True
 
 
-class commonsetup(object):
+class commonsetup:
     def __init__(self):
         pass
 

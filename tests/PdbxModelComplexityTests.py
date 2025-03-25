@@ -10,6 +10,7 @@
 Test cases for CentreOfMass calculation
 
 """
+
 import logging
 import os
 import sys
@@ -18,14 +19,15 @@ import unittest
 if __package__ is None or __package__ == "":
     from os import path
 
-    sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
+    sys.path.append(path.dirname(path.abspath(__file__)))
     from commonsetup import TESTOUTPUT, TOPDIR, modified_environ  # pylint: disable=import-error
 else:
     from .commonsetup import TESTOUTPUT, TOPDIR, modified_environ
 
+from mmcif.io.IoAdapterCore import IoAdapterCore
+
 from wwpdb.utils.config.ConfigInfo import getSiteId
 from wwpdb.utils.dp.RcsbDpUtility import RcsbDpUtility
-from mmcif.io.IoAdapterCore import IoAdapterCore
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s]-%(module)s.%(funcName)s: %(message)s")
 logger = logging.getLogger()
@@ -89,7 +91,7 @@ class ModelComplexityTests(unittest.TestCase):
         b0 = cL[0]
         cObj = b0.getObj("pdbx_complexity")
         comp = cObj.getValue("is_complex")
-        ret = True if comp == "True" else False
+        ret = comp == "True"
         return ret
 
 

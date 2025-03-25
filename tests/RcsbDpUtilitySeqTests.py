@@ -21,14 +21,13 @@ import unittest
 if __package__ is None or __package__ == "":
     from os import path
 
-    sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
+    sys.path.append(path.dirname(path.abspath(__file__)))
     from commonsetup import TESTOUTPUT, TOPDIR, toolsmissing  # pylint: disable=import-error
 else:
     from .commonsetup import TESTOUTPUT, TOPDIR, toolsmissing
 
 from wwpdb.utils.config.ConfigInfo import getSiteId
 from wwpdb.utils.dp.RcsbDpUtility import RcsbDpUtility
-
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s]-%(module)s.%(funcName)s: %(message)s")
 logger = logging.getLogger()
@@ -38,7 +37,6 @@ logger.setLevel(logging.INFO)
 @unittest.skipIf(toolsmissing, "Tools not available for testing")
 class RcsbDpUtilityTests(unittest.TestCase):
     def setUp(self):
-
         self.__siteId = getSiteId(defaultSiteId="WWPDB_DEPLOY_TEST")
         logger.info("\nTesting with site environment for:  %s", self.__siteId)
         #

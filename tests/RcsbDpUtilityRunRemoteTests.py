@@ -1,16 +1,16 @@
-import sys
-import unittest
+import logging
 import os
-import os.path
-import tempfile
 
 # import shutil
 import random
-import logging
-
+import sys
+import tempfile
+import unittest
 
 if __package__ is None or __package__ == "":
-    sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    from os import path
+
+    sys.path.append(path.dirname(path.abspath(__file__)))
     from commonsetup import toolsmissing  # pylint: disable=import-error
 else:
     from .commonsetup import toolsmissing
@@ -157,7 +157,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
         logger.debug("\nStarting")
         for pdbId in self.__testValidateXrayIdList:
             self.__tmpPath = tempfile.mkdtemp(dir=self.__siteWebAppsSessionsPath)
-            msg = "\nStarting {} in {}\n".format(pdbId, self.__tmpPath)
+            msg = f"\nStarting {pdbId} in {self.__tmpPath}\n"
             logger.debug(msg)
             ofpdf = os.path.join(self.__tmpPath, pdbId + "-valrpt.pdf")
             ofxml = os.path.join(self.__tmpPath, pdbId + "-valdata.xml")
@@ -174,7 +174,10 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             sfPath = os.path.abspath(os.path.join(self.__testFilePath, testFileValidateSf))
             # dp.addInput(name="request_annotation_context", value="yes")
             dp.addInput(name="request_validation_mode", value="annotate")
-            dp.addInput(name="run_dir", value=os.path.join(self.__siteWebAppsSessionsPath, "validation_%s" % random.randrange(9999999)))
+            dp.addInput(
+                name="run_dir",
+                value=os.path.join(self.__siteWebAppsSessionsPath, "validation_%s" % random.randrange(9999999)),
+            )
             # dp.addInput(name="request_validation_mode", value="server")
             dp.imp(xyzPath)
             dp.addInput(name="sf_file_path", value=sfPath)
@@ -210,7 +213,10 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
         sfPath = os.path.abspath(os.path.join(self.__testFilePath, self.__testValidateXrayNeutronSF))
         # dp.addInput(name="request_annotation_context", value="yes")
         dp.addInput(name="request_validation_mode", value="annotate")
-        dp.addInput(name="run_dir", value=os.path.join(self.__siteWebAppsSessionsPath, "validation_%s" % random.randrange(9999999)))
+        dp.addInput(
+            name="run_dir",
+            value=os.path.join(self.__siteWebAppsSessionsPath, "validation_%s" % random.randrange(9999999)),
+        )
         # dp.addInput(name="request_validation_mode", value="server")
         dp.imp(xyzPath)
         dp.addInput(name="sf_file_path", value=sfPath)
@@ -246,7 +252,10 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             xyzPath = os.path.abspath(os.path.join(self.__testFilePath, testFileValidateXyz))
             csPath = os.path.abspath(os.path.join(self.__testFilePath, testFileValidateCs))
             dp.addInput(name="request_annotation_context", value="yes")
-            dp.addInput(name="run_dir", value=os.path.join(self.__siteWebAppsSessionsPath, "validation_%s" % random.randrange(9999999)))
+            dp.addInput(
+                name="run_dir",
+                value=os.path.join(self.__siteWebAppsSessionsPath, "validation_%s" % random.randrange(9999999)),
+            )
             # adding explicit selection of steps --
             # Alternate
             # dp.addInput(name="step_list", value=" coreclust,chemicalshifts,writexml,writepdf ")
@@ -282,7 +291,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
         dp.addInput(name="input_map_file_path", value=inpPath)
         dp.addInput(name="output_map_file_path", value=of)
         dp.addInput(name="label", value="test")
-        dp.addInput(name="voxel", value="{0} {0} {0}".format(pixelSize))
+        dp.addInput(name="voxel", value=f"{pixelSize} {pixelSize} {pixelSize}")
         # dp.setRunRemote()
         ret = dp.op("deposit-update-map-header-in-place")
         dp.expLog(os.path.join(self.__tmpPath, "mapfix-big.log"))

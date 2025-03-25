@@ -48,7 +48,7 @@ coverage.xml
 .pytest_cache/
 
 # test output
-wwpdb/utils/tests-dp/test-output
+tests/test-output
 
 # IDE files
 .idea

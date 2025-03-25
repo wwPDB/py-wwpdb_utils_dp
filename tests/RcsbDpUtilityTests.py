@@ -17,6 +17,7 @@
 Test cases from
 
 """
+
 import logging
 import os
 import sys
@@ -25,7 +26,7 @@ import unittest
 if __package__ is None or __package__ == "":
     from os import path
 
-    sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
+    sys.path.append(path.dirname(path.abspath(__file__)))
     from commonsetup import TESTOUTPUT, TOPDIR, dictsmissing  # pylint: disable=import-error
 else:
     from .commonsetup import TESTOUTPUT, TOPDIR, dictsmissing

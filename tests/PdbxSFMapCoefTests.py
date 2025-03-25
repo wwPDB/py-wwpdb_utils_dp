@@ -6,18 +6,19 @@
 Test cases for SF Map coefficients
 
 """
+
 import logging
-import unittest
 import os
+import unittest
 
 if __package__ is None or __package__ == "":
     import sys
     from os import path
 
-    sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
-    from commonsetup import TESTOUTPUT, toolsmissing, mockTopPath  # pylint: disable=import-error
+    sys.path.append(path.dirname(path.abspath(__file__)))
+    from commonsetup import TESTOUTPUT, mockTopPath, toolsmissing  # pylint: disable=import-error
 else:
-    from .commonsetup import TESTOUTPUT, toolsmissing, mockTopPath
+    from .commonsetup import TESTOUTPUT, mockTopPath, toolsmissing
 
 from wwpdb.utils.dp.PdbxSFMapCoefficients import PdbxSFMapCoefficients
 

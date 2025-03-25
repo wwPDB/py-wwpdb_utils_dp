@@ -38,7 +38,7 @@ import unittest
 if __package__ is None or __package__ == "":
     from os import path
 
-    sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
+    sys.path.append(path.dirname(path.abspath(__file__)))
     from commonsetup import TESTOUTPUT, TOPDIR, toolsmissing  # pylint: disable=import-error
 else:
     from .commonsetup import TESTOUTPUT, TOPDIR, toolsmissing
@@ -489,7 +489,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
                 # Alternate
                 if count % 2 == 0:
                     dp.addInput(name="step_list", value=" coreclust,chemicalshifts,writexml,writepdf ")
-                count += 1
+                count += 1  # noqa: SIM113
                 dp.imp(xyzPath)
                 dp.addInput(name="cs_file_path", value=csPath)
                 dp.op("annot-wwpdb-validate-all")
@@ -736,7 +736,6 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
         """Test mapfix utility"""
         logger.info("\nStarting")
         try:
-
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
             #
             inpPath = os.path.join(self.__testFilePath, self.__testMapNormal)
@@ -755,7 +754,6 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
         """Test for atom on special position"""
         logger.info("\nStarting")
         try:
-
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
             #
             # dp.setDebugMode(True)
@@ -765,7 +763,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             dp.op("annot-dcc-special-position")
             dp.expLog("special-position.log")
             dp.exp("special-position-output.log")
-            f = open("special-position-output.log", "r")
+            f = open("special-position-output.log")
             lines = f.read()
             f.close()
             self.assertIn("No atoms sit on special position", lines)
@@ -776,7 +774,6 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
 
         # This case has atoms on special position that needs correction
         try:
-
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
             #
             # dp.setDebugMode(True)
@@ -786,7 +783,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             dp.op("annot-dcc-special-position")
             dp.expLog("special-position2.log")
             dp.exp("special-position-output2.log")
-            f = open("special-position-output2.log", "r")
+            f = open("special-position-output2.log")
             lines = f.read()
             f.close()
             self.assertIn("Error: Wrong occupancy of 1.00 for atom (O : id=D_HOH_1)", lines)
@@ -800,7 +797,6 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
         """Test for fixing atoms on special position"""
         logger.info("\nStarting")
         try:
-
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
             #
             inpPath = os.path.join(self.__testFilePath, self.__testFileValidateXyz)
@@ -812,7 +808,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             # No output - none on special
             self.assertEqual(["missing"], dp.getResultPathList())
 
-            f = open("special-position-output-fix.log", "r")
+            f = open("special-position-output-fix.log")
             lines = f.read()
             f.close()
             self.assertIn("No atoms sit on special position", lines)
@@ -823,7 +819,6 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
 
         # This case has atoms on special position that needs correction
         try:
-
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
             #
             # dp.setDebugMode(True)
@@ -842,7 +837,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             dp.expList(dstPathList=["special-position-out-fix2.cif"])
             # Check output - for differences...
 
-            f = open("special-position-output-fix2.log", "r")
+            f = open("special-position-output-fix2.log")
             lines = f.read()
             f.close()
             self.assertIn("Error: Wrong occupancy of 1.00 for atom (O : id=D_HOH_1)", lines)
@@ -856,7 +851,6 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
         """Test mapfix utility"""
         logger.info("\nStarting")
         try:
-
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
             #
             inpPath = os.path.join(self.__testFilePath, self.__testMapSpider)

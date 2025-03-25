@@ -1,12 +1,13 @@
 import argparse
-import gemmi
 import logging
 import os
-import sys
 import shutil
+import sys
 import tempfile
 
-from wwpdb.utils.dp.electron_density.common_functions import run_command_and_check_output_file, convert_mdb_to_binary_cif
+import gemmi
+
+from wwpdb.utils.dp.electron_density.common_functions import convert_mdb_to_binary_cif, run_command_and_check_output_file
 
 logger = logging.getLogger(__name__)
 
@@ -89,8 +90,7 @@ class XrayVolumeServerMap:
 
                     if os.path.exists(map_out):
                         return True
-                    else:
-                        logger.error("output map file {} missing".format(map_out))  # pylint: disable=logging-format-interpolation)
+                    logger.error("output map file {} missing".format(map_out))  # pylint: disable=logging-format-interpolation)
                 else:
                     logger.error("{} {} columns not found in mmCIF {}".format(f_column, phi_column, sf_mmcif_in))  # pylint: disable=logging-format-interpolation
             else:
@@ -114,8 +114,7 @@ class XrayVolumeServerMap:
                 two_fofc_map_in=two_fofc_map_in,
                 fofc_map_in=fofc_map_in,
             )
-        else:
-            return False
+        return False
 
     def make_volume_server_map(self, two_fofc_map_in, fofc_map_in):
         """
@@ -136,6 +135,7 @@ class XrayVolumeServerMap:
         if os.path.exists(two_fofc_map_in) and os.path.exists(fofc_map_in):
             command = "{} {} xray {} {} {}".format(self.node_path, self.volume_server_pack_path, two_fofc_map_in, fofc_map_in, self.mdb_map_path)
             return run_command_and_check_output_file(command=command, workdir=None, process_name="make mdb_map", output_file=self.mdb_map_path)
+        return False
 
     def convert_mdb_map_to_binary_cif(self):
         return convert_mdb_to_binary_cif(

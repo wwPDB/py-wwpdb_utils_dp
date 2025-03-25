@@ -12,7 +12,7 @@ if __package__ is None or __package__ == "":
     import sys
     from os import path
 
-    sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
+    sys.path.append(path.dirname(path.abspath(__file__)))
     from commonsetup import TESTOUTPUT  # noqa: F401 pylint: disable=import-error,unused-import
 else:
     from .commonsetup import TESTOUTPUT  # noqa: F401 pylint: disable=unused-import

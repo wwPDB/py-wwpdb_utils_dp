@@ -20,7 +20,7 @@ import sys
 import unittest
 
 try:
-    import matplotlib
+    import matplotlib as mpl
     import matplotlib.pyplot as plt
     import pygal
     from pygal.style import LightColorizedStyle, LightGreenStyle
@@ -33,7 +33,7 @@ except ImportError:
 if __package__ is None or __package__ == "":
     from os import path
 
-    sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
+    sys.path.append(path.dirname(path.abspath(__file__)))
     from commonsetup import TESTOUTPUT, TOPDIR, toolsmissing  # pylint: disable=import-error
 else:
     from .commonsetup import TESTOUTPUT, TOPDIR, toolsmissing
@@ -42,7 +42,7 @@ from wwpdb.utils.config.ConfigInfo import getSiteId
 from wwpdb.utils.dp.RcsbDpUtility import RcsbDpUtility
 
 if not skiptest:
-    matplotlib.use("Agg")
+    mpl.use("Agg")
 
 skipnodisplay = True
 if os.getenv("DISPLAY"):
@@ -108,7 +108,7 @@ class RcsbDpUtilityEmTests(unittest.TestCase):
             dp.exp(of)
             # dp.cleanup()
             #
-            mD = json.load(open(of, "r"))
+            mD = json.load(open(of))
             logger.info("Map header keys: %r\n", mD.keys())
             logger.info("Map header: %r\n", mD.items())
 
@@ -159,7 +159,7 @@ class RcsbDpUtilityEmTests(unittest.TestCase):
             dp.exp(of)
             dp.cleanup()
             #
-            mD = json.load(open(of, "r"))
+            mD = json.load(open(of))
             logger.info("Map header keys: %r\n", mD.keys())
             logger.info("Map header: %r\n", mD.items())
 
@@ -204,7 +204,6 @@ class RcsbDpUtilityEmTests(unittest.TestCase):
         """Test mapfix utility"""
         logger.info("\nStarting")
         try:
-
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
             #
             inpPath = os.path.join(self.__testFilePath, self.__testMapSpider)
@@ -227,7 +226,6 @@ class RcsbDpUtilityEmTests(unittest.TestCase):
         """Test xmllint"""
         logger.info("\nStarting")
         try:
-
             dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
             #
             # dp.setDebugMode()
@@ -258,7 +256,6 @@ if __name__ == "__main__":
     #
     doAll = False
     if doAll:
-
         mySuite = suiteAnnotEmTests()
         unittest.TextTestRunner(verbosity=2).run(mySuite)
 

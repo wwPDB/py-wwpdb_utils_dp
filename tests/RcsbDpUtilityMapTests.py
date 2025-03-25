@@ -22,7 +22,7 @@ import unittest
 if __package__ is None or __package__ == "":
     from os import path
 
-    sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
+    sys.path.append(path.dirname(path.abspath(__file__)))
     from commonsetup import TESTOUTPUT, TOPDIR, toolsmissing  # pylint: disable=import-error
 else:
     from .commonsetup import TESTOUTPUT, TOPDIR, toolsmissing
@@ -113,7 +113,6 @@ class RcsbDpUtilityMapTests(unittest.TestCase):
         logger.info("\nStarting")
         try:
             for pdbId in ["3of4"]:
-
                 testFileXyz = pdbId + ".cif"
                 testFileSf = pdbId + "-sf.cif"
                 #

@@ -7,8 +7,8 @@
 # Updated:
 #
 ##
-"""  Remove selected categories from the first data container and
-     write the result.
+"""Remove selected categories from the first data container and
+write the result.
 """
 
 __docformat__ = "restructuredtext en"
@@ -27,7 +27,7 @@ from mmcif.io.PdbxWriter import PdbxWriter
 logger = logging.getLogger(__name__)
 
 
-class PdbxStripCategory(object):
+class PdbxStripCategory:
     def __init__(self, verbose=False, log=sys.stderr):  # pylint: disable=unused-argument
         pass
 
@@ -38,10 +38,9 @@ class PdbxStripCategory(object):
 
         try:
             myDataList = []
-            with open(inpPath, "r") as ifh:
+            with open(inpPath) as ifh:
                 pRd = PdbxReader(ifh)
                 pRd.read(myDataList)
-            #
             myBlock = myDataList[0]
             myName = myBlock.getName()
             newContainer = DataContainer(myName)
@@ -50,7 +49,6 @@ class PdbxStripCategory(object):
                 myObj = myBlock.getObj(objName)
                 if myObj.getName() not in stripList:
                     newContainer.append(myObj)
-            #
             with open(outPath, "w") as ofh:
                 pWr = PdbxWriter(ofh)
                 pWr.setPreferSingleQuotes()
