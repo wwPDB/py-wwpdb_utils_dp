@@ -89,7 +89,7 @@ class RunRemote:
         subprocess.run(cmd, check=True)
         logger.info(f"Requeued failed job {job_id}")
 
-    def monitor(self, job_id, frequency=10 retries=3):
+    def monitor(self, job_id, frequency=10, retries=3):
         """Monitor a job by ID, requeueing if it fails."""
         logging.info(f"Monitoring job {job_id}")
 
