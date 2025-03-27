@@ -2,14 +2,21 @@
 import argparse
 import logging
 import os
-import re
-import subprocess
-import sys
 import time
+import shutil
+import logging
+import subprocess
+import argparse
+import tempfile
+
+from enum import Enum
+from textwrap import dedent
 
 from wwpdb.utils.config.ConfigInfo import ConfigInfo, getSiteId
 
-logger = logging.getLogger()
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 
 def remove_file(file_path):
@@ -20,379 +27,184 @@ def remove_file(file_path):
             pass
 
 
+class JobStatus(Enum):
+    RUNNING = "RUNNING"
+    COMPLETED = "COMPLETED"
+    FAILED = "FAILED"
+    CANCELLED = "CANCELLED"
+    OTHER = "OTHER"
+
+
 class RunRemote:
-    def __init__(
-        self,
-        command,
-        job_name,
-        log_dir,
-        run_dir=None,
-        timeout=5600,
-        memory_limit=16000,
-        number_of_processors=1,
-        add_site_config=False,
-        add_site_config_database=False,
-    ):
-        # self.command = self.escape_substitution(command)
+    def __init__(self, command, job_name, log_dir, run_dir=None, timeout=90, memory_limit=16000, number_of_processors=1, add_site_config=False, add_site_config_database=False):
         self.command = command
-        if timeout:
-            self.timeout = timeout
-        else:
-            self.timeout = 5600
-        self.memory_limit = memory_limit
-        self.number_of_processors = number_of_processors
         self.job_name = job_name
         self.log_dir = log_dir
         self.run_dir = run_dir
-        self.memory_used = 0
-        self.memory_unit = "MB"
-        self.time_taken = 0
-        self.slurm_exit_status = 0
-        self.slurm_success = False
-        self.siteId = getSiteId()
-        self.cI = ConfigInfo(self.siteId)
-        self.slurm_source_command = self.cI.get("SLURM_SOURCE")
-        self.slurm_run_command = self.cI.get("SLURM_COMMAND")
-        self.pdbe_cluster_queue = self.cI.get("PDBE_CLUSTER_QUEUE")
-        self.pdbe_memory_limit = 100000
-        self.slurm_login_node = self.cI.get("SLURM_LOGIN_NODE")
-        self.slurm_timeout = self.cI.get("SLURM_TIMEOUT")
-        self.slurm_retry_delay = self.cI.get("SLURM_RETRY_DELAY", 4)
-        self.command_prefix = self.cI.get("REMOTE_COMMAND_PREFIX")
-        self.slurm_run_dir = run_dir or log_dir
-        self.slurm_log_file = os.path.join(self.log_dir, self.job_name + ".log")
-        self.slurm_in_file = os.path.join(self.slurm_run_dir, self.job_name + ".in")
-        self.slurm_out_file = os.path.join(self.log_dir, self.job_name + ".out")
+        self.timeout = 90 if timeout == 0 else str(timeout)
+        self.memory_limit = str(memory_limit)
+        self.number_of_processors = str(number_of_processors)
         self.add_site_config = add_site_config
         self.add_site_config_database = add_site_config_database
 
-        self.out = None
-        self.err = None
+        if not self.run_dir:
+            self.run_dir = tempfile.mkdtemp(prefix="run_remote_") # this won't work as cluster nodes have different temp dirs
+        self._shell_script = os.path.join(self.run_dir, "run_{}.sh".format(self.job_name))
 
-    @staticmethod
-    def escape_substitution(command):
-        """
-        Escapes dollars, stops variables being interpretted early when passed to slurm.
-        """
-        command = command.replace("$", "\$")  # noqa: W605 pylint: disable=anomalous-backslash-in-string
-        return command
+        self.siteId = getSiteId()
+        self.cI = ConfigInfo(self.siteId)
+        self.pdbe_cluster_queue = str(self.cI.get("PDBE_CLUSTER_QUEUE"))
+        self._stdout_file = os.path.join(self.log_dir, self.job_name + ".out")
+        self._stderr_file = os.path.join(self.log_dir, self.job_name + ".err")
 
-    def get_shell_script(self):
-        if self.run_dir:
-            return os.path.join(self.run_dir, "run_{}.sh".format(self.job_name))
-        return None
-
-    def write_run_script(self):
-        shell_script = self.get_shell_script()
-        if shell_script:
-            logging.info(self.command)
-            with open(shell_script, "w") as out_file:
-                out_file.write(self.command)
-            os.chmod(shell_script, 0o775)
-            self.command = shell_script
+    def get_job_status_by_id(self, job_id) -> str:
+        """Get the status of a single job by ID."""
+        cmd = [
+            "squeue",
+            "--noheader",
+            "-t",
+            "all",
+            "--Format",
+            "State",
+            "--jobs",
+            str(job_id),
+        ]
+        squeue_output = subprocess.run(cmd, check=True, capture_output=True)
+        status_text = squeue_output.stdout.decode("utf-8").strip()
+        
+        if status_text in ["FAILED", "TIMEOUT", "OUT_OF_MEMORY"]:
+            return JobStatus.FAILED
+        elif status_text in ["COMPLETED"]:
+            return JobStatus.COMPLETED
+        elif status_text in ["RUNNING", "PENDING", "CONFIGURING", "COMPLETING"]:
+            return JobStatus.RUNNING
+        elif status_text in ["CANCELLED"]:
+            return JobStatus.CANCELLED
         else:
-            self.command = self.escape_substitution(self.command)
+            return JobStatus.OTHER
 
-    def run(self):
-        rc = 1
+    def requeue_job(self, job_id):
+        """Requeue a single job."""
+        cmd = ["scontrol", "requeue", str(job_id)]
+        subprocess.run(cmd, check=True)
+        logger.info(f"Requeued failed job {job_id}")
 
-        self.write_run_script()
+    def monitor(self, job_id, frequency=10 retries=3):
+        """Monitor a job by ID, requeueing if it fails."""
+        logging.info(f"Monitoring job {job_id}")
 
-        if self.add_site_config_database:
-            self.pre_pend_sourcing_site_config(database=True)
-        if self.add_site_config:
-            self.pre_pend_sourcing_site_config()
-        if self.command_prefix:
-            self.prefix_command()
+        while True and retries > 0:
+            status = self.get_job_status_by_id(job_id)
 
-        if self.slurm_run_command:
-            run_try = 1
-            rc, self.out, self.err = self.run_slurm()
-            while self.slurm_exit_status != 0:
-                if self.memory_used:
-                    try:
-                        if self.memory_used > self.memory_limit:
-                            self.memory_limit = int(self.memory_used)
-                    except:  # noqa: E722 pylint: disable=bare-except
-                        pass
+            if status == JobStatus.CANCELLED:
+                logger.warning(f"Job {job_id} was cancelled. Not requeuing")
+                break
+            elif status == JobStatus.COMPLETED:
+                logger.info(f"Job {job_id} completed successfully")
+                break
+            elif status == JobStatus.FAILED:
+                try:
+                    logger.warning(f"Job {job_id} failed. Requeuing")
+                    self.requeue_job(job_id)
+                    retries -= 1
+                except Exception:
+                    logger.error(f"Error requeuing job {job_id}", exc_info=True)
+                    break
+            else:
+                logger.debug(f"Job {job_id} status: {status}")
 
-                if self.memory_limit >= 100000:
-                    self.memory_limit = self.memory_limit + 40000
-                elif self.memory_limit >= 20000:
-                    self.memory_limit = self.memory_limit + 30000
-                else:
-                    self.memory_limit = self.memory_limit + 10000
-                run_try += 1
-                logging.info("try {}, memory {}".format(run_try, self.memory_limit))
-                rc, self.out, self.err = self.run_slurm()
+            time.sleep(frequency)
 
-        if rc != 0:
-            logging.error("return code: {}".format(rc))  # pylint: disable=logging-format-interpolation
-            logging.error("out: {}".format(self.out))  # pylint: disable=logging-format-interpolation
-            logging.error("error: {}".format(self.err))  # pylint: disable=logging-format-interpolation
-        else:
-            logging.info("worked")
-            remove_file(self.slurm_in_file)
-            remove_file(self.slurm_out_file)
-            if self.get_shell_script():
-                remove_file(self.get_shell_script())
+        status = self.get_job_status_by_id(job_id)
+        return status
 
-        return rc
+    def _build_sbatch_command(self, command):
+        sbatch_args = [
+            "sbatch",
+            "--job-name=%s" % self.job_name,
+            "--partition=%s" % self.pdbe_cluster_queue,
+            "--cpus-per-task=%s" % self.number_of_processors,
+            "--mem=%s" % self.memory_limit,
+            "--time=%s" % self.timeout,
+            "--chdir=%s" % self.run_dir,
+            "--output=%s" % self._stdout_file,
+            "--error=%s" % self._stderr_file,
+        ]
 
-    @staticmethod
-    def check_timing(t1, t2):
-        t = t2 - t1
-        human_time = []
-        if t > 3600:
-            human_time.append("%.2f hours" % (t / 3600))
-        elif t > 60:
-            human_time.append("%.2f minutes" % (t / 60))
-        else:
-            human_time.append("%.2f seconds" % t)
+        with open(self._shell_script, "w") as f:
+            cmd = f"""\
+            #!/bin/bash
+            set -e
+            {command}
+            """
+            f.write(dedent(cmd))
+            f.flush()
+        os.chmod(self._shell_script, 0o775)
 
-        abs_time = "TIMING, %.2f, minutes" % (t / 60)
+        sbatch_args += [self._shell_script]
+        return sbatch_args
 
-        human_time.append(abs_time)
+    def _cleanup(self):
+        if self.run_dir.startswith("/tmp/run_remote_"):
+            shutil.rmtree(self.run_dir)
 
-        return human_time
+    def _source_site_config(self, database=False):
+        suffix = ""
+        if database:
+            suffix = "--database"
 
-    @staticmethod
-    def touch(fname):
-        if os.path.exists(fname):
-            os.utime(fname, None)
-        else:
-            open(fname, "a").close()
-
-    def get_site_config_command(self, suffix=""):
         site_config_path = self.cI.get("TOP_WWPDB_SITE_CONFIG_DIR")
         site_loc = self.cI.get("WWPDB_SITE_LOC")
         site_config_command = ". {}/init/env.sh --siteid {} --location {} {} > /dev/null".format(site_config_path, self.siteId, site_loc, suffix)
-        return site_config_command
 
-    def pre_pend_sourcing_site_config(self, database=False):
-        self.command = "{}; {}".format(self.get_site_config_command(), self.command)
-        if database:
-            self.command = "{}; {}".format(self.get_site_config_command(suffix="--database"), self.command)
+        return "{}; {}".format(site_config_command, self.command)
 
-    def prefix_command(self):
-        if self.command_prefix:
-            self.command = "{} {}".format(self.command_prefix, self.command)
+    def run(self):
+        wf_command = self.command
 
-    def extract_state(self, output):
-        """This method can be expanded to parse the entire
-        output.
-        """
-        if isinstance(output, bytes):
-            output = output.decode("utf-8")
+        if self.add_site_config_database or self.add_site_config:
+            wf_command = self._source_site_config(database=self.add_site_config_database)
 
-        match = re.search(r"State\s*:\s*(\S+)", output)
-        if match:
-            return match.group(1)
-        return None
+        sbatch_cmd = self._build_sbatch_command(command=wf_command)
+        logger.info(" ".join(sbatch_cmd))
 
-    def check_sbatch_finished(self, job_id):
-        slurm_command = list()
-        if self.slurm_login_node:
-            slurm_command.append("ssh {} '".format(self.slurm_login_node))
-        if self.slurm_source_command:
-            slurm_command.append("{};".format(self.slurm_source_command))
-        slurm_command.append("jobinfo {}".format(job_id))
-        if self.slurm_login_node:
-            slurm_command.append("'")
+        output = subprocess.run(sbatch_cmd, check=True, capture_output=True)
+        job_id = int(output.stdout.decode("utf-8").split()[-1])
+        logger.debug(f"Submitted: {job_id}")
 
-        command_string = " ".join(slurm_command)
+        self._cleanup()
 
-        _rc, out, _err = self.run_command(command=command_string)
-        # rc, out, err = self.run_command(command="jobinfo {}".format(job_id))
-        state = self.extract_state(out)
-
-        while state in ("PENDING", "RUNNING", "COMPLETING"):
-            time.sleep(60)
-            _rc, out, _err = self.run_command(command=command_string)
-            state = self.extract_state(out)
-
-        logging.info("Job {} finished with state: {}".format(self.job_name, state))  # pylint: disable=logging-format-interpolation
-
-        return state
-
-    def run_command(self, command, log_file=None, new_env=None):
-        # command_list = shlex.split(command)
-        logging.info("Starting: %s", self.job_name)
-        logging.info(command)
-        if log_file:
-            logging.info("logging to: {}".format(log_file))  # pylint: disable=logging-format-interpolation
-            if not os.path.exists(os.path.dirname(log_file)):
-                os.makedirs(os.path.dirname(log_file))
-        t1 = os.times()[4]
-        # child = subprocess.Popen(command_list)
-        if new_env:
-            child = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=new_env)
-        else:
-            child = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        out, err = child.communicate()
-        rc = child.returncode
-        if rc != 0:
-            logging.error("Exit status: %s - process failed: %s", rc, self.job_name)
-            logging.error(command)
-            logging.error(out)
-            logging.error(err)
-        else:
-            logging.info("process worked: %s", self.job_name)
-
-        if log_file:
-            with open(log_file, "wb") as lf:
-                if out:
-                    lf.write(out)
-                    logging.info(out)
-                if err:
-                    lf.write(err)
-                    logging.error(err)
-
-        t2 = os.times()[4]
-        ht = self.check_timing(t1, t2)
-        # logging.info("Timing: %s took %s" %(name, ht[0]))
-        logging.info("Finished: %s %s", self.job_name, ht[1])
-
-        if not self.check_was_submitted(job_log_string=str(out)):
-            logging.error("Error: task was not submitted")
-            return 255, out, err
-
-        return rc, out, err
-
-    @staticmethod
-    def check_was_submitted(job_log_string):
-        logging.info(job_log_string)
-        if "Submitted batch job" in job_log_string:
-            return True
-        return False
-
-    @staticmethod
-    def was_executed(job_log_string):
-        logging.info(job_log_string)
-        if "Job was executed" in job_log_string:
-            return True
-        return False
-
-    def launch_sbatch(self):
-        remove_file(self.slurm_out_file)
-
-        remove_file(self.slurm_in_file)
-
-        slurm_command = list()
-        if self.slurm_login_node:
-            slurm_command.append("ssh {} '".format(self.slurm_login_node))
-        if self.slurm_source_command:
-            slurm_command.append("{};".format(self.slurm_source_command))
-        slurm_command.append(self.slurm_run_command)
-        slurm_command.append("-J {}".format(self.job_name))
-        slurm_command.append("-o {}".format(self.slurm_log_file))
-        slurm_command.append("-e {}/{}_error.log".format(self.log_dir, self.job_name))
-        if self.pdbe_memory_limit and self.memory_limit > self.pdbe_memory_limit:
-            slurm_command.append("-p {}".format("bigmem"))
-        else:
-            slurm_command.append("-p {}".format(self.pdbe_cluster_queue))
-
-        slurm_command.append("-n {}".format(self.number_of_processors))
-        slurm_command.append("-t {}".format(self.timeout))
-        slurm_command.append("--mem={0}".format(self.memory_limit))
-        slurm_command.append('--wrap="{}"'.format(self.command))
-        if self.slurm_login_node:
-            slurm_command.append("'")
-
-        command_string = " ".join(slurm_command)
-
-        rc, out, err = self.run_command(command=command_string)
-
-        if isinstance(out, bytes):
-            out = out.decode("utf-8")
-
-        # Regular expression to find the job id
-        match = re.search(r"Submitted batch job (\d+)", out)
-        if match:
-            return match.group(1), rc, out, err
-        return None, rc, out, err
-
-    def launch_sbatch_wait_process(self):
-        sbatch_command = list()
-        sbatch_command.append("{};".format(self.slurm_source_command))
-        sbatch_command.append(self.slurm_run_command)
-        sbatch_command.append('-J "end_{}"'.format(self.job_name))
-        sbatch_command.append('-o "{}/{}_wait.log"'.format(self.log_dir, self.job_name))
-        sbatch_command.append('-e "{}/{}_wait_error.log"'.format(self.log_dir, self.job_name))
-        sbatch_command.append("-p {}".format(self.pdbe_cluster_queue))
-        sbatch_command.append('--wrap="uname -a; date"')
-        command_string = " ".join(sbatch_command)
-        rc, out, err = self.run_command(command=command_string)
-
-        return rc, out, err
-
-    def run_slurm(self):
-        if not os.path.exists(self.log_dir):
-            os.makedirs(self.log_dir)
-
-        # temp_file = os.path.join(self.slurm_run_dir, "slurm_temp_file.out")
-
-        # if get non ok exit status from sbatch then wait 30 seconds and try again.
-        # i = 0
-        job_id, out, err = 0, None, None
-
-        #
-        # run command
-        job_id, rc, out, err = self.launch_sbatch()
-
-        if job_id is None:
-            logging.error("sbatch failed to run")
-            return rc, out, err
-
-        logging.info("sbatch job id: {}".format(job_id))  # pylint: disable=logging-format-interpolation
-
-        time.sleep(5)
-        self.check_sbatch_finished(job_id=job_id)
-
-        return rc, out, err
+        return self.monitor(job_id=job_id)
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "-d",
-        "--debug",
-        help="debugging",
-        action="store_const",
-        dest="loglevel",
-        const=logging.DEBUG,
-        default=logging.INFO,
-    )
-    parser.add_argument("--command", help="command to run", type=str, required=True)
-    parser.add_argument("--job_name", help="name for the job", type=str, required=True)
-    parser.add_argument("--log_dir", help="directory to store log file in", type=str, required=True)
-    parser.add_argument("--run_dir", help="directory to run", type=str)
-    parser.add_argument("--memory_limit", help="starting memory limit", type=int, default=0)
-    parser.add_argument("--num_processors", help="number of processors", type=int, default=1)
-    parser.add_argument("--add_site_config", help="add site config to command", action="store_true")
-    parser.add_argument("--add_site_config_with_database", help="add site config with database to command", action="store_true")
+    subparsers = parser.add_subparsers(dest='comm')
+
+    parser_run = subparsers.add_parser('run')
+    parser_run.add_argument("-d", "--debug", help="debugging", action="store_const", dest="loglevel", const=logging.DEBUG, default=logging.INFO)
+    parser_run.add_argument("--command", help="command to run", type=str, required=True)
+    parser_run.add_argument("--job_name", help="name for the job", type=str, required=True)
+    parser_run.add_argument("--log_dir", help="directory to store log file in", type=str, required=True)
+    parser_run.add_argument("--run_dir", help="directory to run", type=str)
+    parser_run.add_argument("--memory_limit", help="starting memory limit", type=int, default=16000)
+    parser_run.add_argument("--num_processors", help="number of processors", type=int, default=1)
+    parser_run.add_argument("--add_site_config", help="add site config to command", action="store_true")
+    parser_run.add_argument("--add_site_config_with_database", help="add site config with database to command", action="store_true")
 
     args = parser.parse_args()
-    logger.setLevel(args.loglevel)
 
-    run_remote = RunRemote(
-        command=args.command,
-        job_name=args.job_name,
-        log_dir=args.log_dir,
-        run_dir=args.run_dir,
-        memory_limit=args.memory_limit,
-        number_of_processors=args.num_processors,
-        add_site_config=args.add_site_config,
-        add_site_config_database=args.add_site_config_with_database,
-    )
-
-    ret = run_remote.run()
-
-    if ret != 0:
-        message = "{} failed".format(args.job_name)
-        annotation_email = run_remote.cI.get("ANNOTATION_EMAIL")
-        if annotation_email:
-            mcommand = 'mail -s "{} failed" {}'.format(args.job_name, annotation_email)
-            run_remote.run_command(command=mcommand)
-
-    sys.exit(ret)
+    logger.info(f"Running command: {args.comm}")
+    if args.comm == 'run':
+        run_remote = RunRemote(
+            command=args.command,
+            job_name=args.job_name,
+            log_dir=args.log_dir,
+            run_dir=args.run_dir,
+            memory_limit=args.memory_limit,
+            number_of_processors=args.num_processors,
+            add_site_config=args.add_site_config,
+            add_site_config_database=args.add_site_config_with_database,
+        )
+        status = run_remote.run()
+        logger.info(f"Job finished with status: {status}")
