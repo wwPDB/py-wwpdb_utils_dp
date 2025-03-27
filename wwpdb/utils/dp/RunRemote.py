@@ -36,19 +36,19 @@ class JobStatus(Enum):
 
 
 class RunRemote:
-    def __init__(self, command, job_name, log_dir, run_dir=None, timeout=5600, memory_limit=16000, number_of_processors=1, add_site_config=False, add_site_config_database=False):
+    def __init__(self, command, job_name, log_dir, run_dir=None, timeout=90, memory_limit=16000, number_of_processors=1, add_site_config=False, add_site_config_database=False):
         self.command = command
         self.job_name = job_name
         self.log_dir = log_dir
         self.run_dir = run_dir
-        self.timeout = str(timeout)
+        self.timeout = 90 if timeout == 0 else str(timeout)
         self.memory_limit = str(memory_limit)
         self.number_of_processors = str(number_of_processors)
         self.add_site_config = add_site_config
         self.add_site_config_database = add_site_config_database
 
         if not self.run_dir:
-            self.run_dir = tempfile.mkdtemp(prefix="run_remote_")
+            self.run_dir = tempfile.mkdtemp(prefix="run_remote_") # this won't work as cluster nodes have different temp dirs
         self._shell_script = os.path.join(self.run_dir, "run_{}.sh".format(self.job_name))
 
         self.siteId = getSiteId()
@@ -57,15 +57,7 @@ class RunRemote:
         self._stdout_file = os.path.join(self.log_dir, self.job_name + ".out")
         self._stderr_file = os.path.join(self.log_dir, self.job_name + ".err")
 
-    @staticmethod
-    def requeue_job(job_id):
-        """Requeue a single job."""
-        cmd = ["scontrol", "requeue", str(job_id)]
-        subprocess.run(cmd, check=True)
-        logger.info(f"Requeued failed job {job_id}")
-
-    @staticmethod
-    def get_job_status_by_id(job_id) -> str:
+    def get_job_status_by_id(self, job_id) -> str:
         """Get the status of a single job by ID."""
         cmd = [
             "squeue",
@@ -91,13 +83,18 @@ class RunRemote:
         else:
             return JobStatus.OTHER
 
-    @staticmethod
-    def monitor(job_id, frequency=5):
+    def requeue_job(self, job_id):
+        """Requeue a single job."""
+        cmd = ["scontrol", "requeue", str(job_id)]
+        subprocess.run(cmd, check=True)
+        logger.info(f"Requeued failed job {job_id}")
+
+    def monitor(self, job_id, frequency=10 retries=3):
         """Monitor a job by ID, requeueing if it fails."""
         logging.info(f"Monitoring job {job_id}")
 
-        while True:
-            status = RunRemote.get_job_status_by_id(job_id)
+        while True and retries > 0:
+            status = self.get_job_status_by_id(job_id)
 
             if status == JobStatus.CANCELLED:
                 logger.warning(f"Job {job_id} was cancelled. Not requeuing")
@@ -108,7 +105,8 @@ class RunRemote:
             elif status == JobStatus.FAILED:
                 try:
                     logger.warning(f"Job {job_id} failed. Requeuing")
-                    RunRemote.requeue_job(job_id)
+                    self.requeue_job(job_id)
+                    retries -= 1
                 except Exception:
                     logger.error(f"Error requeuing job {job_id}", exc_info=True)
                     break
@@ -116,28 +114,21 @@ class RunRemote:
                 logger.debug(f"Job {job_id} status: {status}")
 
             time.sleep(frequency)
-        
+
+        status = self.get_job_status_by_id(job_id)
         return status
 
     def _build_sbatch_command(self, command):
         sbatch_args = [
             "sbatch",
-            "--job-name",
-            self.job_name,
-            "--partition",
-            self.pdbe_cluster_queue,
-            "--cpus-per-task",
-            self.number_of_processors,
-            "--mem",
-            self.memory_limit,
-            "--time",
-            self.timeout,
-            "--chdir",
-            self.run_dir,
-            "--output",
-            self._stdout_file,
-            "--error",
-            self._stderr_file
+            "--job-name=%s" % self.job_name,
+            "--partition=%s" % self.pdbe_cluster_queue,
+            "--cpus-per-task=%s" % self.number_of_processors,
+            "--mem=%s" % self.memory_limit,
+            "--time=%s" % self.timeout,
+            "--chdir=%s" % self.run_dir,
+            "--output=%s" % self._stdout_file,
+            "--error=%s" % self._stderr_file,
         ]
 
         with open(self._shell_script, "w") as f:
@@ -201,11 +192,6 @@ if __name__ == "__main__":
     parser_run.add_argument("--add_site_config", help="add site config to command", action="store_true")
     parser_run.add_argument("--add_site_config_with_database", help="add site config with database to command", action="store_true")
 
-    # Parser for the "monitor" command
-    parser_monitor = subparsers.add_parser('monitor')
-    parser_monitor.add_argument("--job_id", help="ID of the job to monitor", type=str, required=True)
-    parser_monitor.add_argument("--frequency", help="frequency of monitoring", type=int, default=10)
-
     args = parser.parse_args()
 
     logger.info(f"Running command: {args.comm}")
@@ -221,11 +207,4 @@ if __name__ == "__main__":
             add_site_config_database=args.add_site_config_with_database,
         )
         status = run_remote.run()
-        logger.info(f"Job finished with status: {status}")
-
-    elif args.comm == 'monitor':
-        status = RunRemote.monitor(
-            job_id=args.job_id,
-            frequency=args.frequency
-        )
         logger.info(f"Job finished with status: {status}")
