@@ -4653,6 +4653,7 @@ class RcsbDpUtility:
             self.__startingMemory = 20000  # this is used by RunRemote to set the starting about of RAM
         else:
             numThreads = "1"
+        self.__numThreads = numThreads
 
         if "max_hits" in self.__inputParamDict:
             maxHits = str(self.__inputParamDict["max_hits"])
