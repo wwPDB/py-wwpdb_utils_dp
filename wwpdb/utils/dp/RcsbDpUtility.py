@@ -4649,7 +4649,6 @@ class RcsbDpUtility:
 
         if "num_threads" in self.__inputParamDict:
             numThreads = str(self.__inputParamDict["num_threads"])
-            # self.__numThreads = int(numThreads) # this is only used by RunRemote to request number of cores - commented out to improve performance on EBI cluster
             self.__startingMemory = 20000  # this is used by RunRemote to set the starting about of RAM
         else:
             numThreads = "1"

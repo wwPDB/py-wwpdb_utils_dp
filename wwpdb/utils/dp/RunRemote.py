@@ -25,6 +25,7 @@ def remove_file(file_path):
 
 
 class JobStatus(Enum):
+    OOM = "OUT_OF_MEMORY"
     RUNNING = "RUNNING"
     COMPLETED = "COMPLETED"
     FAILED = "FAILED"
@@ -80,8 +81,10 @@ class RunRemote:
         squeue_output = subprocess.run(cmd, check=True, capture_output=True)
         status_text = squeue_output.stdout.decode("utf-8").strip()
 
-        if status_text in ["FAILED", "TIMEOUT", "OUT_OF_MEMORY"]:
+        if status_text in ["FAILED", "TIMEOUT"]:
             return JobStatus.FAILED
+        if status_text == "OUT_OF_MEMORY":
+            return JobStatus.OOM
         if status_text == "COMPLETED":
             return JobStatus.COMPLETED
         if status_text in ["RUNNING", "PENDING", "CONFIGURING", "COMPLETING"]:
@@ -96,34 +99,25 @@ class RunRemote:
         subprocess.run(cmd, check=True)
         logger.info(f"Requeued failed job {job_id}")
 
-    def monitor(self, job_id, frequency=10, retries=3):
+    def monitor(self, job_id, frequency=10):
         """Monitor a job by ID, requeueing if it fails."""
         logging.info(f"Monitoring job {job_id}")
 
-        while True and retries > 0:
+        while True:
             status = self.get_job_status_by_id(job_id)
 
-            if status == JobStatus.CANCELLED:
-                logger.warning(f"Job {job_id} was cancelled. Not requeuing")
+            if status in (JobStatus.CANCELLED, JobStatus.FAILED, JobStatus.OOM):
+                logger.warning(f"Job {job_id} failed with status {status}")
                 break
             if status == JobStatus.COMPLETED:
                 logger.info(f"Job {job_id} completed successfully")
                 break
-            if status == JobStatus.FAILED:
-                try:
-                    logger.warning(f"Job {job_id} failed. Requeuing")
-                    self.requeue_job(job_id)
-                    retries -= 1
-                except Exception:
-                    logger.error(f"Error requeuing job {job_id}", exc_info=True)  # noqa: G201
-                    break
             else:
                 logger.debug(f"Job {job_id} status: {status}")
 
             time.sleep(frequency)
 
-        status = self.get_job_status_by_id(job_id)
-        return status
+        return self.get_job_status_by_id(job_id)
 
     def _build_sbatch_command(self, command):
         sbatch_args = [
@@ -166,22 +160,34 @@ class RunRemote:
 
         return "{}; {}".format(site_config_command, self.command)
 
-    def run(self):
+    def run(self, retries=3):
+        status = JobStatus.OTHER
         wf_command = self.command
 
         if self.add_site_config_database or self.add_site_config:
             wf_command = self._source_site_config(database=self.add_site_config_database)
 
-        sbatch_cmd = self._build_sbatch_command(command=wf_command)
-        logger.info(" ".join(sbatch_cmd))
+        while retries > 0:
+            sbatch_cmd = self._build_sbatch_command(command=wf_command)
+            logger.info(" ".join(sbatch_cmd))
 
-        output = subprocess.run(sbatch_cmd, check=True, capture_output=True)
-        job_id = int(output.stdout.decode("utf-8").split()[-1])
-        logger.debug(f"Submitted: {job_id}")
+            output = subprocess.run(sbatch_cmd, check=True, capture_output=True)
+            job_id = int(output.stdout.decode("utf-8").split()[-1])
+            logger.debug(f"Submitted: {job_id}")
 
-        self._cleanup()
+            self._cleanup()
+            status = self.monitor(job_id=job_id)
 
-        return self.monitor(job_id=job_id)
+            if status == JobStatus.COMPLETED:
+                break
+
+            if status == JobStatus.OOM:
+                self.memory_limit = str(int(self.memory_limit) * 2)
+            
+            logger.info(f"Retrying job {job_id} with memory limit {self.memory_limit}")
+            retries -= 1
+        
+        return status
 
 
 if __name__ == "__main__":
