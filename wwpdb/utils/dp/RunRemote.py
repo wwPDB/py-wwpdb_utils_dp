@@ -183,10 +183,10 @@ class RunRemote:
 
             if status == JobStatus.OOM:
                 self.memory_limit = str(int(self.memory_limit) * 2)
-            
+
             logger.info(f"Retrying job {job_id} with memory limit {self.memory_limit}")
             retries -= 1
-        
+
         return status
 
 
