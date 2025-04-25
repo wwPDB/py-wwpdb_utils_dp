@@ -96,6 +96,7 @@ ignore = [
   "PLR6301",  # Method `` could be a function, class method, or static method
   "PLW1514",  # `open` in text mode without explicit `encoding` argument
   "PT009",    # Use a regular `assert` instead of unittest-style `assertGreater`
+  "RET508",   # SuperfluseElseBreak
   "RET504",   # Unnecessary assignment to `X` before `return` statement
   "RUF100",   # RUF REMOVES FLAKE8 noqa!
   "S110",     # `try`-`except`-`pass` detected, consider logging the exception
@@ -162,5 +163,7 @@ exclude = [
 [tool.ruff.lint.per-file-ignores]
 "wwpdb/utils/dp/electron_density/*" = ["G004", "G001"]  #  Logging statement uses f-string
 "wwpdb/utils/dp/RunRemote*" = ["G001", "UP030","G004", "C408", "S602", "S103", "BLE001", "SIM105"]  #  Logging statement uses f-string
+
+"fix_gemmi_typing.py" = ["T201"]
 
 "tests/*" = ["TID252", "PLC1901", "S311", "T201"]

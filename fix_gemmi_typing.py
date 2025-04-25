@@ -2,8 +2,8 @@
 # validate_merged_intensities in gemmi 0.7.1
 
 import os
+
 import gemmi
-import shutil
 
 try:
     loc = gemmi.__file__
@@ -11,7 +11,7 @@ try:
         pyifile = loc + "i"
         if os.path.exists(pyifile):
             print(f"Correcting {pyifile}")
-            with open(pyifile, "r") as fin:
+            with open(pyifile) as fin:
                 lines = fin.readlines()
             changed = False
             for row in range(len(lines)):
@@ -23,6 +23,5 @@ try:
                 with open(pyifile, "w") as fout:
                     fout.writelines(lines)
                 print("File updated")
-except Exception as e:
+except Exception as e:  # noqa: BLE001
     print("Exception ", e)
-    pass
