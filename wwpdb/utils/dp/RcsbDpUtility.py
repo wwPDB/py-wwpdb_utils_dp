@@ -2262,6 +2262,10 @@ class RcsbDpUtility:
                 + " -reorder  -strip -op in  -pdbids "
             )
             cmd += thisCmd + " -input " + iPath + " -output " + oPath
+
+            if "option" in self.__inputParamDict:
+                cmd += " " + self.__inputParamDict["option"]
+
             cmd += " 2> " + lPath + " 1> " + tPath
 
         elif op == "annot-cif-to-pdbx-em-header":
@@ -3944,6 +3948,10 @@ class RcsbDpUtility:
                 + " -reorder  -strip -op in  -pdbids "
             )
             cmd += thisCmd + " -input " + iPath + " -output " + oPath
+
+            if "option" in self.__inputParamDict:
+                cmd += " " + self.__inputParamDict["option"]
+
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
 
         elif op == "cif2pdbx-ext":
@@ -3963,6 +3971,10 @@ class RcsbDpUtility:
                 " ; " + cmdPath + " -dicSdb " + sDictSdb + " -pdbxDicSdb " + dDictSdb + " -reorder  -strip -op in  -pdbids "  # pylint: disable=possibly-used-before-assignment
             )  # If not set, crash is ok  # noqa: E501 pylint: disable=possibly-used-before-assignment
             cmd += thisCmd + " -input " + iPath + " -output " + oPath
+
+            if "option" in self.__inputParamDict:
+                cmd += " " + self.__inputParamDict["option"]
+
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
 
         elif op == "cif2pdbx":
