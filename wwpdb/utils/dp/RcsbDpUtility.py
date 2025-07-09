@@ -1260,7 +1260,8 @@ class RcsbDpUtility:
             #
 
             # Set the initial memory for run remote use
-            self.__startingMemory = 2000
+            if self.__startingMemory < 2000:
+                self.__startingMemory = 2000
             validation_mode = "release"
             if "request_validation_mode" in self.__inputParamDict:
                 validation_mode = str(self.__inputParamDict["request_validation_mode"]).lower()
