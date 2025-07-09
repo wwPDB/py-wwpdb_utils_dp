@@ -4700,6 +4700,7 @@ class RcsbDpUtility:
 
             mySeqDbPath = self.__locateSeqDb(seqDbPath, altPathList, dbName + ".pal")
             cmd += " ; BLASTDB=" + os.path.abspath(mySeqDbPath) + " ; export BLASTDB "
+            cmd += " ; NCBI_CONFIG__NCBI__MEMORYSIZELIMIT=" + str(self.__startingMemory) + " ; export NCBI_CONFIG__NCBI__MEMORYSIZELIMIT "
             cmd += (
                 " ; "
                 + cmdPath
@@ -4728,6 +4729,7 @@ class RcsbDpUtility:
 
             mySeqDbPath = self.__locateSeqDb(seqDbPath, altPathList, dbName + ".nal")
             cmd += " ; BLASTDB=" + os.path.abspath(mySeqDbPath) + " ; export BLASTDB "
+            cmd += " ; NCBI_CONFIG__NCBI__MEMORYSIZELIMIT=" + str(self.__startingMemory) + " ; export NCBI_CONFIG__NCBI__MEMORYSIZELIMIT "
             cmd += (
                 " ; "
                 + cmdPath
