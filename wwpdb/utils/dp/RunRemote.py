@@ -136,6 +136,7 @@ class RunRemote:
             cmd = f"""\
             #!/bin/bash
             set -e
+            export XDG_RUNTIME_DIR={self.run_dir}
             {command}
             """
             f.write(dedent(cmd))
