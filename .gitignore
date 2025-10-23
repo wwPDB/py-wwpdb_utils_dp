@@ -56,3 +56,5 @@ tests/test-output
 
 # emacs
 *~
+venv
+docs

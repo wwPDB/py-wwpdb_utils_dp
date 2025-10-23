@@ -242,6 +242,7 @@ class RcsbDpUtility:
             "chem-comp-dict-makeindex",
             "chem-comp-dict-serialize",
             "chem-comp-annotate-comp",
+            "metal-findgeo",
             "chem-comp-do-report",
             "chem-comp-align-img-gen",
             "chem-comp-align-images",
@@ -3861,6 +3862,21 @@ class RcsbDpUtility:
             cmdPath = os.path.join(self.__ccAppsPath, "bin", "annotateComp")
             thisCmd = " ; " + cmdPath + " -i " + iPath + " -op " + opAnnot + " -o " + oPath + " -export_format pdbx "
             cmd += thisCmd
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " > " + lPath
+            
+        elif op == "metal-findgeo":
+            javaPath = os.path.join(self.__packagePath, "java", "jre", "bin", "java")
+            findgeoPath = os.path.join(self.__packagePath, "metallo", "FindGeo", "FindGeo.jar")
+            iPath_cif = iPath.strip() + ".cif"  # must make a copy with .cif extension for FindGeo to work
+            cmd += " ; " + " cp " + iPath + " " +  iPath_cif
+
+            cmd_args = [
+                f"--java_exe {javaPath}",
+                f"--findgeo_jar {findgeoPath}",
+                f"--input {iPath_cif}",
+            ]            
+            cmd += f" ; python -m wwpdb.utils.dp.metal.findgeo.processFindGeo {' '.join(cmd_args)}"
+
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " > " + lPath
 
         elif op == "chem-comp-dict-makeindex":
