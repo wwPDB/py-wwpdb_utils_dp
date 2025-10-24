@@ -3889,6 +3889,7 @@ class RcsbDpUtility:
             # run FindGeo and parse results into findgeo/findgeo_report.json, which will be copied as result file
             cmd += f" ; python -m wwpdb.utils.dp.metal.findgeo.processFindGeo {' '.join(findgeo_args)}"
             if os.path.isfile(os.path.join('findgeo', 'findgeo_report.json')):
+                logger.info("FindGeo report generated at %s", os.path.join(os.getcwd(), 'findgeo', 'findgeo_report.json'))
                 cmd += f" ; cp {os.path.join('findgeo', 'findgeo_report.json')} {oPath}"
             cmd += f" > {tPath} 2>&1 ; cat {tPath} > {lPath}"
 
