@@ -3875,7 +3875,7 @@ class RcsbDpUtility:
 
             # add FindGeo options that may be customized
             excluded_donors = "C,H"  # default input for --excluded_donors option of FindGeo
-            metal = ""  # default intput for --metal option of FindGeo, if not element provided, all metals in the structure will be considered
+            metal = "All"  # default intput for --metal option of FindGeo
             threshold = 2.8  # default input for --threshold option of FindGeo
             findgeo_args = [
                 f"--java_exe {java_exe}",

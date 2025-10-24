@@ -58,9 +58,10 @@ class RunFindGeo:
         if self.d_args['format'] not in ['cif', 'pdb']:
             logger.error("invalid format: %s", self.d_args['format'])
             return False
-        if self.d_args['metal'] and len(self.d_args['metal']) > 2:
-            logger.error("invalid metal symbol: %s", self.d_args['metal'])
-            return False
+        if self.d_args['metal'].lower() != 'all':
+            if self.d_args['metal'] and len(self.d_args['metal']) > 2:
+                logger.error("invalid metal symbol: %s", self.d_args['metal'])
+                return False
         if self.d_args['threshold'] <= 1.0 or self.d_args['threshold'] >= 4.0:
             logger.error("invalid threshold: %s", self.d_args['threshold'])
             return False
@@ -122,9 +123,11 @@ class RunFindGeo:
         """
         l_command = [self.d_args["java_exe"], "-jar", self.d_args["findgeo_jar"]]
         l_command.extend(self.input)  # get input from either --input or --pdb
-        for arg in ['excluded_donors', 'format', 'threshold', 'workdir', 'metal']:
+        for arg in ['excluded_donors', 'format', 'threshold', 'workdir']:
             if self.d_args[arg]:
                 l_command.extend([f'--{arg}', str(self.d_args[arg])])
+        if self.d_args["metal"] and self.d_args["metal"].lower() != 'all':
+            l_command.extend(['--metal', self.d_args["metal"]])
         if self.d_args['overwright']:
             l_command.append('--overwrite')
 
