@@ -3867,17 +3867,21 @@ class RcsbDpUtility:
         elif op == "metal-findgeo":
             javaPath = os.path.join(self.__packagePath, "java", "jre", "bin", "java")
             findgeoPath = os.path.join(self.__packagePath, "metallo", "FindGeo", "FindGeo.jar")
-            iPath_cif = iPath.strip() + ".cif"  # must make a copy with .cif extension for FindGeo to work
-            cmd += " ; " + " cp " + iPath + " " +  iPath_cif
+
+            iPath_cif = iPath.strip() + ".cif"  # must create a copy with .cif extension for FindGeo to work, e.g. input_file_1.cif
+            cmd += f" ; cp {iPath} {iPath_cif}"
 
             cmd_args = [
-                f"--java_exe {javaPath}",
-                f"--findgeo_jar {findgeoPath}",
-                f"--input {iPath_cif}",
+                f"--java_exe {javaPath} ",
+                f"--findgeo_jar {findgeoPath} ",
+                f"--input {iPath_cif} ",
+                f"--excluded_donors 'C,H' ",
+                f"--metal None ",
+                f"--threshold 2.8 ",           
             ]            
             cmd += f" ; python -m wwpdb.utils.dp.metal.findgeo.processFindGeo {' '.join(cmd_args)}"
-
-            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " > " + lPath
+            cmd += f" ; cp {os.path.join("findgeo", "findgeo_report.json")} {oPath}"
+            cmd += f" > {tPath} 2>&1 ; cat {tPath} > {lPath}"
 
         elif op == "chem-comp-dict-makeindex":
             # -index oPath(.idx) -lib iPath (.sdb) -type makeindex -fplib $fpPatFile
