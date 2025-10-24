@@ -3865,22 +3865,30 @@ class RcsbDpUtility:
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " > " + lPath
             
         elif op == "metal-findgeo":
-            javaPath = os.path.join(self.__packagePath, "java", "jre", "bin", "java")
-            findgeoPath = os.path.join(self.__packagePath, "metallo", "FindGeo", "FindGeo.jar")
+            # retrieve java binary and FindGeo jar file from package path
+            java_exe = os.path.join(self.__packagePath, "java", "jre", "bin", "java")
+            findgeo_jar = os.path.join(self.__packagePath, "metallo", "FindGeo", "FindGeo.jar")
 
-            iPath_cif = iPath.strip() + ".cif"  # must create a copy with .cif extension for FindGeo to work, e.g. input_file_1.cif
-            cmd += f" ; cp {iPath} {iPath_cif}"
+            # create a copy of input file with .cif extension for FindGeo to work
+            input = iPath.strip() + ".cif"  # must have .cif extension for FindGeo to work
+            cmd += f" ; cp {iPath} {input}"
 
-            cmd_args = [
-                f"--java_exe {javaPath} ",
-                f"--findgeo_jar {findgeoPath} ",
-                f"--input {iPath_cif} ",
-                f"--excluded_donors 'C,H' ",
-                f"--metal None ",
-                f"--threshold 2.8 ",           
-            ]            
-            cmd += f" ; python -m wwpdb.utils.dp.metal.findgeo.processFindGeo {' '.join(cmd_args)}"
-            cmd += f" ; cp {os.path.join("findgeo", "findgeo_report.json")} {oPath}"
+            # add FindGeo options that may be customized
+            excluded_donors = "C,H"  # default input for --excluded_donors option of FindGeo
+            metal = None  # default intput for --metal option of FindGeo, None means all metals in the structure will be considered
+            threshold = 2.8  # default input for --threshold option of FindGeo
+            findgeo_args = [
+                f"--java_exe {java_exe}",
+                f"--findgeo_jar {findgeo_jar}",
+                f"--input {input}",
+                f"--excluded_donors {excluded_donors}",
+                f"--metal {metal}",
+                f"--threshold {threshold}",           
+            ]
+
+            # run FindGeo and parse results into findgeo/findgeo_report.json, which will be copied as result file
+            cmd += f" ; python -m wwpdb.utils.dp.metal.findgeo.processFindGeo {' '.join(findgeo_args)}"
+            cmd += f" ; cp {os.path.join('findgeo', 'findgeo_report.json')} {oPath}"
             cmd += f" > {tPath} 2>&1 ; cat {tPath} > {lPath}"
 
         elif op == "chem-comp-dict-makeindex":
