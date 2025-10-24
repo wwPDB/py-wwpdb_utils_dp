@@ -17,6 +17,7 @@ class ParseFindGeo:
     def __init__(self, folder, input_format="cif"):
         self.folder = folder
         self.input_format = input_format
+        self.l_sites = []
 
     def parse(self):
         """
@@ -27,7 +28,6 @@ class ParseFindGeo:
         4. store the results in self.l_sites
         5. sort self.l_sites by metal, chain, residue, sequence, icode
         """
-        self.l_sites = []
         l_folder = os.listdir(self.folder)
         for name in l_folder:
             if name != "data" and "_" in name:
@@ -40,6 +40,8 @@ class ParseFindGeo:
 
         if self.l_sites:
             self.sort()
+        else:
+            logger.warning("no metal sites parsed in %s", self.folder)
 
     def parseOneSite(self, site_name):
         """
@@ -213,11 +215,6 @@ class ParseFindGeo:
 
         :param filepath_json: path to output json file
         """        
-        if not self.l_sites:
-            logger.warning("no data to write to %s", filepath_json)
-            return
-
         logger.info("to write report to %s", filepath_json)
         with open(filepath_json, "w") as file:
             json.dump(self.l_sites, file, indent=4)
-

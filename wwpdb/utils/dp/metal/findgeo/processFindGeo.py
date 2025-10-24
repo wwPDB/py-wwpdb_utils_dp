@@ -26,7 +26,7 @@ def main():
     parser.add_argument("--excluded_donors", help="Chemical symbols of the atoms (separated by commas) excluded from metal ligands. Default is 'C,H' ", type=str, default="C,H")
     parser.add_argument("--format", help="Local file format (i.e. cif or pdb).", type=str, default="cif")
     parser.add_argument("--input", help="Local PDB/mmCIF local file.", type=str, default=None)
-    parser.add_argument("--metal", help="Chemical symbol of the metal of interest. Default is all metals.", type=str, default=None)
+    parser.add_argument("--metal", help="Chemical symbol of the metal of interest. Default is all metals.", type=str, default="All")
     parser.add_argument("--overwright", help="Overwrite existing files and directories.", action="store_true", default=True)
     parser.add_argument("--pdb", help="Local input PDB file or PDB code of input PDB file to be downloaded from the web.", type=str, default=None)
     parser.add_argument("--threshold", help="Coordination distance threshold. Default is 2.8 A.", type=float, default=2.8)
