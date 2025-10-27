@@ -3865,6 +3865,7 @@ class RcsbDpUtility:
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " > " + lPath
             
         elif op == "metal-findgeo":
+            self.setTimeout(600)  # set timeout to 10 minutes for FindGeo processing
             # retrieve java binary and FindGeo jar file from package path
             java_exe = os.path.join(self.__packagePath, "java", "jre", "bin", "java")
             findgeo_jar = os.path.join(self.__packagePath, "metallo", "FindGeo", "FindGeo.jar")
@@ -3873,18 +3874,26 @@ class RcsbDpUtility:
             input = iPath.strip() + ".cif"  # must have .cif extension for FindGeo to work
             cmd += f" ; cp {iPath} {input}"
 
-            # add FindGeo options that may be customized
-            excluded_donors = "C,H"  # default input for --excluded_donors option of FindGeo
-            metal = "All"  # default intput for --metal option of FindGeo
-            threshold = 2.8  # default input for --threshold option of FindGeo
+            # add FindGeo default options if not customized by caller
+            print(self.__inputParamDict)
+            d_default_args = {}
+            d_default_args["excluded_donors"] = "C,H"
+            d_default_args["metal"] = "All"
+            d_default_args["threshold"] = str(2.8)
+            for key, value in d_default_args.items():
+                if key not in self.__inputParamDict:
+                    self.addInput(name=key, value=value)
+            print(self.__inputParamDict)
+
+            # construct FindGeo command line arguments
             findgeo_args = [
                 f"--java_exe {java_exe}",
                 f"--findgeo_jar {findgeo_jar}",
-                f"--input {input}",
-                f"--excluded_donors {excluded_donors}",
-                f"--metal {metal}",
-                f"--threshold {threshold}",           
+                f"--input {input}",        
             ]
+            for key, value in self.__inputParamDict.items():
+                if key in ["excluded_donors", "metal", "threshold"]:
+                    findgeo_args.append(f"--{key} {value}")
 
             # run FindGeo and parse results into findgeo/findgeo_report.json, which will be copied as result file
             cmd += f" ; python -m wwpdb.utils.dp.metal.findgeo.processFindGeo {' '.join(findgeo_args)}"
