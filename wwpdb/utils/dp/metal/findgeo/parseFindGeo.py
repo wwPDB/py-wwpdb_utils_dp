@@ -3,6 +3,7 @@ import os
 import sys
 import logging
 from collections import OrderedDict
+from mmcif.io.IoAdapterCore import IoAdapterCore
 
 logger = logging.getLogger(__name__)
 
@@ -180,21 +181,60 @@ class ParseFindGeo:
 
         :param filepath: path to findgeo.input file, if the input was in cif format
         :return: tuple (ccd_id, atom_label, chain, res_num, ins, alt), empty tuple if parsing fails
-        """        
-        logger.info("to process %s", filepath)
-        with open(filepath) as file:
-            line = file.readline()
-            l_line = line.strip().split()
-            atom_label = l_line[3]
-            alt = l_line[4]
-            ccd_id = l_line[5]
-            ins = l_line[9]
-            res_num = l_line[15]
-            chain = l_line[17]
+        """
+        logger.info("to run mmCIF parser on findgeo.input %s", filepath)
+        d_metal_row = self.parseMmcif(filepath)
+        if d_metal_row:
+            atom_label = d_metal_row.get("label_atom_id", "").strip()
+            alt = d_metal_row.get("label_alt_id", "").strip()
+            ccd_id = d_metal_row.get("label_comp_id", "").strip()
+            ins = d_metal_row.get("pdbx_PDB_ins_code", "").strip()
+            res_num = d_metal_row.get("auth_seq_id", "").strip()
+            chain = d_metal_row.get("auth_asym_id", "").strip()
             logger.info("found ccd_id %s", ccd_id)
             return (ccd_id, atom_label, chain, res_num, ins, alt)
+        else:
+            logger.info("to parse findgeo.input by column guess on: %s", filepath)
+            with open(filepath) as file:
+                for line in file:
+                    if line.startswith("ATOM") or line.startswith("HETATM"):
+                        l_line = line.strip().split()
+                        atom_label = l_line[3]
+                        alt = l_line[4]
+                        ccd_id = l_line[5]
+                        ins = l_line[9]
+                        res_num = l_line[15]
+                        chain = l_line[17]
+                        logger.info("found ccd_id %s", ccd_id)
+                        return (ccd_id, atom_label, chain, res_num, ins, alt)
         logger.error("failed to process %s", filepath)
         return ()
+    
+    def parseMmcif(self, fp):
+        """
+        parse mmcif file to extract atom site information
+
+        :param fp: file path to mmcif file
+        :return: dict with 1st row (metal atom) atom site information
+        """
+        io = IoAdapterCore()
+        l_dc = io.readFile(fp)
+        if not l_dc:
+            logger.error("failed to read mmcif file: %s", fp)
+            return {}
+        dc0 = l_dc[0]
+
+        if 'atom_site' not in dc0.getObjNameList():
+            logger.error("no atom_site category found in mmcif file: %s", fp)
+            return {}
+        c_atom_site = dc0.getObj('atom_site')
+        d_metal_row = c_atom_site.getRowAttributeDict(0)
+
+        if "auth_asym_id" not in d_metal_row:
+            logger.error("failed to find auth_asym_id in atom_site category in mmcif file: %s", fp)
+            return {}
+
+        return d_metal_row
 
     def sort(self):
         """
