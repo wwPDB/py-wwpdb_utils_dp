@@ -3865,7 +3865,7 @@ class RcsbDpUtility:
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " > " + lPath
             
         elif op == "metal-findgeo":
-            self.setTimeout(600)  # set timeout to 10 minutes for FindGeo processing
+            self.setTimeout(1800)  # set timeout to 30 minutes for FindGeo processing
             # retrieve java binary and FindGeo jar file from package path
             java_exe = os.path.join(self.__packagePath, "java", "jre", "bin", "java")
             findgeo_jar = os.path.join(self.__packagePath, "metallo", "FindGeo", "FindGeo.jar")
@@ -3875,15 +3875,16 @@ class RcsbDpUtility:
             cmd += f" ; cp {iPath} {input}"
 
             # add FindGeo default options if not customized by caller
-            print(self.__inputParamDict)
-            d_default_args = {}
-            d_default_args["excluded_donors"] = "C,H"
-            d_default_args["metal"] = "All"
-            d_default_args["threshold"] = str(2.8)
+            logger.info("findgeo caller-set options: %s", self.__inputParamDict)
+            d_default_args = {"excluded_donors" : "C,H",
+                              "metal" : "All",
+                              "threshold" : str(2.8),
+                              "workdir" : "findgeo",
+                              }
             for key, value in d_default_args.items():
                 if key not in self.__inputParamDict:
                     self.addInput(name=key, value=value)
-            print(self.__inputParamDict)
+            logger.info("findgeo run options: %s", self.__inputParamDict)
 
             # construct FindGeo command line arguments
             findgeo_args = [
@@ -3892,7 +3893,7 @@ class RcsbDpUtility:
                 f"--input {input}",        
             ]
             for key, value in self.__inputParamDict.items():
-                if key in ["excluded_donors", "metal", "threshold"]:
+                if key in ["excluded_donors", "metal", "threshold", "workdir"]:
                     findgeo_args.append(f"--{key} {value}")
 
             # run FindGeo and parse results into findgeo/findgeo_report.json, which will be copied as result file
