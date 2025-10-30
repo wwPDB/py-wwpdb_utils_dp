@@ -129,13 +129,15 @@ class RunFindGeo:
         """
         l_command = [self.d_args["java-exe"], "-jar", self.d_args["findgeo-jar"]]
         l_command.extend(self.input)  # get input from either --input or --pdb
-        for arg in ['excluded-donors', 'format', 'threshold', 'workdir']:
+        for arg in ['format', 'threshold', 'workdir']:
             if self.d_args[arg]:
                 l_command.extend([f'--{arg}', str(self.d_args[arg])])
         if self.d_args["metal"] and self.d_args["metal"].lower() != 'all':
             l_command.extend(['--metal', self.d_args["metal"]])
         if self.d_args['overwright']:
             l_command.append('--overwrite')
+        if self.d_args['excluded-donors'] != "C,H":
+            l_command.extend(['--excluded-donors', self.d_args["excluded-donors"]])        
         if self.d_args['excluded-metals'] != "None":
             l_command.extend(['--excluded-metals', self.d_args["excluded-metals"]])
 
