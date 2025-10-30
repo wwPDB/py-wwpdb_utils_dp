@@ -5,6 +5,9 @@ import logging
 from collections import OrderedDict
 from mmcif.io.IoAdapterCore import IoAdapterCore
 
+sys.path.append(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "metal_util"))
+from readRef import readRefCoordNum, readRefCoordMap
+
 logger = logging.getLogger(__name__)
 
 
@@ -19,6 +22,8 @@ class ParseFindGeo:
         self.folder = folder
         self.input_format = input_format
         self.l_sites = []
+        self.d_coord_num = readRefCoordNum()
+        self.d_coord_map = readRefCoordMap("FindGeo")
 
     def parse(self):
         """
@@ -35,7 +40,7 @@ class ParseFindGeo:
                 d_tophit = self.parseOneSite(name)
                 if not d_tophit:
                     continue
-
+                d_tophit = self.amend(d_tophit)
                 logger.info("add row %s", d_tophit)
                 self.l_sites.append(d_tophit)
 
@@ -43,6 +48,34 @@ class ParseFindGeo:
             self.sort()
         else:
             logger.warning("no metal sites parsed in %s", self.folder)
+
+    def amend(self, d_tophit):
+        """
+        amend d_tophit with additional information from reference data
+        1. add generic geometry name from the coordination class mapping reference
+        2. check whether the coordination number is allowd in the coordination number reference
+
+        :param d_tophit: dict with top hit information
+        :return: amended dict with additional information
+        """
+        metal = d_tophit["metalElement"]
+        if metal in self.d_coord_num:
+            allowed_coord_num = self.d_coord_num.get(metal)
+            if d_tophit["coordination"] in allowed_coord_num:
+                d_tophit["coordination_number_allowed"] = "YES"
+            else:
+                d_tophit["coordination_number_allowed"] = "NO"
+        else:
+            d_tophit["coordination_number_allowed"] = ""
+        
+        geom = d_tophit["class"]
+        if geom in self.d_coord_map:
+            pdb_geom = self.d_coord_map[geom]["pdb_geom"]
+            d_tophit["class_generic"] = pdb_geom
+        else:
+            d_tophit["class_generic"] = ""
+
+        return d_tophit
 
     def parseOneSite(self, site_name):
         """
@@ -103,7 +136,7 @@ class ParseFindGeo:
         :return: dict with top hit information, empty dict if parsing fails
         """        
         b_found_coord = False
-        b_found_geo = False
+        best_geo_name = None
         if not os.path.isfile(filepath):
             logger.error("failed to access %s", filepath)
             return {}
@@ -136,21 +169,50 @@ class ParseFindGeo:
                         best_geo_name = _tmp.split("(Distorted)")[0].strip().lower()
                     elif "(Irregular)" in _tmp:
                         # best_geo_name = _tmp.split("(Irregular)")[0].strip().lower()
+                        logger.info("best geometry is irregular in %s, use 'irregular' and ignore geometry parameters", filepath)
                         best_geo_name = "irregular"
                     else:
-                        best_geo_name = None
+                        logger.warning("cannot find best geometry format in %s, use 'undetected' by default", filepath)
+                        best_geo_name = "undetected"
                     logger.info("best geoemtry is %s", best_geo_name)
+
+            if not b_found_coord:
+                logger.warning("could not find coordination number in %s", filepath)
+                return None
+
+            if not l_hit:
+                logger.warning("could not find any geometry hits in %s", filepath)
+                return None
+
+            if not best_geo_name:
+                logger.warning("could not find best geometry in %s", filepath)
+                return None
+
+            if best_geo_name == "undetected":
+                d_tophit["class"] = "undetected"
+                d_tophit["class_abbr"] = ""
+                d_tophit["tag"] = "None"
+                d_tophit["rmsd"] = ""
+                logger.warning("best geometry is undetected in %s, no geometry parameters output", filepath) 
+                return d_tophit
+
+            if best_geo_name == "irregular":
+                d_tophit["class"] = "irregular"
+                d_tophit["class_abbr"] = ""
+                d_tophit["tag"] = "Irregular"
+                d_tophit["rmsd"] = ""
+                logger.warning("best geometry is irregular in %s, no geometry parameters output", filepath) 
+                return d_tophit
+
             for d_hit in l_hit:
                 if d_hit["class"] == best_geo_name:
                     for item in ["class_abbr", "class", "tag", "rmsd"]:
                         d_tophit[item] = d_hit[item]
-                    b_found_geo = True      
-        if b_found_coord and b_found_geo:
-            logger.info("found both coordination number and geometry in %s", filepath)
-            return d_tophit
-        else:
-            logger.warning("could not find best geo parameters in %s", filepath)
-            return {}
+                    logger.info("found best geometry %s in %s", best_geo_name, filepath)
+                    return d_tophit
+            else:
+                logger.warning("could not find best geometry %s in hits in %s", best_geo_name, filepath)
+                return None
 
     def parseFindGeoPdbInput(self, filepath):
         """
@@ -242,7 +304,8 @@ class ParseFindGeo:
         coordination, class, class_abbr, tag, rmsd
         """        
         key_order = ["metal", "metalElement", "chain", "residue",  "sequence", "icode", "altloc",
-                     "coordination", "class", "class_abbr",  "tag", "rmsd"]
+                     "coordination", "class", "class_abbr", "class_generic", "tag", "rmsd", 
+                     "coordination_number_allowed"]
         l_sorted = []
         for d_row in self.l_sites:
             d_row_sorted = OrderedDict((key, d_row[key]) for key in key_order if key in d_row)

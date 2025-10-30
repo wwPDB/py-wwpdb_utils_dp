@@ -1,0 +1,114 @@
+CN,Abbreviation FindGeo,Name FindGeo,Abbreviation metalCoord,Name metalCoord,Name PDB
+2,LIN,linear,LIN,linear,linear
+2,TRV,trigonal plane with a vacancy,BEN,bent,bent
+3,TRI,trigonal plane,TPL,trigonal-planar,trigonal planar
+3,TEV,tetrahedron with a vacancy,PYR,pyramid,pyramidal
+3,SPV,square plane with a vacancy,TSH,t-shape,t shape
+3,NA,NA,CLN,capped-linear,linear monocapped
+4,TET,tetrahedron,TET,tetrahedral,tetrahedral
+4,SPL,square plane,SPL,square-planar,square planar
+4,BVA,trigonal bipyramid with a vacancy (axial),TPY,trigonal-pyramid,trigonal pyramidal
+4,BVP,trigonal bipyramid with a vacancy (equatorial),NA,NA,trigonal bipyramidal with vacancy
+4,PYV,square pyramid with a vacancy (equatorial),NA,NA,square pyramidal with vacancy
+4,NA,NA,CTP,capped-trigonal-planar,trigonal planar monocapped
+4,NA,NA,BLN,bicapped-linear,linear bicapped
+4,NA,NA,SNP,square-non-planar,square non-planar
+5,SPY,square pyramid,SQP,square-pyramid,square pyramidal
+5,TBP,trigonal bipyramid,TBP,trigonal-bipyramid,trigonal bipyramidal
+5,TPV,trigonal prism with a vacancy,NA,NA,trigonal prismatic with vacancy
+5,NA,NA,CSP,capped-square-planar,square planar monocapped
+5,NA,NA,BTP,bicapped-trigonal-planar,trigonal planar bicapped
+5,NA,NA,TTP,tricapped-trigonal-planar,trigonal planar tricapped
+6,OCT,octahedron,OCT,octahedral,octahedral
+6,TPR,trigonal prism,TRP,trigonal-prism,trigonal prismatic
+6,PVA,pentagonal bipyramid with a vacancy (axial),NA,NA,pentagonal bipyramidal with vacancy
+6,PVP,pentagonal bipyramid with a vacancy (equatorial),NA,NA,pentagonal bipyramidal with vacancy
+6,COF,"octahedron, face monocapped with a vacancy (capped face)",NA,NA,octahedral monocapped with vacancy
+6,CON,"octahedron, face monocapped with a vacancy (non-capped face)",NA,NA,octahedral monocapped with vacancy
+6,CTF,"trigonal prism, square-face monocapped with a vacancy (capped face)",NA,NA,trigonal prismatic monocapped with vacancy
+6,CTN,"trigonal prism, square-face monocapped with a vacancy (non-capped edge)	",NA,NA,trigonal prismatic monocapped with vacancy
+6,NA,NA,SAA,sandwich_4h_2,sandwich 4h 2
+6,NA,NA,SAB,sandwich_4_2,sandwich 4 2
+6,NA,NA,SAC,sandwich_5_1,sandwich 5 1
+6,NA,NA,BSP,bicapped-square-planar,square planar bicapped
+6,NA,NA,HPL,hexagonal-planar,hexagonal planar
+7,PBP,pentagonal bipyramid,PBP,pentagonal-bipyramid,pentagonal bipyramidal
+7,CTP,"trigonal prism, square-face monocapped",CTR,capped-trigonal-prism,trigonal prismatic monocapped
+7,COC,"octahedron, face monocapped",NA,NA,octahedral monocapped
+7,HVA,hexagonal bipyramid with a vacancy (axial),NA,NA,hexagonal bipyramidal with vacancy
+7,HVP,hexagonal bipyramid with a vacancy (equatorial),NA,NA,hexagonal bipyramidal with vacancy
+7,CUV,cube with a vacancy,NA,NA,cubic with vacancy
+7,SAV,square antiprism with a vacancy,NA,NA,square antiprismatic with vacancy
+7,NA,NA,COP,capped-octahedral,octahedral monocapped
+7,NA,NA,SAD,sandwich_6_1,sandwich 6 1
+7,NA,NA,SAE,sandwich_4_3,sandwich 4 3
+7,NA,NA,SAF,sandwich_4h_3,sandwich 4h 3
+7,NA,NA,SAG,sandwich_5_2,sandwich 5 2
+8,HBP,hexagonal bipyramid,HBP,hexagonal-bipyramid,hexagonal bipyramidal
+8,CUB,cube,CUB,cubic,cubic
+8,SQA,square antiprism,SQA,square-antiprismatic,square antiprismatic
+8,BOC,"octahedron, trans-bicapped",NA,NA,octahedral bicapped
+8,BTS,"trigonal prism, square-face bicapped",NA,NA,trigonal prismatic bicapped
+8,BTT,"trigonal prism, triangular-face bicapped",ETB,elongated-triangular-bipyramid,trigonal prismatic bicapped
+8,NA,NA,SAH,sandwich_4h_4h,sandwich 4h 4h
+8,NA,NA,SAI,sandwich_7_1,sandwich 7 1
+8,NA,NA,SAJ,sandwich_4h_4,sandwich 4h 4
+8,NA,NA,SAK,sandwich_5_capped_1,sandwich 5 capped 1
+8,NA,NA,SAN,sandwich_5_3,sandwich 5 3
+8,NA,NA,SAL,sandwich_5h_3,sandwich 5h 3
+8,NA,NA,BOC,bicapped-octahedral,octahedral bicapped
+8,NA,NA,SAM,sandwich_6_2,sandwich 6 2
+8,NA,NA,DOD,dodecahedral,dodecahedral
+9,TTP,"trigonal prism, square-face tricapped",TCP,tricapped-trigonal-prismatic,trigonal prism tricapped
+9,CSA,"square antiprism, square-face monocapped",NA,NA,square antiprismatic monocapped
+9,NA,NA,SAO,sandwich_7_2,sandwich 7 2
+9,NA,NA,SAP,sandwich_5_tricapped_i,sandwich 5 tricapped i
+9,NA,NA,SAQ,sandwich_5_4h,sandwich 5 4h
+9,NA,NA,SAR,sandwich_5_4,sandwich 5 4
+9,NA,NA,SAS,sandwich_6_3,sandwich 6 3
+10,NA,NA,PPR,pentagonal-prosmatic,pentagonal prismatic
+10,NA,NA,BSA,bicapped-square-antiprismatic,square antiprismatic bicapped
+10,NA,NA,SAT,sandwich_5_5o,sandwich 5 5o
+10,NA,NA,SAU,sandwich_6_trigonal_pyramid,sandwich 6 trigonal pyramidal
+10,NA,NA,SAV,sandwich_6_4,sandwich 6 4
+10,NA,NA,SAW,sandwich_5_4_i,sandwich 5 4 i
+10,NA,NA,PAP,pentagonal-antiprosmatic,pentagonal antiprismatic
+10,NA,NA,SAX,sandwich_7_3,sandwich 7 3
+10,NA,NA,SAY,sandwich_5_tricapped_v,sandwich 5 tricapped v
+10,NA,NA,SAZ,sandwich_5_square_pyramid,sandwich 5 square pyramidal
+10,NA,NA,SBA,sandwich_5_5,sandwich 5 5
+11,NA,NA,SBB,sandwich_5_pentagon_pyramid,sandwich 5 pentagonal pyramidal
+11,NA,NA,FCT,all-face-capped-trigonal-prismatic,trigonal prismatic all face capped
+11,NA,NA,SBC,sandwich_5_capped_square_pyramid,sandwich 5 square pyramidal monocapped
+11,NA,NA,SBD,sandwich_8_3,sandwich 8 3
+11,NA,NA,SBE,sandwich_5_4h_v,sandwich 5 4h v
+11,NA,NA,SBF,sandwich_5_5_i,sandwich 5 5 i
+11,NA,NA,SBG,sandwich_6_5,sandwich 6 5
+12,NA,NA,SEA,sea-mine,seamine
+12,NA,NA,COB,cuboctahedron,cuboctahedral
+12,NA,NA,SBH,sandwich_5_hexagon_pyramid,sandwich 5 hexagonal pyramidal
+12,NA,NA,SBI,sandwich_8_4,sandwich 8 4
+12,NA,NA,POD,paired-octahedral,paired octahedral
+12,NA,NA,SBJ,sandwich_7_5,sandwich 7 5
+12,NA,NA,SBK,sandwich_6_6,sandwich 6 6
+12,NA,NA,SBL,sandwich_5_5_v,sandwich 5 5 v
+13,NA,NA,SBM,sandwich_6_5_v,sandwich 6 5 v
+13,NA,NA,SBN,sandwich_8_5,sandwich 8 5
+13,NA,NA,SBO,sandwich_5_5_vi,sandwich 5 5 v i
+14,NA,NA,SBP,sandwich_5_5_v_v_3d,sandwich 5 5 v v 3d
+14,NA,NA,SBQ,sandwich_6_6_v,sandwich 6 6 v
+14,NA,NA,SBR,sandwich_c5_5_i,sandwich c5 5 i
+14,NA,NA,SBS,sandwich_5_5_v_v,sandwich 5 5 v v
+14,NA,NA,SBT,sandwich_8_5_i,sandwich 8 5 i
+14,NA,NA,SBU,sandwich_5_5_4,sandwich 5 5 4
+15,NA,NA,SBV,sandwich_6_6_triangle,sandwich 6 6 triangle
+15,NA,NA,SBW,sandwich_5_5_star,sandwich 5 5 star
+15,NA,NA,PTP,penta-trigonal-planar,penta trigonal planar
+16,NA,NA,PTI,penta-trigonal-planar_i,penta trigonal planar i
+16,NA,NA,SBX,sandwich_8_8,sandwich 8 8
+17,NA,NA,PTV,penta-trigonal-planar_v,penta trigonal planar v
+17,NA,NA,PTR,penta-trigonal-planar_i_i,penta trigonal planar i i
+17,NA,NA,SBY,sandwich_8_8_i,sandwich 8 8 i
+18,NA,NA,SBZ,sandwich_8_8_v,sandwich 8 8 v
+24,NA,NA,BAL,ball,ball
+NA,NA,irregular,NA,NA,irregular

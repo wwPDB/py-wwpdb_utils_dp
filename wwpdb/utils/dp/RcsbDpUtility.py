@@ -3865,7 +3865,15 @@ class RcsbDpUtility:
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " > " + lPath
             
         elif op == "metal-findgeo":
-            self.setTimeout(1800)  # set timeout to 30 minutes for FindGeo processing
+            # changes to the default FindGeo options must be set before setting self.op("metal-findgeo"), e.g.
+            # self.addInput(name="excluded-donors", value="H")  # for checking carbon-metal interaction
+            # self.addInput(name="metal", value="Fe")  # run on a specific metal element only
+            # self.addInput(name="excluded-metals", value="Mg,Ca")  # exlcuding a list of metal elements
+            # self.addInput(name="threshold", value="2.9")  # extend the default 2.8 range search
+            # self.addInput(name="workdir", value="/tmp")  # output to a folder other than the default "./findgeo"
+
+            # self.setTimeout(1800)  # set timeout to 30 minutes for FindGeo processing if needed
+
             # retrieve java binary and FindGeo jar file from package path
             java_exe = os.path.join(self.__packagePath, "java", "jre", "bin", "java")
             findgeo_jar = os.path.join(self.__packagePath, "metallo", "FindGeo", "FindGeo.jar")
@@ -3874,31 +3882,25 @@ class RcsbDpUtility:
             input = iPath.strip() + ".cif"  # must have .cif extension for FindGeo to work
             cmd += f" ; cp {iPath} {input}"
 
-            # add FindGeo default options if not customized by caller
-            logger.info("findgeo caller-set options: %s", self.__inputParamDict)
-            d_default_args = {"excluded_donors" : "C,H",
-                              "metal" : "All",
-                              "threshold" : str(2.8),
-                              "workdir" : "findgeo",
-                              }
-            for key, value in d_default_args.items():
-                if key not in self.__inputParamDict:
-                    self.addInput(name=key, value=value)
-            logger.info("findgeo run options: %s", self.__inputParamDict)
-
-            # construct FindGeo command line arguments
+            # start constructing FindGeo command line arguments
             findgeo_args = [
-                f"--java_exe {java_exe}",
-                f"--findgeo_jar {findgeo_jar}",
+                f"--java-exe {java_exe}",
+                f"--findgeo-jar {findgeo_jar}",
                 f"--input {input}",        
             ]
-            for key, value in self.__inputParamDict.items():
-                if key in ["excluded_donors", "metal", "threshold", "workdir"]:
-                    findgeo_args.append(f"--{key} {value}")
 
-            # run FindGeo and parse results into findgeo/findgeo_report.json, which will be copied as result file
+            # add caller-specified FindGeo options if added to self.__inputParamDict by self.addInput()
+            logger.info("findgeo caller-set options: %s", self.__inputParamDict)
+            workdir = "findgeo"  # default FindGeo output subfolder within the session folder
+            for key, value in self.__inputParamDict.items():
+                if key in ["excluded-donors", "metal", "excluded-metals", "threshold", "workdir"]:
+                    findgeo_args.append(f"--{key} {value}")
+                if key == "workdir":
+                    workdir = value
+
+            # run FindGeo and parse results into <workdir>/findgeo_report.json, which will be copied as result file
             cmd += f" ; python -m wwpdb.utils.dp.metal.findgeo.processFindGeo {' '.join(findgeo_args)}"
-            cmd += f" ; cp {os.path.join('findgeo', 'findgeo_report.json')} {oPath}"
+            cmd += f" ; cp {os.path.join(workdir, 'findgeo_report.json')} {oPath}"
             cmd += f" > {tPath} 2>&1 ; cat {tPath} > {lPath}"
 
         elif op == "chem-comp-dict-makeindex":
