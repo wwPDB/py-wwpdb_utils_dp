@@ -78,10 +78,21 @@ class ParseMetalCoord:
             d_site_filtered = {}
             for key1 in ["metal","metalElement","chain","residue","sequence","icode","altloc"]: 
                 d_site_filtered[key1] = d_site[key1]
-            d_tophit = d_site["ligands"][0]
+
+            # find the best coordination with lowest procruste value
+            threshold = 1.0
+            d_tophit = {}
+            for d_coord in d_site["ligands"]:
+                score = d_coord["procrustes"]
+                if score < threshold:
+                    d_tophit = d_coord
+                    threshold = score
+
+            # once best coordination is found, move class assignment one level up
             for key2 in ["class","procrustes","coordination","count"]:
                 d_site_filtered[key2] = d_tophit[key2]
 
+            # record only coordination ligands in the new "sphere" record
             d_site_filtered["sphere"] = []
             for key3 in ["base","pdb"]:
                 for d_each in d_tophit[key3]:
