@@ -6,7 +6,7 @@ from collections import OrderedDict
 from mmcif.io.IoAdapterCore import IoAdapterCore
 
 sys.path.append(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "metal_util"))
-from readRef import readRefCoordNum, readRefCoordMap
+from readRef import readRefCoordNum, readRefCoordMap, readRefRedOx
 
 logger = logging.getLogger(__name__)
 
@@ -24,6 +24,7 @@ class ParseFindGeo:
         self.l_sites = []
         self.d_coord_num = readRefCoordNum()
         self.d_coord_map = readRefCoordMap("FindGeo")
+        self.d_redox = readRefRedOx()
 
     def parse(self):
         """
@@ -58,6 +59,13 @@ class ParseFindGeo:
         :param d_tophit: dict with top hit information
         :return: amended dict with additional information
         """
+        geom = d_tophit["class"]
+        if geom in self.d_coord_map:
+            pdb_geom = self.d_coord_map[geom]["pdb_geom"]
+            d_tophit["class_generic"] = pdb_geom
+        else:
+            d_tophit["class_generic"] = ""
+
         metal = d_tophit["metalElement"]
         if metal in self.d_coord_num:
             allowed_coord_num = self.d_coord_num.get(metal)
@@ -68,12 +76,10 @@ class ParseFindGeo:
         else:
             d_tophit["coordination_number_allowed"] = ""
         
-        geom = d_tophit["class"]
-        if geom in self.d_coord_map:
-            pdb_geom = self.d_coord_map[geom]["pdb_geom"]
-            d_tophit["class_generic"] = pdb_geom
+        if metal in self.d_redox:
+            d_tophit["redox_active"] = self.d_redox.get(metal)
         else:
-            d_tophit["class_generic"] = ""
+            d_tophit["redox_active"] = ""
 
         return d_tophit
 
@@ -305,7 +311,7 @@ class ParseFindGeo:
         """        
         key_order = ["metal", "metalElement", "chain", "residue",  "sequence", "icode", "altloc",
                      "coordination", "class", "class_abbr", "class_generic", "tag", "rmsd", 
-                     "coordination_number_allowed"]
+                     "coordination_number_allowed", "redox_active"]
         l_sorted = []
         for d_row in self.l_sites:
             d_row_sorted = OrderedDict((key, d_row[key]) for key in key_order if key in d_row)

@@ -30,7 +30,7 @@ def main():
     parser.add_argument("-o", "--overwright", help="Overwrite existing files and directories.", action="store_true", default=True)
     parser.add_argument("-p", "--pdb", help="Local input PDB file or PDB code of input PDB file to be downloaded from the web.", type=str, default=None)
     parser.add_argument("-t", "--threshold", help="Coordination distance threshold. Default is 2.8 A.", type=float, default=2.8)
-    parser.add_argument("-w", "--workdir", help="Directory where to find or download the input PDB file and to write outputs. Default is findgeo subfolder in the current folder", type=str, default="findgeo")
+    parser.add_argument("-w", "--workdir", help="Directory to write outputs. Default is findgeo subfolder in the current folder", type=str, default="findgeo")
     parser.add_argument("-x", "--excluded-metals", help="Metal symbols (separated by commas) excluded from the analysis.", type=str, default="None")
     parser.add_argument("-b", "--java-exe", help="Java executable filepath", type=str, required=True)
     parser.add_argument("-a", "--findgeo-jar", help="FindGeo compiled jar filepath", type=str, required=True)
@@ -41,15 +41,23 @@ def main():
     for arg in l_args:
         key = arg.replace("-", "_")
         d_args[arg] = getattr(args, key)
-    print(d_args)
 
+    logger.info("run FindGeo with %s", d_args)
     rFG = RunFindGeo(d_args)
-    rFG.run()
-
-    pFG = ParseFindGeo(d_args["workdir"], input_format=d_args["format"])
-    pFG.parse()
-    output_json = os.path.join(d_args["workdir"], "findgeo_report.json")
-    pFG.report(output_json)
+    cmd_stdout = rFG.run()
+    
+    if cmd_stdout:
+        logger.info(cmd_stdout)
+        logger.info("run FindGeo finished")
+        logger.info("parse FindGeo results")
+        pFG = ParseFindGeo(d_args["workdir"], input_format=d_args["format"])
+        pFG.parse()
+        output_json = os.path.join(d_args["workdir"], "findgeo_report.json")
+        pFG.report(output_json)
+        logger.info("FindGeo results written to %s", output_json)
+    else:
+        logger.error("run FindGeo failed, no output json")
+        
 
 if __name__ == "__main__":
     main()

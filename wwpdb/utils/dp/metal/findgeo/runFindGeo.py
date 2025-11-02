@@ -143,9 +143,9 @@ class RunFindGeo:
 
         logger.info("to run FindGeo full command:\n %s", ' '.join(l_command))
         try:
-            output = run_command(l_command)
+            cmd_stdout = run_command(l_command)
             logger.info("finished running FindGeo command on %s", self.input)
-            return True
+            return cmd_stdout
         except MetalCommandExecutionError as e:
             logger.error(f"MetalCommandExecutionError: {e}")
-            return False
+            return None
