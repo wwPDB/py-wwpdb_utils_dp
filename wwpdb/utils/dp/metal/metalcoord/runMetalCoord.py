@@ -28,7 +28,7 @@ class RunMetalCoord:
             ccp4_dir = os.getenv("CCP4", default=None)
             if not ccp4_dir:
                 raise KeyError("Environment variable 'CCP4' not found")
-            metalcoord_exe = os.path.join(ccp4_dir, "bin", "metalcoord")
+            metalcoord_exe = os.path.join(ccp4_dir, "bin", "metalCoord")
             if not os.path.exists(metalcoord_exe):
                 raise FileNotFoundError("MetalCoord executable not found in CCP4 bin/ folder")
             self.d_args["metalcoord_exe"] = metalcoord_exe
