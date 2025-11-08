@@ -3915,9 +3915,9 @@ class RcsbDpUtility:
             # self.setTimeout(1800)  # set timeout to 30 minutes for metalcoord processing if needed
 
             # retrieve java binary and metalcoord jar file from package path
-            ccp4_setup = os.path.join(self.__packagePath, "metallo", "ccp4-9", "bin", "ccp4.setup.sh")
+            ccp4_setup = os.path.join(self.__packagePath, "metallo", "ccp4-9", "bin", "ccp4.setup-sh")
             cmd += f" ; source {ccp4_setup} "
-            
+
             metalcoord_exe = os.path.join(self.__packagePath, "metallo", "ccp4-9", "bin", "metalCoord")
 
             # create a copy of model coordinates input file with .cif extension for MetalCoord to work
