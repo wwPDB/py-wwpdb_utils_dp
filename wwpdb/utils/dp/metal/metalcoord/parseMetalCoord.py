@@ -17,7 +17,7 @@ class ParseMetalCoord:
     def __init__(self):
         self.d_coord_num = readRefCoordNum()
         self.d_coord_map = readRefCoordMap("metalCoord")
-        self.d_redox = readRefRedOx()
+        (self.d_redox, self.d_oxi) = readRefRedOx()
         self.data = None
         self.l_sites = []
 
@@ -121,7 +121,7 @@ class ParseMetalCoord:
             metal = d_tophit["metalElement"]
             if metal in self.d_coord_num:
                 allowed_coord_num = self.d_coord_num.get(metal)
-                if d_tophit["coordination"] in allowed_coord_num:
+                if str(d_tophit["coordination"]) in allowed_coord_num:
                     d_tophit["coordination_number_allowed"] = "YES"
                 else:
                     d_tophit["coordination_number_allowed"] = "NO"
@@ -133,13 +133,18 @@ class ParseMetalCoord:
             else:
                 d_tophit["redox_active"] = ""
 
+            if metal in self.d_oxi:
+                d_tophit["oxidation_state"] = self.d_oxi.get(metal)
+            else:
+                d_tophit["oxidation_state"] = ""
+
     def sort(self):
         """
         sort self.l_sites
         """        
         key_order = ["metal", "metalElement", "chain", "residue",  "sequence", "icode", "altloc",
                      "coordination", "class", "class_abbr", "class_generic", "procrustes", "count", 
-                     "coordination_number_allowed", "redox_active", "sphere"]
+                     "coordination_number_allowed", "redox_active", "oxidation_state", "sphere"]
         l_sorted = []
         for d_row in self.l_sites:
             d_row_sorted = OrderedDict((key, d_row[key]) for key in key_order if key in d_row)

@@ -13,10 +13,9 @@ import json
 DIR = os.path.dirname(os.path.abspath(__file__))
 TEST_DIR = os.path.dirname(DIR)
 TEST_DATA_DIR = os.path.join(TEST_DIR, "test_data")
-TEST_TEMP_DIR = os.path.join(TEST_DIR, "temp")
-METAL_DIR = os.path.dirname(TEST_DIR)
+TEST_TEMP_DIR = os.path.join(TEST_DIR, "test_output")
 
-sys.path.insert(0, METAL_DIR)
+sys.path.insert(0, TEST_DIR)
 print(sys.path)
 
 class TestRunMetalCoord(unittest.TestCase):
@@ -26,8 +25,22 @@ class TestRunMetalCoord(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def test1(self):
-        l_command = [sys.executable, "-m", "wwpdb.utils.dp.metal.metalcoord.processMetalCoordUpdate"]
+    def test(self):
+        l_command = []
+        ccp4_dir = os.getenv("CCP4", None)
+        if ccp4_dir:
+            print("Found CCP4 env at %s" % ccp4_dir )
+        else:
+            print("Setup CCP4")
+            onedep_package_dir = os.getenv("PACKAGE_DIR", None)
+            if onedep_package_dir:
+                print("Test in OneDep environment")
+                ccp4_dir = os.path.join(onedep_package_dir, "metallo", "ccp4-9")
+            else:
+                print("Test in local development")
+                ccp4_dir = "/Applications/ccp4-9"
+            l_command.append(f"source {ccp4_dir}/bin/ccp4.setup-sh;")
+        l_command.extend ([sys.executable, "-m", "wwpdb.utils.dp.metal.metalcoord.processMetalCoordUpdate"])
         l_command.extend(["--input", os.path.join(TEST_DATA_DIR,"0KA.cif")])
         l_command.extend(["--pdb", os.path.join(TEST_DATA_DIR, "4DHV-internal.cif")])
         command = " ".join(l_command)
@@ -48,6 +61,8 @@ class TestRunMetalCoord(unittest.TestCase):
             data = json.load(f)
             self.assertTrue(data)  # test file is not empty
 
+        fp_metalcoord_json = os.path.join(TEST_TEMP_DIR, "metalcoord/servalcat_updated.cif")
+        self.assertTrue(os.path.exists(fp_metalcoord_json))  # test file exist
 
 if __name__ == "__main__":
     unittest.main()

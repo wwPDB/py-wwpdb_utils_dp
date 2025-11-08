@@ -13,10 +13,9 @@ import json
 DIR = os.path.dirname(os.path.abspath(__file__))
 TEST_DIR = os.path.dirname(DIR)
 TEST_DATA_DIR = os.path.join(TEST_DIR, "test_data")
-TEST_TEMP_DIR = os.path.join(TEST_DIR, "temp")
-METAL_DIR = os.path.dirname(TEST_DIR)
+TEST_TEMP_DIR = os.path.join(TEST_DIR, "test_output")
 
-sys.path.insert(0, METAL_DIR)
+sys.path.insert(0, TEST_DIR)
 print(sys.path)
 
 class TestRunFindGeo(unittest.TestCase):
@@ -27,8 +26,15 @@ class TestRunFindGeo(unittest.TestCase):
         pass
 
     def test1(self):
-        java_exe = "/usr/local/opt/openjdk/bin/java"
-        findgeo_jar = "/Users/chenghua/Projects/RunFindGeo/py-run_findgeo/packages/FindGeo/FindGeo-1.1.jar"
+        onedep_package_dir = os.getenv("PACKAGE_DIR", None)
+        if onedep_package_dir:
+            print("Test in OneDep environment")
+            java_exe = os.path.join(onedep_package_dir,  "java", "jre", "bin", "java")
+            findgeo_jar = os.path.join(onedep_package_dir, "metallo", "FindGeo", "FindGeo.jar")
+        else:
+            print("Test in local development environment")
+            java_exe = "/usr/local/opt/openjdk/bin/java"
+            findgeo_jar = "/Users/chenghua/Projects/RunFindGeo/py-run_findgeo/packages/FindGeo/FindGeo-1.1.jar"
         l_command = [sys.executable, "-m", "wwpdb.utils.dp.metal.findgeo.processFindGeo"]
         l_command.extend(["--java-exe", java_exe])
         l_command.extend(["--findgeo-jar", findgeo_jar])

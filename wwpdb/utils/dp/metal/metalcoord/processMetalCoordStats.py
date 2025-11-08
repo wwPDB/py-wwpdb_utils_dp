@@ -27,7 +27,7 @@ def main():
     parser.add_argument("-l", "--ligand", help="Ligand code", type=str, required=True)
     parser.add_argument("-p", "--pdb", help="PDB code or pdb file", type=str, required=True)
     parser.add_argument("-x", "--max_size", help="Maximum sample size for statistics.", type=int, default=100)
-    parser.add_argument("-t", "--threshold", help="Procrustes distance threshold.", type=float, default=0.3)
+    parser.add_argument("-t", "--threshold", help="Procrustes distance threshold for finding COD reference.", type=float, default=0.3)
     args = parser.parse_args()
 
     l_args = ["metalcoord_exe", "workdir", "ligand", "pdb", "max_size", "threshold"]

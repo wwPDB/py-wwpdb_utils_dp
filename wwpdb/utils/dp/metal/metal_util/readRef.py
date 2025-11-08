@@ -7,12 +7,14 @@ REF_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__
 def readRefRedOx():
     filepath = os.path.join(REF_PATH, "metal_oxidation_state.csv")
     d_redox = {}
+    d_oxi = {}
     with open(filepath) as f:
         reader = csv.DictReader(f, delimiter="\t")
         for d_row in reader:
             metal = d_row['Metals'].strip()
             d_redox[metal] = d_row['Redox active'].strip()
-    return d_redox
+            d_oxi[metal] = d_row["Oxidation state"]
+    return (d_redox, d_oxi)
 
 def readRefCoordNum():
     filepath = os.path.join(REF_PATH, "metal_coordination_number.csv")
@@ -55,5 +57,6 @@ if __name__ == "__main__":
     print(d_coord_map_fg)
     d_coord_map_mc = readRefCoordMap("metalCoord")
     print(d_coord_map_mc)
-    d_redox = readRefRedOx()
+    (d_redox, d_oxi) = readRefRedOx()
     print(d_redox)
+    print(d_oxi)
