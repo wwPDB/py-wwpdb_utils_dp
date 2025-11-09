@@ -131,7 +131,7 @@ class TestMetalCoordUpdate(unittest.TestCase):
 
     def test(self):
         self.dp.setDebugMode(flag=True)
-        self.dp.imp(self.fp_in)
+        self.dp.imp(self.fp_in_ccd)
         logger.info("test input filepath: %s", self.fp_in)
         
         self.dp.addInput(name="pdb", value=os.path.join(TEST_DATA_DIR, "4DHV-internal.cif"))  # PDB code or pdb file as reference   
@@ -142,7 +142,7 @@ class TestMetalCoordUpdate(unittest.TestCase):
         # self.dp.addInput(name="threshold", value="0.2")  # Procrustes distance threshold for finding COD reference.
         
         rt = self.dp.op("metal-metalcoord-update")
-        logger.info("run MetalCoord on ligand file $s with return code %s", self.fp_in, rt)
+        logger.info("run MetalCoord on ligand file %s with return code %s", self.fp_in_ccd, rt)
         self.assertEqual(rt, 0)
         
         try:
