@@ -132,7 +132,7 @@ class TestMetalCoordUpdate(unittest.TestCase):
     def test(self):
         self.dp.setDebugMode(flag=True)
         self.dp.imp(self.fp_in_ccd)
-        logger.info("test input filepath: %s", self.fp_in)
+        logger.info("test input filepath: %s", self.fp_in_ccd)
         
         self.dp.addInput(name="pdb", value=os.path.join(TEST_DATA_DIR, "4DHV-internal.cif"))  # PDB code or pdb file as reference   
         # self.dp.addInput(name="acedrg_exe", value="")  # Acedrg executable file, only use for testing new versions
