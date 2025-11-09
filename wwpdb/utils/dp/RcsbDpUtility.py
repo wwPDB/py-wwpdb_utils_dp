@@ -3984,22 +3984,13 @@ class RcsbDpUtility:
                 if key == "workdir":
                     workdir = value
 
-            # run metalcoord and parse results into <workdir>/metalcoord_report.json, which will be copied as result file
+            # run metalcoord and generate updated ligand cif at <workdir>/servalcat_updated.cif, which will be 
+            # copied as result file with charge and ideal coordinates; coordination info will be parsed and copied
+            # into <workdir>/metalcoord_report.json;
+            # use self.expList() to output both files in list of [servalcat_updated.cif, metalcoord_report.json]
             cmd += f" ; python -m wwpdb.utils.dp.metal.metalcoord.processMetalCoordUpdate {' '.join(metalcoord_args)}"
-            cmd += f" ; cp {os.path.join(workdir, 'metalcoord_report.json')} {oPath}"
+            cmd += f" ; cp {os.path.join(workdir, 'servalcat_updated.cif')} {oPath}"
             cmd += f" > {tPath} 2>&1 ; cat {tPath} > {lPath}"
-
-            ligand_cif_out = os.path.join(workdir, "servalcat_updated.cif")
-            if os.access(ligand_cif_out, os.F_OK):
-                self.__resultPathList.append(ligand_cif_out)
-            else:
-                self.__resultPathList.append("missing")
-            
-            coordination_json_out = os.path.join(workdir, "metalcoord_report.json")
-            if os.access(coordination_json_out, os.F_OK):
-                self.__resultPathList.append(coordination_json_out)
-            else:
-                self.__resultPathList.append("missing")
 
         elif op == "chem-comp-dict-makeindex":
             # -index oPath(.idx) -lib iPath (.sdb) -type makeindex -fplib $fpPatFile
@@ -4485,6 +4476,20 @@ class RcsbDpUtility:
             self.__resultPathList = glob.glob(pat)
         else:
             self.__resultPathList = [os.path.join(self.__wrkPath, oPath)]
+
+        if op == "metal-metalcoord-update":
+            self.__resultPathList = []
+            ligand_cif_out = os.path.join(self.__wrkPath, "metalcoord", "servalcat_updated.cif")
+            if os.access(ligand_cif_out, os.F_OK):
+                self.__resultPathList.append(ligand_cif_out)
+            else:
+                self.__resultPathList.append("missing")
+            
+            coordination_json_out = os.path.join(self.__wrkPath, "metalcoord", "metalcoord_report.json")
+            if os.access(coordination_json_out, os.F_OK):
+                self.__resultPathList.append(coordination_json_out)
+            else:
+                self.__resultPathList.append("missing")
 
         return iret
 

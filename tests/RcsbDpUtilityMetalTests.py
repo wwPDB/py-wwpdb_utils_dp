@@ -77,7 +77,7 @@ class TestMetalCoordStats(unittest.TestCase):
         self.dp = RcsbDpUtility(tmpPath=self.__sessionPath, siteId=self.__siteId, verbose=self.__verbose, log=self.__lfh)
 
         self.fp_in = os.path.join(TEST_DATA_DIR, "4DHV-internal.cif")
-        self.fp_out = os.path.join(TEST_OUTPUT_DIR, "4DHV-metal-metalcoord.json")
+        self.fp_out = os.path.join(TEST_OUTPUT_DIR, "4DHV-metal-metalcoord-stats.json")
         
     def tearDown(self):
         # shutil.rmtree(TEST_OUTPUT_DIR, ignore_errors=True)
@@ -123,7 +123,7 @@ class TestMetalCoordUpdate(unittest.TestCase):
 
         self.fp_in_ccd = os.path.join(TEST_DATA_DIR, "0KA.cif")
         self.fp_in_pdb = os.path.join(TEST_DATA_DIR, "4DHV-internal.cif")
-        self.fp_out = os.path.join(TEST_OUTPUT_DIR, "4DHV-metal-metalcoord.json")
+        self.fp_out_list = [os.path.join(TEST_OUTPUT_DIR, "0KA-updated.cif"), os.path.join(TEST_OUTPUT_DIR, "4DHV-metal-metalcoord-update.json")]
         
     def tearDown(self):
         # shutil.rmtree(TEST_OUTPUT_DIR, ignore_errors=True)
@@ -144,32 +144,30 @@ class TestMetalCoordUpdate(unittest.TestCase):
         rt = self.dp.op("metal-metalcoord-update")
         logger.info("run MetalCoord on ligand file %s with return code %s", self.fp_in_ccd, rt)
         self.assertEqual(rt, 0)
-        
-        try:
-            self.dp.exp(self.fp_out)
-            logger.info("test output filepath: %s", self.fp_out)
-            self.assertTrue(os.path.exists(self.fp_out))  # check if test file exists
 
-            with open(self.fp_out) as f:
+        try:
+            self.dp.expList(self.fp_out_list)
+            logger.info("test output filepath list: %s", self.fp_out_list)
+
+            [ligand_cif, metal_json] = self.fp_out_list
+            self.assertTrue(os.path.exists(ligand_cif))  # check if ligand cif file exists
+            self.assertTrue(os.path.exists(metal_json))  # check if json file exists
+
+            with open(metal_json) as f:
                 data = json.load(f)
-                self.assertTrue(data)  # check if test file is empty
+                self.assertTrue(data)  # check if json file is empty
                 
         except Exception as e:
             logger.exception("Failed to export: %s", e)
             raise
 
-        try:
-            self.dp.expList(["ligand.cif","metal.json"])               
-        except Exception as e:
-            logger.exception("Failed to export: %s", e)
-            raise
 
 def suite():
     loader = unittest.TestLoader()
     suite = unittest.TestSuite()
 
-    # suite.addTests(loader.loadTestsFromTestCase(TestFindGeo))
-    # suite.addTests(loader.loadTestsFromTestCase(TestMetalCoordStats))
+    suite.addTests(loader.loadTestsFromTestCase(TestFindGeo))
+    suite.addTests(loader.loadTestsFromTestCase(TestMetalCoordStats))
     suite.addTests(loader.loadTestsFromTestCase(TestMetalCoordUpdate))
 
     return suite
