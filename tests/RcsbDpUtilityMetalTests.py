@@ -158,6 +158,11 @@ class TestMetalCoordUpdate(unittest.TestCase):
             logger.exception("Failed to export: %s", e)
             raise
 
+        try:
+            self.dp.expList(["ligand.cif","metal.json"])               
+        except Exception as e:
+            logger.exception("Failed to export: %s", e)
+            raise
 
 def suite():
     loader = unittest.TestLoader()

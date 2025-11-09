@@ -3989,6 +3989,18 @@ class RcsbDpUtility:
             cmd += f" ; cp {os.path.join(workdir, 'metalcoord_report.json')} {oPath}"
             cmd += f" > {tPath} 2>&1 ; cat {tPath} > {lPath}"
 
+            ligand_cif_out = os.path.join(workdir, "servalcat_updated.cif")
+            if os.access(ligand_cif_out, os.F_OK):
+                self.__resultPathList.append(ligand_cif_out)
+            else:
+                self.__resultPathList.append("missing")
+            
+            coordination_json_out = os.path.join(workdir, "metalcoord_report.json")
+            if os.access(coordination_json_out, os.F_OK):
+                self.__resultPathList.append(coordination_json_out)
+            else:
+                self.__resultPathList.append("missing")
+
         elif op == "chem-comp-dict-makeindex":
             # -index oPath(.idx) -lib iPath (.sdb) -type makeindex -fplib $fpPatFile
             #  ipath = dict.sdb   opath = dict.idx
