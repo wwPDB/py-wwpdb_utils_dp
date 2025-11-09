@@ -158,13 +158,17 @@ class TestMetalCoordUpdate(unittest.TestCase):
             logger.exception("Failed to export: %s", e)
             raise
 
-        
+
 def suite():
+    loader = unittest.TestLoader()
     suite = unittest.TestSuite()
-    # suite.addTest(unittest.makeSuite(TestFindGeo))
-    # suite.addTest(unittest.makeSuite(TestMetalCoordStats))
-    suite.addTest(unittest.makeSuite(TestMetalCoordUpdate))
+
+    # suite.addTests(loader.loadTestsFromTestCase(TestFindGeo))
+    # suite.addTests(loader.loadTestsFromTestCase(TestMetalCoordStats))
+    suite.addTests(loader.loadTestsFromTestCase(TestMetalCoordUpdate))
+
     return suite
+
 
 if __name__ == "__main__":
     runner = unittest.TextTestRunner(verbosity=2)
