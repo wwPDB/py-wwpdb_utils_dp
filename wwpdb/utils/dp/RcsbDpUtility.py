@@ -3911,6 +3911,8 @@ class RcsbDpUtility:
             # self.addInput(name="max_size", value="2000")  # Maximum sample size for reference statistics.
             # self.addInput(name="threshold", value="0.2")  # Procrustes distance threshold for finding COD reference.
             # self.addInput(name="workdir", value="/tmp")  # output to a folder other than the default "./metalcoord"
+            # self.addInput(name="pdb", value="4DHV")  # PDB code or pdb file as input
+            # self.addInput(name="metalcoord_exe", value="")  # MetalCoord executable file, only use for testing new versions
 
             # self.setTimeout(1800)  # set timeout to 30 minutes for metalcoord processing if needed
 
@@ -3934,13 +3936,56 @@ class RcsbDpUtility:
             logger.info("metalcoord caller-set options: %s", self.__inputParamDict)
             workdir = "metalcoord"  # default metalcoord output subfolder within the session folder
             for key, value in self.__inputParamDict.items():
-                if key in ["ligand", "max_size", "threshold", "workdir"]:
+                if key in ["ligand", "max_size", "threshold", "workdir", "pdb", "metalcoord_exe"]:
                     metalcoord_args.append(f"--{key} {value}")
                 if key == "workdir":
                     workdir = value
 
             # run metalcoord and parse results into <workdir>/metalcoord_report.json, which will be copied as result file
             cmd += f" ; python -m wwpdb.utils.dp.metal.metalcoord.processMetalCoordStats {' '.join(metalcoord_args)}"
+            cmd += f" ; cp {os.path.join(workdir, 'metalcoord_report.json')} {oPath}"
+            cmd += f" > {tPath} 2>&1 ; cat {tPath} > {lPath}"
+
+        elif op == "metal-metalcoord-update":
+            # changes to the default metalcoord options must be set before setting self.op("metal-metalcoord-stats"), e.g.
+
+            # self.addInput(name="acedrg_exe", value="")  # Acedrg executable file, only use for testing new versions
+            # self.addInput(name="metalcoord_exe", value="")  # MetalCoord executable file, only use for testing new versions
+            # self.addInput(name="servalcat_exe", value="")   # Servalcat executable file, only use for testing new versions
+            # self.addInput(name="workdir", value="/tmp")  # Directory to write outputs. Default is metalcoord subfolder in the current folder
+            # self.addInput(name="input", value="0KA.cif")  # Ligand cif file
+            # self.addInput(name="pdb", value="4DHV")  # PDB code or pdb file for coodination reference, if missing then use most_commond option
+            # self.addInput(name="threshold", value="0.2")  # Procrustes distance threshold for finding COD reference.
+
+            # self.setTimeout(1800)  # set timeout to 30 minutes for metalcoord processing if needed
+
+            # retrieve java binary and metalcoord jar file from package path
+            ccp4_setup = os.path.join(self.__packagePath, "metallo", "ccp4-9", "bin", "ccp4.setup-sh")
+            cmd += f" ; source {ccp4_setup} "
+
+            metalcoord_exe = os.path.join(self.__packagePath, "metallo", "ccp4-9", "bin", "metalCoord")
+
+            # create a copy of model coordinates input file with .cif extension for MetalCoord to work
+            input = iPath.strip() + ".cif"  # must have .cif extension for MetalCoord to work
+            cmd += f" ; cp {iPath} {input}"
+
+            # start constructing metalcoord command line arguments
+            metalcoord_args = [
+                f"--metalcoord_exe {metalcoord_exe}",
+                f"--input {input}",        
+            ]
+
+            # add caller-specified metalcoord options if added to self.__inputParamDict by self.addInput()
+            logger.info("metalcoord caller-set options: %s", self.__inputParamDict)
+            workdir = "metalcoord"  # default metalcoord output subfolder within the session folder
+            for key, value in self.__inputParamDict.items():
+                if key in ["input", "pdb", "threshold", "workdir", "metalcoord_exe", "acedrg_exe", "servalcat_exe"]:
+                    metalcoord_args.append(f"--{key} {value}")
+                if key == "workdir":
+                    workdir = value
+
+            # run metalcoord and parse results into <workdir>/metalcoord_report.json, which will be copied as result file
+            cmd += f" ; python -m wwpdb.utils.dp.metal.metalcoord.processMetalCoordUpdate {' '.join(metalcoord_args)}"
             cmd += f" ; cp {os.path.join(workdir, 'metalcoord_report.json')} {oPath}"
             cmd += f" > {tPath} 2>&1 ; cat {tPath} > {lPath}"
 
