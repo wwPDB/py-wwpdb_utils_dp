@@ -6,8 +6,8 @@ import os
 import sys
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-from runMetalCoord import RunMetalCoord
-from parseMetalCoord import ParseMetalCoord
+from runMetalCoord import RunMetalCoord  # noqa: E402
+from parseMetalCoord import ParseMetalCoord  # noqa: E402
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(format="%(asctime)s - %(levelname)s - %(message)s")
@@ -16,7 +16,7 @@ logger.setLevel(logging.DEBUG)
 
 def main():
     """
-    run MetalCoord and take arguments exactly like the command line for MetalCoord, 
+    run MetalCoord and take arguments exactly like the command line for MetalCoord,
     then parse the output and generate a report json file in stats mode.
     Example usages:
     > python runMetalCoord.py --ligand 0KA --pdb 4DHV.cif --max_size 100
@@ -43,11 +43,11 @@ def main():
     rMC.setInputMode("stats")
     cmd_stdout = rMC.run()  # 1st MetalCoord run based on PDB model
     logger.info(cmd_stdout)
-    fp_metalcoord_json = os.path.join(d_args["workdir"], d_args["ligand"]+".json")
+    fp_metalcoord_json = os.path.join(d_args["workdir"], d_args["ligand"] + ".json")
     if not fp_metalcoord_json:
         logger.error("MetalCoord stats mode failed, STOP without output")
         sys.exit(1)
-        
+
     logger.info("to parse MetalCoord results from %s", fp_metalcoord_json)
     pMC = ParseMetalCoord()
     if pMC.read(fp_metalcoord_json):

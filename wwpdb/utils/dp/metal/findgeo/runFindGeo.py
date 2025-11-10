@@ -3,7 +3,7 @@ import os
 import sys
 
 sys.path.append(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "metal_util"))
-from run_command import run_command, MetalCommandExecutionError
+from run_command import run_command, MetalCommandExecutionError  # noqa: E402
 
 logger = logging.getLogger(__name__)
 
@@ -91,7 +91,7 @@ class RunFindGeo:
             logger.info("using input file: %s", self.d_args['input'])
             self.input = ["--input", self.d_args['input']]
         elif self.d_args['pdb']:
-            if len(self.d_args['pdb']) not in [4,12]:
+            if len(self.d_args['pdb']) not in [4, 12]:
                 logger.error("invalid pdb id: %s", self.d_args['pdb'])
                 return False
             logger.info("using pdb id: %s", self.d_args['pdb'])
@@ -99,7 +99,7 @@ class RunFindGeo:
         else:
             logger.error("must specify either input file or pdb id")
             return False
-        
+
         return True
 
     def run(self):
@@ -109,21 +109,23 @@ class RunFindGeo:
             /usr/local/opt/openjdk/bin/java
             -jar FindGeo.jar
             --input 2HYV.cif
-            --excluded-donors C,H 
-            --format cif 
-            --threshold 2.8 
-            --workdir findgeo 
+            --excluded-donors C,H
+            --format cif
+            --threshold 2.8
+            --workdir findgeo
+            --excluded-metals Mg,Ca
             --overwrite
         example command with pdb id:
             /usr/local/opt/openjdk/bin/java
             -jar FindGeo.jar
             --pdb 2HYV
-            --excluded-donors C,H 
-            --format cif 
-            --threshold 2.8 
-            --workdir findgeo 
+            --excluded-donors C,H
+            --format cif
+            --threshold 2.8
+            --workdir findgeo
+            --excluded-metals Mg,Ca
             --overwrite
-            
+
         :return: stdout from FindGeo if successful, otherwise None
         :rtype: str or None
         """
@@ -137,7 +139,7 @@ class RunFindGeo:
         if self.d_args['overwright']:
             l_command.append('--overwrite')
         if self.d_args['excluded-donors'] != "C,H":
-            l_command.extend(['--excluded-donors', self.d_args["excluded-donors"]])        
+            l_command.extend(['--excluded-donors', self.d_args["excluded-donors"]])
         if self.d_args['excluded-metals'] != "None":
             l_command.extend(['--excluded-metals', self.d_args["excluded-metals"]])
 

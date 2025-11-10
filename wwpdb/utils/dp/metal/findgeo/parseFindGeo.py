@@ -6,7 +6,7 @@ from collections import OrderedDict
 from mmcif.io.IoAdapterCore import IoAdapterCore
 
 sys.path.append(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "metal_util"))
-from readRef import readRefCoordNum, readRefCoordMap, readRefRedOx
+from readRef import readRefCoordNum, readRefCoordMap, readRefRedOx  # noqa: E402
 
 logger = logging.getLogger(__name__)
 
@@ -75,7 +75,7 @@ class ParseFindGeo:
                 d_tophit["coordination_number_allowed"] = "NO"
         else:
             d_tophit["coordination_number_allowed"] = ""
-        
+
         if metal in self.d_redox:
             d_tophit["redox_active"] = self.d_redox.get(metal)
         else:
@@ -94,11 +94,11 @@ class ParseFindGeo:
 
         :param site_name: site folder name, e.g. Cm_201__8907_DA/
         :return: dict with top hit information, None if parsing fails
-        """        
+        """
         subfolder = os.path.join(self.folder, site_name)
         if not os.path.isdir(subfolder):
             return None
-        
+
         logger.info("to process subfolder %s", subfolder)
         l_subfolder = os.listdir(subfolder)
         if ("findgeo.out" not in l_subfolder):
@@ -145,7 +145,7 @@ class ParseFindGeo:
 
         :param filepath: path to findgeo.out file
         :return: dict with top hit information, empty dict if parsing fails
-        """        
+        """
         b_found_coord = False
         best_geo_name = None
         if not os.path.isfile(filepath):
@@ -169,7 +169,7 @@ class ParseFindGeo:
                         d_hit["class"] = l_line[0].split("-")[1].strip().lower()
                         d_hit["tag"] = l_line[1].strip()
                         d_hit["rmsd"] = l_line[2].strip()
-                        logger.info("found coordination geometry %s, %s with tag %s RMSD %s", 
+                        logger.info("found coordination geometry %s, %s with tag %s RMSD %s",
                                     d_hit["class_abbr"], d_hit["class"], d_hit["tag"], d_hit["rmsd"])
                         l_hit.append(d_hit)
                 if line.startswith("Best geometry"):
@@ -204,7 +204,7 @@ class ParseFindGeo:
                 d_tophit["class_abbr"] = ""
                 d_tophit["tag"] = "None"
                 d_tophit["rmsd"] = ""
-                logger.warning("best geometry is undetected in %s, no geometry parameters output", filepath) 
+                logger.warning("best geometry is undetected in %s, no geometry parameters output", filepath)
                 return d_tophit
 
             if best_geo_name == "irregular":
@@ -212,7 +212,7 @@ class ParseFindGeo:
                 d_tophit["class_abbr"] = ""
                 d_tophit["tag"] = "Irregular"
                 d_tophit["rmsd"] = ""
-                logger.warning("best geometry is irregular in %s, no geometry parameters output", filepath) 
+                logger.warning("best geometry is irregular in %s, no geometry parameters output", filepath)
                 return d_tophit
 
             for d_hit in l_hit:
@@ -231,7 +231,7 @@ class ParseFindGeo:
 
         :param filepath: path to findgeo.input file, if the input was in pdb format
         :return: tuple (ccd_id, atom_label, chain, res_num, ins, alt), empty tuple if parsing fails
-        """        
+        """
         logger.info("to process %s", filepath)
         with open(filepath) as file:
             line = file.readline()
@@ -282,7 +282,7 @@ class ParseFindGeo:
                         return (ccd_id, atom_label, chain, res_num, ins, alt)
         logger.error("failed to process %s", filepath)
         return ()
-    
+
     def parseMmcif(self, fp):
         """
         parse mmcif file to extract atom site information
@@ -311,11 +311,11 @@ class ParseFindGeo:
 
     def sort(self):
         """
-        sort self.l_sites by metal, chain, residue, sequence, icode, altloc, 
+        sort self.l_sites by metal, chain, residue, sequence, icode, altloc,
         coordination, class, class_abbr, tag, rmsd
-        """        
-        key_order = ["metal", "metalElement", "chain", "residue",  "sequence", "icode", "altloc",
-                     "coordination", "class", "class_abbr", "class_generic", "tag", "rmsd", 
+        """
+        key_order = ["metal", "metalElement", "chain", "residue", "sequence", "icode", "altloc",
+                     "coordination", "class", "class_abbr", "class_generic", "tag", "rmsd",
                      "coordination_number_allowed", "redox_active", "oxidation_state"]
         l_sorted = []
         for d_row in self.l_sites:
@@ -328,7 +328,7 @@ class ParseFindGeo:
         write self.l_sites to a json file
 
         :param filepath_json: path to output json file
-        """        
+        """
         logger.info("to write report to %s", filepath_json)
         with open(filepath_json, "w") as file:
             json.dump(self.l_sites, file, indent=4)

@@ -134,6 +134,7 @@
 # 05-Sep-2024 zf  Add "-ptm_pcm_output pcm.csv" option to "annot-convert-close-contact-to-link" and "annot-remove-covalent-bond" operators
 #                 Add "annot-check-ccd-definition" operator
 # 19-Jan-2025 zf  Add "annot-get-em-exp-info"
+# 10-Nov-2025 cs  Add op of "metal-findgeo", "metal-metalcoord-stats", "metal-metalcoord-update", calling dp.metal submodules
 ##
 """
 Wrapper class for data processing and chemical component utilities.
@@ -3865,7 +3866,7 @@ class RcsbDpUtility:
             thisCmd = " ; " + cmdPath + " -i " + iPath + " -op " + opAnnot + " -o " + oPath + " -export_format pdbx "
             cmd += thisCmd
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " > " + lPath
-            
+
         elif op == "metal-findgeo":
             # changes to the default FindGeo options must be set before setting self.op("metal-findgeo"), e.g.
             # self.addInput(name="excluded-donors", value="H")  # for checking carbon-metal interaction
@@ -3888,7 +3889,7 @@ class RcsbDpUtility:
             findgeo_args = [
                 f"--java-exe {java_exe}",
                 f"--findgeo-jar {findgeo_jar}",
-                f"--input {input}",        
+                f"--input {input}",
             ]
 
             # add caller-specified FindGeo options if added to self.__inputParamDict by self.addInput()
@@ -3929,7 +3930,7 @@ class RcsbDpUtility:
             # start constructing metalcoord command line arguments
             metalcoord_args = [
                 f"--metalcoord_exe {metalcoord_exe}",
-                f"--pdb {input}",        
+                f"--pdb {input}",
             ]
 
             # add caller-specified metalcoord options if added to self.__inputParamDict by self.addInput()
@@ -3972,7 +3973,7 @@ class RcsbDpUtility:
             # start constructing metalcoord command line arguments
             metalcoord_args = [
                 f"--metalcoord_exe {metalcoord_exe}",
-                f"--input {input}",        
+                f"--input {input}",
             ]
 
             # add caller-specified metalcoord options if added to self.__inputParamDict by self.addInput()
@@ -3984,7 +3985,7 @@ class RcsbDpUtility:
                 if key == "workdir":
                     workdir = value
 
-            # run metalcoord and generate updated ligand cif at <workdir>/servalcat_updated.cif, which will be 
+            # run metalcoord and generate updated ligand cif at <workdir>/servalcat_updated.cif, which will be
             # copied as result file with charge and ideal coordinates; coordination info will be parsed and copied
             # into <workdir>/metalcoord_report.json;
             # use self.expList() to output both files in list of [servalcat_updated.cif, metalcoord_report.json]
@@ -4484,7 +4485,7 @@ class RcsbDpUtility:
                 self.__resultPathList.append(ligand_cif_out)
             else:
                 self.__resultPathList.append("missing")
-            
+
             coordination_json_out = os.path.join(self.__wrkPath, "metalcoord", "metalcoord_report.json")
             if os.access(coordination_json_out, os.F_OK):
                 self.__resultPathList.append(coordination_json_out)

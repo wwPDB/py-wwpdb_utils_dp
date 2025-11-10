@@ -3,10 +3,9 @@ import os
 import sys
 import logging
 from collections import OrderedDict
-from mmcif.io.IoAdapterCore import IoAdapterCore
 
 sys.path.append(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "metal_util"))
-from readRef import readRefCoordNum, readRefCoordMap, readRefRedOx
+from readRef import readRefCoordNum, readRefCoordMap, readRefRedOx  # noqa: E402
 
 logger = logging.getLogger(__name__)
 
@@ -25,7 +24,7 @@ class ParseMetalCoord:
         """load json data from the MetalCoord output json file
         :param fp_metalcoord: MetalCoord output json file
         :return: bool True for successful loading or non-empty data
-        """        
+        """
         try:
             with open(fp_metalcoord, "r") as f:
                 self.data = json.load(f)
@@ -73,10 +72,10 @@ class ParseMetalCoord:
     def filter(self):
         """
         Extract a compact, top-hit summary for each metal site from self.data.
-        """        
+        """
         for d_site in self.data:
             d_site_filtered = {}
-            for key1 in ["metal","metalElement","chain","residue","sequence","icode","altloc"]: 
+            for key1 in ["metal", "metalElement", "chain", "residue", "sequence", "icode", "altloc"]:
                 d_site_filtered[key1] = d_site[key1]
 
             # find the best coordination with lowest procruste value
@@ -89,12 +88,12 @@ class ParseMetalCoord:
                     threshold = score
 
             # once best coordination is found, move class assignment one level up
-            for key2 in ["class","procrustes","coordination","count"]:
+            for key2 in ["class", "procrustes", "coordination", "count"]:
                 d_site_filtered[key2] = d_tophit[key2]
 
             # record only coordination ligands in the new "sphere" record
             d_site_filtered["sphere"] = []
-            for key3 in ["base","pdb"]:
+            for key3 in ["base", "pdb"]:
                 for d_each in d_tophit[key3]:
                     d_site_filtered["sphere"].append(d_each["ligand"])
 
@@ -141,9 +140,9 @@ class ParseMetalCoord:
     def sort(self):
         """
         sort self.l_sites
-        """        
-        key_order = ["metal", "metalElement", "chain", "residue",  "sequence", "icode", "altloc",
-                     "coordination", "class", "class_abbr", "class_generic", "procrustes", "count", 
+        """
+        key_order = ["metal", "metalElement", "chain", "residue", "sequence", "icode", "altloc",
+                     "coordination", "class", "class_abbr", "class_generic", "procrustes", "count",
                      "coordination_number_allowed", "redox_active", "oxidation_state", "sphere"]
         l_sorted = []
         for d_row in self.l_sites:
@@ -156,7 +155,7 @@ class ParseMetalCoord:
         write self.l_sites to a json file
 
         :param filepath_json: path to output json file
-        """        
+        """
         logger.info("to write report to %s", filepath_json)
         with open(filepath_json, "w") as file:
             json.dump(self.l_sites, file, indent=4)

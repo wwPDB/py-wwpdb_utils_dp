@@ -1,5 +1,5 @@
 """
-Unit test For local development test only. 
+Unit test For local development test only.
 Must set $CCP4 env before run, i.e. activate CCP4 setting.
 For OneDep testing, please use the unit test in py-wwpdb_utils_dp/tests/RcsbDpUtilityMetalTests.py
 """
@@ -7,7 +7,6 @@ For OneDep testing, please use the unit test in py-wwpdb_utils_dp/tests/RcsbDpUt
 import os
 import sys
 import unittest
-import os
 import json
 
 DIR = os.path.dirname(os.path.abspath(__file__))
@@ -18,7 +17,20 @@ TEST_TEMP_DIR = os.path.join(TEST_DIR, "test_output")
 sys.path.insert(0, TEST_DIR)
 sys.path.insert(0, "/Users/chenghua/Projects/OneDep/py-wwpdb_utils_dp")
 
+
 class TestRunMetalCoord(unittest.TestCase):
+    """
+    Unit test class for verifying the functionality of the metal coordination statistics processing module.
+    This test class sets up the environment required to run the metal coordination statistics script,
+    including handling CCP4 environment detection and setup. It executes the script with specified
+    ligand and PDB parameters, checks for successful output file creation, and validates that the
+    output JSON report is not empty.
+    Methods:
+        setUp(): Prepares the test environment before each test.
+        tearDown(): Cleans up after each test.
+        test(): Runs the metal coordination statistics process, verifies output file existence and content.
+    """
+
     def setUp(self):
         pass
 
@@ -29,7 +41,7 @@ class TestRunMetalCoord(unittest.TestCase):
         l_command = []
         ccp4_dir = os.getenv("CCP4", None)
         if ccp4_dir:
-            print("Found CCP4 env at %s" % ccp4_dir )
+            print("Found CCP4 env at %s" % ccp4_dir)
         else:
             print("Setup CCP4")
             onedep_package_dir = os.getenv("PACKAGE_DIR", None)

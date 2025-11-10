@@ -6,22 +6,31 @@ import os
 import sys
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-from runAcedrg import RunAcedrg
-from runMetalCoord import RunMetalCoord
-from runServalcat import RunServalcat
-from parseMetalCoord import ParseMetalCoord
+from runAcedrg import RunAcedrg  # noqa: E402
+from runMetalCoord import RunMetalCoord  # noqa: E402
+from runServalcat import RunServalcat  # noqa: E402
+from parseMetalCoord import ParseMetalCoord  # noqa: E402
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(format="%(asctime)s - %(levelname)s - %(message)s")
 logger.setLevel(logging.DEBUG)
 
+
 def callAcedrg(d_args_acedrg):
+    """
+    Call Acedrg with the provided arguments and return the output CIF file path.
+    :param d_args_acedrg: Dictionary of arguments for running Acedrg.
+    :type d_args_acedrg: dict
+    :returns: Path to the generated CIF file if successful, otherwise None.
+    :rtype: str or None
+    """
+
     try:
         rAG = RunAcedrg(d_args_acedrg)
     except Exception as e:
         logger.error(e)
         return None
-    
+
     cmd_stdout = rAG.run()
     logger.info(cmd_stdout)
 
@@ -31,7 +40,29 @@ def callAcedrg(d_args_acedrg):
     else:
         return None
 
+
 def callMetalCoord(d_args_metalcoord):
+    """
+    Run MetalCoord in "update" mode and return output file paths.
+    Initializes a RunMetalCoord instance with the provided argument dictionary,
+    runs MetalCoord in "update" mode, and if the expected CIF output is not
+    produced, retries with a fallback option (clearing the 'pdb' input in the
+    RunMetalCoord arguments). The function then checks for the presence of the
+    files "metalcoord.cif" and "metalcoord.cif.json" in the supplied work directory
+    and returns their paths when both are present.
+    :param d_args_metalcoord: Dictionary of arguments for RunMetalCoord. Must
+        include at least the "workdir" key indicating where output files are
+        written; other keys are passed to RunMetalCoord.
+    :type d_args_metalcoord: dict
+    :returns: A tuple (fp_metalcoord_cif, fp_metalcoord_json) with full paths to
+        the CIF and JSON output files if both exist; (None, None) if the expected
+        files are not both present; or None if initializing RunMetalCoord raises
+        an exception (the exception is logged).
+    :rtype: tuple(str, str) or (None, None) or None
+    :side-effects: Invokes external MetalCoord runs, writes output files to the
+        given workdir, and logs command output and any errors.
+    """
+
     try:
         rMC = RunMetalCoord(d_args_metalcoord)
     except Exception as e:
@@ -54,7 +85,26 @@ def callMetalCoord(d_args_metalcoord):
     else:
         return (None, None)
 
+
 def callServalcat(d_args_servalcat):
+    """
+    Call Servalcat to process and update a CIF file.
+    This function constructs and runs a RunServalcat instance using the provided
+    argument dictionary. It logs the command output and then checks for an output
+    CIF file based on the ``output_prefix`` entry in ``d_args_servalcat``.
+    :param d_args_servalcat: Dictionary of arguments forwarded to RunServalcat.
+        Must include the key ``output_prefix`` whose value is used to form the
+        expected output filename "<output_prefix>_updated.cif".
+    :type d_args_servalcat: dict
+    :returns: Path to the updated CIF file if it exists after running Servalcat,
+        otherwise ``None``.
+    :rtype: str or None
+    :raises: Exceptions raised during RunServalcat construction are logged and
+        suppressed; the function returns ``None`` in that case.
+    :notes: The function logs errors and info via the module logger and does not
+        raise exceptions for run failures.
+    """
+
     try:
         rST = RunServalcat(d_args_servalcat)
     except Exception as e:
@@ -106,7 +156,7 @@ def main():
     (fp_metalcoord_cif, fp_metalcoord_json) = callMetalCoord(d_args_metalcoord)
     if not fp_metalcoord_cif:
         logger.error("MetalCoord update mode failed, STOP without output")
-        sys.exit(1)        
+        sys.exit(1)
 
     # run Servalcat
     d_args_servalcat = {}
@@ -131,6 +181,7 @@ def main():
         logger.info("MetalCoord results written to %s", output_json)
     else:
         logger.error("failed to read MetalCoord results at %s, no output", fp_metalcoord_json)
+
 
 if __name__ == "__main__":
     main()

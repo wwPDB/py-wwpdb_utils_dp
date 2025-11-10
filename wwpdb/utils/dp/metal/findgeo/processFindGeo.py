@@ -6,8 +6,8 @@ import os
 import sys
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-from runFindGeo import RunFindGeo
-from parseFindGeo import ParseFindGeo
+from runFindGeo import RunFindGeo  # noqa: E402
+from parseFindGeo import ParseFindGeo  # noqa: E402
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(format="%(asctime)s - %(levelname)s - %(message)s")
@@ -16,7 +16,7 @@ logger.setLevel(logging.DEBUG)
 
 def main():
     """
-    run FindGeo and take arguments exactly like the command line for findgeo, 
+    run FindGeo and take arguments exactly like the command line for findgeo,
     then parse the output and generate a report json file.
     Example usages:
     > python runFindGeo.py --java-exe /path/to/java --findgeo-jar /path/to/FindGeo.jar --input 2HYV.cif
@@ -45,7 +45,7 @@ def main():
     logger.info("run FindGeo with %s", d_args)
     rFG = RunFindGeo(d_args)
     cmd_stdout = rFG.run()
-    
+
     if cmd_stdout:
         logger.info(cmd_stdout)
         logger.info("run FindGeo finished")
@@ -57,7 +57,7 @@ def main():
         logger.info("FindGeo results written to %s", output_json)
     else:
         logger.error("run FindGeo failed, no output json")
-        
+
 
 if __name__ == "__main__":
     main()

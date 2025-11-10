@@ -3,9 +3,10 @@ import os
 import sys
 
 sys.path.append(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "metal_util"))
-from run_command import run_command, MetalCommandExecutionError
+from run_command import run_command, MetalCommandExecutionError  # noqa: E402
 
 logger = logging.getLogger(__name__)
+
 
 class RunAcedrg:
     """Wrapper to run Acedrg with arguments
@@ -29,7 +30,7 @@ class RunAcedrg:
         example command:
             Acedrg
             --mmcif 1PT.cif
-            --out 1PT_acedrg  # name root of the output files         
+            --out 1PT_acedrg  # name root of the output files
         :return: stdout from MetalCoord if successful, otherwise None
         :rtype: str or None
         """
@@ -63,6 +64,7 @@ def main():
         sys.exit(1)
     cmd_stdout = rAG.run()
     print(cmd_stdout)
+
 
 if __name__ == "__main__":
     main()

@@ -3,9 +3,10 @@ import os
 import sys
 
 sys.path.append(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "metal_util"))
-from run_command import run_command, MetalCommandExecutionError
+from run_command import run_command, MetalCommandExecutionError  # noqa: E402
 
 logger = logging.getLogger(__name__)
+
 
 class RunServalcat:
     """Wrapper to run servalcat with arguments
@@ -29,7 +30,7 @@ class RunServalcat:
         example command:
             servalcat
             --update_dictionary 1PT.cif
-            --output_prefix 1PT_servalcat  # name root of the output files         
+            --output_prefix 1PT_servalcat  # name root of the output files
         :return: stdout from MetalCoord if successful, otherwise None
         :rtype: str or None
         """

@@ -3,7 +3,7 @@ import os
 import sys
 
 sys.path.append(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "metal_util"))
-from run_command import run_command, MetalCommandExecutionError
+from run_command import run_command, MetalCommandExecutionError  # noqa: E402
 
 logger = logging.getLogger(__name__)
 
@@ -47,11 +47,11 @@ class RunMetalCoord:
         """
         run MetalCoord stats mode with arguments in d_args
         example command:
-            MetalCoord stats 
+            MetalCoord stats
             --ligand 1PT
             --pdb 1PG9.cif  # accept both PDB ID and PDB/mmCIF file
             --output metalcoord/1PT.json
-            --max_size 100            
+            --max_size 100
         :return: stdout from MetalCoord if successful, otherwise None
         :rtype: str or None
         """
@@ -86,9 +86,9 @@ class RunMetalCoord:
         update by the most_common option referring to geometry observed in the PDB archive
             MetalCoord update
             --input acedrg/1PT.cif
-            --output metalcoord/1PT.cif   
+            --output metalcoord/1PT.cif
             --cif
-            --cl most_common              
+            --cl most_common
         :return: stdout from MetalCoord if successful, otherwise None
         :rtype: str or None
         """
@@ -113,6 +113,7 @@ class RunMetalCoord:
             logger.error(f"MetalCommandExecutionError: {e}")
             return None
 
+
 def main():
     d_args = {"metalcoord_exe": None,
               "ligand": "0KA",
@@ -129,6 +130,7 @@ def main():
     rMC.setInputMode("stats")
     cmd_stdout = rMC.run()
     print(cmd_stdout)
+
 
 if __name__ == "__main__":
     main()
