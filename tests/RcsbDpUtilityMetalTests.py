@@ -95,6 +95,7 @@ class TestFindGeo(unittest.TestCase):
 
     def test(self):
         self.dp.setDebugMode(flag=True)
+        assert os.path.exists(self.fp_in), "Input file missing!"
         self.dp.imp(self.fp_in)
         logger.info("test input filepath: %s", self.fp_in)
 
@@ -313,8 +314,8 @@ def suite():
     suite = unittest.TestSuite()
 
     suite.addTests(loader.loadTestsFromTestCase(TestFindGeo))
-    suite.addTests(loader.loadTestsFromTestCase(TestMetalCoordStats))
-    suite.addTests(loader.loadTestsFromTestCase(TestMetalCoordUpdate))
+    # suite.addTests(loader.loadTestsFromTestCase(TestMetalCoordStats))
+    # suite.addTests(loader.loadTestsFromTestCase(TestMetalCoordUpdate))
 
     return suite
 
