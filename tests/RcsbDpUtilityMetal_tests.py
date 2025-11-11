@@ -314,8 +314,8 @@ def suite():
     suite = unittest.TestSuite()
 
     suite.addTests(loader.loadTestsFromTestCase(TestFindGeo))
-    # suite.addTests(loader.loadTestsFromTestCase(TestMetalCoordStats))
-    # suite.addTests(loader.loadTestsFromTestCase(TestMetalCoordUpdate))
+    suite.addTests(loader.loadTestsFromTestCase(TestMetalCoordStats))
+    suite.addTests(loader.loadTestsFromTestCase(TestMetalCoordUpdate))
 
     return suite
 

@@ -12,8 +12,8 @@ from runServalcat import RunServalcat  # noqa: E402
 from parseMetalCoord import ParseMetalCoord  # noqa: E402
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(format="%(asctime)s - %(levelname)s - %(message)s")
-logger.setLevel(logging.DEBUG)
+# logging.basicConfig(format="%(asctime)s - %(levelname)s - %(message)s")
+# logger.setLevel(logging.DEBUG)
 
 
 def callAcedrg(d_args_acedrg):

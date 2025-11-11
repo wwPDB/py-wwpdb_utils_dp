@@ -15,7 +15,6 @@ TEST_DATA_DIR = os.path.join(TEST_DIR, "test_data")
 TEST_TEMP_DIR = os.path.join(TEST_DIR, "test_output")
 
 sys.path.insert(0, TEST_DIR)
-sys.path.insert(0, "/Users/chenghua/Projects/OneDep/py-wwpdb_utils_dp")
 
 
 class TestRunMetalCoord(unittest.TestCase):

@@ -3926,6 +3926,8 @@ class RcsbDpUtility:
             cmd += f" ; source {ccp4_setup} "
 
             metalcoord_exe = os.path.join(self.__packagePath, "metallo", "ccp4-9", "bin", "metalCoord")
+            logger.info("To use MetalCoord executable at %s", metalcoord_exe)
+            logger.info("Check MetalCoord executable existence: %s", os.path.exists(metalcoord_exe))
 
             # create a copy of model coordinates input file with .cif extension for MetalCoord to work
             input = iPath.strip() + ".cif"  # must have .cif extension for MetalCoord to work
@@ -3969,6 +3971,8 @@ class RcsbDpUtility:
             cmd += f" ; source {ccp4_setup} "
 
             metalcoord_exe = os.path.join(self.__packagePath, "metallo", "ccp4-9", "bin", "metalCoord")
+            logger.info("To use MetalCoord executable at %s", metalcoord_exe)
+            logger.info("Check MetalCoord executable existence: %s", os.path.exists(metalcoord_exe))
 
             # create a copy of model coordinates input file with .cif extension for MetalCoord to work
             input = iPath.strip() + ".cif"  # must have .cif extension for MetalCoord to work
