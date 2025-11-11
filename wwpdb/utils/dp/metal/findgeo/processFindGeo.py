@@ -6,8 +6,12 @@ import os
 import sys
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-from runFindGeo import RunFindGeo  # noqa: E402
-from parseFindGeo import ParseFindGeo  # noqa: E402
+try:
+    from runFindGeo import RunFindGeo  # noqa: E402
+    from parseFindGeo import ParseFindGeo  # noqa: E402
+except ModuleNotFoundError:
+    from wwpdb.utils.dp.metal.findgeo.runFindGeo import RunFindGeo  # noqa: E402
+    from wwpdb.utils.dp.metal.findgeo.parseFindGeo import ParseFindGeo  # noqa: E402
 
 logger = logging.getLogger(__name__)
 # logging.basicConfig(format="%(asctime)s - %(levelname)s - %(message)s")
