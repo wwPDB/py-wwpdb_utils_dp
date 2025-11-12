@@ -5,7 +5,7 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "metal_util"))
 try:
     from run_command import run_command, MetalCommandExecutionError  # noqa: E402
-except ModuleNotFoundError:
+except ImportError:
     from wwpdb.utils.dp.metal.metal_util.run_command import run_command, MetalCommandExecutionError  # noqa: E402
 
 logger = logging.getLogger(__name__)
@@ -59,7 +59,7 @@ class RunMetalCoord:
         :rtype: str or None
         """
         l_command = [self.d_args["metalcoord_exe"], "stats"]
-        l_command.extend(["--ligand", self.d_args["ligand"]])
+        l_command.extend(["--ligand", self.d_args["ligand"].upper()])  # ensure ligand code is uppercase
         l_command.extend(["--pdb", self.d_args["pdb"]])
         l_command.extend(["--max_size", str(self.d_args["max_size"])])
         l_command.extend(["--threshold", str(self.d_args["threshold"])])

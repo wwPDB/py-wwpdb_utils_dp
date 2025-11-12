@@ -11,7 +11,7 @@ try:
     from runMetalCoord import RunMetalCoord  # noqa: E402
     from runServalcat import RunServalcat  # noqa: E402
     from parseMetalCoord import ParseMetalCoord  # noqa: E402
-except ModuleNotFoundError:
+except ImportError:
     from wwpdb.utils.dp.metal.metalcoord.runAcedrg import RunAcedrg  # noqa: E402
     from wwpdb.utils.dp.metal.metalcoord.runMetalCoord import RunMetalCoord  # noqa: E402
     from wwpdb.utils.dp.metal.metalcoord.runServalcat import RunServalcat  # noqa: E402

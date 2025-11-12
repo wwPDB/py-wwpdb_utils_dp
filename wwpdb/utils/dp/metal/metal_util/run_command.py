@@ -90,9 +90,13 @@ def run_command(cmd, logger=None):
         raise MetalCommandExecutionError(cmd, None, stderr=str(e))
 
 
-if __name__ == "__main__":
-    logger = setup_logger(log_dir="log_test")
-    try:
-        output = run_command(["ls", "/nonexistent"], logger)
-    except MetalCommandExecutionError as e:
-        logger.error(f"MetalCommandExecutionError, Handled error: {e}")
+# def main():
+#     logger = setup_logger(log_dir="log_test")
+#     try:
+#         output = run_command(["ls", "/nonexistent"], logger)
+#     except MetalCommandExecutionError as e:
+#         logger.error(f"MetalCommandExecutionError, Handled error: {e}")
+
+
+# if __name__ == "__main__":
+#     main()

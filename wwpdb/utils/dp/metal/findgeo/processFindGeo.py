@@ -9,7 +9,7 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 try:
     from runFindGeo import RunFindGeo  # noqa: E402
     from parseFindGeo import ParseFindGeo  # noqa: E402
-except ModuleNotFoundError:
+except ImportError:
     from wwpdb.utils.dp.metal.findgeo.runFindGeo import RunFindGeo  # noqa: E402
     from wwpdb.utils.dp.metal.findgeo.parseFindGeo import ParseFindGeo  # noqa: E402
 

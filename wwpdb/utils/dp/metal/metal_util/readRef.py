@@ -81,13 +81,16 @@ def readRefCoordMap(program):
     return d_coord_map
 
 
-if __name__ == "__main__":
-    d_coord_num = readRefCoordNum()
-    print(d_coord_num)
-    d_coord_map_fg = readRefCoordMap("FindGeo")
-    print(d_coord_map_fg)
-    d_coord_map_mc = readRefCoordMap("metalCoord")
-    print(d_coord_map_mc)
-    (d_redox, d_oxi) = readRefRedOx()
-    print(d_redox)
-    print(d_oxi)
+# def main():
+#     d_coord_num = readRefCoordNum()
+#     print(d_coord_num)
+#     d_coord_map_fg = readRefCoordMap("FindGeo")
+#     print(d_coord_map_fg)
+#     d_coord_map_mc = readRefCoordMap("metalCoord")
+#     print(d_coord_map_mc)
+#     (d_redox, d_oxi) = readRefRedOx()
+#     print(d_redox)
+#     print(d_oxi)
+
+# if __name__ == "__main__":
+#     main()

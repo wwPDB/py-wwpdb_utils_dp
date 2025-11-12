@@ -9,7 +9,7 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 try:
     from runMetalCoord import RunMetalCoord  # noqa: E402
     from parseMetalCoord import ParseMetalCoord  # noqa: E402
-except ModuleNotFoundError:
+except ImportError:
     from wwpdb.utils.dp.metal.metalcoord.runMetalCoord import RunMetalCoord  # noqa: E402
     from wwpdb.utils.dp.metal.metalcoord.parseMetalCoord import ParseMetalCoord  # noqa: E402
 
