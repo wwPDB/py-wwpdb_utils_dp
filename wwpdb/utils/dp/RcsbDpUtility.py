@@ -3886,14 +3886,14 @@ class RcsbDpUtility:
             logger.info("Check FindGeo Jar file existence: %s", os.path.exists(findgeo_jar))
 
             # create a copy of input file with .cif extension for FindGeo to work
-            input = iPath.strip() + ".cif"  # must have .cif extension for FindGeo to work
-            cmd += f" ; cp {iPath} {input}"
+            fn_input = iPath.strip() + ".cif"  # must have .cif extension for FindGeo to work
+            cmd += f" ; cp {iPath} {fn_input}"
 
             # start constructing FindGeo command line arguments
             findgeo_args = [
                 f"--java-exe {java_exe}",
                 f"--findgeo-jar {findgeo_jar}",
-                f"--input {input}",
+                f"--input {fn_input}",
             ]
 
             # add caller-specified FindGeo options if added to self.__inputParamDict by self.addInput()
@@ -3930,13 +3930,13 @@ class RcsbDpUtility:
             logger.info("Check MetalCoord executable existence: %s", os.path.exists(metalcoord_exe))
 
             # create a copy of model coordinates input file with .cif extension for MetalCoord to work
-            input = iPath.strip() + ".cif"  # must have .cif extension for MetalCoord to work
-            cmd += f" ; cp {iPath} {input}"
+            fn_input = iPath.strip() + ".cif"  # must have .cif extension for MetalCoord to work
+            cmd += f" ; cp {iPath} {fn_input}"
 
             # start constructing metalcoord command line arguments
             metalcoord_args = [
                 f"--metalcoord_exe {metalcoord_exe}",
-                f"--pdb {input}",
+                f"--pdb {fn_input}",
             ]
 
             # add caller-specified metalcoord options if added to self.__inputParamDict by self.addInput()
@@ -3975,13 +3975,13 @@ class RcsbDpUtility:
             logger.info("Check MetalCoord executable existence: %s", os.path.exists(metalcoord_exe))
 
             # create a copy of model coordinates input file with .cif extension for MetalCoord to work
-            input = iPath.strip() + ".cif"  # must have .cif extension for MetalCoord to work
-            cmd += f" ; cp {iPath} {input}"
+            fn_input = iPath.strip() + ".cif"  # must have .cif extension for MetalCoord to work
+            cmd += f" ; cp {iPath} {fn_input}"
 
             # start constructing metalcoord command line arguments
             metalcoord_args = [
                 f"--metalcoord_exe {metalcoord_exe}",
-                f"--input {input}",
+                f"--input {fn_input}",
             ]
 
             # add caller-specified metalcoord options if added to self.__inputParamDict by self.addInput()

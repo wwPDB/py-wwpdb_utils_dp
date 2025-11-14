@@ -4,9 +4,9 @@ import sys
 
 sys.path.append(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "metal_util"))
 try:
-    from run_command import run_command, MetalCommandExecutionError  # noqa: E402
-except ImportError:
     from wwpdb.utils.dp.metal.metal_util.run_command import run_command, MetalCommandExecutionError  # noqa: E402
+except ImportError:
+    from run_command import run_command, MetalCommandExecutionError  # noqa: E402
 
 logger = logging.getLogger(__name__)
 
@@ -26,6 +26,7 @@ class RunMetalCoord:
     """
     def __init__(self, d_args):
         self.d_args = d_args
+        self.mode = None
         if not self.d_args["metalcoord_exe"]:
             logger.info("%s is called without explicit Acedrg executable, to find in CCP4", self.__class__.__name__)
             ccp4_dir = os.getenv("CCP4", default=None)
@@ -38,7 +39,7 @@ class RunMetalCoord:
             logger.info("use MetalCoord executable at %s", metalcoord_exe)
 
     def setInputMode(self, mode):
-        self.mode = mode
+        self.mode = mode  # stats or update
 
     def run(self):
         if self.mode == "stats":

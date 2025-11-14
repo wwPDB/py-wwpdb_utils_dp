@@ -4,9 +4,9 @@ import sys
 
 sys.path.append(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "metal_util"))
 try:
-    from run_command import run_command, MetalCommandExecutionError  # noqa: E402
-except ImportError:
     from wwpdb.utils.dp.metal.metal_util.run_command import run_command, MetalCommandExecutionError  # noqa: E402
+except ImportError:
+    from run_command import run_command, MetalCommandExecutionError  # noqa: E402
 
 logger = logging.getLogger(__name__)
 

@@ -75,7 +75,7 @@ def run_command(cmd, logger=None):
 
     except FileNotFoundError as e:
         logger.error(f"❌ Binary not found: {e}")
-        raise MetalCommandExecutionError(cmd, None, stderr=str(e))
+        raise MetalCommandExecutionError(cmd, None, stderr=str(e)) from e
 
     except subprocess.CalledProcessError as e:
         logger.error(f"❌ Command failed (exit code {e.returncode})")
@@ -83,11 +83,11 @@ def run_command(cmd, logger=None):
             logger.debug(f"STDOUT:\n{e.stdout.strip()}")
         if e.stderr:
             logger.error(f"STDERR:\n{e.stderr.strip()}")
-        raise MetalCommandExecutionError(e.cmd, e.returncode, e.stderr, e.stdout)
+        raise MetalCommandExecutionError(e.cmd, e.returncode, e.stderr, e.stdout) from e
 
     except Exception as e:
         logger.exception("❌ Unexpected error during command execution")
-        raise MetalCommandExecutionError(cmd, None, stderr=str(e))
+        raise MetalCommandExecutionError(cmd, None, stderr=str(e)) from e
 
 
 # def main():

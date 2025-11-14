@@ -13,6 +13,7 @@ These cases can serve as examples of how to use the RcsbDpUtility class to run t
 Comments with self.dp.addInput are deliberately left in the code for users to see how to set optional parameters.
 """
 
+# pylint: disable=unused-import
 import logging
 import json
 import os
@@ -311,13 +312,13 @@ class TestMetalCoordUpdate(unittest.TestCase):
 
 def suite():
     loader = unittest.TestLoader()
-    suite = unittest.TestSuite()
+    test_suite = unittest.TestSuite()
 
-    suite.addTests(loader.loadTestsFromTestCase(TestFindGeo))
-    suite.addTests(loader.loadTestsFromTestCase(TestMetalCoordStats))
-    suite.addTests(loader.loadTestsFromTestCase(TestMetalCoordUpdate))
+    test_suite.addTests(loader.loadTestsFromTestCase(TestFindGeo))
+    test_suite.addTests(loader.loadTestsFromTestCase(TestMetalCoordStats))
+    test_suite.addTests(loader.loadTestsFromTestCase(TestMetalCoordUpdate))
 
-    return suite
+    return test_suite
 
 
 if __name__ == "__main__":

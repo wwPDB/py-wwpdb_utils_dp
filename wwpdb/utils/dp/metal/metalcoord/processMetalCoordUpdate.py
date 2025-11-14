@@ -7,15 +7,15 @@ import sys
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 try:
-    from runAcedrg import RunAcedrg  # noqa: E402
-    from runMetalCoord import RunMetalCoord  # noqa: E402
-    from runServalcat import RunServalcat  # noqa: E402
-    from parseMetalCoord import ParseMetalCoord  # noqa: E402
-except ImportError:
     from wwpdb.utils.dp.metal.metalcoord.runAcedrg import RunAcedrg  # noqa: E402
     from wwpdb.utils.dp.metal.metalcoord.runMetalCoord import RunMetalCoord  # noqa: E402
     from wwpdb.utils.dp.metal.metalcoord.runServalcat import RunServalcat  # noqa: E402
     from wwpdb.utils.dp.metal.metalcoord.parseMetalCoord import ParseMetalCoord  # noqa: E402
+except ImportError:
+    from runAcedrg import RunAcedrg  # noqa: E402
+    from runMetalCoord import RunMetalCoord  # noqa: E402
+    from runServalcat import RunServalcat  # noqa: E402
+    from parseMetalCoord import ParseMetalCoord  # noqa: E402
 
 logger = logging.getLogger(__name__)
 # logging.basicConfig(format="%(asctime)s - %(levelname)s - %(message)s")
