@@ -10,8 +10,8 @@ try:
     from wwpdb.utils.dp.metal.findgeo.runFindGeo import RunFindGeo  # noqa: E402
     from wwpdb.utils.dp.metal.findgeo.parseFindGeo import ParseFindGeo  # noqa: E402
 except ImportError:
-    from runFindGeo import RunFindGeo  # noqa: E402
-    from parseFindGeo import ParseFindGeo  # noqa: E402
+    from runFindGeo import RunFindGeo  # noqa: E402  # type: ignore
+    from parseFindGeo import ParseFindGeo  # noqa: E402  # type: ignore
 
 logger = logging.getLogger(__name__)
 # logging.basicConfig(format="%(asctime)s - %(levelname)s - %(message)s")

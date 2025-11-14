@@ -9,7 +9,7 @@ sys.path.append(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__f
 try:
     from wwpdb.utils.dp.metal.metal_util.readRef import readRefCoordNum, readRefCoordMap, readRefRedOx  # noqa: E402
 except ImportError:
-    from readRef import readRefCoordNum, readRefCoordMap, readRefRedOx  # noqa: E402
+    from readRef import readRefCoordNum, readRefCoordMap, readRefRedOx  # noqa: E402  # type: ignore
 
 logger = logging.getLogger(__name__)
 
@@ -125,7 +125,7 @@ class ParseFindGeo:
             logger.error("unsupported input format: %s", self.input_format)
             t_atom = ()
 
-        if not t_atom:
+        if not t_atom or len(t_atom) != 6:
             return None
         else:
             (ccd_id, atom_label, chain, res_num, ins, alt) = t_atom

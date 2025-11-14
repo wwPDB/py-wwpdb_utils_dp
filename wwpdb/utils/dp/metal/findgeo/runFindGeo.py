@@ -6,7 +6,7 @@ sys.path.append(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__f
 try:
     from wwpdb.utils.dp.metal.metal_util.run_command import run_command, MetalCommandExecutionError  # noqa: E402
 except ImportError:
-    from run_command import run_command, MetalCommandExecutionError  # noqa: E402
+    from run_command import run_command, MetalCommandExecutionError  # noqa: E402  # type: ignore
 
 logger = logging.getLogger(__name__)
 
