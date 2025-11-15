@@ -129,7 +129,7 @@ class ParseFindGeo:
         if not t_atom or len(t_atom) != 6:
             return None
         else:
-            (ccd_id, atom_label, chain, res_num, ins, alt) = t_atom # pylint: disable=unbalanced-tuple-unpacking
+            (ccd_id, atom_label, chain, res_num, ins, alt) = t_atom  # pylint: disable=unbalanced-tuple-unpacking
 
         element = site_name.split("_")[0]
         d_tophit["metal"] = atom_label
