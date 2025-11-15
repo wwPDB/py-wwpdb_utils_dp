@@ -4,12 +4,13 @@ import sys
 import logging
 from collections import OrderedDict
 from mmcif.io.IoAdapterCore import IoAdapterCore
+from typing import TYPE_CHECKING
 
-sys.path.append(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "metal_util"))
-try:
-    from wwpdb.utils.dp.metal.metal_util.readRef import readRefCoordNum, readRefCoordMap, readRefRedOx  # noqa: E402
-except ImportError:
-    from readRef import readRefCoordNum, readRefCoordMap, readRefRedOx  # noqa: E402  # type: ignore
+if TYPE_CHECKING:
+    from wwpdb.utils.dp.metal.metal_util.readRef import readRefCoordNum, readRefCoordMap, readRefRedOx
+else:
+    sys.path.append(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "metal_util"))
+    from readRef import readRefCoordNum, readRefCoordMap, readRefRedOx  # noqa: E402
 
 logger = logging.getLogger(__name__)
 
@@ -128,7 +129,7 @@ class ParseFindGeo:
         if not t_atom or len(t_atom) != 6:
             return None
         else:
-            (ccd_id, atom_label, chain, res_num, ins, alt) = t_atom
+            (ccd_id, atom_label, chain, res_num, ins, alt) = t_atom # pylint: disable=unbalanced-tuple-unpacking
 
         element = site_name.split("_")[0]
         d_tophit["metal"] = atom_label

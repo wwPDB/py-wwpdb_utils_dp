@@ -1,12 +1,13 @@
 import logging
 import os
 import sys
+from typing import TYPE_CHECKING
 
-sys.path.append(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "metal_util"))
-try:
+if TYPE_CHECKING:
     from wwpdb.utils.dp.metal.metal_util.run_command import run_command, MetalCommandExecutionError  # noqa: E402
-except ImportError:
-    from run_command import run_command, MetalCommandExecutionError  # noqa: E402  # type: ignore
+else:
+    sys.path.append(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "metal_util"))
+    from run_command import run_command, MetalCommandExecutionError  # noqa: E402
 
 logger = logging.getLogger(__name__)
 

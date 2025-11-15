@@ -4,14 +4,15 @@ import argparse
 import logging
 import os
 import sys
+from typing import TYPE_CHECKING
 
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-try:
+if TYPE_CHECKING:
     from wwpdb.utils.dp.metal.findgeo.runFindGeo import RunFindGeo  # noqa: E402
     from wwpdb.utils.dp.metal.findgeo.parseFindGeo import ParseFindGeo  # noqa: E402
-except ImportError:
-    from runFindGeo import RunFindGeo  # noqa: E402  # type: ignore
-    from parseFindGeo import ParseFindGeo  # noqa: E402  # type: ignore
+else:
+    sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+    from runFindGeo import RunFindGeo  # noqa: E402
+    from parseFindGeo import ParseFindGeo  # noqa: E402
 
 logger = logging.getLogger(__name__)
 # logging.basicConfig(format="%(asctime)s - %(levelname)s - %(message)s")
