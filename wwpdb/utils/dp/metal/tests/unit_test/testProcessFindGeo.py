@@ -13,6 +13,7 @@ DIR = os.path.dirname(os.path.abspath(__file__))
 TEST_DIR = os.path.dirname(DIR)
 TEST_DATA_DIR = os.path.join(TEST_DIR, "test_data")
 TEST_TEMP_DIR = os.path.join(TEST_DIR, "test_output")
+METAL_DIR = os.path.dirname(TEST_DIR)
 
 sys.path.insert(0, TEST_DIR)
 
@@ -47,7 +48,7 @@ class TestRunFindGeo(unittest.TestCase):
             print("Test in local development environment")
             java_exe = "/usr/local/opt/openjdk/bin/java"
             findgeo_jar = "/Users/chenghua/Projects/RunFindGeo/py-run_findgeo/packages/FindGeo/FindGeo-1.1.jar"
-        l_command = [sys.executable, "-m", "wwpdb.utils.dp.metal.findgeo.processFindGeo"]
+        l_command = [sys.executable, os.path.join(METAL_DIR, "findgeo", "processFindGeo.py")]
         l_command.extend(["--java-exe", java_exe])
         l_command.extend(["--findgeo-jar", findgeo_jar])
         l_command.extend(["--pdb", "4DHV"])

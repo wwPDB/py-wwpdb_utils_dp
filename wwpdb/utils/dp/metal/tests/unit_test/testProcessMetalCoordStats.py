@@ -13,6 +13,7 @@ DIR = os.path.dirname(os.path.abspath(__file__))
 TEST_DIR = os.path.dirname(DIR)
 TEST_DATA_DIR = os.path.join(TEST_DIR, "test_data")
 TEST_TEMP_DIR = os.path.join(TEST_DIR, "test_output")
+METAL_DIR = os.path.dirname(TEST_DIR)
 
 sys.path.insert(0, TEST_DIR)
 
@@ -51,7 +52,7 @@ class TestRunMetalCoord(unittest.TestCase):
                 print("Test in local development")
                 ccp4_dir = "/Applications/ccp4-9"
             l_command.append(f"source {ccp4_dir}/bin/ccp4.setup-sh;")
-        l_command.extend([sys.executable, "-m", "wwpdb.utils.dp.metal.metalcoord.processMetalCoordStats"])
+        l_command.extend([sys.executable, os.path.join(METAL_DIR, "metalcoord", "processMetalCoordStats.py")])
         l_command.extend(["--ligand", "0KA"])
         l_command.extend(["--pdb", "4DHV"])
         command = " ".join(l_command)
