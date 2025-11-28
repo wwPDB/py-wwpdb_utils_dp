@@ -92,14 +92,12 @@ class ParseMetalCoord:
                     threshold = score
 
             # once best coordination is found, move class assignment one level up
-            for key2 in ["class", "procrustes", "coordination", "count"]:
+            for key2 in ["class", "descriptor", "procrustes", "coordination", "count"]:
                 d_site_filtered[key2] = d_tophit[key2]
+            d_site_filtered["class_abbr"] = d_tophit["class_abr"]
 
             # record only coordination ligands in the new "sphere" record
-            d_site_filtered["sphere"] = []
-            for key3 in ["base", "pdb"]:
-                for d_each in d_tophit[key3]:
-                    d_site_filtered["sphere"].append(d_each["ligand"])
+            d_site_filtered["sphere"] = d_tophit["order"]
 
             self.l_sites.append(d_site_filtered)
 
@@ -146,7 +144,7 @@ class ParseMetalCoord:
         sort self.l_sites
         """
         key_order = ["metal", "metalElement", "chain", "residue", "sequence", "icode", "altloc",
-                     "coordination", "class", "class_abbr", "class_generic", "procrustes", "count",
+                     "coordination", "class", "class_abbr", "class_generic", "descriptor", "procrustes", "count",
                      "coordination_number_allowed", "redox_active", "oxidation_state", "sphere"]
         l_sorted = []
         for d_row in self.l_sites:

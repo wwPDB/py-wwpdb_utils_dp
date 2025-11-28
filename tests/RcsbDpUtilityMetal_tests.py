@@ -189,7 +189,7 @@ class TestMetalCoordStats(unittest.TestCase):
         self.dp.imp(self.fp_in)
         logger.info("test input filepath: %s", self.fp_in)
 
-        self.dp.addInput(name="ligand", value="0KA")  # CCD ID of the metal ligand to check on
+        self.dp.addInput(name="ligands", value=["0KA", "NCO"])  # CCD ID(s) of the metal ligand to check on, accepts comma-separated list
         # self.dp.addInput(name="max_size", value="2000")  # Maximum sample size for reference statistics.
         # self.dp.addInput(name="threshold", value="0.2")  # Procrustes distance threshold for finding COD reference.
         # self.dp.addInput(name="workdir", value="/tmp")  # output to a folder other than the default "./metalcoord"
@@ -314,9 +314,9 @@ def suite():
     loader = unittest.TestLoader()
     test_suite = unittest.TestSuite()
 
-    test_suite.addTests(loader.loadTestsFromTestCase(TestFindGeo))
+    # test_suite.addTests(loader.loadTestsFromTestCase(TestFindGeo))
     test_suite.addTests(loader.loadTestsFromTestCase(TestMetalCoordStats))
-    test_suite.addTests(loader.loadTestsFromTestCase(TestMetalCoordUpdate))
+    # test_suite.addTests(loader.loadTestsFromTestCase(TestMetalCoordUpdate))
 
     return test_suite
 

@@ -3912,7 +3912,7 @@ class RcsbDpUtility:
 
         elif op == "metal-metalcoord-stats":
             # changes to the default metalcoord options must be set before setting self.op("metal-metalcoord-stats"), e.g.
-            # self.addInput(name="ligand", value="0KA")  # CCD ID of the metal ligand to check on
+            # self.addInput(name="ligands", value=["0KA", "NCO"])  # list or string of CCD ID(s) of the metal ligand to check on, accepts comma-separated string or list of strings
             # self.addInput(name="max_size", value="2000")  # Maximum sample size for reference statistics.
             # self.addInput(name="threshold", value="0.2")  # Procrustes distance threshold for finding COD reference.
             # self.addInput(name="workdir", value="/tmp")  # output to a folder other than the default "./metalcoord"
@@ -3921,13 +3921,20 @@ class RcsbDpUtility:
 
             # self.setTimeout(1800)  # set timeout to 30 minutes for metalcoord processing if needed
 
-            # retrieve java binary and metalcoord jar file from package path
-            ccp4_setup = os.path.join(self.__packagePath, "metallo", "ccp4-9", "bin", "ccp4.setup-sh")
-            cmd += f" ; source {ccp4_setup} "
-
-            metalcoord_exe = os.path.join(self.__packagePath, "metallo", "ccp4-9", "bin", "metalCoord")
+            # retrieve metalcoord executable from package path, first check standalone, then CCP4 package
+            metalcoord_exe_standalone = os.path.join(self.__packagePath, "metallo", "metalcoord", "bin", "metalCoord")
+            if os.path.exists(metalcoord_exe_standalone):
+                metalcoord_exe = metalcoord_exe_standalone
+            else:
+                ccp4_setup = os.path.join(self.__packagePath, "metallo", "ccp4-9", "bin", "ccp4.setup-sh")
+                cmd += f" ; source {ccp4_setup} "
+                metalcoord_exe_ccp4 = os.path.join(self.__packagePath, "metallo", "ccp4-9", "bin", "metalCoord")
+                if os.path.exists(metalcoord_exe_ccp4):
+                    metalcoord_exe = metalcoord_exe_ccp4
+                else:
+                    logger.error("MetalCoord executable not found in either standalone or CCP4 package paths.")
+                    metalcoord_exe = "metalCoord"  # fallback to just "metalCoord" in case it's in PATH
             logger.info("To use MetalCoord executable at %s", metalcoord_exe)
-            logger.info("Check MetalCoord executable existence: %s", os.path.exists(metalcoord_exe))
 
             # create a copy of model coordinates input file with .cif extension for MetalCoord to work
             fn_input = iPath.strip() + ".cif"  # must have .cif extension for MetalCoord to work
@@ -3943,7 +3950,12 @@ class RcsbDpUtility:
             logger.info("metalcoord caller-set options: %s", self.__inputParamDict)
             workdir = "metalcoord"  # default metalcoord output subfolder within the session folder
             for key, value in self.__inputParamDict.items():
-                if key in ["ligand", "max_size", "threshold", "workdir", "pdb", "metalcoord_exe"]:
+                if key == "ligands":
+                    if isinstance(value, list):
+                        metalcoord_args.append(f"--ligands ','.join(value)")
+                    else:
+                        metalcoord_args.append(f"--ligands {value}")
+                if key in ["max_size", "threshold", "workdir", "pdb", "metalcoord_exe"]:
                     metalcoord_args.append(f"--{key} {value}")
                 if key == "workdir":
                     workdir = value
@@ -3966,13 +3978,22 @@ class RcsbDpUtility:
 
             # self.setTimeout(1800)  # set timeout to 30 minutes for metalcoord processing if needed
 
-            # retrieve java binary and metalcoord jar file from package path
+            # setup CCP4 environment first because Acedrg and Servalcat are CCP4 programs and will run for update mode
             ccp4_setup = os.path.join(self.__packagePath, "metallo", "ccp4-9", "bin", "ccp4.setup-sh")
             cmd += f" ; source {ccp4_setup} "
 
-            metalcoord_exe = os.path.join(self.__packagePath, "metallo", "ccp4-9", "bin", "metalCoord")
+            # retrieve metalcoord executable from package path, first check standalone, then CCP4 package
+            metalcoord_exe_standalone = os.path.join(self.__packagePath, "metallo", "metalcoord", "bin", "metalCoord")
+            if os.path.exists(metalcoord_exe_standalone):
+                metalcoord_exe = metalcoord_exe_standalone
+            else:
+                metalcoord_exe_ccp4 = os.path.join(self.__packagePath, "metallo", "ccp4-9", "bin", "metalCoord")
+                if os.path.exists(metalcoord_exe_ccp4):
+                    metalcoord_exe = metalcoord_exe_ccp4
+                else:
+                    logger.error("MetalCoord executable not found in either standalone or CCP4 package paths.")
+                    metalcoord_exe = "metalCoord"  # fallback to just "metalCoord" in case it's in PATH
             logger.info("To use MetalCoord executable at %s", metalcoord_exe)
-            logger.info("Check MetalCoord executable existence: %s", os.path.exists(metalcoord_exe))
 
             # create a copy of model coordinates input file with .cif extension for MetalCoord to work
             fn_input = iPath.strip() + ".cif"  # must have .cif extension for MetalCoord to work

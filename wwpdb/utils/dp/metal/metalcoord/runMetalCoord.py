@@ -29,7 +29,7 @@ class RunMetalCoord:
         self.d_args = d_args
         self.mode = None
         if not self.d_args["metalcoord_exe"]:
-            logger.info("%s is called without explicit Acedrg executable, to find in CCP4", self.__class__.__name__)
+            logger.info("%s is called without explicit MetalCoord executable, to find in CCP4", self.__class__.__name__)
             ccp4_dir = os.getenv("CCP4", default=None)
             if not ccp4_dir:
                 raise KeyError("Environment variable 'CCP4' not found")

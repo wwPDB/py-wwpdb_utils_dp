@@ -37,7 +37,7 @@ class TestRunMetalCoord(unittest.TestCase):
     """
 
     def setUp(self):
-        pass
+        self.b_standalone_metalcoord = True
 
     def tearDown(self):
         pass
@@ -60,6 +60,9 @@ class TestRunMetalCoord(unittest.TestCase):
         l_command.extend([sys.executable, os.path.join(METAL_DIR, "metalcoord", "processMetalCoordUpdate.py")])
         l_command.extend(["--input", os.path.join(TEST_DATA_DIR, "0KA.cif")])
         l_command.extend(["--pdb", os.path.join(TEST_DATA_DIR, "4DHV-internal.cif")])
+        if self.b_standalone_metalcoord:
+            metalcoord_exe = "/Users/chenghua/Projects/RunMetalCoord/py-run_metalCoord/venv/bin/metalCoord"
+            l_command.extend(["--metalcoord_exe", metalcoord_exe])
         command = " ".join(l_command)
         print(command)
 
