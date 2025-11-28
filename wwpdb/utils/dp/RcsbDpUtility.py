@@ -3952,7 +3952,8 @@ class RcsbDpUtility:
             for key, value in self.__inputParamDict.items():
                 if key == "ligands":
                     if isinstance(value, list):
-                        metalcoord_args.append(f"--ligands ','.join(value)")
+                        s_value = ','.join(value)
+                        metalcoord_args.append(f"--ligands {s_value}")
                     else:
                         metalcoord_args.append(f"--ligands {value}")
                 if key in ["max_size", "threshold", "workdir", "pdb", "metalcoord_exe"]:
