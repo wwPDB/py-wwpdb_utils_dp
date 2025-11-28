@@ -314,9 +314,9 @@ def suite():
     loader = unittest.TestLoader()
     test_suite = unittest.TestSuite()
 
-    # test_suite.addTests(loader.loadTestsFromTestCase(TestFindGeo))
+    test_suite.addTests(loader.loadTestsFromTestCase(TestFindGeo))
     test_suite.addTests(loader.loadTestsFromTestCase(TestMetalCoordStats))
-    # test_suite.addTests(loader.loadTestsFromTestCase(TestMetalCoordUpdate))
+    test_suite.addTests(loader.loadTestsFromTestCase(TestMetalCoordUpdate))
 
     return test_suite
 

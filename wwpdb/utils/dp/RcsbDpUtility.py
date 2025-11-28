@@ -3900,7 +3900,7 @@ class RcsbDpUtility:
             logger.info("findgeo caller-set options: %s", self.__inputParamDict)
             workdir = "findgeo"  # default FindGeo output subfolder within the session folder
             for key, value in self.__inputParamDict.items():
-                if key in ["excluded-donors", "metal", "excluded-metals", "threshold", "workdir"]:
+                if key in ["excluded-donors", "metal", "excluded-metals", "threshold", "workdir", "pdb"]:
                     findgeo_args.append(f"--{key} {value}")
                 if key == "workdir":
                     workdir = value
