@@ -6,7 +6,6 @@ import sys
 import gemmi
 from mmcif.api.DataCategory import DataCategory
 from mmcif.io.IoAdapterCore import IoAdapterCore
-
 from wwpdb.io.locator.PathInfo import PathInfo
 from wwpdb.utils.config.ConfigInfo import getSiteId
 
@@ -18,7 +17,7 @@ def get_model_file(depid, version_id, mileStone=None, siteId=None):
         siteId = getSiteId()
     pi = PathInfo(siteId, sessionPath=".", verbose=True, log=sys.stderr)
     mmcif = pi.getModelPdbxFilePath(dataSetId=depid, fileSource="archive", versionId=version_id, mileStone=mileStone)
-    logging.debug("mmcif file path: %s", mmcif)
+    logging.debug("mmcif file path: %s", mmcif)  # noqa: LOG015
     return mmcif
 
 
@@ -29,7 +28,7 @@ def get_center_of_mass(data_block):
         center_of_mass = model.calculate_center_of_mass()
         return center_of_mass
     except Exception as e:  # noqa: BLE001
-        logging.error(e)
+        logging.error(e)  # noqa: LOG015
         return False
 
 
@@ -50,7 +49,7 @@ def process_entry(file_in, file_out):
         logger.error(e)
         return 1
 
-    logging.info("Finding Centre of Mass")
+    logging.info("Finding Centre of Mass")  # noqa: LOG015
     com = get_center_of_mass(data_block)
     if not com:
         return 1
@@ -90,7 +89,7 @@ def process_entry(file_in, file_out):
         obj.setValue(str(val), it, 0)
 
     try:
-        logging.info("Writing mmcif file: %s", file_out)
+        logging.info("Writing mmcif file: %s", file_out)  # noqa: LOG015
         ret = io.writeFile(file_out, ccL)
         if not ret:
             logger.info("Writing failed error %s", ret)
@@ -118,11 +117,11 @@ def process_entry(file_in, file_out):
 
 
 def calculate_for_list(args, siteId=None):
-    logging.info("Calculating for list of entries")
+    logging.info("Calculating for list of entries")  # noqa: LOG015
     deposition_ids = get_deposition_ids(args.list)
     failed_dep_ids = []
     for depid in deposition_ids:
-        logging.info("Calculating for Dep ID: %s ", depid)
+        logging.info("Calculating for Dep ID: %s ", depid)  # noqa: LOG015
         latest_model = get_model_file(depid, "latest", siteId=siteId)
         next_model = get_model_file(depid, "next", siteId=siteId)
         result = process_entry(latest_model, next_model)
@@ -133,7 +132,7 @@ def calculate_for_list(args, siteId=None):
 
 
 def calculate_for_file(args):
-    logging.info("Calculating for a single file")
+    logging.info("Calculating for a single file")  # noqa: LOG015
     result = process_entry(args.model_file_in, args.model_file_out)
     if result:
         logger.info("Failed to Calculate Centre of Mass")

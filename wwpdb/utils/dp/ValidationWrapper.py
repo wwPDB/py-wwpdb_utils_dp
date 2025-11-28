@@ -19,8 +19,8 @@ import os
 import sys
 
 from mmcif.io.IoAdapterCore import IoAdapterCore
-
 from wwpdb.io.file.DataFile import DataFile
+
 from wwpdb.utils.dp.PdbxSFMapCoefficients import PdbxSFMapCoefficients
 from wwpdb.utils.dp.RcsbDpUtility import RcsbDpUtility
 
