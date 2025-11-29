@@ -1,12 +1,7 @@
-##
-#
-# File:    RcsbDpUtilityMetal_tests.py
-# Author:  C. Shao
-# Date:    Nov 10,2025
-# Version: 0.001
-#
-# Update:
-##
+# Author:  Chenghua Shao
+# Date:    2025-11-10
+# Updates:
+
 """
 Test cases for running FindGeo and MetalCoord programs on metallic ligands and entries with such ligands.
 These cases can serve as examples of how to use the RcsbDpUtility class to run these metal-related analyses.

@@ -1,3 +1,11 @@
+# Author:  Chenghua Shao
+# Date:    2025-11-10
+# Updates:
+
+"""
+Wrapper to run FindGeo with arguments similar to command line
+"""
+
 import logging
 import os
 import sys

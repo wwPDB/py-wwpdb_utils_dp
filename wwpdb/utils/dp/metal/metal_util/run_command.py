@@ -1,3 +1,14 @@
+# Author:  Chenghua Shao
+# Date:    2025-11-10
+# Updates:
+
+"""
+Utility functions to run metal commands with logging and error handling.
+This module provides a function to execute shell commands, log their output in a separate log file 
+from the main application log, and handle errors by raising custom exceptions.
+The command-specific log can be used for debugging the 3rd party metal tools such as MetalCoord and FindGeo.
+"""
+
 import subprocess
 import logging
 from datetime import datetime

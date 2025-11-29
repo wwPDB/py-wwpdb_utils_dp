@@ -1,4 +1,11 @@
-#!/usr/bin/env python3
+# Author:  Chenghua Shao
+# Date:    2025-11-10
+# Updates:
+
+"""
+This script runs MetalCoord in stats mode for specified ligands and PDB files,
+parses the output, and generates a report JSON file.
+"""
 
 import argparse
 import logging

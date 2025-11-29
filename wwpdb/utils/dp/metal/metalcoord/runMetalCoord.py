@@ -1,3 +1,12 @@
+# Author:  Chenghua Shao
+# Date:    2025-11-10
+# Updates:
+
+"""
+Wrapper to run MetalCoord with arguments similar to command line
+Two modes are supported: stats and update
+"""
+
 import logging
 import os
 import sys

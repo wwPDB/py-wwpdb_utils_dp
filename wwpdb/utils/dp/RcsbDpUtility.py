@@ -3899,9 +3899,9 @@ class RcsbDpUtility:
             workdir = "findgeo"  # default FindGeo output subfolder within the session folder
             for key, value in self.__inputParamDict.items():
                 if key in ["excluded-donors", "metal", "excluded-metals", "threshold", "workdir", "pdb", "java-exe", "findgeo-jar", "input"]:
-                    d_findgeo_args[key] = value # add or override defaults with caller-specified options
+                    d_findgeo_args[key] = value  # add or override defaults with caller-specified options
                 if key == "workdir":
-                    workdir = value # update workdir if specified by caller
+                    workdir = value  # update workdir if specified by caller
 
             l_findgeo_args = []
             for key_new, value_new in d_findgeo_args.items():
@@ -3953,16 +3953,16 @@ class RcsbDpUtility:
             logger.info("metalcoord caller-set options: %s", self.__inputParamDict)
             workdir = "metalcoord"  # default metalcoord output subfolder within the session folder
             for key, value in self.__inputParamDict.items():
-                if key == "ligands": # list or string of CCD ID(s) of the metal ligand to check on
+                if key == "ligands":  # list or string of CCD ID(s) of the metal ligand to check on
                     if isinstance(value, list):
                         s_value = ','.join(value)
                         d_metalcoord_args["ligands"] = s_value
                     else:
                         d_metalcoord_args["ligands"] = value
                 if key in ["max_size", "threshold", "workdir", "pdb", "metalcoord_exe"]:
-                    d_metalcoord_args[key] = value # add or override defaults with caller-specified options
+                    d_metalcoord_args[key] = value  # add or override defaults with caller-specified options
                 if key == "workdir":
-                    workdir = value # update workdir if specified by caller
+                    workdir = value  # update workdir if specified by caller
 
             l_metalcoord_args = []
             for key_new, value_new in d_metalcoord_args.items():
@@ -4019,10 +4019,10 @@ class RcsbDpUtility:
             workdir = "metalcoord"  # default metalcoord output subfolder within the session folder
             for key, value in self.__inputParamDict.items():
                 if key in ["input", "pdb", "threshold", "workdir", "metalcoord_exe", "acedrg_exe", "servalcat_exe"]:
-                    d_metalcoord_args[key] = value # add or override defaults with caller-specified options
+                    d_metalcoord_args[key] = value  # add or override defaults with caller-specified options
                 if key == "workdir":
                     workdir = value
-            
+
             l_metalcoord_args = []
             for key_new, value_new in d_metalcoord_args.items():
                 l_metalcoord_args.append(f"--{key_new} {value_new}")

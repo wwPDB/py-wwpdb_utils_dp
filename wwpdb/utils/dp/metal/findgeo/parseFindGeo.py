@@ -1,3 +1,11 @@
+# Author:  Chenghua Shao
+# Date:    2025-11-10
+# Updates:
+
+"""
+Wrapper to parse FindGeo output files
+"""
+
 import json
 import os
 import sys

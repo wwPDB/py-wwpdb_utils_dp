@@ -1,4 +1,13 @@
-#!/usr/bin/env python3
+# Author:  Chenghua Shao
+# Date:    2025-11-10
+# Updates:
+
+"""
+This module orchestrates the execution of Acedrg, MetalCoord update mode, and Servalcat to 
+process the input ligand CCD file metal based on provided marcromolecular structure file, 
+output a ligand CIF file with updated ideal coordinates and charges, 
+tegether with a json report summarizing the metal coordination.
+"""
 
 import argparse
 import logging

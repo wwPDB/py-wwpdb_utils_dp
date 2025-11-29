@@ -1,3 +1,11 @@
+# Author:  Chenghua Shao
+# Date:    2025-11-10
+# Updates:
+
+"""
+Wrapper to parse MetalCoord output json file
+"""
+
 import json
 import os
 import sys

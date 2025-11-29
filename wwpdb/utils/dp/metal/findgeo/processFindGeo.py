@@ -1,4 +1,14 @@
-#!/usr/bin/env python3
+# Author:  Chenghua Shao
+# Date:    2025-11-10
+# Update:
+
+"""
+Run FindGeo and parse results.
+Summary:
+1. Run FindGeo with user provided arguments.
+2. Parse FindGeo output files.
+3. Generate a report json file summarizing the results.
+"""
 
 import argparse
 import logging

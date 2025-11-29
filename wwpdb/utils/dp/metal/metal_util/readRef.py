@@ -1,3 +1,12 @@
+# Author:  Chenghua Shao
+# Date:    2025-11-10
+# Updates:
+
+"""
+This module provides utility functions to read reference data related to metal ions, 
+including oxidation states, coordination numbers, and coordinate class mappings from CSV files.
+"""
+
 import csv
 import os
 
