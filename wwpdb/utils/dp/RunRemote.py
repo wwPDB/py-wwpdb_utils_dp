@@ -101,7 +101,7 @@ class RunRemote:
 
     def monitor(self, job_id, frequency=10):
         """Monitor a job by ID, requeueing if it fails."""
-        logging.info(f"Monitoring job {job_id}")
+        logging.info(f"Monitoring job {job_id}")  # noqa: LOG015
 
         while True:
             status = self.get_job_status_by_id(job_id)

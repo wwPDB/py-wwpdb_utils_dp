@@ -54,6 +54,8 @@ exclude = ["/wwpdb/mock-data"]
 
 #=================================== Ruff basics =============================#
 [tool.ruff]
+target-version = "py37"
+output-format = "concise"
 
 line-length = 160 # 120 is hatch's default via 'hatch init'
 include = [
@@ -64,12 +66,11 @@ include = [
 
 #
 #=================================== Ruff lint ==============================#
-
 [tool.ruff.lint]
 
 #
 # ------------------------- Ruff misc. options ----------------------
-preview = true
+preview = false
 explicit-preview-rules = true
 
 ignore = [

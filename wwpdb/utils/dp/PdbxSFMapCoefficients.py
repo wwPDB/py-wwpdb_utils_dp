@@ -16,8 +16,8 @@ import tempfile
 
 from mmcif.api.PdbxContainers import DataContainer
 from mmcif.io.IoAdapterCore import IoAdapterCore
-
 from wwpdb.utils.config.ConfigInfo import getSiteId
+
 from wwpdb.utils.dp.RcsbDpUtility import RcsbDpUtility
 
 logger = logging.getLogger(__name__)

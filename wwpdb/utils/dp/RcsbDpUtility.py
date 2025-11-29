@@ -172,6 +172,7 @@ from wwpdb.utils.config.ConfigInfoApp import (
     ConfigInfoAppEm,
     ConfigInfoAppValidation,
 )
+
 from wwpdb.utils.dp.PdbxStripCategory import PdbxStripCategory
 from wwpdb.utils.dp.RunRemote import RunRemote
 
@@ -488,7 +489,7 @@ class RcsbDpUtility:
                 if self.__cI.get("PDBE_CLUSTER_QUEUE"):
                     self.setRunRemote()
         except Exception as e:  # noqa: BLE001
-            logging.info("unable to get cluster queue %s", str(e))
+            logger.info("unable to get cluster queue %s", str(e))
 
     def setRcsbAppsPath(self, fPath):
         """Set or overwrite the configuration setting for __rcsbAppsPath."""
@@ -3594,9 +3595,6 @@ class RcsbDpUtility:
                 os.makedirs(outDirPath)
             logFilePath = os.path.join(outDirPath, f"{op}.log")
             cmd += f" > {logFilePath} 2>&1 ;"
-
-        else:
-            pass
 
         if op not in (
             "em2em-spider",

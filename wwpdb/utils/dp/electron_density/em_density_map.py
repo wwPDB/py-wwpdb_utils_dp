@@ -35,7 +35,7 @@ class EmVolumes:
         if bcif_dir_out:
             if not os.path.exists(bcif_dir_out):
                 os.makedirs(bcif_dir_out)
-        logging.debug("temp working folder: %s", self.workdir)
+        logging.debug("temp working folder: %s", self.workdir)  # noqa: LOG015
         self.mdb_map_path = os.path.join(self.workdir, self.mdb_map)
 
         worked = self.make_volume_server_map()
@@ -48,11 +48,11 @@ class EmVolumes:
     def make_volume_server_map(self):
         if os.path.exists(self.em_map):
             command = "%s %s em %s %s" % (self.node_path, self.volume_server_pack_path, self.em_map, self.mdb_map_path)
-            logging.debug(command)
+            logging.debug(command)  # noqa: LOG015
             return run_command_and_check_output_file(
                 command=command, process_name="make Volume server map", workdir=self.workdir, output_file=self.mdb_map_path
             )
-        logging.error("input map file missing: %s", self.em_map)
+        logging.error("input map file missing: %s", self.em_map)  # noqa: LOG015
         return False
 
     def convert_map_to_binary_cif(self):
@@ -77,7 +77,7 @@ def main():  # pragma: no cover
     parser.add_argument("--volume_server_pack_path", help="path to volume-server-pack", type=str, required=True)
     parser.add_argument("--volume_server_query_path", help="path to volume-server-query", type=str, required=True)
     parser.add_argument("--keep_working_directory", help="keep working directory", action="store_true")
-    parser.add_argument("--debug", help="debugging", action="store_const", dest="loglevel", const=logging.DEBUG, default=logging.INFO)
+    parser.add_argument("--debug", help="debugging", action="store_const", dest="loglevel", const=logging.DEBUG, default=logging.INFO)  # noqa: LOG015
 
     args = parser.parse_args()
     logger.setLevel(args.loglevel)
@@ -95,7 +95,7 @@ def main():  # pragma: no cover
         working_dir=args.working_dir,
     )
     worked = em.run_conversion()
-    logging.info("EM map conversion worked: {}".format(worked))  # noqa: G001 pylint: disable=logging-format-interpolation
+    logging.info("EM map conversion worked: {}".format(worked))  # noqa: G001,LOG015 pylint: disable=logging-format-interpolation
     if not worked:
         sys.exit(1)
 
