@@ -65,8 +65,8 @@ class RunMetalCoord:
         l_command.extend(["--pdb", self.d_args["pdb"]])
         l_command.extend(["--max_size", str(self.d_args["max_size"])])
         l_command.extend(["--threshold", str(self.d_args["threshold"])])
-        fn_out = os.path.join(self.d_args["workdir"], f"{self.d_args['ligand']}.json")
-        l_command.extend(["--output", fn_out])
+        fp_out = os.path.join(self.d_args["workdir"], f"{self.d_args['ligand']}.json")
+        l_command.extend(["--output", fp_out])
 
         logger.info("to run MetalCoord full command:\n %s", ' '.join(l_command))
         try:
@@ -99,8 +99,8 @@ class RunMetalCoord:
         """
         l_command = [self.d_args["metalcoord_exe"], "update"]
         l_command.extend(["--input", self.d_args["input"]])
-        fn_out = os.path.join(self.d_args["workdir"], "metalcoord.cif")
-        l_command.extend(["--output", fn_out])
+        fp_out = os.path.join(self.d_args["workdir"], "metalcoord.cif")
+        l_command.extend(["--output", fp_out])
         l_command.extend(["--threshold", str(self.d_args["threshold"])])
         if self.d_args["pdb"]:
             logger.info("to run MetalCoord update mode based on model of %s", self.d_args["pdb"])

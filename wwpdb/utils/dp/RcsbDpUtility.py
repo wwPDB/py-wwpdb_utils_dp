@@ -3888,25 +3888,30 @@ class RcsbDpUtility:
             cmd += f" ; cp {iPath} {fn_input}"
 
             # start constructing FindGeo command line arguments
-            findgeo_args = [
-                f"--java-exe {java_exe}",
-                f"--findgeo-jar {findgeo_jar}",
-                f"--input {fn_input}",
-            ]
+            d_findgeo_args = {
+                "java-exe": java_exe,
+                "findgeo-jar": findgeo_jar,
+                "input": fn_input,
+            }
 
             # add caller-specified FindGeo options if added to self.__inputParamDict by self.addInput()
             logger.info("findgeo caller-set options: %s", self.__inputParamDict)
             workdir = "findgeo"  # default FindGeo output subfolder within the session folder
             for key, value in self.__inputParamDict.items():
-                if key in ["excluded-donors", "metal", "excluded-metals", "threshold", "workdir", "pdb"]:
-                    findgeo_args.append(f"--{key} {value}")
+                if key in ["excluded-donors", "metal", "excluded-metals", "threshold", "workdir", "pdb", "java-exe", "findgeo-jar", "input"]:
+                    d_findgeo_args[key] = value # add or override defaults with caller-specified options
                 if key == "workdir":
-                    workdir = value
+                    workdir = value # update workdir if specified by caller
+
+            l_findgeo_args = []
+            for key_new, value_new in d_findgeo_args.items():
+                l_findgeo_args.append(f"--{key_new} {value_new}")
 
             # run FindGeo and parse results into <workdir>/findgeo_report.json, which will be copied as result file
-            cmd += f" ; python -m wwpdb.utils.dp.metal.findgeo.processFindGeo {' '.join(findgeo_args)}"
+            cmd += f" ; python -m wwpdb.utils.dp.metal.findgeo.processFindGeo {' '.join(l_findgeo_args)}"
             cmd += f" ; cp {os.path.join(workdir, 'findgeo_report.json')} {oPath}"
             cmd += f" > {tPath} 2>&1 ; cat {tPath} > {lPath}"
+            logger.info("to run metal-findgeo full commands: %s", cmd)
 
         elif op == "metal-metalcoord-stats":
             # changes to the default metalcoord options must be set before setting self.op("metal-metalcoord-stats"), e.g.
@@ -3963,6 +3968,7 @@ class RcsbDpUtility:
             cmd += f" ; python -m wwpdb.utils.dp.metal.metalcoord.processMetalCoordStats {' '.join(metalcoord_args)}"
             cmd += f" ; cp {os.path.join(workdir, 'metalcoord_report.json')} {oPath}"
             cmd += f" > {tPath} 2>&1 ; cat {tPath} > {lPath}"
+            logger.info("to run metal-metalcoord-stats full commands: %s", cmd)
 
         elif op == "metal-metalcoord-update":
             # changes to the default metalcoord options must be set before setting self.op("metal-metalcoord-stats"), e.g.
@@ -4020,6 +4026,7 @@ class RcsbDpUtility:
             cmd += f" ; python -m wwpdb.utils.dp.metal.metalcoord.processMetalCoordUpdate {' '.join(metalcoord_args)}"
             cmd += f" ; cp {os.path.join(workdir, 'servalcat_updated.cif')} {oPath}"
             cmd += f" > {tPath} 2>&1 ; cat {tPath} > {lPath}"
+            logger.info("to run metal-metalcoord-update full commands: %s", cmd)
 
         elif op == "chem-comp-dict-makeindex":
             # -index oPath(.idx) -lib iPath (.sdb) -type makeindex -fplib $fpPatFile

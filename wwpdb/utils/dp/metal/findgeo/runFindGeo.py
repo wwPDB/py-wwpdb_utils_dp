@@ -85,24 +85,20 @@ class RunFindGeo:
 
         # validate input and pdb arguments and pick the non-empty one to use as input
         self.input = []
-        if self.d_args['input']:
-            if not os.path.exists(self.d_args['input']):
-                logger.error("input file not found: %s", self.d_args['input'])
-                return False
-            if self.d_args['pdb']:
-                logger.error("cannot specify both input file and pdb id")
-                return False
+        if self.d_args['input'] and os.path.exists(self.d_args['input']):
             logger.info("using input file: %s", self.d_args['input'])
             self.input = ["--input", self.d_args['input']]
-        elif self.d_args['pdb']:
-            if len(self.d_args['pdb']) not in [4, 12]:
-                logger.error("invalid pdb id: %s", self.d_args['pdb'])
-                return False
-            logger.info("using pdb id: %s", self.d_args['pdb'])
-            self.input = ["--pdb", self.d_args['pdb'].lower()]
         else:
-            logger.error("must specify either input file or pdb id")
-            return False
+            logger.info("input file not found: %s, try pdb id input", self.d_args['input'])
+            if self.d_args['pdb']:
+                if len(self.d_args['pdb']) not in [4, 12]:
+                    logger.error("invalid pdb id: %s", self.d_args['pdb'])
+                    return False
+                logger.info("using pdb id: %s", self.d_args['pdb'])
+                self.input = ["--pdb", self.d_args['pdb'].lower()]
+            else:
+                logger.error("must specify either input file or pdb id")
+                return False
 
         return True
 
