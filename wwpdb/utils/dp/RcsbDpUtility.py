@@ -3944,28 +3944,32 @@ class RcsbDpUtility:
             cmd += f" ; cp {iPath} {fn_input}"
 
             # start constructing metalcoord command line arguments
-            metalcoord_args = [
-                f"--metalcoord_exe {metalcoord_exe}",
-                f"--pdb {fn_input}",
-            ]
+            d_metalcoord_args = {
+                "metalcoord_exe": metalcoord_exe,
+                "pdb": fn_input,
+            }
 
             # add caller-specified metalcoord options if added to self.__inputParamDict by self.addInput()
             logger.info("metalcoord caller-set options: %s", self.__inputParamDict)
             workdir = "metalcoord"  # default metalcoord output subfolder within the session folder
             for key, value in self.__inputParamDict.items():
-                if key == "ligands":
+                if key == "ligands": # list or string of CCD ID(s) of the metal ligand to check on
                     if isinstance(value, list):
                         s_value = ','.join(value)
-                        metalcoord_args.append(f"--ligands {s_value}")
+                        d_metalcoord_args["ligands"] = s_value
                     else:
-                        metalcoord_args.append(f"--ligands {value}")
+                        d_metalcoord_args["ligands"] = value
                 if key in ["max_size", "threshold", "workdir", "pdb", "metalcoord_exe"]:
-                    metalcoord_args.append(f"--{key} {value}")
+                    d_metalcoord_args[key] = value # add or override defaults with caller-specified options
                 if key == "workdir":
-                    workdir = value
+                    workdir = value # update workdir if specified by caller
+
+            l_metalcoord_args = []
+            for key_new, value_new in d_metalcoord_args.items():
+                l_metalcoord_args.append(f"--{key_new} {value_new}")
 
             # run metalcoord and parse results into <workdir>/metalcoord_report.json, which will be copied as result file
-            cmd += f" ; python -m wwpdb.utils.dp.metal.metalcoord.processMetalCoordStats {' '.join(metalcoord_args)}"
+            cmd += f" ; python -m wwpdb.utils.dp.metal.metalcoord.processMetalCoordStats {' '.join(l_metalcoord_args)}"
             cmd += f" ; cp {os.path.join(workdir, 'metalcoord_report.json')} {oPath}"
             cmd += f" > {tPath} 2>&1 ; cat {tPath} > {lPath}"
             logger.info("to run metal-metalcoord-stats full commands: %s", cmd)
@@ -4005,25 +4009,29 @@ class RcsbDpUtility:
             cmd += f" ; cp {iPath} {fn_input}"
 
             # start constructing metalcoord command line arguments
-            metalcoord_args = [
-                f"--metalcoord_exe {metalcoord_exe}",
-                f"--input {fn_input}",
-            ]
+            d_metalcoord_args = {
+                "metalcoord_exe": metalcoord_exe,
+                "input": fn_input,
+            }
 
             # add caller-specified metalcoord options if added to self.__inputParamDict by self.addInput()
             logger.info("metalcoord caller-set options: %s", self.__inputParamDict)
             workdir = "metalcoord"  # default metalcoord output subfolder within the session folder
             for key, value in self.__inputParamDict.items():
                 if key in ["input", "pdb", "threshold", "workdir", "metalcoord_exe", "acedrg_exe", "servalcat_exe"]:
-                    metalcoord_args.append(f"--{key} {value}")
+                    d_metalcoord_args[key] = value # add or override defaults with caller-specified options
                 if key == "workdir":
                     workdir = value
+            
+            l_metalcoord_args = []
+            for key_new, value_new in d_metalcoord_args.items():
+                l_metalcoord_args.append(f"--{key_new} {value_new}")
 
             # run metalcoord and generate updated ligand cif at <workdir>/servalcat_updated.cif, which will be
             # copied as result file with charge and ideal coordinates; coordination info will be parsed and copied
             # into <workdir>/metalcoord_report.json;
             # use self.expList() to output both files in list of [servalcat_updated.cif, metalcoord_report.json]
-            cmd += f" ; python -m wwpdb.utils.dp.metal.metalcoord.processMetalCoordUpdate {' '.join(metalcoord_args)}"
+            cmd += f" ; python -m wwpdb.utils.dp.metal.metalcoord.processMetalCoordUpdate {' '.join(l_metalcoord_args)}"
             cmd += f" ; cp {os.path.join(workdir, 'servalcat_updated.cif')} {oPath}"
             cmd += f" > {tPath} 2>&1 ; cat {tPath} > {lPath}"
             logger.info("to run metal-metalcoord-update full commands: %s", cmd)
