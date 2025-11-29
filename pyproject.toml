@@ -45,7 +45,7 @@ include = [
     "/wwpdb",
 ]
 
-exclude = ["/wwpdb/mock-data"]
+exclude = ["/wwpdb/mock-data", "/wwpdb/utils/dp/metal/tests"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["wwpdb"]

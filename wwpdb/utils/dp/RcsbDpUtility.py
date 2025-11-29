@@ -134,6 +134,7 @@
 # 05-Sep-2024 zf  Add "-ptm_pcm_output pcm.csv" option to "annot-convert-close-contact-to-link" and "annot-remove-covalent-bond" operators
 #                 Add "annot-check-ccd-definition" operator
 # 19-Jan-2025 zf  Add "annot-get-em-exp-info"
+# 10-Nov-2025 cs  Add op of "metal-findgeo", "metal-metalcoord-stats", "metal-metalcoord-update", calling dp.metal submodules
 ##
 """
 Wrapper class for data processing and chemical component utilities.
@@ -255,6 +256,9 @@ class RcsbDpUtility:
             "chem-ref-load",
             "chem-ref-run-setup",
             "chem-ref-run-update",
+            "metal-findgeo",
+            "metal-metalcoord-stats",
+            "metal-metalcoord-update",
         ]
         self.__pisaOps = [
             "pisa-analysis",
@@ -3861,6 +3865,177 @@ class RcsbDpUtility:
             cmd += thisCmd
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " > " + lPath
 
+        elif op == "metal-findgeo":
+            # changes to the default FindGeo options must be set before setting self.op("metal-findgeo"), e.g.
+            # self.addInput(name="excluded-donors", value="H")  # for checking carbon-metal interaction
+            # self.addInput(name="metal", value="Fe")  # run on a specific metal element only
+            # self.addInput(name="excluded-metals", value="Mg,Ca")  # exlcuding a list of metal elements
+            # self.addInput(name="threshold", value="2.9")  # extend the default 2.8 range search
+            # self.addInput(name="workdir", value="/tmp")  # output to a folder other than the default "./findgeo"
+
+            # self.setTimeout(1800)  # set timeout to 30 minutes for FindGeo processing if needed
+
+            # retrieve java binary and FindGeo jar file from package path
+            java_exe = os.path.join(self.__packagePath, "java", "jre", "bin", "java")
+            logger.info("To use java executable at %s", java_exe)
+            logger.info("Check java executable existence: %s", os.path.exists(java_exe))
+            findgeo_jar = os.path.join(self.__packagePath, "metallo", "FindGeo", "FindGeo.jar")
+            logger.info("To use FindGeo Jar file at %s", findgeo_jar)
+            logger.info("Check FindGeo Jar file existence: %s", os.path.exists(findgeo_jar))
+
+            # create a copy of input file with .cif extension for FindGeo to work
+            fn_input = iPath.strip() + ".cif"  # must have .cif extension for FindGeo to work
+            cmd += f" ; cp {iPath} {fn_input}"
+
+            # start constructing FindGeo command line arguments
+            d_findgeo_args = {
+                "java-exe": java_exe,
+                "findgeo-jar": findgeo_jar,
+                "input": fn_input,
+            }
+
+            # add caller-specified FindGeo options if added to self.__inputParamDict by self.addInput()
+            logger.info("findgeo caller-set options: %s", self.__inputParamDict)
+            workdir = "findgeo"  # default FindGeo output subfolder within the session folder
+            for key, value in self.__inputParamDict.items():
+                if key in ["excluded-donors", "metal", "excluded-metals", "threshold", "workdir", "pdb", "java-exe", "findgeo-jar", "input"]:
+                    d_findgeo_args[key] = value  # add or override defaults with caller-specified options
+                if key == "workdir":
+                    workdir = value  # update workdir if specified by caller
+
+            l_findgeo_args = []
+            for key_new, value_new in d_findgeo_args.items():
+                l_findgeo_args.append(f"--{key_new} {value_new}")
+
+            # run FindGeo and parse results into <workdir>/findgeo_report.json, which will be copied as result file
+            cmd += f" ; python -m wwpdb.utils.dp.metal.findgeo.processFindGeo {' '.join(l_findgeo_args)}"
+            cmd += f" ; cp {os.path.join(workdir, 'findgeo_report.json')} {oPath}"
+            cmd += f" > {tPath} 2>&1 ; cat {tPath} > {lPath}"
+            logger.info("to run metal-findgeo full commands: %s", cmd)
+
+        elif op == "metal-metalcoord-stats":
+            # changes to the default metalcoord options must be set before setting self.op("metal-metalcoord-stats"), e.g.
+            # self.addInput(name="ligands", value=["0KA", "NCO"])  # list or string of CCD ID(s) of the metal ligand to check on, accepts comma-separated string or list of strings
+            # self.addInput(name="max_size", value="2000")  # Maximum sample size for reference statistics.
+            # self.addInput(name="threshold", value="0.2")  # Procrustes distance threshold for finding COD reference.
+            # self.addInput(name="workdir", value="/tmp")  # output to a folder other than the default "./metalcoord"
+            # self.addInput(name="pdb", value="4DHV")  # PDB code or pdb file as input
+            # self.addInput(name="metalcoord_exe", value="")  # MetalCoord executable file, only use for testing new versions
+
+            # self.setTimeout(1800)  # set timeout to 30 minutes for metalcoord processing if needed
+
+            # retrieve metalcoord executable from package path, first check standalone, then CCP4 package
+            metalcoord_exe_standalone = os.path.join(self.__packagePath, "metallo", "metalcoord", "bin", "metalCoord")
+            if os.path.exists(metalcoord_exe_standalone):
+                metalcoord_exe = metalcoord_exe_standalone
+            else:
+                ccp4_setup = os.path.join(self.__packagePath, "metallo", "ccp4-9", "bin", "ccp4.setup-sh")
+                cmd += f" ; source {ccp4_setup} "
+                metalcoord_exe_ccp4 = os.path.join(self.__packagePath, "metallo", "ccp4-9", "bin", "metalCoord")
+                if os.path.exists(metalcoord_exe_ccp4):
+                    metalcoord_exe = metalcoord_exe_ccp4
+                else:
+                    logger.error("MetalCoord executable not found in either standalone or CCP4 package paths.")
+                    metalcoord_exe = "metalCoord"  # fallback to just "metalCoord" in case it's in PATH
+            logger.info("To use MetalCoord executable at %s", metalcoord_exe)
+
+            # create a copy of model coordinates input file with .cif extension for MetalCoord to work
+            fn_input = iPath.strip() + ".cif"  # must have .cif extension for MetalCoord to work
+            cmd += f" ; cp {iPath} {fn_input}"
+
+            # start constructing metalcoord command line arguments
+            d_metalcoord_args = {
+                "metalcoord_exe": metalcoord_exe,
+                "pdb": fn_input,
+            }
+
+            # add caller-specified metalcoord options if added to self.__inputParamDict by self.addInput()
+            logger.info("metalcoord caller-set options: %s", self.__inputParamDict)
+            workdir = "metalcoord"  # default metalcoord output subfolder within the session folder
+            for key, value in self.__inputParamDict.items():
+                if key == "ligands":  # list or string of CCD ID(s) of the metal ligand to check on
+                    if isinstance(value, list):
+                        s_value = ','.join(value)
+                        d_metalcoord_args["ligands"] = s_value
+                    else:
+                        d_metalcoord_args["ligands"] = value
+                if key in ["max_size", "threshold", "workdir", "pdb", "metalcoord_exe"]:
+                    d_metalcoord_args[key] = value  # add or override defaults with caller-specified options
+                if key == "workdir":
+                    workdir = value  # update workdir if specified by caller
+
+            l_metalcoord_args = []
+            for key_new, value_new in d_metalcoord_args.items():
+                l_metalcoord_args.append(f"--{key_new} {value_new}")
+
+            # run metalcoord and parse results into <workdir>/metalcoord_report.json, which will be copied as result file
+            cmd += f" ; python -m wwpdb.utils.dp.metal.metalcoord.processMetalCoordStats {' '.join(l_metalcoord_args)}"
+            cmd += f" ; cp {os.path.join(workdir, 'metalcoord_report.json')} {oPath}"
+            cmd += f" > {tPath} 2>&1 ; cat {tPath} > {lPath}"
+            logger.info("to run metal-metalcoord-stats full commands: %s", cmd)
+
+        elif op == "metal-metalcoord-update":
+            # changes to the default metalcoord options must be set before setting self.op("metal-metalcoord-stats"), e.g.
+
+            # self.addInput(name="acedrg_exe", value="")  # Acedrg executable file, only use for testing new versions
+            # self.addInput(name="metalcoord_exe", value="")  # MetalCoord executable file, only use for testing new versions
+            # self.addInput(name="servalcat_exe", value="")   # Servalcat executable file, only use for testing new versions
+            # self.addInput(name="workdir", value="/tmp")  # Directory to write outputs. Default is metalcoord subfolder in the current folder
+            # self.addInput(name="input", value="0KA.cif")  # Ligand cif file
+            # self.addInput(name="pdb", value="4DHV")  # PDB code or pdb file for coodination reference, if missing then use most_commond option
+            # self.addInput(name="threshold", value="0.2")  # Procrustes distance threshold for finding COD reference.
+
+            # self.setTimeout(1800)  # set timeout to 30 minutes for metalcoord processing if needed
+
+            # setup CCP4 environment first because Acedrg and Servalcat are CCP4 programs and will run for update mode
+            ccp4_setup = os.path.join(self.__packagePath, "metallo", "ccp4-9", "bin", "ccp4.setup-sh")
+            cmd += f" ; source {ccp4_setup} "
+
+            # retrieve metalcoord executable from package path, first check standalone, then CCP4 package
+            metalcoord_exe_standalone = os.path.join(self.__packagePath, "metallo", "metalcoord", "bin", "metalCoord")
+            if os.path.exists(metalcoord_exe_standalone):
+                metalcoord_exe = metalcoord_exe_standalone
+            else:
+                metalcoord_exe_ccp4 = os.path.join(self.__packagePath, "metallo", "ccp4-9", "bin", "metalCoord")
+                if os.path.exists(metalcoord_exe_ccp4):
+                    metalcoord_exe = metalcoord_exe_ccp4
+                else:
+                    logger.error("MetalCoord executable not found in either standalone or CCP4 package paths.")
+                    metalcoord_exe = "metalCoord"  # fallback to just "metalCoord" in case it's in PATH
+            logger.info("To use MetalCoord executable at %s", metalcoord_exe)
+
+            # create a copy of model coordinates input file with .cif extension for MetalCoord to work
+            fn_input = iPath.strip() + ".cif"  # must have .cif extension for MetalCoord to work
+            cmd += f" ; cp {iPath} {fn_input}"
+
+            # start constructing metalcoord command line arguments
+            d_metalcoord_args = {
+                "metalcoord_exe": metalcoord_exe,
+                "input": fn_input,
+            }
+
+            # add caller-specified metalcoord options if added to self.__inputParamDict by self.addInput()
+            logger.info("metalcoord caller-set options: %s", self.__inputParamDict)
+            workdir = "metalcoord"  # default metalcoord output subfolder within the session folder
+            for key, value in self.__inputParamDict.items():
+                if key in ["input", "pdb", "threshold", "workdir", "metalcoord_exe", "acedrg_exe", "servalcat_exe"]:
+                    d_metalcoord_args[key] = value  # add or override defaults with caller-specified options
+                if key == "workdir":
+                    workdir = value
+
+            l_metalcoord_args = []
+            for key_new, value_new in d_metalcoord_args.items():
+                l_metalcoord_args.append(f"--{key_new} {value_new}")
+
+            # run metalcoord and generate updated ligand cif at <workdir>/servalcat_updated.cif, which will be
+            # copied as result file with charge and ideal coordinates; coordination info will be parsed and copied
+            # into <workdir>/metalcoord_report.json;
+            # use self.expList() to output both files in list of [servalcat_updated.cif, metalcoord_report.json]
+            cmd += f" ; python -m wwpdb.utils.dp.metal.metalcoord.processMetalCoordUpdate {' '.join(l_metalcoord_args)}"
+            cmd += f" ; cp {os.path.join(workdir, 'servalcat_updated.cif')} {oPath}"
+            cmd += f" > {tPath} 2>&1 ; cat {tPath} > {lPath}"
+            logger.info("to run metal-metalcoord-update full commands: %s", cmd)
+
         elif op == "chem-comp-dict-makeindex":
             # -index oPath(.idx) -lib iPath (.sdb) -type makeindex -fplib $fpPatFile
             #  ipath = dict.sdb   opath = dict.idx
@@ -4345,6 +4520,20 @@ class RcsbDpUtility:
             self.__resultPathList = glob.glob(pat)
         else:
             self.__resultPathList = [os.path.join(self.__wrkPath, oPath)]
+
+        if op == "metal-metalcoord-update":
+            self.__resultPathList = []
+            ligand_cif_out = os.path.join(self.__wrkPath, "metalcoord", "servalcat_updated.cif")
+            if os.access(ligand_cif_out, os.F_OK):
+                self.__resultPathList.append(ligand_cif_out)
+            else:
+                self.__resultPathList.append("missing")
+
+            coordination_json_out = os.path.join(self.__wrkPath, "metalcoord", "metalcoord_report.json")
+            if os.access(coordination_json_out, os.F_OK):
+                self.__resultPathList.append(coordination_json_out)
+            else:
+                self.__resultPathList.append("missing")
 
         return iret
 
