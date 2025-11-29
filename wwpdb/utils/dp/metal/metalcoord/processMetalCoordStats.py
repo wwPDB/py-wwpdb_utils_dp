@@ -37,7 +37,7 @@ def main():
 
     l_args = ["metalcoord_exe", "workdir", "pdb", "max_size", "threshold"]
 
-    l_ligand = args.ligands.split(",") # split multiple ligands if applicable
+    l_ligand = args.ligands.split(",")  # split multiple ligands if applicable
     l_json_outputs = []
 
     # run MetalCoord for each ligand
