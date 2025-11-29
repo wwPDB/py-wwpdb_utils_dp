@@ -4,10 +4,10 @@ import sys
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from wwpdb.utils.dp.metal.metal_util.run_command import run_command, MetalCommandExecutionError  # noqa: E402
+    from wwpdb.utils.dp.metal.metal_util.run_command import MetalCommandExecutionError, run_command  # noqa: E402
 else:
     sys.path.append(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "metal_util"))
-    from run_command import run_command, MetalCommandExecutionError  # noqa: E402
+    from run_command import MetalCommandExecutionError, run_command  # noqa: E402
 
 logger = logging.getLogger(__name__)
 
@@ -45,7 +45,7 @@ class RunMetalCoord:
     def run(self):
         if self.mode == "stats":
             return self.runStats()
-        elif self.mode == "update":
+        if self.mode == "update":
             return self.runUpdate()
 
     def runStats(self):

@@ -4,10 +4,10 @@ Must set java_exe and findgeo_jar with hardcoded paths.
 For OneDep testing, please use the unit test in py-wwpdb_utils_dp/tests/RcsbDpUtilityMetalTests.py
 """
 
+import json
 import os
 import sys
 import unittest
-import json
 
 DIR = os.path.dirname(os.path.abspath(__file__))
 TEST_DIR = os.path.dirname(DIR)
