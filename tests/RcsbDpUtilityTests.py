@@ -32,6 +32,7 @@ else:
     from .commonsetup import TESTOUTPUT, TOPDIR, dictsmissing
 
 from wwpdb.utils.config.ConfigInfo import getSiteId
+
 from wwpdb.utils.dp.RcsbDpUtility import RcsbDpUtility
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s]-%(module)s.%(funcName)s: %(message)s")

@@ -27,6 +27,7 @@ else:
     from .commonsetup import TESTOUTPUT, TOPDIR, toolsmissing
 
 from wwpdb.utils.config.ConfigInfo import getSiteId
+
 from wwpdb.utils.dp.PdbxChemShiftReport import PdbxChemShiftReport
 from wwpdb.utils.dp.RcsbDpUtility import RcsbDpUtility
 
