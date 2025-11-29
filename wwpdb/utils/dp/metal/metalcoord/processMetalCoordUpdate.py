@@ -3,9 +3,9 @@
 # Updates:
 
 """
-This module orchestrates the execution of Acedrg, MetalCoord update mode, and Servalcat to 
-process the input ligand CCD file metal based on provided marcromolecular structure file, 
-output a ligand CIF file with updated ideal coordinates and charges, 
+This module orchestrates the execution of Acedrg, MetalCoord update mode, and Servalcat to
+process the input ligand CCD file metal based on provided marcromolecular structure file,
+output a ligand CIF file with updated ideal coordinates and charges,
 tegether with a json report summarizing the metal coordination.
 """
 

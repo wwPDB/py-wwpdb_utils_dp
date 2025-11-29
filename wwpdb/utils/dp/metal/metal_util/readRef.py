@@ -3,7 +3,7 @@
 # Updates:
 
 """
-This module provides utility functions to read reference data related to metal ions, 
+This module provides utility functions to read reference data related to metal ions,
 including oxidation states, coordination numbers, and coordinate class mappings from CSV files.
 """
 
