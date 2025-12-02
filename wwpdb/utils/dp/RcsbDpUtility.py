@@ -4328,6 +4328,9 @@ class RcsbDpUtility:
             if "cc_validation_instid_list" in self.__inputParamDict:
                 cmd += " -search_inst_id " + self.__inputParamDict["cc_validation_instid_list"]
             #
+            if "coord_file_path" in self.__inputParamDict:
+                cmd += " -search_inst_coord_file " + self.__inputParamDict["coord_file_path"]
+            #
             # if  self.__inputParamDict.has_key('cc_bond_radii'):
             #     cmd += " -bond_radii " + self.__inputParamDict['cc_bond_radii']
             # #
