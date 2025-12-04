@@ -1,4 +1,4 @@
-CN,Abbreviation FindGeo,Name FindGeo,Abbreviation metalCoord,Name metalCoord,Name PDB
+﻿CN,Abbreviation FindGeo,Name FindGeo,Abbreviation metalCoord,Name metalCoord,Name PDB
 2,LIN,linear,LIN,linear,linear
 2,TRV,trigonal plane with a vacancy,BEN,bent,bent
 3,TRI,trigonal plane,TPL,trigonal-planar,trigonal planar
@@ -23,18 +23,18 @@ CN,Abbreviation FindGeo,Name FindGeo,Abbreviation metalCoord,Name metalCoord,Nam
 6,TPR,trigonal prism,TRP,trigonal-prism,trigonal prismatic
 6,PVA,pentagonal bipyramid with a vacancy (axial),NA,NA,pentagonal bipyramidal with vacancy
 6,PVP,pentagonal bipyramid with a vacancy (equatorial),NA,NA,pentagonal bipyramidal with vacancy
-6,COF,"octahedron, face monocapped with a vacancy (capped face)",NA,NA,octahedral monocapped with vacancy
-6,CON,"octahedron, face monocapped with a vacancy (non-capped face)",NA,NA,octahedral monocapped with vacancy
-6,CTF,"trigonal prism, square-face monocapped with a vacancy (capped face)",NA,NA,trigonal prismatic monocapped with vacancy
-6,CTN,"trigonal prism, square-face monocapped with a vacancy (non-capped edge)	",NA,NA,trigonal prismatic monocapped with vacancy
+6,COF,octahedron face monocapped with a vacancy (capped face),NA,NA,octahedral monocapped with vacancy
+6,CON,octahedron face monocapped with a vacancy (non-capped face),NA,NA,octahedral monocapped with vacancy
+6,CTF,trigonal prism square-face monocapped with a vacancy (capped face),NA,NA,trigonal prismatic monocapped with vacancy
+6,CTN,"trigonal prism square-face monocapped with a vacancy (non-capped edge)	",NA,NA,trigonal prismatic monocapped with vacancy
 6,NA,NA,SAA,sandwich_4h_2,sandwich 4h 2
 6,NA,NA,SAB,sandwich_4_2,sandwich 4 2
 6,NA,NA,SAC,sandwich_5_1,sandwich 5 1
 6,NA,NA,BSP,bicapped-square-planar,square planar bicapped
 6,NA,NA,HPL,hexagonal-planar,hexagonal planar
 7,PBP,pentagonal bipyramid,PBP,pentagonal-bipyramid,pentagonal bipyramidal
-7,CTP,"trigonal prism, square-face monocapped",CTR,capped-trigonal-prism,trigonal prismatic monocapped
-7,COC,"octahedron, face monocapped",NA,NA,octahedral monocapped
+7,CTP,trigonal prism square-face monocapped,CTR,capped-trigonal-prism,trigonal prismatic monocapped
+7,COC,octahedron face monocapped,NA,NA,octahedral monocapped
 7,HVA,hexagonal bipyramid with a vacancy (axial),NA,NA,hexagonal bipyramidal with vacancy
 7,HVP,hexagonal bipyramid with a vacancy (equatorial),NA,NA,hexagonal bipyramidal with vacancy
 7,CUV,cube with a vacancy,NA,NA,cubic with vacancy
@@ -47,9 +47,9 @@ CN,Abbreviation FindGeo,Name FindGeo,Abbreviation metalCoord,Name metalCoord,Nam
 8,HBP,hexagonal bipyramid,HBP,hexagonal-bipyramid,hexagonal bipyramidal
 8,CUB,cube,CUB,cubic,cubic
 8,SQA,square antiprism,SQA,square-antiprismatic,square antiprismatic
-8,BOC,"octahedron, trans-bicapped",NA,NA,octahedral bicapped
-8,BTS,"trigonal prism, square-face bicapped",NA,NA,trigonal prismatic bicapped
-8,BTT,"trigonal prism, triangular-face bicapped",ETB,elongated-triangular-bipyramid,trigonal prismatic bicapped
+8,BOC,octahedron trans-bicapped,NA,NA,octahedral bicapped
+8,BTS,trigonal prism square-face bicapped,NA,NA,trigonal prismatic bicapped
+8,BTT,trigonal prism triangular-face bicapped,ETB,elongated-triangular-bipyramid,trigonal prismatic bicapped
 8,NA,NA,SAH,sandwich_4h_4h,sandwich 4h 4h
 8,NA,NA,SAI,sandwich_7_1,sandwich 7 1
 8,NA,NA,SAJ,sandwich_4h_4,sandwich 4h 4
@@ -59,8 +59,8 @@ CN,Abbreviation FindGeo,Name FindGeo,Abbreviation metalCoord,Name metalCoord,Nam
 8,NA,NA,BOC,bicapped-octahedral,octahedral bicapped
 8,NA,NA,SAM,sandwich_6_2,sandwich 6 2
 8,NA,NA,DOD,dodecahedral,dodecahedral
-9,TTP,"trigonal prism, square-face tricapped",TCP,tricapped-trigonal-prismatic,trigonal prism tricapped
-9,CSA,"square antiprism, square-face monocapped",NA,NA,square antiprismatic monocapped
+9,TTP,trigonal prism square-face tricapped,TCP,tricapped-trigonal-prismatic,trigonal prism tricapped
+9,CSA,square antiprism square-face monocapped,NA,NA,square antiprismatic monocapped
 9,NA,NA,SAO,sandwich_7_2,sandwich 7 2
 9,NA,NA,SAP,sandwich_5_tricapped_i,sandwich 5 tricapped i
 9,NA,NA,SAQ,sandwich_5_4h,sandwich 5 4h
