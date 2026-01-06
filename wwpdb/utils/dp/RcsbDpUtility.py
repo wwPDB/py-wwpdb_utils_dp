@@ -178,11 +178,13 @@ from wwpdb.utils.dp.RunRemote import RunRemote
 
 logger = logging.getLogger(__name__)
 
+from timer_middleware.request_timer import get_timer, RequestTimerContext
 
 class RcsbDpUtility:
     """Wrapper class for data processing and chemical component utilities."""
 
     def __init__(self, tmpPath="/scratch", siteId="DEV", verbose=False, log=sys.stderr, testMode=False):
+        self.__timer = get_timer(log_file="/nfs/public/services/onedep_gpfs/timings/wfe_timings.log", verbose=verbose, log=log)
         self.__verbose = verbose
         self.__debug = False
         self.__lfh = log
@@ -5085,36 +5087,38 @@ class RcsbDpUtility:
         return 0
 
     def __run(self, command, lPathFull, op):
-        if self.__run_remote:
-            random_suffix = random.randrange(9999999)  # noqa: S311
-            job_name = "{}_{}".format(op, random_suffix)
-            return RunRemote(
-                command=command,
-                job_name=job_name,
-                log_dir=os.path.dirname(lPathFull),
-                run_dir=self.__tmpPath,
-                timeout=self.__timeout,
-                number_of_processors=self.__numThreads,
-                memory_limit=self.__startingMemory,
-                add_site_config=True,
-            ).run()
+        with RequestTimerContext(timer=self.__timer, method="RUN", path="/remote", host="", app_name=op) as ctx:
+            if self.__run_remote:
+                random_suffix = random.randrange(9999999)  # noqa: S311
+                job_name = "{}_{}".format(op, random_suffix)
+                return RunRemote(
+                    command=command,
+                    job_name=job_name,
+                    log_dir=os.path.dirname(lPathFull),
+                    run_dir=self.__tmpPath,
+                    timeout=self.__timeout,
+                    number_of_processors=self.__numThreads,
+                    memory_limit=self.__startingMemory,
+                    add_site_config=True,
+                ).run()
 
-        if self.__timeout > 0:
-            return self.__runTimeout(command, self.__timeout, lPathFull)
-        retcode = -1000
-        try:
-            retcode = call(command, shell=True)  # noqa: S602
-            if retcode != 0:
-                logger.info(
-                    "+RcsbDpUtility.__run() operation %s completed with return code %r\n",
-                    self.__stepOpList,
-                    retcode,
-                )
-        except OSError as e:
-            logger.info("+RcsbDpUtility.__run() operation %s failed  with exception %r\n", self.__stepOpList, str(e))
-        except Exception:  # noqa: BLE001
-            logger.info("+RcsbDpUtility.__run() operation %s failed  with exception\n", self.__stepOpList)
-        return retcode
+        with RequestTimerContext(timer=self.__timer, method="RUN", path="/local", host="", app_name="wfe") as ctx:
+            if self.__timeout > 0:
+                return self.__runTimeout(command, self.__timeout, lPathFull)
+            retcode = -1000
+            try:
+                retcode = call(command, shell=True)  # noqa: S602
+                if retcode != 0:
+                    logger.info(
+                        "+RcsbDpUtility.__run() operation %s completed with return code %r\n",
+                        self.__stepOpList,
+                        retcode,
+                    )
+            except OSError as e:
+                logger.info("+RcsbDpUtility.__run() operation %s failed  with exception %r\n", self.__stepOpList, str(e))
+            except Exception:  # noqa: BLE001
+                logger.info("+RcsbDpUtility.__run() operation %s failed  with exception\n", self.__stepOpList)
+            return retcode
 
     # def __runP(self, cmd):
     #     retcode = -1000
