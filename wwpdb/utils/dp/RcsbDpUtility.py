@@ -5087,8 +5087,8 @@ class RcsbDpUtility:
         return 0
 
     def __run(self, command, lPathFull, op):
-        with RequestTimerContext(timer=self.__timer, method="RUN", path="/remote", host="", app_name=op) as ctx:
-            if self.__run_remote:
+        if self.__run_remote:
+            with RequestTimerContext(timer=self.__timer, method="RUN", path="/remote", host="", app_name=op) as ctx:
                 random_suffix = random.randrange(9999999)  # noqa: S311
                 job_name = "{}_{}".format(op, random_suffix)
                 return RunRemote(
@@ -5102,7 +5102,7 @@ class RcsbDpUtility:
                     add_site_config=True,
                 ).run()
 
-        with RequestTimerContext(timer=self.__timer, method="RUN", path="/local", host="", app_name="wfe") as ctx:
+        with RequestTimerContext(timer=self.__timer, method="RUN", path="/local", host="", app_name=op) as ctx:
             if self.__timeout > 0:
                 return self.__runTimeout(command, self.__timeout, lPathFull)
             retcode = -1000
