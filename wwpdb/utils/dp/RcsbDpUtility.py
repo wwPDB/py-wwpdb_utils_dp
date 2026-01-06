@@ -184,7 +184,7 @@ class RcsbDpUtility:
     """Wrapper class for data processing and chemical component utilities."""
 
     def __init__(self, tmpPath="/scratch", siteId="DEV", verbose=False, log=sys.stderr, testMode=False):
-        self.__timer = get_timer(log_file="/nfs/public/services/onedep_gpfs/timings/wfe_timings.log", verbose=verbose, log=log)
+        self.__timer = get_timer(log_file=os.getenv('WFE_TIMINGS_LOG', '/tmp/onedep_wfe_timings.log'), verbose=verbose, log=log)
         self.__verbose = verbose
         self.__debug = False
         self.__lfh = log
