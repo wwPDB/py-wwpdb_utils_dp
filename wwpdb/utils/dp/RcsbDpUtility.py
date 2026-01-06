@@ -184,7 +184,6 @@ class RcsbDpUtility:
     """Wrapper class for data processing and chemical component utilities."""
 
     def __init__(self, tmpPath="/scratch", siteId="DEV", verbose=False, log=sys.stderr, testMode=False):
-        self.__timer = get_timer(buffer_size=1, log_file=os.getenv('WFE_TIMINGS_LOG', '/tmp/onedep_wfe_timings.log'), verbose=verbose, log=log)
         self.__verbose = verbose
         self.__debug = False
         self.__lfh = log
@@ -434,6 +433,8 @@ class RcsbDpUtility:
         self.__cIVal = ConfigInfoAppValidation(self.__siteId)
         self.__initPath()
         self.__getRunRemote()
+        log_dir = self.__cI.get("TOP_SOFTWARE_DIR") or "/tmp"
+        self.__timer = get_timer(buffer_size=1, log_file=os.path.join(log_dir, "timings", "wfe_timings.log"), verbose=verbose, log=log)
 
     def __getConfigPath(self, ky):
         try:
