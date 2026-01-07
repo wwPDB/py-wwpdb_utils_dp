@@ -59,7 +59,7 @@ class RunRemote:
         self.add_site_config = add_site_config
         self.add_site_config_database = add_site_config_database
         self.use_singularity = use_singularity
-        self.singularity_image = singularity_image or "/nfs/public/services/onedep_gpfs/docker-tools/onedep-builder_rocky8.sif"
+        self.singularity_image = singularity_image
         self.singularity_bind_paths = singularity_bind_paths or []
 
         if not self.run_dir:
