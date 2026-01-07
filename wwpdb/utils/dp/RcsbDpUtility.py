@@ -428,6 +428,7 @@ class RcsbDpUtility:
         self.__use_singularity = False
         self.__singularity_image = None
         self.__singularity_bind_paths = []
+        self.__partition = None
 
         self.__cI = ConfigInfo(self.__siteId)
         self.__cICommon = ConfigInfoAppCommon(self.__siteId)
@@ -510,6 +511,15 @@ class RcsbDpUtility:
             self.__singularity_bind_paths = [p.strip() for p in bind_paths.split(",")]
         else:
             logger.error("bind_paths must be a list or comma-separated string")
+
+    def setPartition(self, partition):
+        """Set the SLURM partition for remote execution.
+        
+        Args:
+            partition: SLURM partition name (e.g., 'standard', 'debug')
+        """
+        if partition:
+            self.__partition = str(partition)
 
     def __getRunRemote(self):
         try:
@@ -5153,6 +5163,7 @@ class RcsbDpUtility:
                 use_singularity=self.__use_singularity,
                 singularity_image=self.__singularity_image,
                 singularity_bind_paths=self.__singularity_bind_paths,
+                partition=self.__partition,
             ).run()
 
         if self.__timeout > 0:
