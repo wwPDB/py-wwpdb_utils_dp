@@ -45,6 +45,9 @@ class RunRemote:
         number_of_processors=1,
         add_site_config=False,
         add_site_config_database=False,
+        use_singularity=False,
+        singularity_image=None,
+        singularity_bind_paths=None,
     ):
         self.command = command
         self.job_name = job_name
@@ -55,6 +58,9 @@ class RunRemote:
         self.number_of_processors = str(number_of_processors)
         self.add_site_config = add_site_config
         self.add_site_config_database = add_site_config_database
+        self.use_singularity = use_singularity
+        self.singularity_image = singularity_image or "/nfs/public/services/onedep_gpfs/docker-tools/onedep-builder_rocky8.sif"
+        self.singularity_bind_paths = singularity_bind_paths or []
 
         if not self.run_dir:
             self.run_dir = tempfile.mkdtemp(prefix="run_remote_")  # this won't work as cluster nodes have different temp dirs
@@ -150,6 +156,42 @@ class RunRemote:
         if self.run_dir.startswith("/tmp/run_remote_"):  # noqa: S108
             shutil.rmtree(self.run_dir)
 
+    def _wrap_with_singularity(self, command):
+        """Wrap a command to execute inside the Singularity container."""
+        onedep_root = self.cI.get("TOP_WWPDB_SITE_CONFIG_DIR").rstrip("/site-config")
+        
+        # Build bind mount arguments
+        bind_mounts = [
+            f"--bind {onedep_root}:{onedep_root}",
+            "--bind /tmp:/tmp",
+            f"--bind {self.log_dir}:{self.log_dir}",
+            f"--bind {self.run_dir}:{self.run_dir}",
+        ]
+        
+        # Add custom bind paths
+        for bind_path in self.singularity_bind_paths:
+            bind_mounts.append(f"--bind {bind_path}")
+        
+        bind_args = " ".join(bind_mounts)
+        
+        # Build environment variables
+        env_vars = [
+            f"--env WWPDB_SITE_ID={self.siteId}",
+            f"--env WWPDB_SITE_LOC={self.cI.get('WWPDB_SITE_LOC')}",
+            f"--env ONEDEP_PATH={onedep_root}",
+        ]
+        env_args = " ".join(env_vars)
+        
+        singularity_cmd = (
+            f"singularity exec --cleanenv "
+            f"{bind_args} "
+            f"{env_args} "
+            f"{self.singularity_image} "
+            f"bash -c '{command}'"
+        )
+        
+        return singularity_cmd
+
     def _source_site_config(self, database=False):
         suffix = ""
         if database:
@@ -167,6 +209,10 @@ class RunRemote:
 
         if self.add_site_config_database or self.add_site_config:
             wf_command = self._source_site_config(database=self.add_site_config_database)
+
+        # Wrap with Singularity if enabled
+        if self.use_singularity:
+            wf_command = self._wrap_with_singularity(wf_command)
 
         while retries > 0:
             sbatch_cmd = self._build_sbatch_command(command=wf_command)
@@ -205,11 +251,18 @@ if __name__ == "__main__":
     parser_run.add_argument("--num_processors", help="number of processors", type=int, default=1)
     parser_run.add_argument("--add_site_config", help="add site config to command", action="store_true")
     parser_run.add_argument("--add_site_config_with_database", help="add site config with database to command", action="store_true")
+    parser_run.add_argument("--use_singularity", help="run command inside Singularity container", action="store_true")
+    parser_run.add_argument("--singularity_image", help="path to Singularity image file", type=str)
+    parser_run.add_argument("--singularity_bind_paths", help="additional bind paths for Singularity (comma-separated)", type=str)
 
     args = parser.parse_args()
 
     logger.info(f"Running command: {args.comm}")
     if args.comm == "run":
+        singularity_bind_paths = []
+        if args.singularity_bind_paths:
+            singularity_bind_paths = [path.strip() for path in args.singularity_bind_paths.split(",")]
+        
         run_remote = RunRemote(
             command=args.command,
             job_name=args.job_name,
@@ -219,6 +272,9 @@ if __name__ == "__main__":
             number_of_processors=args.num_processors,
             add_site_config=args.add_site_config,
             add_site_config_database=args.add_site_config_with_database,
+            use_singularity=args.use_singularity,
+            singularity_image=args.singularity_image,
+            singularity_bind_paths=singularity_bind_paths,
         )
         status_ret = run_remote.run()
         logger.info(f"Job finished with status: {status_ret}")
