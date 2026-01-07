@@ -48,6 +48,7 @@ class RunRemote:
         use_singularity=False,
         singularity_image=None,
         singularity_bind_paths=None,
+        partition=None,
     ):
         self.command = command
         self.job_name = job_name
@@ -68,7 +69,12 @@ class RunRemote:
 
         self.siteId = getSiteId()
         self.cI = ConfigInfo(self.siteId)
-        self.pdbe_cluster_queue = str(self.cI.get("PDBE_CLUSTER_QUEUE"))
+        # Use provided partition, or fall back to config, or use "standard" as default
+        if partition:
+            self.pdbe_cluster_queue = str(partition)
+        else:
+            config_partition = self.cI.get("PDBE_CLUSTER_QUEUE")
+            self.pdbe_cluster_queue = str(config_partition) if config_partition else "standard"
         self._stdout_file = os.path.join(self.log_dir, self.job_name + ".out")
         self._stderr_file = os.path.join(self.log_dir, self.job_name + ".err")
 
