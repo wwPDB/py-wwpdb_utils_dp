@@ -435,6 +435,7 @@ class RcsbDpUtility:
         self.__cIVal = ConfigInfoAppValidation(self.__siteId)
         self.__initPath()
         self.__getRunRemote()
+        self.__getSingularity()
 
     def __getConfigPath(self, ky):
         try:
@@ -517,6 +518,24 @@ class RcsbDpUtility:
                     self.setRunRemote()
         except Exception as e:  # noqa: BLE001
             logger.info("unable to get cluster queue %s", str(e))
+
+    def __getSingularity(self):
+        """Check configuration and enable Singularity if configured."""
+        try:
+            if self.__cI.get("USE_SINGULARITY"):
+                self.setUseSingularity(True)
+                
+                # Get custom image path if configured
+                singularity_image = self.__cI.get("SINGULARITY_IMAGE")
+                if singularity_image:
+                    self.setSingularityImage(singularity_image)
+                
+                # Get custom bind paths if configured
+                bind_paths = self.__cI.get("SINGULARITY_BIND_PATHS")
+                if bind_paths:
+                    self.setSingularityBindPaths(bind_paths)
+        except Exception as e:  # noqa: BLE001
+            logger.info("unable to get singularity configuration %s", str(e))
 
     def setRcsbAppsPath(self, fPath):
         """Set or overwrite the configuration setting for __rcsbAppsPath."""
