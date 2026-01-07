@@ -157,7 +157,16 @@ class RunRemote:
             shutil.rmtree(self.run_dir)
 
     def _wrap_with_singularity(self, command):
-        """Wrap a command to execute inside the Singularity container."""
+        """Wrap a command to execute inside the Singularity container.
+        
+        Detects if already running inside a Singularity container and skips
+        wrapping to avoid nested containerization.
+        """
+        # Check if we're already inside a Singularity container
+        if os.environ.get("SINGULARITY_CONTAINER") or os.environ.get("SINGULARITY_NAME"):
+            logger.info("Already inside Singularity container, skipping container wrapping")
+            return command
+        
         onedep_root = self.cI.get("TOP_WWPDB_SITE_CONFIG_DIR").rstrip("/site-config")
         
         # Build bind mount arguments
