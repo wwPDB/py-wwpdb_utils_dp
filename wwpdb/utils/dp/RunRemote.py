@@ -167,15 +167,25 @@ class RunRemote:
             logger.info("Already inside Singularity container, skipping container wrapping")
             return command
         
-        onedep_root = self.cI.get("TOP_WWPDB_SITE_CONFIG_DIR").rstrip("/site-config")
+        # Get onedep root, fallback to common paths if not configured
+        top_config_dir = self.cI.get("TOP_WWPDB_SITE_CONFIG_DIR")
+        if top_config_dir:
+            onedep_root = top_config_dir.rstrip("/site-config")
+        else:
+            # Fallback: try to determine from environment or use current directory
+            onedep_root = os.environ.get("ONEDEP_PATH", "/opt/wwpdb")
+            logger.warning(f"TOP_WWPDB_SITE_CONFIG_DIR not configured, using fallback: {onedep_root}")
         
         # Build bind mount arguments
         bind_mounts = [
-            f"--bind {onedep_root}:{onedep_root}",
             "--bind /tmp:/tmp",
             f"--bind {self.log_dir}:{self.log_dir}",
             f"--bind {self.run_dir}:{self.run_dir}",
         ]
+        
+        # Add onedep root only if it exists and is absolute
+        if onedep_root and os.path.isabs(onedep_root):
+            bind_mounts.insert(0, f"--bind {onedep_root}:{onedep_root}")
         
         # Add custom bind paths
         for bind_path in self.singularity_bind_paths:
@@ -184,9 +194,10 @@ class RunRemote:
         bind_args = " ".join(bind_mounts)
         
         # Build environment variables
+        site_loc = self.cI.get('WWPDB_SITE_LOC') or 'UNKNOWN'
         env_vars = [
             f"--env WWPDB_SITE_ID={self.siteId}",
-            f"--env WWPDB_SITE_LOC={self.cI.get('WWPDB_SITE_LOC')}",
+            f"--env WWPDB_SITE_LOC={site_loc}",
             f"--env ONEDEP_PATH={onedep_root}",
         ]
         env_args = " ".join(env_vars)
