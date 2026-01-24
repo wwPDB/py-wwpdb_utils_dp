@@ -3878,14 +3878,17 @@ class RcsbDpUtility:
             # retrieve java binary and FindGeo jar file from package path
             java_exe = os.path.join(self.__packagePath, "java", "jre", "bin", "java")
             logger.info("To use java executable at %s", java_exe)
-            logger.info("Check java executable existence: %s", os.path.exists(java_exe))
+            if not os.path.exists(java_exe):
+                java_exe = "java"  # fallback to just "java" in case it's in PATH
             findgeo_locations = [
                 os.path.join(self.__packagePath, "FindGeo", "FindGeo.jar"),
                 os.path.join(self.__packagePath, "metallo", "FindGeo", "FindGeo.jar")
             ]
             findgeo_jar = next((path for path in findgeo_locations if os.path.exists(path)), None)
-            logger.info("To use FindGeo Jar file at %s", findgeo_jar)
-            logger.info("Check FindGeo Jar file existence: %s", os.path.exists(findgeo_jar))
+            if findgeo_jar:
+                logger.info("To use FindGeo Jar file at %s", findgeo_jar)
+            else:
+                logger.error("Cannot find FindGeo Jar file in packagePath")
 
             # create a copy of input file with .cif extension for FindGeo to work
             fn_input = iPath.strip() + ".cif"  # must have .cif extension for FindGeo to work
