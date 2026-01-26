@@ -164,13 +164,15 @@ class JobLogger:
         if not self._logger:
             return
 
+        status = job_result.status.value if isinstance(job_result.status, Enum) else str(job_result.status)
+
         # Build metrics dict, only including non-None values
         metrics = {
             "dep_id": dep_id,
             "type": runenv.value,
             "op": op,
             "job_id": job_result.job_id,
-            "status": job_result.status.value,
+            "status": status,
             "retries": job_result.retries_used,
         }
         
