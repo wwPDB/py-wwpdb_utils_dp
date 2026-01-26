@@ -26,6 +26,7 @@ dependencies = [
     "mmcif >= 0.18",
     "wwpdb.io",
     "wwpdb.utils.config >= 0.34",
+    "pythonjsonlogger >= 4.0.0",
 ]
 
 requires-python = ">=3.6"

@@ -1,5 +1,6 @@
 # pylint: disable=logging-format-interpolation
 import argparse
+import json
 import logging
 import os
 import shutil
@@ -8,6 +9,7 @@ import tempfile
 import time
 from enum import Enum
 from textwrap import dedent
+from datetime import datetime
 
 from wwpdb.utils.config.ConfigInfo import ConfigInfo, getSiteId
 
@@ -31,6 +33,37 @@ class JobStatus(Enum):
     FAILED = "FAILED"
     CANCELLED = "CANCELLED"
     OTHER = "OTHER"
+
+
+class JobResult:
+    """Result object containing job status and metrics.
+    May be used both for local and remote jobs.
+    """
+    def __init__(
+        self,
+        status,
+        job_id=None,
+        retries_used=0,
+        total_time_seconds=None,
+        execution_time_seconds=None,
+        queue_time_seconds=None,
+        requested_memory_mb=None,
+        used_memory_mb=None,
+        cpu_count=None,
+        cpu_time_seconds=None,
+    ):
+        self.status = status
+        self.job_id = job_id
+        self.retries_used = retries_used
+        # Timing metrics
+        self.total_time_seconds = total_time_seconds  # submission + execution
+        self.execution_time_seconds = execution_time_seconds  # actual job execution
+        self.queue_time_seconds = queue_time_seconds  # time waiting for node
+        # Resource metrics
+        self.requested_memory_mb = requested_memory_mb
+        self.used_memory_mb = used_memory_mb
+        self.cpu_count = cpu_count
+        self.cpu_time_seconds = cpu_time_seconds
 
 
 class RunRemote:
@@ -99,6 +132,93 @@ class RunRemote:
         subprocess.run(cmd, check=True)
         logger.info(f"Requeued failed job {job_id}")
 
+    def _get_job_metrics(self, job_id):
+        """Extract job metrics from SLURM using sacct."""
+        try:
+            cmd = ["sacct", "--json", "--jobs", str(job_id)]
+            output = subprocess.run(cmd, check=True, capture_output=True, text=True)
+            data = json.loads(output.stdout)
+            
+            if not data.get("jobs"):
+                logger.warning(f"No job data found for job {job_id}")
+                return {}
+            
+            # Get the main job entry (not step entries)
+            job_data = None
+            for job in data["jobs"]:
+                if job.get("job_id") == job_id or str(job.get("job_id")).startswith(f"{job_id}."):
+                    # Prefer the parent job, not steps
+                    if "." not in str(job.get("job_id", "")):
+                        job_data = job
+                        break
+            
+            if not job_data:
+                logger.warning(f"Could not parse job data for {job_id}")
+                return {}
+            
+            metrics = {}
+            
+            # Extract timing metrics
+            submit_time = job_data.get("submit_time")
+            start_time = job_data.get("start_time")
+            end_time = job_data.get("end_time")
+            
+            if submit_time and end_time:
+                try:
+                    submit_dt = datetime.fromisoformat(submit_time.replace("Z", "+00:00"))
+                    end_dt = datetime.fromisoformat(end_time.replace("Z", "+00:00"))
+                    metrics["total_time_seconds"] = (end_dt - submit_dt).total_seconds()
+                except (ValueError, AttributeError) as e:
+                    logger.warning(f"Could not parse submit/end times: {e}")
+            
+            if start_time and end_time:
+                try:
+                    start_dt = datetime.fromisoformat(start_time.replace("Z", "+00:00"))
+                    end_dt = datetime.fromisoformat(end_time.replace("Z", "+00:00"))
+                    metrics["execution_time_seconds"] = (end_dt - start_dt).total_seconds()
+                except (ValueError, AttributeError) as e:
+                    logger.warning(f"Could not parse start/end times: {e}")
+            
+            if submit_time and start_time:
+                try:
+                    submit_dt = datetime.fromisoformat(submit_time.replace("Z", "+00:00"))
+                    start_dt = datetime.fromisoformat(start_time.replace("Z", "+00:00"))
+                    metrics["queue_time_seconds"] = (start_dt - submit_dt).total_seconds()
+                except (ValueError, AttributeError) as e:
+                    logger.warning(f"Could not parse queue times: {e}")
+            
+            # Extract memory metrics (in MB)
+            mem_alloc = job_data.get("allocated_mem")
+            if mem_alloc:
+                # SLURM reports in MB by default
+                metrics["requested_memory_mb"] = int(mem_alloc) if isinstance(mem_alloc, str) else mem_alloc
+            
+            mem_used = job_data.get("max_rss")
+            if mem_used:
+                # max_rss is in KB, convert to MB
+                metrics["used_memory_mb"] = int(mem_used) // 1024 if isinstance(mem_used, str) else mem_used // 1024
+            
+            # Extract CPU metrics
+            cpu_alloc = job_data.get("allocated_cpus")
+            if cpu_alloc:
+                metrics["cpu_count"] = int(cpu_alloc) if isinstance(cpu_alloc, str) else cpu_alloc
+            
+            # CPU time = user_cpu + system_cpu (in seconds)
+            user_cpu = job_data.get("user_cpu_seconds")
+            sys_cpu = job_data.get("system_cpu_seconds")
+            if user_cpu is not None and sys_cpu is not None:
+                metrics["cpu_time_seconds"] = float(user_cpu) + float(sys_cpu)
+            
+            logger.debug(f"Job {job_id} metrics: {metrics}")
+            return metrics
+        
+        except subprocess.CalledProcessError as e:
+            logger.warning(f"Error running sacct for job {job_id}: {e}")
+            return {}
+        except (json.JSONDecodeError, KeyError, ValueError) as e:
+            logger.warning(f"Error parsing sacct output for job {job_id}: {e}")
+            return {}
+
     def monitor(self, job_id, frequency=10):
         """Monitor a job by ID, requeueing if it fails."""
         logging.info(f"Monitoring job {job_id}")  # noqa: LOG015
@@ -161,34 +281,58 @@ class RunRemote:
 
         return "{}; {}".format(site_config_command, self.command)
 
-    def run(self, retries=3):
+    def run(self, retries=3) -> JobResult:
         status = JobStatus.OTHER
+        job_id = None
         wf_command = self.command
 
         if self.add_site_config_database or self.add_site_config:
             wf_command = self._source_site_config(database=self.add_site_config_database)
 
+        retries_used = 0
         while retries > 0:
-            sbatch_cmd = self._build_sbatch_command(command=wf_command)
-            logger.info(" ".join(sbatch_cmd))
+            try:
+                sbatch_cmd = self._build_sbatch_command(command=wf_command)
+                logger.info(" ".join(sbatch_cmd))
 
-            output = subprocess.run(sbatch_cmd, check=True, capture_output=True)
-            job_id = int(output.stdout.decode("utf-8").split()[-1])
-            logger.debug(f"Submitted: {job_id}")
+                output = subprocess.run(sbatch_cmd, check=True, capture_output=True)
+                job_id = int(output.stdout.decode("utf-8").split()[-1])
+                logger.debug(f"Submitted: {job_id}")
 
-            self._cleanup()
-            status = self.monitor(job_id=job_id)
+                self._cleanup()
+                status = self.monitor(job_id=job_id)
 
-            if status == JobStatus.COMPLETED:
+                if status == JobStatus.COMPLETED:
+                    break
+
+                if status == JobStatus.OOM:
+                    self.memory_limit = str(int(self.memory_limit) * 2)
+
+                logger.info(f"Retrying job {job_id} with memory limit {self.memory_limit}")
+                retries -= 1
+                retries_used += 1
+            except subprocess.CalledProcessError as e:
+                logger.error(f"Error submitting job: {e}")
                 break
 
-            if status == JobStatus.OOM:
-                self.memory_limit = str(int(self.memory_limit) * 2)
-
-            logger.info(f"Retrying job {job_id} with memory limit {self.memory_limit}")
-            retries -= 1
-
-        return status
+        # Extract metrics from SLURM
+        metrics = self._get_job_metrics(job_id) if job_id else {}
+        
+        # Create result object with metrics
+        result = JobResult(
+            status=status,
+            job_id=job_id,
+            retries_used=retries_used,
+            total_time_seconds=metrics.get("total_time_seconds"),
+            execution_time_seconds=metrics.get("execution_time_seconds"),
+            queue_time_seconds=metrics.get("queue_time_seconds"),
+            requested_memory_mb=metrics.get("requested_memory_mb"),
+            used_memory_mb=metrics.get("used_memory_mb"),
+            cpu_count=metrics.get("cpu_count"),
+            cpu_time_seconds=metrics.get("cpu_time_seconds"),
+        )
+        
+        return result
 
 
 if __name__ == "__main__":
@@ -220,5 +364,6 @@ if __name__ == "__main__":
             add_site_config=args.add_site_config,
             add_site_config_database=args.add_site_config_with_database,
         )
-        status_ret = run_remote.run()
-        logger.info(f"Job finished with status: {status_ret}")
+        result = run_remote.run()
+        logger.info(f"Job finished with status: {result.status}")
+        logger.info(f"Job ID: {result.job_id}, Execution time: {result.execution_time_seconds}s, Queue time: {result.queue_time_seconds}s")
