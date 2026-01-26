@@ -5100,7 +5100,7 @@ class RcsbDpUtility:
 
     def __run(self, command, lPathFull, op):
         if self.__job_logger is not None:
-            self.__job_logger.info(dep_id=self.__dep_id, op=op, operation=op, command=command)
+            self.__job_logger.info(dep_id=self.__dep_id, op=op, command=command)
 
         if self.__run_remote:
             random_suffix = random.randrange(9999999)  # noqa: S311
