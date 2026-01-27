@@ -151,7 +151,7 @@ class JobLogger:
         if self._logger:
             self._logger.debug(json.dumps({"dep_id": dep_id, "op": op, **kwargs}))
 
-    def job_result(self, dep_id, op, runenv: RunEnvironment, job_result) -> None:
+    def job_result(self, dep_id, op, runenv: RunEnvironment, wfhost, job_result) -> None:
         """
         Log a JobResult as a single JSON record for Loki ingestion.
 
@@ -169,8 +169,9 @@ class JobLogger:
         # Build metrics dict, only including non-None values
         metrics = {
             "dep_id": dep_id,
-            "runenv": runenv.value,
             "op": op,
+            "runenv": runenv.value,
+            "wfhost": wfhost,
             "job_id": job_result.job_id,
             "status": status,
             "retries": job_result.retries_used,

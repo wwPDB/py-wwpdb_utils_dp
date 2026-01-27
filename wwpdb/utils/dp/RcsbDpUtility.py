@@ -436,9 +436,10 @@ class RcsbDpUtility:
         self.__cIVal = ConfigInfoAppValidation(self.__siteId)
         self.__initPath()
         self.__getRunRemote()
-        log_file_path = self.__cI.get("JOB_METRICS_LOG_PATH")
+        log_dir_path = self.__cI.get("JOB_METRICS_DIR_PATH")
         self.__job_logger = None
-        if log_file_path:
+        if log_dir_path:
+            log_file_path = os.path.join(log_dir_path, f"wfe_metrics_{self.__siteId}.log")
             self.__job_logger = JobLogger(log_file_path).start()
 
     def __getConfigPath(self, ky):
@@ -5127,6 +5128,7 @@ class RcsbDpUtility:
                     dep_id=self.__dep_id,
                     op=op,
                     runenv=RunEnvironment.REMOTE,
+                    wfhost=socket.gethostname(),
                     job_result=result
                 )
 
@@ -5172,6 +5174,7 @@ class RcsbDpUtility:
                     dep_id=self.__dep_id,
                     op=op,
                     runenv=RunEnvironment.LOCAL,
+                    wfhost=socket.gethostname(),
                     job_result=local_result
                 )
         return retcode
