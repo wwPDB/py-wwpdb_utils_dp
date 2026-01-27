@@ -169,7 +169,7 @@ class JobLogger:
         # Build metrics dict, only including non-None values
         metrics = {
             "dep_id": dep_id,
-            "type": runenv.value,
+            "runenv": runenv.value,
             "op": op,
             "job_id": job_result.job_id,
             "status": status,
