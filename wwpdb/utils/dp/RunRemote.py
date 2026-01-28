@@ -7,7 +7,6 @@ import subprocess
 import tempfile
 import time
 from enum import Enum
-from textwrap import dedent
 
 from wwpdb.utils.config.ConfigInfo import ConfigInfo, getSiteId
 
@@ -148,13 +147,12 @@ class RunRemote:
         logger.debug(f"Command to execute: {command}")
         
         with open(self._shell_script, "w") as f:
-            cmd = f"""\
-            #!/bin/bash
-            set -e
-            export XDG_RUNTIME_DIR={self.run_dir}
-            {command}
-            """
-            f.write(dedent(cmd))
+            cmd = f"""#!/bin/bash
+set -e
+export XDG_RUNTIME_DIR={self.run_dir}
+{command}
+"""
+            f.write(cmd)
             f.flush()
         os.chmod(self._shell_script, 0o775)
 
