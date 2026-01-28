@@ -142,6 +142,7 @@ class RunRemote:
             "--chdir=%s" % self.run_dir,
             "--output=%s" % self._stdout_file,
             "--error=%s" % self._stderr_file,
+            "--export=ALL",  # Inherit environment variables for nested container detection
         ]
 
         logger.debug(f"Command to execute: {command}")
