@@ -144,6 +144,8 @@ class RunRemote:
             "--error=%s" % self._stderr_file,
         ]
 
+        logger.debug(f"Command to execute: {command}")
+        
         with open(self._shell_script, "w") as f:
             cmd = f"""\
             #!/bin/bash
