@@ -622,7 +622,87 @@
         // Export SVG
         function exportSvg() {
             const svgEl = document.querySelector('#chart svg');
-            const svgData = new XMLSerializer().serializeToString(svgEl);
+
+            // Get computed styles from ORIGINAL elements before cloning
+            const originalTexts = svgEl.querySelectorAll('text');
+            const originalCircles = svgEl.querySelectorAll('circle');
+            const textStyles = [];
+            const circleStyles = [];
+
+            originalTexts.forEach(text => {
+                const computed = window.getComputedStyle(text);
+                const hasStroke = text.getAttribute('stroke') !== null;
+                textStyles.push({
+                    fill: computed.fill,
+                    fontSize: computed.fontSize,
+                    hasStroke: hasStroke
+                });
+            });
+
+            originalCircles.forEach(circle => {
+                const computed = window.getComputedStyle(circle);
+                circleStyles.push({
+                    fill: computed.fill
+                });
+            });
+
+            // Now clone the SVG
+            const clonedSvg = svgEl.cloneNode(true);
+
+            // Add background rectangle - position at viewBox origin
+            const viewBox = svgEl.getAttribute('viewBox').split(' ').map(Number);
+            const bg = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            bg.setAttribute('x', viewBox[0]);
+            bg.setAttribute('y', viewBox[1]);
+            bg.setAttribute('width', viewBox[2]);
+            bg.setAttribute('height', viewBox[3]);
+            bg.setAttribute('fill', '#1a1a2e');
+            clonedSvg.insertBefore(bg, clonedSvg.firstChild);
+
+            // Embed styles directly into SVG
+            const styleEl = document.createElementNS('http://www.w3.org/2000/svg', 'style');
+            styleEl.textContent = `
+                .link { fill: none; stroke: #334155; stroke-width: 1px; stroke-opacity: 0.6; }
+                text { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+            `;
+            clonedSvg.insertBefore(styleEl, clonedSvg.firstChild);
+
+            // Apply collected styles to cloned text elements
+            const clonedTexts = clonedSvg.querySelectorAll('text');
+            clonedTexts.forEach((text, i) => {
+                const style = textStyles[i];
+                if (style) {
+                    text.setAttribute('fill', style.fill);
+                    text.setAttribute('font-size', style.fontSize);
+                    text.setAttribute('font-family', '-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif');
+                    if (style.hasStroke) {
+                        text.setAttribute('stroke', '#1a1a2e');
+                        text.setAttribute('stroke-width', '3');
+                        text.setAttribute('paint-order', 'stroke');
+                    }
+                }
+            });
+
+            // Apply collected styles to cloned circles
+            const clonedCircles = clonedSvg.querySelectorAll('circle');
+            clonedCircles.forEach((circle, i) => {
+                const style = circleStyles[i];
+                if (style) {
+                    circle.setAttribute('fill', style.fill);
+                }
+            });
+
+            // Apply inline styles to paths (links)
+            clonedSvg.querySelectorAll('path').forEach(path => {
+                if (path.classList.contains('link') || path.closest('.links')) {
+                    path.setAttribute('fill', 'none');
+                    path.setAttribute('stroke', '#334155');
+                    path.setAttribute('stroke-width', '1');
+                    path.setAttribute('stroke-opacity', '0.6');
+                }
+            });
+
+            const svgData = new XMLSerializer().serializeToString(clonedSvg);
             const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
             const url = URL.createObjectURL(svgBlob);
 
