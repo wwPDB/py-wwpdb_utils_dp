@@ -1,0 +1,107 @@
+{
+  "method": "__pisaStep",
+  "line_range": [
+    4558,
+    4682
+  ],
+  "preamble_cmd": "cmd += ' ; PISA_TOP=' + os.path.abspath(pisaTopPath) + ' ; export PISA_TOP '\ncmd += ' ; PISA_SESSIONS=' + os.path.abspath(self.__wrkPath) + ' ; export PISA_SESSIONS '\ncmd += ' ; PISA_CONF_FILE=' + os.path.abspath(os.path.join(pisaConfPath, 'pisa-standalone.cfg')) + ' ; export PISA_CONF_FILE '",
+  "variables": {
+    "raw": {},
+    "non_raw": {
+      "pisaTopPath": "self.__cICommon.get_site_pisa_top_path()",
+      "pisaConfPath": "self.__cICommon.get_site_pisa_conf_path()",
+      "annotToolsPath": "self.__cICommon.get_site_annot_tools_path()",
+      "iPath": "self.__getSourceWrkFile(self.__stepNo)",
+      "oPath": "self.__getResultWrkFile(self.__stepNo)",
+      "lPath": "self.__getLogWrkFile(self.__stepNo)",
+      "ePath": "self.__getErrWrkFile(self.__stepNo)",
+      "tPath": "self.__getTmpWrkFile(self.__stepNo)",
+      "iret": "self.__run(cmd, lPathFull, op)"
+    }
+  },
+  "operations": [
+    {
+      "op_name": "pisa-analysis",
+      "line_range": [
+        4600,
+        4606
+      ],
+      "cmd_additions": "cmd += ' ; ' + (os.path.join(pisaTopPath, 'bin', 'pisa')) + ' ' + pisaSession + ' -analyse ' + iPathFull\ncmd += ' > ' + tPath + ' 2>&1 ; cat ' + tPath + ' >> ' + lPath",
+      "full_cmd": "cmd += ' ; PISA_TOP=' + os.path.abspath(pisaTopPath) + ' ; export PISA_TOP '\ncmd += ' ; PISA_SESSIONS=' + os.path.abspath(self.__wrkPath) + ' ; export PISA_SESSIONS '\ncmd += ' ; PISA_CONF_FILE=' + os.path.abspath(os.path.join(pisaConfPath, 'pisa-standalone.cfg')) + ' ; export PISA_CONF_FILE '\ncmd += ' ; ' + (os.path.join(pisaTopPath, 'bin', 'pisa')) + ' ' + pisaSession + ' -analyse ' + iPathFull\ncmd += ' > ' + tPath + ' 2>&1 ; cat ' + tPath + ' >> ' + lPath",
+      "branches": [
+        {
+          "condition": "'pisa_assembly_arguments' in self.__inputParamDict",
+          "if_cmd": "cmd += ' ' + assemblyArgs"
+        }
+      ]
+    },
+    {
+      "op_name": "pisa-assembly-report-xml",
+      "line_range": [
+        4607,
+        4610
+      ],
+      "cmd_additions": "cmd += ' ; ' + (os.path.join(pisaTopPath, 'bin', 'pisa')) + ' ' + pisaSession + ' -xml assemblies > ' + oPath\ncmd += ' 2> ' + tPath + ' ; cat ' + tPath + ' >> ' + lPath",
+      "full_cmd": "cmd += ' ; PISA_TOP=' + os.path.abspath(pisaTopPath) + ' ; export PISA_TOP '\ncmd += ' ; PISA_SESSIONS=' + os.path.abspath(self.__wrkPath) + ' ; export PISA_SESSIONS '\ncmd += ' ; PISA_CONF_FILE=' + os.path.abspath(os.path.join(pisaConfPath, 'pisa-standalone.cfg')) + ' ; export PISA_CONF_FILE '\ncmd += ' ; ' + (os.path.join(pisaTopPath, 'bin', 'pisa')) + ' ' + pisaSession + ' -xml assemblies > ' + oPath\ncmd += ' 2> ' + tPath + ' ; cat ' + tPath + ' >> ' + lPath"
+    },
+    {
+      "op_name": "pisa-assembly-report-text",
+      "line_range": [
+        4611,
+        4614
+      ],
+      "cmd_additions": "cmd += ' ; ' + (os.path.join(pisaTopPath, 'bin', 'pisa')) + ' ' + pisaSession + ' -list assemblies > ' + oPath\ncmd += ' 2> ' + tPath + ' ; cat ' + tPath + ' >> ' + lPath",
+      "full_cmd": "cmd += ' ; PISA_TOP=' + os.path.abspath(pisaTopPath) + ' ; export PISA_TOP '\ncmd += ' ; PISA_SESSIONS=' + os.path.abspath(self.__wrkPath) + ' ; export PISA_SESSIONS '\ncmd += ' ; PISA_CONF_FILE=' + os.path.abspath(os.path.join(pisaConfPath, 'pisa-standalone.cfg')) + ' ; export PISA_CONF_FILE '\ncmd += ' ; ' + (os.path.join(pisaTopPath, 'bin', 'pisa')) + ' ' + pisaSession + ' -list assemblies > ' + oPath\ncmd += ' 2> ' + tPath + ' ; cat ' + tPath + ' >> ' + lPath"
+    },
+    {
+      "op_name": "pisa-interface-report-xml",
+      "line_range": [
+        4615,
+        4618
+      ],
+      "cmd_additions": "cmd += ' ; ' + (os.path.join(pisaTopPath, 'bin', 'pisa')) + ' ' + pisaSession + ' -xml interfaces > ' + oPath\ncmd += ' 2> ' + tPath + ' ; cat ' + tPath + ' >> ' + lPath",
+      "full_cmd": "cmd += ' ; PISA_TOP=' + os.path.abspath(pisaTopPath) + ' ; export PISA_TOP '\ncmd += ' ; PISA_SESSIONS=' + os.path.abspath(self.__wrkPath) + ' ; export PISA_SESSIONS '\ncmd += ' ; PISA_CONF_FILE=' + os.path.abspath(os.path.join(pisaConfPath, 'pisa-standalone.cfg')) + ' ; export PISA_CONF_FILE '\ncmd += ' ; ' + (os.path.join(pisaTopPath, 'bin', 'pisa')) + ' ' + pisaSession + ' -xml interfaces > ' + oPath\ncmd += ' 2> ' + tPath + ' ; cat ' + tPath + ' >> ' + lPath"
+    },
+    {
+      "op_name": "pisa-assembly-coordinates-pdb",
+      "line_range": [
+        4619,
+        4623
+      ],
+      "cmd_additions": "cmd += ' ; ' + (os.path.join(pisaTopPath, 'bin', 'pisa')) + ' ' + pisaSession + ' -download assembly ' + (self.__inputParamDict['pisa_assembly_id']) + '  > ' + oPath\ncmd += ' 2> ' + tPath + ' ; cat ' + tPath + ' >> ' + lPath",
+      "full_cmd": "cmd += ' ; PISA_TOP=' + os.path.abspath(pisaTopPath) + ' ; export PISA_TOP '\ncmd += ' ; PISA_SESSIONS=' + os.path.abspath(self.__wrkPath) + ' ; export PISA_SESSIONS '\ncmd += ' ; PISA_CONF_FILE=' + os.path.abspath(os.path.join(pisaConfPath, 'pisa-standalone.cfg')) + ' ; export PISA_CONF_FILE '\ncmd += ' ; ' + (os.path.join(pisaTopPath, 'bin', 'pisa')) + ' ' + pisaSession + ' -download assembly ' + (self.__inputParamDict['pisa_assembly_id']) + '  > ' + oPath\ncmd += ' 2> ' + tPath + ' ; cat ' + tPath + ' >> ' + lPath"
+    },
+    {
+      "op_name": "pisa-assembly-coordinates-cif",
+      "line_range": [
+        4624,
+        4628
+      ],
+      "cmd_additions": "cmd += ' ; ' + (os.path.join(pisaTopPath, 'bin', 'pisa')) + ' ' + pisaSession + ' -cif assembly ' + str((self.__inputParamDict['pisa_assembly_id'])) + '  > ' + oPath\ncmd += ' 2> ' + tPath + ' ; cat ' + tPath + ' >> ' + lPath",
+      "full_cmd": "cmd += ' ; PISA_TOP=' + os.path.abspath(pisaTopPath) + ' ; export PISA_TOP '\ncmd += ' ; PISA_SESSIONS=' + os.path.abspath(self.__wrkPath) + ' ; export PISA_SESSIONS '\ncmd += ' ; PISA_CONF_FILE=' + os.path.abspath(os.path.join(pisaConfPath, 'pisa-standalone.cfg')) + ' ; export PISA_CONF_FILE '\ncmd += ' ; ' + (os.path.join(pisaTopPath, 'bin', 'pisa')) + ' ' + pisaSession + ' -cif assembly ' + str((self.__inputParamDict['pisa_assembly_id'])) + '  > ' + oPath\ncmd += ' 2> ' + tPath + ' ; cat ' + tPath + ' >> ' + lPath"
+    },
+    {
+      "op_name": "pisa-assembly-merge-cif",
+      "line_range": [
+        4629,
+        4653
+      ],
+      "cmd_additions": "cmd += ' ; ' + (os.path.join(annotToolsPath, 'bin', 'MergePisaData')) + ' -input ' + iPathFull\ncmd += ' -spacegroup ' + (self.__cICommon.get_site_space_group_file_path()) + ' -log ' + ePath\ncmd += ' -output ' + oPath\ncmd += ' > ' + tPath + ' 2>&1 ; cat ' + tPath + ' >> ' + lPath",
+      "full_cmd": "cmd += ' ; PISA_TOP=' + os.path.abspath(pisaTopPath) + ' ; export PISA_TOP '\ncmd += ' ; PISA_SESSIONS=' + os.path.abspath(self.__wrkPath) + ' ; export PISA_SESSIONS '\ncmd += ' ; PISA_CONF_FILE=' + os.path.abspath(os.path.join(pisaConfPath, 'pisa-standalone.cfg')) + ' ; export PISA_CONF_FILE '\ncmd += ' ; ' + (os.path.join(annotToolsPath, 'bin', 'MergePisaData')) + ' -input ' + iPathFull\ncmd += ' -spacegroup ' + (self.__cICommon.get_site_space_group_file_path()) + ' -log ' + ePath\ncmd += ' -output ' + oPath\ncmd += ' > ' + tPath + ' 2>&1 ; cat ' + tPath + ' >> ' + lPath",
+      "branches": [
+        {
+          "condition": "'pisa_assembly_file_path' in self.__inputParamDict",
+          "if_cmd": "cmd += ' -xml ' + self.__inputParamDict['pisa_assembly_file_path']"
+        },
+        {
+          "condition": "'pisa_assembly_assignment_file_path' in self.__inputParamDict",
+          "if_cmd": "cmd += ' -assign ' + self.__inputParamDict['pisa_assembly_assignment_file_path']"
+        },
+        {
+          "condition": "'auto_assembly_assignment' in self.__inputParamDict",
+          "if_cmd": "cmd += ' -auto_assignment '"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,1972 @@
+{
+  "metadata": {
+    "source_file": "all_full_cmds.txt",
+    "total_operations": 110,
+    "extraction_date": "2026-02-02"
+  },
+  "operations": [
+    {
+      "op_name": "annot-base-pair-info",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "GetBasePairInfo",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__annotAppsPath, 'bin', 'GetBasePairInfo')",
+          "path_variable": "self.__annotAppsPath"
+        }
+      ],
+      "notes": null,
+      "group": "annotationStep"
+    },
+    {
+      "op_name": "annot-cif2pdbx-withpdbid",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "PdbxConverter",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__annotAppsPath, 'bin', 'PdbxConverter')",
+          "path_variable": "self.__annotAppsPath"
+        }
+      ],
+      "notes": null,
+      "group": "annotationStep"
+    },
+    {
+      "op_name": "annot-cis-peptide",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "GetCisPeptide",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__annotAppsPath, 'bin', 'GetCisPeptide')",
+          "path_variable": "self.__annotAppsPath"
+        }
+      ],
+      "notes": null,
+      "group": "annotationStep"
+    },
+    {
+      "op_name": "annot-consolidated-tasks",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "GetAddAnnotation",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__annotAppsPath, 'bin', 'GetAddAnnotation')",
+          "path_variable": "self.__annotAppsPath"
+        }
+      ],
+      "notes": null,
+      "group": "annotationStep"
+    },
+    {
+      "op_name": "annot-distant-solvent",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "CalculateDistantWater",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__annotAppsPath, 'bin', 'CalculateDistantWater')",
+          "path_variable": "self.__annotAppsPath"
+        }
+      ],
+      "notes": null,
+      "group": "annotationStep"
+    },
+    {
+      "op_name": "annot-format-check-pdb",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "CheckCoorFormat",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__annotAppsPath, 'bin', 'CheckCoorFormat')",
+          "path_variable": "self.__annotAppsPath"
+        }
+      ],
+      "notes": null,
+      "group": "annotationStep"
+    },
+    {
+      "op_name": "annot-format-check-pdbx",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "CheckCoorFormat",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__annotAppsPath, 'bin', 'CheckCoorFormat')",
+          "path_variable": "self.__annotAppsPath"
+        }
+      ],
+      "notes": null,
+      "group": "annotationStep"
+    },
+    {
+      "op_name": "annot-get-corres-info",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "GetCorresInfo",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__annotAppsPath, 'bin', 'GetCorresInfo')",
+          "path_variable": "self.__annotAppsPath"
+        }
+      ],
+      "notes": null,
+      "group": "annotationStep"
+    },
+    {
+      "op_name": "annot-link-ssbond",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "GetLinkAndSSBond",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__annotAppsPath, 'bin', 'GetLinkAndSSBond')",
+          "path_variable": "self.__annotAppsPath"
+        }
+      ],
+      "notes": null,
+      "group": "annotationStep"
+    },
+    {
+      "op_name": "annot-link-ssbond-with-ptm",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "GetLinkAndSSBond",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__annotAppsPath, 'bin', 'GetLinkAndSSBond')",
+          "path_variable": "self.__annotAppsPath"
+        }
+      ],
+      "notes": null,
+      "group": "annotationStep"
+    },
+    {
+      "op_name": "annot-merge-sequence-data",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "MergeSeqModuleData",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__annotAppsPath, 'bin', 'MergeSeqModuleData')",
+          "path_variable": "self.__annotAppsPath"
+        }
+      ],
+      "notes": null,
+      "group": "annotationStep"
+    },
+    {
+      "op_name": "annot-merge-struct-site",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "MergeSiteData",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__annotAppsPath, 'bin', 'MergeSiteData')",
+          "path_variable": "self.__annotAppsPath"
+        }
+      ],
+      "notes": null,
+      "group": "annotationStep"
+    },
+    {
+      "op_name": "annot-pcm-check-ccd-ann",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "UpdatePTMAnnotation",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__annotAppsPath, 'bin', 'UpdatePTMAnnotation')",
+          "path_variable": "self.__annotAppsPath"
+        }
+      ],
+      "notes": null,
+      "group": "annotationStep"
+    },
+    {
+      "op_name": "annot-pdbx2nmrstar",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "GenNMRStarCSFile",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__annotAppsPath, 'bin', 'GenNMRStarCSFile')",
+          "path_variable": "self.__annotAppsPath"
+        }
+      ],
+      "notes": null,
+      "group": "annotationStep"
+    },
+    {
+      "op_name": "annot-rcsb2pdbx",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "PdbxConverter",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__annotAppsPath, 'bin', 'PdbxConverter')",
+          "path_variable": "self.__annotAppsPath"
+        }
+      ],
+      "notes": null,
+      "group": "annotationStep"
+    },
+    {
+      "op_name": "annot-rcsb2pdbx-alt",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "maxit",
+          "type": "variable",
+          "path_expr": null,
+          "path_variable": null,
+          "description": "maxit executable"
+        }
+      ],
+      "notes": null,
+      "group": "annotationStep"
+    },
+    {
+      "op_name": "annot-rcsb2pdbx-strip",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "PdbxConverter",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__annotAppsPath, 'bin', 'PdbxConverter')",
+          "path_variable": "self.__annotAppsPath"
+        }
+      ],
+      "notes": null,
+      "group": "annotationStep"
+    },
+    {
+      "op_name": "annot-rcsb2pdbx-strip-plus-entity",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "PdbxConverter",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__annotAppsPath, 'bin', 'PdbxConverter')",
+          "path_variable": "self.__annotAppsPath"
+        }
+      ],
+      "notes": null,
+      "group": "annotationStep"
+    },
+    {
+      "op_name": "annot-rcsb2pdbx-withpdbid",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "PdbxConverter",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__annotAppsPath, 'bin', 'PdbxConverter')",
+          "path_variable": "self.__annotAppsPath"
+        }
+      ],
+      "notes": null,
+      "group": "annotationStep"
+    },
+    {
+      "op_name": "annot-rcsb2pdbx-withpdbid-singlequote",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "PdbxConverter",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__annotAppsPath, 'bin', 'PdbxConverter')",
+          "path_variable": "self.__annotAppsPath"
+        }
+      ],
+      "notes": null,
+      "group": "annotationStep"
+    },
+    {
+      "op_name": "annot-rcsbeps2pdbx-strip",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "maxit",
+          "type": "variable",
+          "path_expr": null,
+          "path_variable": null,
+          "description": "maxit executable"
+        }
+      ],
+      "notes": null,
+      "group": "annotationStep"
+    },
+    {
+      "op_name": "annot-rcsbeps2pdbx-strip-plus-entity",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "maxit",
+          "type": "variable",
+          "path_expr": null,
+          "path_variable": null,
+          "description": "maxit executable"
+        }
+      ],
+      "notes": null,
+      "group": "annotationStep"
+    },
+    {
+      "op_name": "annot-read-map-header",
+      "envvars": [],
+      "binaries": [
+        {
+          "name": "java",
+          "type": "java_jar",
+          "jar": "mapFixAnot.jar",
+          "path_expr": null,
+          "path_variable": "self.__javaPath"
+        }
+      ],
+      "notes": null,
+      "group": "emStep"
+    },
+    {
+      "op_name": "annot-read-map-header-in-place",
+      "envvars": [],
+      "binaries": [
+        {
+          "name": "java",
+          "type": "java_jar",
+          "jar": "mapFixAnot.jar",
+          "path_expr": null,
+          "path_variable": "self.__javaPath"
+        }
+      ],
+      "notes": null,
+      "group": "emStep"
+    },
+    {
+      "op_name": "annot-reposition-solvent",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "MovingWater",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__annotAppsPath, 'bin', 'MovingWater')",
+          "path_variable": "self.__annotAppsPath"
+        }
+      ],
+      "notes": null,
+      "group": "annotationStep"
+    },
+    {
+      "op_name": "annot-reposition-solvent-add-derived",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "MovingWater",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__annotAppsPath, 'bin', 'MovingWater')",
+          "path_variable": "self.__annotAppsPath"
+        }
+      ],
+      "notes": null,
+      "group": "annotationStep"
+    },
+    {
+      "op_name": "annot-reposition-solvent-add-derived-prev",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "MovingWater",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__annotAppsPath, 'bin', 'MovingWater')",
+          "path_variable": "self.__annotAppsPath"
+        },
+        {
+          "name": "maxit",
+          "type": "variable",
+          "path_expr": null,
+          "path_variable": null,
+          "description": "maxit executable"
+        }
+      ],
+      "notes": null,
+      "group": "annotationStep"
+    },
+    {
+      "op_name": "annot-reposition-solvent-add-derived-void",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "MovingWater",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__annotAppsPath, 'bin', 'MovingWater')",
+          "path_variable": "self.__annotAppsPath"
+        }
+      ],
+      "notes": null,
+      "group": "annotationStep"
+    },
+    {
+      "op_name": "annot-secondary-structure",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "GetSecondStruct",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__annotAppsPath, 'bin', 'GetSecondStruct')",
+          "path_variable": "self.__annotAppsPath"
+        }
+      ],
+      "notes": null,
+      "group": "annotationStep"
+    },
+    {
+      "op_name": "annot-site",
+      "envvars": [
+        "CCIF_NOITEMIP",
+        "CCP4",
+        "CIFIN",
+        "COMP_PATH",
+        "DICT_SDB",
+        "DYLD_LIBRARY_PATH",
+        "LD_LIBRARY_PATH",
+        "MMCIFDIC",
+        "PDB2GLYCAN",
+        "RCSBROOT",
+        "STANDATA",
+        "SYMINFO",
+        "TOOLS_PATH"
+      ],
+      "binaries": [
+        {
+          "name": "getsite_cif",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__packagePath, 'getsite-cif', 'bin', 'getsite_cif')",
+          "path_variable": "self.__packagePath"
+        }
+      ],
+      "notes": null,
+      "group": "annotationStep"
+    },
+    {
+      "op_name": "annot-update-map-header-in-place",
+      "envvars": [],
+      "binaries": [
+        {
+          "name": "java",
+          "type": "java_jar",
+          "jar": "mapFixAnot.jar",
+          "path_expr": null,
+          "path_variable": "self.__javaPath"
+        }
+      ],
+      "notes": null,
+      "group": "emStep"
+    },
+    {
+      "op_name": "annot-validate-geometry",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "UpdateValidateCategories",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__annotAppsPath, 'bin', 'UpdateValidateCategories')",
+          "path_variable": "self.__annotAppsPath"
+        }
+      ],
+      "notes": null,
+      "group": "annotationStep"
+    },
+    {
+      "op_name": "annot-validation",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "valdation_with_cif_output",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__annotAppsPath, 'bin', 'valdation_with_cif_output')",
+          "path_variable": "self.__annotAppsPath"
+        }
+      ],
+      "notes": null,
+      "group": "annotationStep"
+    },
+    {
+      "op_name": "backup-seqdb",
+      "envvars": [
+        "BLAST_USAGE_REPORT"
+      ],
+      "binaries": [
+        {
+          "name": null,
+          "type": "none",
+          "path_expr": null,
+          "path_variable": null
+        }
+      ],
+      "notes": "No binary execution detected",
+      "group": "sequenceStep"
+    },
+    {
+      "op_name": "check-cif",
+      "envvars": [],
+      "binaries": [
+        {
+          "name": "CifCheck",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__packagePath, 'dict', 'bin', 'CifCheck')",
+          "path_variable": "self.__packagePath"
+        }
+      ],
+      "notes": null,
+      "group": "rcsbStep"
+    },
+    {
+      "op_name": "check-cif-ext",
+      "envvars": [],
+      "binaries": [
+        {
+          "name": "CifCheck",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__packagePath, 'dict', 'bin', 'CifCheck')",
+          "path_variable": "self.__packagePath"
+        }
+      ],
+      "notes": null,
+      "group": "rcsbStep"
+    },
+    {
+      "op_name": "check-cif-v4",
+      "envvars": [],
+      "binaries": [
+        {
+          "name": "CifCheck",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__packagePath, 'dict', 'bin', 'CifCheck')",
+          "path_variable": "self.__packagePath"
+        }
+      ],
+      "notes": null,
+      "group": "rcsbStep"
+    },
+    {
+      "op_name": "chem-comp-align-images",
+      "envvars": [
+        "OE_DIR",
+        "OE_LICENSE"
+      ],
+      "binaries": [
+        {
+          "name": "python",
+          "type": "python_module",
+          "module": "wwpdb.apps.ccmodule.reports.ChemCompAlignImages",
+          "path_expr": null,
+          "path_variable": null
+        }
+      ],
+      "notes": null,
+      "group": "rcsbStep"
+    },
+    {
+      "op_name": "chem-comp-align-img-gen",
+      "envvars": [
+        "OE_DIR",
+        "OE_LICENSE"
+      ],
+      "binaries": [
+        {
+          "name": "python",
+          "type": "python_module",
+          "module": "wwpdb.apps.ccmodule.reports.ChemCompBigAlignImages",
+          "path_expr": null,
+          "path_variable": null
+        }
+      ],
+      "notes": null,
+      "group": "rcsbStep"
+    },
+    {
+      "op_name": "chem-comp-annotate-comp",
+      "envvars": [
+        "ACD_DIR",
+        "BABEL_DATADIR",
+        "BABEL_DIR",
+        "CACTVS_DIR",
+        "CC_TOOLS",
+        "CORINA_DIR",
+        "INCHI_DIR",
+        "LD_LIBRARY_PATH",
+        "OE_DIR",
+        "OE_LICENSE"
+      ],
+      "binaries": [
+        {
+          "name": "annotateComp",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__ccAppsPath, 'bin', 'annotateComp')",
+          "path_variable": "self.__ccAppsPath"
+        }
+      ],
+      "notes": null,
+      "group": "rcsbStep"
+    },
+    {
+      "op_name": "chem-comp-assign",
+      "envvars": [
+        "BABEL_DATADIR",
+        "BABEL_DIR",
+        "CACTVS_DIR",
+        "LD_LIBRARY_PATH",
+        "OE_DIR",
+        "OE_LICENSE",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "ChemCompAssign_main",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__ccAppsPath, 'bin', 'ChemCompAssign_main')",
+          "path_variable": "self.__ccAppsPath"
+        }
+      ],
+      "notes": null,
+      "group": "rcsbStep"
+    },
+    {
+      "op_name": "chem-comp-assign-comp",
+      "envvars": [
+        "BABEL_DATADIR",
+        "BABEL_DIR",
+        "CACTVS_DIR",
+        "LD_LIBRARY_PATH",
+        "OE_DIR",
+        "OE_LICENSE",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "ChemCompAssign_main",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__ccAppsPath, 'bin', 'ChemCompAssign_main')",
+          "path_variable": "self.__ccAppsPath"
+        }
+      ],
+      "notes": null,
+      "group": "rcsbStep"
+    },
+    {
+      "op_name": "chem-comp-assign-exact",
+      "envvars": [
+        "BABEL_DATADIR",
+        "BABEL_DIR",
+        "CACTVS_DIR",
+        "LD_LIBRARY_PATH",
+        "OE_DIR",
+        "OE_LICENSE",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "ChemCompAssign_main",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__ccAppsPath, 'bin', 'ChemCompAssign_main')",
+          "path_variable": "self.__ccAppsPath"
+        }
+      ],
+      "notes": null,
+      "group": "rcsbStep"
+    },
+    {
+      "op_name": "chem-comp-assign-skip",
+      "envvars": [
+        "BABEL_DATADIR",
+        "BABEL_DIR",
+        "CACTVS_DIR",
+        "LD_LIBRARY_PATH",
+        "OE_DIR",
+        "OE_LICENSE",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "ChemCompAssign_main",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__ccAppsPath, 'bin', 'ChemCompAssign_main')",
+          "path_variable": "self.__ccAppsPath"
+        }
+      ],
+      "notes": null,
+      "group": "rcsbStep"
+    },
+    {
+      "op_name": "chem-comp-assign-validation",
+      "envvars": [
+        "BABEL_DATADIR",
+        "BABEL_DIR",
+        "CACTVS_DIR",
+        "LD_LIBRARY_PATH",
+        "OE_DIR",
+        "OE_LICENSE",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "ChemCompAssign_main",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__ccAppsPath, 'bin', 'ChemCompAssign_main')",
+          "path_variable": "self.__ccAppsPath"
+        }
+      ],
+      "notes": null,
+      "group": "rcsbStep"
+    },
+    {
+      "op_name": "chem-comp-dict-makeindex",
+      "envvars": [
+        "OE_DIR",
+        "OE_LICENSE"
+      ],
+      "binaries": [
+        {
+          "name": "matchComp",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__ccAppsPath, 'bin', 'matchComp')",
+          "path_variable": "self.__ccAppsPath"
+        }
+      ],
+      "notes": null,
+      "group": "rcsbStep"
+    },
+    {
+      "op_name": "chem-comp-dict-serialize",
+      "envvars": [],
+      "binaries": [
+        {
+          "name": "checkCifUtil",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__ccAppsPath, 'bin', 'checkCifUtil')",
+          "path_variable": "self.__ccAppsPath"
+        }
+      ],
+      "notes": null,
+      "group": "rcsbStep"
+    },
+    {
+      "op_name": "chem-comp-do-report",
+      "envvars": [
+        "OE_DIR",
+        "OE_LICENSE"
+      ],
+      "binaries": [
+        {
+          "name": "makeReportFromFile.csh",
+          "type": "shell_script",
+          "path_expr": "os.path.join(self.__ccAppsPath, 'bin', 'makeReportFromFile.csh')",
+          "path_variable": "self.__ccAppsPath"
+        }
+      ],
+      "notes": null,
+      "group": "rcsbStep"
+    },
+    {
+      "op_name": "chem-comp-gen-images",
+      "envvars": [
+        "OE_DIR",
+        "OE_LICENSE"
+      ],
+      "binaries": [
+        {
+          "name": "python",
+          "type": "python_module",
+          "module": "wwpdb.apps.ccmodule.reports.ChemCompGenImage",
+          "path_expr": null,
+          "path_variable": null
+        }
+      ],
+      "notes": null,
+      "group": "rcsbStep"
+    },
+    {
+      "op_name": "chem-comp-instance-update",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "updateInstance",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__annotAppsPath, 'bin', 'updateInstance')",
+          "path_variable": "self.__annotAppsPath"
+        }
+      ],
+      "notes": null,
+      "group": "annotationStep"
+    },
+    {
+      "op_name": "chem-comp-link",
+      "envvars": [
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "bond_dist",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__rcsbAppsPath, 'bin', 'bond_dist')",
+          "path_variable": "self.__rcsbAppsPath"
+        }
+      ],
+      "notes": null,
+      "group": "rcsbStep"
+    },
+    {
+      "op_name": "chem-comp-update-support-files",
+      "envvars": [],
+      "binaries": [
+        {
+          "name": "python",
+          "type": "python_module",
+          "module": "wwpdb.apps.chem_ref_data.utils.ChemRefDataDbExec",
+          "path_expr": null,
+          "path_variable": null
+        }
+      ],
+      "notes": null,
+      "group": "rcsbStep"
+    },
+    {
+      "op_name": "chem-ref-checkout",
+      "envvars": [],
+      "binaries": [
+        {
+          "name": "python",
+          "type": "python_module",
+          "module": "wwp",
+          "path_expr": null,
+          "path_variable": null
+        }
+      ],
+      "notes": "Contains malformed parser artifacts (nested parentheses)",
+      "group": "rcsbStep"
+    },
+    {
+      "op_name": "chem-ref-load",
+      "envvars": [],
+      "binaries": [
+        {
+          "name": "python",
+          "type": "python_module",
+          "module": "wwp",
+          "path_expr": null,
+          "path_variable": null
+        }
+      ],
+      "notes": "Contains malformed parser artifacts (nested parentheses)",
+      "group": "rcsbStep"
+    },
+    {
+      "op_name": "chem-ref-run-setup",
+      "envvars": [],
+      "binaries": [
+        {
+          "name": "python",
+          "type": "python_module",
+          "module": "wwpdb.apps.chem_ref_data.utils.ChemRefDataDbExec",
+          "path_expr": null,
+          "path_variable": null
+        }
+      ],
+      "notes": null,
+      "group": "rcsbStep"
+    },
+    {
+      "op_name": "chem-ref-run-update",
+      "envvars": [],
+      "binaries": [
+        {
+          "name": "python",
+          "type": "python_module",
+          "module": "wwpdb.apps.chem_ref_data.utils.ChemRefDataDbExec",
+          "path_expr": null,
+          "path_variable": null
+        }
+      ],
+      "notes": null,
+      "group": "rcsbStep"
+    },
+    {
+      "op_name": "chem-ref-sync",
+      "envvars": [],
+      "binaries": [
+        {
+          "name": "python",
+          "type": "python_module",
+          "module": "wwp",
+          "path_expr": null,
+          "path_variable": null
+        }
+      ],
+      "notes": "Contains malformed parser artifacts (nested parentheses)",
+      "group": "rcsbStep"
+    },
+    {
+      "op_name": "cif-rcsb2cif-pdbx",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "maxit",
+          "type": "variable",
+          "path_expr": null,
+          "path_variable": null,
+          "description": "maxit executable"
+        }
+      ],
+      "notes": null,
+      "group": "maxitStep"
+    },
+    {
+      "op_name": "cif-seqed2cif-pdbx",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "maxit",
+          "type": "variable",
+          "path_expr": null,
+          "path_variable": null,
+          "description": "maxit executable"
+        }
+      ],
+      "notes": null,
+      "group": "maxitStep"
+    },
+    {
+      "op_name": "cif2cif",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "maxit",
+          "type": "variable",
+          "path_expr": null,
+          "path_variable": null,
+          "description": "maxit executable"
+        }
+      ],
+      "notes": null,
+      "group": "maxitStep"
+    },
+    {
+      "op_name": "cif2cif-ebi",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "maxit",
+          "type": "variable",
+          "path_expr": null,
+          "path_variable": null,
+          "description": "maxit executable"
+        }
+      ],
+      "notes": null,
+      "group": "maxitStep"
+    },
+    {
+      "op_name": "cif2cif-pdbx",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "maxit",
+          "type": "variable",
+          "path_expr": null,
+          "path_variable": null,
+          "description": "maxit executable"
+        }
+      ],
+      "notes": null,
+      "group": "maxitStep"
+    },
+    {
+      "op_name": "cif2cif-pdbx-skip-process",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "maxit",
+          "type": "variable",
+          "path_expr": null,
+          "path_variable": null,
+          "description": "maxit executable"
+        }
+      ],
+      "notes": null,
+      "group": "maxitStep"
+    },
+    {
+      "op_name": "cif2cif-remove",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "maxit",
+          "type": "variable",
+          "path_expr": null,
+          "path_variable": null,
+          "description": "maxit executable"
+        }
+      ],
+      "notes": null,
+      "group": "maxitStep"
+    },
+    {
+      "op_name": "cif2pdb",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "maxit",
+          "type": "variable",
+          "path_expr": null,
+          "path_variable": null,
+          "description": "maxit executable"
+        }
+      ],
+      "notes": null,
+      "group": "maxitStep"
+    },
+    {
+      "op_name": "cif2pdb-assembly",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "maxit",
+          "type": "variable",
+          "path_expr": null,
+          "path_variable": null,
+          "description": "maxit executable"
+        }
+      ],
+      "notes": null,
+      "group": "maxitStep"
+    },
+    {
+      "op_name": "cif2pdbx",
+      "envvars": [],
+      "binaries": [
+        {
+          "name": "cifexch-v3.2",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__localAppsPath, 'bin', 'cifexch-v3.2')",
+          "path_variable": "self.__localAppsPath"
+        }
+      ],
+      "notes": null,
+      "group": "rcsbStep"
+    },
+    {
+      "op_name": "cif2pdbx-ext",
+      "envvars": [],
+      "binaries": [
+        {
+          "name": "cifexch2",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__packagePath, 'dict', 'bin', 'cifexch2')",
+          "path_variable": "self.__packagePath"
+        }
+      ],
+      "notes": null,
+      "group": "rcsbStep"
+    },
+    {
+      "op_name": "cif2pdbx-public",
+      "envvars": [],
+      "binaries": [
+        {
+          "name": "cifexch2",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__packagePath, 'dict', 'bin', 'cifexch2')",
+          "path_variable": "self.__packagePath"
+        }
+      ],
+      "notes": null,
+      "group": "rcsbStep"
+    },
+    {
+      "op_name": "citation-search-and-auto-release",
+      "envvars": [],
+      "binaries": [
+        {
+          "name": "python",
+          "type": "python_module",
+          "module": "wwpdb.apps.releasemodule.update.RunAutoReReleaseProcess",
+          "path_expr": null,
+          "path_variable": null
+        }
+      ],
+      "notes": null,
+      "group": "rcsbStep"
+    },
+    {
+      "op_name": "db-loader",
+      "envvars": [],
+      "binaries": [
+        {
+          "name": "db-loader",
+          "type": "variable",
+          "path_expr": null,
+          "path_variable": null,
+          "description": "database loader"
+        }
+      ],
+      "notes": null,
+      "group": "dbStep"
+    },
+    {
+      "op_name": "deposit-update-map-header-in-place",
+      "envvars": [],
+      "binaries": [
+        {
+          "name": "java",
+          "type": "java_jar",
+          "jar": "mapFixDep.jar",
+          "path_expr": null,
+          "path_variable": "self.__javaPath"
+        }
+      ],
+      "notes": null,
+      "group": "emStep"
+    },
+    {
+      "op_name": "em-map-model-upload-check",
+      "envvars": [],
+      "binaries": [
+        {
+          "name": null,
+          "type": "none",
+          "path_expr": null,
+          "path_variable": null
+        }
+      ],
+      "notes": "No binary execution detected",
+      "group": "emStep"
+    },
+    {
+      "op_name": "em2em-spider",
+      "envvars": [],
+      "binaries": [
+        {
+          "name": "COMMANDS.sh",
+          "type": "shell_script",
+          "path_expr": null,
+          "path_variable": null
+        },
+        {
+          "name": "mapfix_command",
+          "type": "function",
+          "path_expr": null,
+          "path_variable": null,
+          "description": "map fix function"
+        }
+      ],
+      "notes": null,
+      "group": "emStep"
+    },
+    {
+      "op_name": "fetch-gb",
+      "envvars": [
+        "BLAST_USAGE_REPORT"
+      ],
+      "binaries": [
+        {
+          "name": "wget",
+          "type": "system",
+          "path_expr": null,
+          "path_variable": null
+        }
+      ],
+      "notes": null,
+      "group": "sequenceStep"
+    },
+    {
+      "op_name": "fetch-uniprot",
+      "envvars": [
+        "BLAST_USAGE_REPORT"
+      ],
+      "binaries": [
+        {
+          "name": null,
+          "type": "none",
+          "path_expr": null,
+          "path_variable": null
+        }
+      ],
+      "notes": "No binary execution detected",
+      "group": "sequenceStep"
+    },
+    {
+      "op_name": "format-gb",
+      "envvars": [
+        "BLAST_USAGE_REPORT"
+      ],
+      "binaries": [
+        {
+          "name": "gzip",
+          "type": "system",
+          "path_expr": null,
+          "path_variable": null
+        }
+      ],
+      "notes": null,
+      "group": "sequenceStep"
+    },
+    {
+      "op_name": "format-uniprot",
+      "envvars": [
+        "BLAST_USAGE_REPORT"
+      ],
+      "binaries": [
+        {
+          "name": "gunzip",
+          "type": "system",
+          "path_expr": null,
+          "path_variable": null
+        },
+        {
+          "name": "makeblastdb",
+          "type": "function",
+          "path_expr": null,
+          "path_variable": null,
+          "description": "BLAST database builder"
+        }
+      ],
+      "notes": null,
+      "group": "sequenceStep"
+    },
+    {
+      "op_name": "fsc_check",
+      "envvars": [
+        "LD_LIBRARY_PATH"
+      ],
+      "binaries": [
+        {
+          "name": "xmllint",
+          "type": "system",
+          "path_expr": null,
+          "path_variable": null
+        }
+      ],
+      "notes": null,
+      "group": "emStep"
+    },
+    {
+      "op_name": "img-convert",
+      "envvars": [],
+      "binaries": [
+        {
+          "name": "convert",
+          "type": "system",
+          "path_expr": null,
+          "path_variable": null
+        }
+      ],
+      "notes": null,
+      "group": "emStep"
+    },
+    {
+      "op_name": "initial-version",
+      "envvars": [],
+      "binaries": [
+        {
+          "name": "cif-version",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__rcsbAppsPath, 'bin', 'cif-version')",
+          "path_variable": "self.__rcsbAppsPath"
+        }
+      ],
+      "notes": null,
+      "group": "rcsbStep"
+    },
+    {
+      "op_name": "mapfix-big",
+      "envvars": [],
+      "binaries": [
+        {
+          "name": "mapfix_command",
+          "type": "function",
+          "path_expr": null,
+          "path_variable": null,
+          "description": "map fix function"
+        }
+      ],
+      "notes": null,
+      "group": "emStep"
+    },
+    {
+      "op_name": "metal-findgeo",
+      "envvars": [],
+      "binaries": [
+        {
+          "name": "python",
+          "type": "python_module",
+          "module": "wwpdb.utils.dp.metal.findgeo.processFindGeo",
+          "path_expr": null,
+          "path_variable": null
+        }
+      ],
+      "notes": null,
+      "group": "rcsbStep"
+    },
+    {
+      "op_name": "metal-metalcoord-stats",
+      "envvars": [],
+      "binaries": [
+        {
+          "name": "python",
+          "type": "python_module",
+          "module": "wwpdb.utils.dp.metal.metalcoord.processMetalCoordStats",
+          "path_expr": null,
+          "path_variable": null
+        }
+      ],
+      "notes": null,
+      "group": "rcsbStep"
+    },
+    {
+      "op_name": "metal-metalcoord-update",
+      "envvars": [],
+      "binaries": [
+        {
+          "name": "python",
+          "type": "python_module",
+          "module": "wwpdb.utils.dp.metal.metalcoord.processMetalCoordUpdate",
+          "path_expr": null,
+          "path_variable": null
+        }
+      ],
+      "notes": null,
+      "group": "rcsbStep"
+    },
+    {
+      "op_name": "pdb2cif",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "maxit",
+          "type": "variable",
+          "path_expr": null,
+          "path_variable": null,
+          "description": "maxit executable"
+        }
+      ],
+      "notes": null,
+      "group": "maxitStep"
+    },
+    {
+      "op_name": "pdb2cif-ebi",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "maxit",
+          "type": "variable",
+          "path_expr": null,
+          "path_variable": null,
+          "description": "maxit executable"
+        }
+      ],
+      "notes": null,
+      "group": "maxitStep"
+    },
+    {
+      "op_name": "pdb2dssp",
+      "envvars": [],
+      "binaries": [
+        {
+          "name": "dssp",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__localAppsPath, 'bin', 'dssp')",
+          "path_variable": "self.__localAppsPath"
+        }
+      ],
+      "notes": null,
+      "group": "rcsbStep"
+    },
+    {
+      "op_name": "pdb2stride",
+      "envvars": [],
+      "binaries": [
+        {
+          "name": "stride",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__localAppsPath, 'bin', 'stride')",
+          "path_variable": "self.__localAppsPath"
+        }
+      ],
+      "notes": null,
+      "group": "rcsbStep"
+    },
+    {
+      "op_name": "pdbx2deriv",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "maxit",
+          "type": "variable",
+          "path_expr": null,
+          "path_variable": null,
+          "description": "maxit executable"
+        }
+      ],
+      "notes": null,
+      "group": "maxitStep"
+    },
+    {
+      "op_name": "pdbx2pdb-assembly",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "maxit",
+          "type": "variable",
+          "path_expr": null,
+          "path_variable": null,
+          "description": "maxit executable"
+        }
+      ],
+      "notes": null,
+      "group": "maxitStep"
+    },
+    {
+      "op_name": "pdbx2xml",
+      "envvars": [],
+      "binaries": [
+        {
+          "name": "mmcif2XML",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__localAppsPath, 'bin', 'mmcif2XML')",
+          "path_variable": "self.__localAppsPath"
+        }
+      ],
+      "notes": null,
+      "group": "rcsbStep"
+    },
+    {
+      "op_name": "pisa-analysis",
+      "envvars": [
+        "PISA_CONF_FILE",
+        "PISA_SESSIONS",
+        "PISA_TOP"
+      ],
+      "binaries": [
+        {
+          "name": "pisa",
+          "type": "executable",
+          "path_expr": "os.path.join(pisaTopPath, 'bin', 'pisa')",
+          "path_variable": "pisaTopPath"
+        }
+      ],
+      "notes": null,
+      "group": "pisaStep"
+    },
+    {
+      "op_name": "pisa-assembly-coordinates-cif",
+      "envvars": [
+        "PISA_CONF_FILE",
+        "PISA_SESSIONS",
+        "PISA_TOP"
+      ],
+      "binaries": [
+        {
+          "name": "pisa",
+          "type": "executable",
+          "path_expr": "os.path.join(pisaTopPath, 'bin', 'pisa')",
+          "path_variable": "pisaTopPath"
+        }
+      ],
+      "notes": null,
+      "group": "pisaStep"
+    },
+    {
+      "op_name": "pisa-assembly-coordinates-pdb",
+      "envvars": [
+        "PISA_CONF_FILE",
+        "PISA_SESSIONS",
+        "PISA_TOP"
+      ],
+      "binaries": [
+        {
+          "name": "pisa",
+          "type": "executable",
+          "path_expr": "os.path.join(pisaTopPath, 'bin', 'pisa')",
+          "path_variable": "pisaTopPath"
+        }
+      ],
+      "notes": null,
+      "group": "pisaStep"
+    },
+    {
+      "op_name": "pisa-assembly-merge-cif",
+      "envvars": [
+        "PISA_CONF_FILE",
+        "PISA_SESSIONS",
+        "PISA_TOP"
+      ],
+      "binaries": [
+        {
+          "name": "MergePisaData",
+          "type": "executable",
+          "path_expr": "os.path.join(annotToolsPath, 'bin', 'MergePisaData')",
+          "path_variable": "annotToolsPath"
+        }
+      ],
+      "notes": null,
+      "group": "pisaStep"
+    },
+    {
+      "op_name": "pisa-assembly-report-text",
+      "envvars": [
+        "PISA_CONF_FILE",
+        "PISA_SESSIONS",
+        "PISA_TOP"
+      ],
+      "binaries": [
+        {
+          "name": "pisa",
+          "type": "executable",
+          "path_expr": "os.path.join(pisaTopPath, 'bin', 'pisa')",
+          "path_variable": "pisaTopPath"
+        }
+      ],
+      "notes": null,
+      "group": "pisaStep"
+    },
+    {
+      "op_name": "pisa-assembly-report-xml",
+      "envvars": [
+        "PISA_CONF_FILE",
+        "PISA_SESSIONS",
+        "PISA_TOP"
+      ],
+      "binaries": [
+        {
+          "name": "pisa",
+          "type": "executable",
+          "path_expr": "os.path.join(pisaTopPath, 'bin', 'pisa')",
+          "path_variable": "pisaTopPath"
+        }
+      ],
+      "notes": null,
+      "group": "pisaStep"
+    },
+    {
+      "op_name": "pisa-interface-report-xml",
+      "envvars": [
+        "PISA_CONF_FILE",
+        "PISA_SESSIONS",
+        "PISA_TOP"
+      ],
+      "binaries": [
+        {
+          "name": "pisa",
+          "type": "executable",
+          "path_expr": "os.path.join(pisaTopPath, 'bin', 'pisa')",
+          "path_variable": "pisaTopPath"
+        }
+      ],
+      "notes": null,
+      "group": "pisaStep"
+    },
+    {
+      "op_name": "pointsuite-findframe",
+      "envvars": [
+        "PTSUITE"
+      ],
+      "binaries": [
+        {
+          "name": null,
+          "type": "none",
+          "path_expr": null,
+          "path_variable": null
+        }
+      ],
+      "notes": "No binary execution detected",
+      "group": "pointsuiteStep"
+    },
+    {
+      "op_name": "pointsuite-importmats",
+      "envvars": [
+        "PTSUITE"
+      ],
+      "binaries": [
+        {
+          "name": "importmats",
+          "type": "executable",
+          "path_expr": "${PTSUITE}/bin/importmats",
+          "path_variable": "PTSUITE"
+        }
+      ],
+      "notes": null,
+      "group": "pointsuiteStep"
+    },
+    {
+      "op_name": "pointsuite-makeassembly",
+      "envvars": [
+        "PTSUITE"
+      ],
+      "binaries": [
+        {
+          "name": null,
+          "type": "none",
+          "path_expr": null,
+          "path_variable": null
+        }
+      ],
+      "notes": "No binary execution detected",
+      "group": "pointsuiteStep"
+    },
+    {
+      "op_name": "poly-link-dist",
+      "envvars": [
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "cal_polymer_linkage_distance",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__rcsbAppsPath, 'bin', 'cal_polymer_linkage_distance')",
+          "path_variable": "self.__rcsbAppsPath"
+        }
+      ],
+      "notes": null,
+      "group": "rcsbStep"
+    },
+    {
+      "op_name": "rename-atoms",
+      "envvars": [],
+      "binaries": [
+        {
+          "name": "switch-atom-element",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__ccAppsPath, 'bin', 'switch-atom-element')",
+          "path_variable": "self.__ccAppsPath"
+        }
+      ],
+      "notes": null,
+      "group": "rcsbStep"
+    },
+    {
+      "op_name": "seq-blastn",
+      "envvars": [
+        "BLASTDB",
+        "BLAST_USAGE_REPORT"
+      ],
+      "binaries": [
+        {
+          "name": "blastn",
+          "type": "function",
+          "path_expr": null,
+          "path_variable": null,
+          "description": "BLAST nucleotide search"
+        }
+      ],
+      "notes": null,
+      "group": "sequenceStep"
+    },
+    {
+      "op_name": "seq-blastp",
+      "envvars": [
+        "BLASTDB",
+        "BLAST_USAGE_REPORT"
+      ],
+      "binaries": [
+        {
+          "name": "blastp",
+          "type": "function",
+          "path_expr": null,
+          "path_variable": null,
+          "description": "BLAST protein search"
+        }
+      ],
+      "notes": null,
+      "group": "sequenceStep"
+    },
+    {
+      "op_name": "switch-dna",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "maxit",
+          "type": "variable",
+          "path_expr": null,
+          "path_variable": null,
+          "description": "maxit executable"
+        }
+      ],
+      "notes": null,
+      "group": "maxitStep"
+    },
+    {
+      "op_name": "sync-depositors",
+      "envvars": [],
+      "binaries": [
+        {
+          "name": "python",
+          "type": "python_module",
+          "module": "wwpdb.apps.deposit.scripts.sync_depositors",
+          "path_expr": null,
+          "path_variable": null
+        }
+      ],
+      "notes": "Contains malformed parser artifacts (nested parentheses)",
+      "group": "dbStep"
+    },
+    {
+      "op_name": "update-depui-taxonomy",
+      "envvars": [],
+      "binaries": [
+        {
+          "name": "python",
+          "type": "python_module",
+          "module": "wwpdb.apps.deposit.depui.taxonomy.loadTaxonomyFromFTP",
+          "path_expr": null,
+          "path_variable": null
+        }
+      ],
+      "notes": null,
+      "group": "rcsbStep"
+    },
+    {
+      "op_name": "validate-geometry",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "validation_with_cif_output",
+          "type": "variable",
+          "path_expr": null,
+          "path_variable": null,
+          "description": "validation command"
+        }
+      ],
+      "notes": null,
+      "group": "validateStep"
+    }
+  ]
+}

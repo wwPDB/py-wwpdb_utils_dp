@@ -1,0 +1,45 @@
+{
+  "method": "__dbStep",
+  "line_range": [
+    3216,
+    3325
+  ],
+  "preamble_cmd": "",
+  "variables": {
+    "raw": {
+      "__site_config_command": "'. %s/init/env.sh -s %s -l %s' % (self.__siteConfigDir, self.__siteId, self.__siteLoc)"
+    },
+    "non_raw": {
+      "__packagePath": "self.__cICommon.get_site_packages_path()",
+      "__siteConfigDir": "self.__getConfigPath('TOP_WWPDB_SITE_CONFIG_DIR')",
+      "__siteLoc": "self.__cI.get('WWPDB_SITE_LOC')",
+      "iPath": "self.__getSourceWrkFile(self.__stepNo)",
+      "oPath": "self.__getResultWrkFile(self.__stepNo)",
+      "lPath": "self.__getLogWrkFile(self.__stepNo)",
+      "ePath": "self.__getErrWrkFile(self.__stepNo)",
+      "tPath": "self.__getTmpWrkFile(self.__stepNo)",
+      "dbLoaderCmd": "os.path.join(self.__packagePath, 'dbloader', 'bin', 'db-loader')",
+      "iret": "self.__run(cmd, lPathFull, op)"
+    }
+  },
+  "operations": [
+    {
+      "op_name": "db-loader",
+      "line_range": [
+        3266,
+        3290
+      ],
+      "cmd_additions": "cmd += '; rm -f DB_LOADER.sql '\ncmd += (' ; ' + dbLoaderCmd) + ' -server mysql ' + filecmd + ' -map ' + (self.__inputParamDict.get('mapping_file', 'None')) + ' -db ' + (self.__inputParamDict.get('dbname', 'da_internal')) + ('')\ncmd += ' > ' + tPath + ' 2>&1 ; cat ' + tPath + ' >> ' + lPath\ncmd += ' ; cp DB_LOADER.sql ' + oPath",
+      "full_cmd": "cmd += '; rm -f DB_LOADER.sql '\ncmd += (' ; ' + dbLoaderCmd) + ' -server mysql ' + filecmd + ' -map ' + (self.__inputParamDict.get('mapping_file', 'None')) + ' -db ' + (self.__inputParamDict.get('dbname', 'da_internal')) + ('')\ncmd += ' > ' + tPath + ' 2>&1 ; cat ' + tPath + ' >> ' + lPath\ncmd += ' ; cp DB_LOADER.sql ' + oPath"
+    },
+    {
+      "op_name": "sync-depositors",
+      "line_range": [
+        3291,
+        3298
+      ],
+      "cmd_additions": "cmd += '; {}'.format(self.__site_config_command)\ncmd += ' ; python -m wwpdb.apps.deposit.scripts.sync_depositors --dep-id ' + (self.__inputParamDict.get('(self.__inputParamDict.get('(self.__inputParamDict.get('(self.__inputParamDict.get('(self.__inputParamDict.get('depId', None))', None))', None))', None))', None)) + ' --model-file ' + (self.__inputParamDict.get('(self.__inputParamDict.get('(self.__inputParamDict.get('(self.__inputParamDict.get('(self.__inputParamDict.get('modelFilePath', None))', None))', None))', None))', None))\ncmd += ' > ' + tPath + ' 2>&1 ; cat ' + tPath + ' >> ' + lPath",
+      "full_cmd": "cmd += '; {}'.format(self.__site_config_command)\ncmd += ' ; python -m wwpdb.apps.deposit.scripts.sync_depositors --dep-id ' + (self.__inputParamDict.get('(self.__inputParamDict.get('(self.__inputParamDict.get('(self.__inputParamDict.get('(self.__inputParamDict.get('depId', None))', None))', None))', None))', None)) + ' --model-file ' + (self.__inputParamDict.get('(self.__inputParamDict.get('(self.__inputParamDict.get('(self.__inputParamDict.get('(self.__inputParamDict.get('modelFilePath', None))', None))', None))', None))', None))\ncmd += ' > ' + tPath + ' 2>&1 ; cat ' + tPath + ' >> ' + lPath"
+    }
+  ]
+}

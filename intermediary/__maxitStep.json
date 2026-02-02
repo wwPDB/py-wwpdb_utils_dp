@@ -1,0 +1,149 @@
+{
+  "method": "__maxitStep",
+  "line_range": [
+    3646,
+    3769
+  ],
+  "preamble_cmd": "cmd += ' ; RCSBROOT=' + self.__rcsbAppsPath + ' ; export RCSBROOT '\ncmd += ' ; PDB2GLYCAN=' + os.path.join(os.path.abspath(self.__cICommon.get_site_packages_path()), 'pdb2glycan', 'bin', 'PDB2Glycan') + ' ; export PDB2GLYCAN '\ncmd += ' ; COMP_PATH=' + self.__ccCvsPath + ' ; export COMP_PATH '\ncmd += ' ; DICT_SDB=' + self.__pathPdbxDictSdb + ' ; export DICT_SDB ; '",
+  "variables": {
+    "raw": {},
+    "non_raw": {
+      "__ccCvsPath": "self.__cIAppCc.get_site_cc_cvs_path()",
+      "__pathPdbxDictSdb": "self.__cICommon.get_mmcif_next_dictionary_sdb_file_path()",
+      "iPath": "self.__getSourceWrkFile(self.__stepNo)",
+      "oPath": "self.__getResultWrkFile(self.__stepNo)",
+      "lPath": "self.__getLogWrkFile(self.__stepNo)",
+      "ePath": "self.__getErrWrkFile(self.__stepNo)",
+      "maxitCmd": "os.path.join(self.__rcsbAppsPath, 'bin', progName)",
+      "iret": "self.__run(cmd, lPathFull, op)"
+    }
+  },
+  "operations": [
+    {
+      "op_name": "cif2cif",
+      "line_range": [
+        3686,
+        3688
+      ],
+      "cmd_additions": "cmd += maxitCmd + ' -o 8  -i ' + iPath\ncmd += ' ; mv -f ' + iPath + '.cif ' + oPath",
+      "full_cmd": "cmd += ' ; RCSBROOT=' + self.__rcsbAppsPath + ' ; export RCSBROOT '\ncmd += ' ; PDB2GLYCAN=' + os.path.join(os.path.abspath(self.__cICommon.get_site_packages_path()), 'pdb2glycan', 'bin', 'PDB2Glycan') + ' ; export PDB2GLYCAN '\ncmd += ' ; COMP_PATH=' + self.__ccCvsPath + ' ; export COMP_PATH '\ncmd += ' ; DICT_SDB=' + self.__pathPdbxDictSdb + ' ; export DICT_SDB ; '\ncmd += maxitCmd + ' -o 8  -i ' + iPath\ncmd += ' ; mv -f ' + iPath + '.cif ' + oPath"
+    },
+    {
+      "op_name": "cif2cif-remove",
+      "line_range": [
+        3690,
+        3692
+      ],
+      "cmd_additions": "cmd += maxitCmd + ' -o 8  -remove -i ' + iPath\ncmd += ' ; mv -f ' + iPath + '.cif ' + oPath",
+      "full_cmd": "cmd += ' ; RCSBROOT=' + self.__rcsbAppsPath + ' ; export RCSBROOT '\ncmd += ' ; PDB2GLYCAN=' + os.path.join(os.path.abspath(self.__cICommon.get_site_packages_path()), 'pdb2glycan', 'bin', 'PDB2Glycan') + ' ; export PDB2GLYCAN '\ncmd += ' ; COMP_PATH=' + self.__ccCvsPath + ' ; export COMP_PATH '\ncmd += ' ; DICT_SDB=' + self.__pathPdbxDictSdb + ' ; export DICT_SDB ; '\ncmd += maxitCmd + ' -o 8  -remove -i ' + iPath\ncmd += ' ; mv -f ' + iPath + '.cif ' + oPath"
+    },
+    {
+      "op_name": "cif-rcsb2cif-pdbx",
+      "line_range": [
+        3694,
+        3696
+      ],
+      "cmd_additions": "cmd += maxitCmd + ' -o 56  -i ' + iPath\ncmd += ' ; mv -f ' + iPath + '.cif ' + oPath",
+      "full_cmd": "cmd += ' ; RCSBROOT=' + self.__rcsbAppsPath + ' ; export RCSBROOT '\ncmd += ' ; PDB2GLYCAN=' + os.path.join(os.path.abspath(self.__cICommon.get_site_packages_path()), 'pdb2glycan', 'bin', 'PDB2Glycan') + ' ; export PDB2GLYCAN '\ncmd += ' ; COMP_PATH=' + self.__ccCvsPath + ' ; export COMP_PATH '\ncmd += ' ; DICT_SDB=' + self.__pathPdbxDictSdb + ' ; export DICT_SDB ; '\ncmd += maxitCmd + ' -o 56  -i ' + iPath\ncmd += ' ; mv -f ' + iPath + '.cif ' + oPath"
+    },
+    {
+      "op_name": "cif-seqed2cif-pdbx",
+      "line_range": [
+        3698,
+        3700
+      ],
+      "cmd_additions": "cmd += maxitCmd + ' -o 10  -i ' + iPath\ncmd += ' ; mv -f ' + iPath + '.cif ' + oPath",
+      "full_cmd": "cmd += ' ; RCSBROOT=' + self.__rcsbAppsPath + ' ; export RCSBROOT '\ncmd += ' ; PDB2GLYCAN=' + os.path.join(os.path.abspath(self.__cICommon.get_site_packages_path()), 'pdb2glycan', 'bin', 'PDB2Glycan') + ' ; export PDB2GLYCAN '\ncmd += ' ; COMP_PATH=' + self.__ccCvsPath + ' ; export COMP_PATH '\ncmd += ' ; DICT_SDB=' + self.__pathPdbxDictSdb + ' ; export DICT_SDB ; '\ncmd += maxitCmd + ' -o 10  -i ' + iPath\ncmd += ' ; mv -f ' + iPath + '.cif ' + oPath"
+    },
+    {
+      "op_name": "cif2cif-pdbx",
+      "line_range": [
+        3702,
+        3704
+      ],
+      "cmd_additions": "cmd += maxitCmd + ' -o 8 -standard -pdbids -no_deriv -no_pdbx_strand_id -no_site -i ' + iPath\ncmd += ' ; mv -f ' + iPath + '.cif ' + oPath",
+      "full_cmd": "cmd += ' ; RCSBROOT=' + self.__rcsbAppsPath + ' ; export RCSBROOT '\ncmd += ' ; PDB2GLYCAN=' + os.path.join(os.path.abspath(self.__cICommon.get_site_packages_path()), 'pdb2glycan', 'bin', 'PDB2Glycan') + ' ; export PDB2GLYCAN '\ncmd += ' ; COMP_PATH=' + self.__ccCvsPath + ' ; export COMP_PATH '\ncmd += ' ; DICT_SDB=' + self.__pathPdbxDictSdb + ' ; export DICT_SDB ; '\ncmd += maxitCmd + ' -o 8 -standard -pdbids -no_deriv -no_pdbx_strand_id -no_site -i ' + iPath\ncmd += ' ; mv -f ' + iPath + '.cif ' + oPath"
+    },
+    {
+      "op_name": "cif2cif-pdbx-skip-process",
+      "line_range": [
+        3706,
+        3708
+      ],
+      "cmd_additions": "cmd += maxitCmd + ' -o 9 -i ' + iPath\ncmd += ' ; mv -f ' + iPath + '.cif ' + oPath",
+      "full_cmd": "cmd += ' ; RCSBROOT=' + self.__rcsbAppsPath + ' ; export RCSBROOT '\ncmd += ' ; PDB2GLYCAN=' + os.path.join(os.path.abspath(self.__cICommon.get_site_packages_path()), 'pdb2glycan', 'bin', 'PDB2Glycan') + ' ; export PDB2GLYCAN '\ncmd += ' ; COMP_PATH=' + self.__ccCvsPath + ' ; export COMP_PATH '\ncmd += ' ; DICT_SDB=' + self.__pathPdbxDictSdb + ' ; export DICT_SDB ; '\ncmd += maxitCmd + ' -o 9 -i ' + iPath\ncmd += ' ; mv -f ' + iPath + '.cif ' + oPath"
+    },
+    {
+      "op_name": "cif2cif-ebi",
+      "line_range": [
+        3710,
+        3713
+      ],
+      "cmd_additions": "cmd += maxitCmd + ' -o 8  '\ncmd += ' -get_biol_unit -pdbids -i ' + iPath\ncmd += ' ; mv -f ' + iPath + '.cif ' + oPath",
+      "full_cmd": "cmd += ' ; RCSBROOT=' + self.__rcsbAppsPath + ' ; export RCSBROOT '\ncmd += ' ; PDB2GLYCAN=' + os.path.join(os.path.abspath(self.__cICommon.get_site_packages_path()), 'pdb2glycan', 'bin', 'PDB2Glycan') + ' ; export PDB2GLYCAN '\ncmd += ' ; COMP_PATH=' + self.__ccCvsPath + ' ; export COMP_PATH '\ncmd += ' ; DICT_SDB=' + self.__pathPdbxDictSdb + ' ; export DICT_SDB ; '\ncmd += maxitCmd + ' -o 8  '\ncmd += ' -get_biol_unit -pdbids -i ' + iPath\ncmd += ' ; mv -f ' + iPath + '.cif ' + oPath"
+    },
+    {
+      "op_name": "pdb2cif",
+      "line_range": [
+        3715,
+        3717
+      ],
+      "cmd_additions": "cmd += maxitCmd + ' -o 1  -i ' + iPath\ncmd += ' ; mv -f ' + iPath + '.cif ' + oPath",
+      "full_cmd": "cmd += ' ; RCSBROOT=' + self.__rcsbAppsPath + ' ; export RCSBROOT '\ncmd += ' ; PDB2GLYCAN=' + os.path.join(os.path.abspath(self.__cICommon.get_site_packages_path()), 'pdb2glycan', 'bin', 'PDB2Glycan') + ' ; export PDB2GLYCAN '\ncmd += ' ; COMP_PATH=' + self.__ccCvsPath + ' ; export COMP_PATH '\ncmd += ' ; DICT_SDB=' + self.__pathPdbxDictSdb + ' ; export DICT_SDB ; '\ncmd += maxitCmd + ' -o 1  -i ' + iPath\ncmd += ' ; mv -f ' + iPath + '.cif ' + oPath"
+    },
+    {
+      "op_name": "pdb2cif-ebi",
+      "line_range": [
+        3715,
+        3717
+      ],
+      "cmd_additions": "cmd += maxitCmd + ' -o 1  -i ' + iPath\ncmd += ' ; mv -f ' + iPath + '.cif ' + oPath",
+      "full_cmd": "cmd += ' ; RCSBROOT=' + self.__rcsbAppsPath + ' ; export RCSBROOT '\ncmd += ' ; PDB2GLYCAN=' + os.path.join(os.path.abspath(self.__cICommon.get_site_packages_path()), 'pdb2glycan', 'bin', 'PDB2Glycan') + ' ; export PDB2GLYCAN '\ncmd += ' ; COMP_PATH=' + self.__ccCvsPath + ' ; export COMP_PATH '\ncmd += ' ; DICT_SDB=' + self.__pathPdbxDictSdb + ' ; export DICT_SDB ; '\ncmd += maxitCmd + ' -o 1  -i ' + iPath\ncmd += ' ; mv -f ' + iPath + '.cif ' + oPath"
+    },
+    {
+      "op_name": "cif2pdb",
+      "line_range": [
+        3719,
+        3721
+      ],
+      "cmd_additions": "cmd += maxitCmd + ' -o 2  -i ' + iPath\ncmd += ' ; mv -f ' + iPath + '.pdb ' + oPath",
+      "full_cmd": "cmd += ' ; RCSBROOT=' + self.__rcsbAppsPath + ' ; export RCSBROOT '\ncmd += ' ; PDB2GLYCAN=' + os.path.join(os.path.abspath(self.__cICommon.get_site_packages_path()), 'pdb2glycan', 'bin', 'PDB2Glycan') + ' ; export PDB2GLYCAN '\ncmd += ' ; COMP_PATH=' + self.__ccCvsPath + ' ; export COMP_PATH '\ncmd += ' ; DICT_SDB=' + self.__pathPdbxDictSdb + ' ; export DICT_SDB ; '\ncmd += maxitCmd + ' -o 2  -i ' + iPath\ncmd += ' ; mv -f ' + iPath + '.pdb ' + oPath"
+    },
+    {
+      "op_name": "switch-dna",
+      "line_range": [
+        3723,
+        3725
+      ],
+      "cmd_additions": "cmd += maxitCmd + ' -o 68  -i ' + iPath\ncmd += ' ; mv -f ' + iPath + '.cif ' + oPath",
+      "full_cmd": "cmd += ' ; RCSBROOT=' + self.__rcsbAppsPath + ' ; export RCSBROOT '\ncmd += ' ; PDB2GLYCAN=' + os.path.join(os.path.abspath(self.__cICommon.get_site_packages_path()), 'pdb2glycan', 'bin', 'PDB2Glycan') + ' ; export PDB2GLYCAN '\ncmd += ' ; COMP_PATH=' + self.__ccCvsPath + ' ; export COMP_PATH '\ncmd += ' ; DICT_SDB=' + self.__pathPdbxDictSdb + ' ; export DICT_SDB ; '\ncmd += maxitCmd + ' -o 68  -i ' + iPath\ncmd += ' ; mv -f ' + iPath + '.cif ' + oPath"
+    },
+    {
+      "op_name": "cif2pdb-assembly",
+      "line_range": [
+        3727,
+        3728
+      ],
+      "cmd_additions": "cmd += maxitCmd + ' -o 55 -pdbids  -i ' + iPath",
+      "full_cmd": "cmd += ' ; RCSBROOT=' + self.__rcsbAppsPath + ' ; export RCSBROOT '\ncmd += ' ; PDB2GLYCAN=' + os.path.join(os.path.abspath(self.__cICommon.get_site_packages_path()), 'pdb2glycan', 'bin', 'PDB2Glycan') + ' ; export PDB2GLYCAN '\ncmd += ' ; COMP_PATH=' + self.__ccCvsPath + ' ; export COMP_PATH '\ncmd += ' ; DICT_SDB=' + self.__pathPdbxDictSdb + ' ; export DICT_SDB ; '\ncmd += maxitCmd + ' -o 55 -pdbids  -i ' + iPath"
+    },
+    {
+      "op_name": "pdbx2pdb-assembly",
+      "line_range": [
+        3730,
+        3731
+      ],
+      "cmd_additions": "cmd += maxitCmd + ' -o 55 -exchange_in -pdbids  -i ' + iPath",
+      "full_cmd": "cmd += ' ; RCSBROOT=' + self.__rcsbAppsPath + ' ; export RCSBROOT '\ncmd += ' ; PDB2GLYCAN=' + os.path.join(os.path.abspath(self.__cICommon.get_site_packages_path()), 'pdb2glycan', 'bin', 'PDB2Glycan') + ' ; export PDB2GLYCAN '\ncmd += ' ; COMP_PATH=' + self.__ccCvsPath + ' ; export COMP_PATH '\ncmd += ' ; DICT_SDB=' + self.__pathPdbxDictSdb + ' ; export DICT_SDB ; '\ncmd += maxitCmd + ' -o 55 -exchange_in -pdbids  -i ' + iPath"
+    },
+    {
+      "op_name": "pdbx2deriv",
+      "line_range": [
+        3733,
+        3735
+      ],
+      "cmd_additions": "cmd += maxitCmd + ' -o 60 -exchange_in -exchange_out -pdbids  -i ' + iPath\ncmd += ' ;  cp -f  *-deriv.cif ' + oPath",
+      "full_cmd": "cmd += ' ; RCSBROOT=' + self.__rcsbAppsPath + ' ; export RCSBROOT '\ncmd += ' ; PDB2GLYCAN=' + os.path.join(os.path.abspath(self.__cICommon.get_site_packages_path()), 'pdb2glycan', 'bin', 'PDB2Glycan') + ' ; export PDB2GLYCAN '\ncmd += ' ; COMP_PATH=' + self.__ccCvsPath + ' ; export COMP_PATH '\ncmd += ' ; DICT_SDB=' + self.__pathPdbxDictSdb + ' ; export DICT_SDB ; '\ncmd += maxitCmd + ' -o 60 -exchange_in -exchange_out -pdbids  -i ' + iPath\ncmd += ' ;  cp -f  *-deriv.cif ' + oPath"
+    }
+  ]
+}

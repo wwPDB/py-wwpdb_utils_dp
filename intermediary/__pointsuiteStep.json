@@ -1,0 +1,60 @@
+{
+  "method": "__pointsuiteStep",
+  "line_range": [
+    4684,
+    4797
+  ],
+  "preamble_cmd": "cmd += ' ; PTSUITE=' + self.__pointsuitePath + ' ; export PTSUITE '",
+  "variables": {
+    "raw": {},
+    "non_raw": {
+      "__packagePath": "self.__cICommon.get_site_packages_path()",
+      "__pointsuitePath": "os.path.join(os.path.abspath(self.__packagePath), 'pointsuite')",
+      "iPath": "self.__getSourceWrkFile(self.__stepNo)",
+      "lPath": "self.__getLogWrkFile(self.__stepNo)",
+      "ePath": "self.__getErrWrkFile(self.__stepNo)",
+      "iret": "self.__run(cmd, lPathFull, op)"
+    }
+  },
+  "operations": [
+    {
+      "op_name": "pointsuite-importmats",
+      "line_range": [
+        4715,
+        4716
+      ],
+      "cmd_additions": "cmd += ' ; ${PTSUITE}/bin/importmats ' + iPath + ' > ' + lPath + ' 2>&1 '",
+      "full_cmd": "cmd += ' ; PTSUITE=' + self.__pointsuitePath + ' ; export PTSUITE '\ncmd += ' ; ${PTSUITE}/bin/importmats ' + iPath + ' > ' + lPath + ' 2>&1 '"
+    },
+    {
+      "op_name": "pointsuite-findframe",
+      "line_range": [
+        4718,
+        4722
+      ],
+      "cmd_additions": "",
+      "full_cmd": "cmd += ' ; PTSUITE=' + self.__pointsuitePath + ' ; export PTSUITE '",
+      "branches": [
+        {
+          "condition": "'biomt' in self.__inputParamDict",
+          "if_cmd": "cmd += ' ; ${PTSUITE}/bin/findframe ' + iPath + ' ' + self.__inputParamDict['biomt'] + ' > ' + lPath + ' 2>&1 '"
+        }
+      ]
+    },
+    {
+      "op_name": "pointsuite-makeassembly",
+      "line_range": [
+        4725,
+        4729
+      ],
+      "cmd_additions": "",
+      "full_cmd": "cmd += ' ; PTSUITE=' + self.__pointsuitePath + ' ; export PTSUITE '",
+      "branches": [
+        {
+          "condition": "'transmt' in self.__inputParamDict",
+          "if_cmd": "cmd += ' ; ${PTSUITE}/bin/makeassembly ' + iPath + ' ' + self.__inputParamDict['transmt'] + ' > ' + lPath + ' 2>&1 '"
+        }
+      ]
+    }
+  ]
+}

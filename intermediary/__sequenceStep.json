@@ -1,0 +1,98 @@
+{
+  "method": "__sequenceStep",
+  "line_range": [
+    4805,
+    5027
+  ],
+  "preamble_cmd": "cmd += ' ; BLAST_USAGE_REPORT=false ; export BLAST_USAGE_REPORT '",
+  "variables": {
+    "raw": {},
+    "non_raw": {
+      "packagePath": "self.__cICommon.get_site_packages_path()",
+      "seqPath": "self.__cICommon.get_site_refdata_sequence_path()",
+      "seqDbPath": "self.__cICommon.get_site_refdata_sequence_db_path()",
+      "altDbPaths": "self.__cI.get('SITE_REFDATA_ALT_SEQUENCE_DB_PATHS')",
+      "seqDbNewPath": "os.path.join(seqPath, 'seq-db-new')",
+      "seqDbBackupPath": "os.path.join(seqPath, 'seq-backup')",
+      "altPathList": "[]",
+      "ncbiToolsPath": "os.path.join(packagePath, 'ncbi-blast+')",
+      "ncbiToolsPathBin": "os.path.join(ncbiToolsPath, 'bin')",
+      "blastp_command": "os.path.join(ncbiToolsPathBin, 'blastp')",
+      "blastn_command": "os.path.join(ncbiToolsPathBin, 'blastn')",
+      "makeblastdb_command": "os.path.join(ncbiToolsPathBin, 'makeblastdb')",
+      "uniprot_files": "['uniprot_sprot.fasta.gz', 'uniprot_sprot_varsplic.fasta.gz', 'uniprot_trembl.fasta.gz']",
+      "iPath": "self.__getSourceWrkFile(self.__stepNo)",
+      "oPath": "self.__getResultWrkFile(self.__stepNo)",
+      "lPath": "self.__getLogWrkFile(self.__stepNo)",
+      "ePath": "self.__getErrWrkFile(self.__stepNo)",
+      "tPath": "self.__getTmpWrkFile(self.__stepNo)",
+      "__numThreads": "numThreads",
+      "iret": "self.__run(cmd, lPathFull, op)"
+    }
+  },
+  "operations": [
+    {
+      "op_name": "seq-blastp",
+      "line_range": [
+        4889,
+        4925
+      ],
+      "cmd_additions": "cmd += ' ; BLASTDB=' + os.path.abspath((self.__locateSeqDb(seqDbPath, altPathList, dbName + '.pal'))) + ' ; export BLASTDB '\ncmd += ' ; ' + (blastp_command) + ' -outfmt 5  -num_threads ' + numThreads + hOpt + ' -evalue ' + eValue + ('') + ' -db ' + os.path.join((self.__locateSeqDb(seqDbPath, altPathList, dbName + '.pal')), dbName) + ' -query ' + iPathFull + ' -out ' + oPath\ncmd += ' > ' + tPath + ' 2>&1 ; cat ' + tPath + ' >> ' + lPath",
+      "full_cmd": "cmd += ' ; BLAST_USAGE_REPORT=false ; export BLAST_USAGE_REPORT '\ncmd += ' ; BLASTDB=' + os.path.abspath((self.__locateSeqDb(seqDbPath, altPathList, dbName + '.pal'))) + ' ; export BLASTDB '\ncmd += ' ; ' + (blastp_command) + ' -outfmt 5  -num_threads ' + numThreads + hOpt + ' -evalue ' + eValue + ('') + ' -db ' + os.path.join((self.__locateSeqDb(seqDbPath, altPathList, dbName + '.pal')), dbName) + ' -query ' + iPathFull + ' -out ' + oPath\ncmd += ' > ' + tPath + ' 2>&1 ; cat ' + tPath + ' >> ' + lPath"
+    },
+    {
+      "op_name": "seq-blastn",
+      "line_range": [
+        4927,
+        4953
+      ],
+      "cmd_additions": "cmd += ' ; BLASTDB=' + os.path.abspath((self.__locateSeqDb(seqDbPath, altPathList, dbName + '.nal'))) + ' ; export BLASTDB '\ncmd += ' ; ' + (blastn_command) + ' -outfmt 5  -num_threads ' + numThreads + hOpt + ' -evalue ' + eValue + ' -db ' + os.path.join((self.__locateSeqDb(seqDbPath, altPathList, dbName + '.nal')), dbName) + ' -query ' + iPathFull + ' -out ' + oPath\ncmd += ' > ' + tPath + ' 2>&1 ; cat ' + tPath + ' >> ' + lPath",
+      "full_cmd": "cmd += ' ; BLAST_USAGE_REPORT=false ; export BLAST_USAGE_REPORT '\ncmd += ' ; BLASTDB=' + os.path.abspath((self.__locateSeqDb(seqDbPath, altPathList, dbName + '.nal'))) + ' ; export BLASTDB '\ncmd += ' ; ' + (blastn_command) + ' -outfmt 5  -num_threads ' + numThreads + hOpt + ' -evalue ' + eValue + ' -db ' + os.path.join((self.__locateSeqDb(seqDbPath, altPathList, dbName + '.nal')), dbName) + ' -query ' + iPathFull + ' -out ' + oPath\ncmd += ' > ' + tPath + ' 2>&1 ; cat ' + tPath + ' >> ' + lPath"
+    },
+    {
+      "op_name": "fetch-uniprot",
+      "line_range": [
+        4955,
+        4964
+      ],
+      "cmd_additions": "cmd += ' ; mkdir -p {}'.format(seqDbNewPath)\ncmd += ' ; cd {}'.format(seqDbNewPath)\ncmd += ' > ' + tPath + ' 2>&1 ; cat ' + tPath + ' >> ' + lPath",
+      "full_cmd": "cmd += ' ; BLAST_USAGE_REPORT=false ; export BLAST_USAGE_REPORT '\ncmd += ' ; mkdir -p {}'.format(seqDbNewPath)\ncmd += ' ; cd {}'.format(seqDbNewPath)\ncmd += ' > ' + tPath + ' 2>&1 ; cat ' + tPath + ' >> ' + lPath"
+    },
+    {
+      "op_name": "fetch-gb",
+      "line_range": [
+        4966,
+        4973
+      ],
+      "cmd_additions": "cmd += ' ; mkdir -p {}'.format(seqDbNewPath)\ncmd += ' ; cd {}'.format(seqDbNewPath)\ncmd += ' ; rm -rf {}'.format(('nt*.gz*'))\ncmd += '; wget -q  --tries=10 \"ftp://ftp.ncbi.nih.gov/blast/db/{}\" -a {}'.format(('nt*.gz*'), ('wget-gb-last.log'))\ncmd += ' > ' + tPath + ' 2>&1 ; cat ' + tPath + ' >> ' + lPath",
+      "full_cmd": "cmd += ' ; BLAST_USAGE_REPORT=false ; export BLAST_USAGE_REPORT '\ncmd += ' ; mkdir -p {}'.format(seqDbNewPath)\ncmd += ' ; cd {}'.format(seqDbNewPath)\ncmd += ' ; rm -rf {}'.format(('nt*.gz*'))\ncmd += '; wget -q  --tries=10 \"ftp://ftp.ncbi.nih.gov/blast/db/{}\" -a {}'.format(('nt*.gz*'), ('wget-gb-last.log'))\ncmd += ' > ' + tPath + ' 2>&1 ; cat ' + tPath + ' >> ' + lPath"
+    },
+    {
+      "op_name": "backup-seqdb",
+      "line_range": [
+        4975,
+        4979
+      ],
+      "cmd_additions": "cmd += ' ; mkdir -p {}'.format(seqDbBackupPath)\ncmd += ' ; mkdir -p {}'.format(seqDbPath)\ncmd += ' ; cp {}/* {}'.format(seqDbPath, seqDbBackupPath)\ncmd += ' > ' + tPath + ' 2>&1 ; cat ' + tPath + ' >> ' + lPath",
+      "full_cmd": "cmd += ' ; BLAST_USAGE_REPORT=false ; export BLAST_USAGE_REPORT '\ncmd += ' ; mkdir -p {}'.format(seqDbBackupPath)\ncmd += ' ; mkdir -p {}'.format(seqDbPath)\ncmd += ' ; cp {}/* {}'.format(seqDbPath, seqDbBackupPath)\ncmd += ' > ' + tPath + ' 2>&1 ; cat ' + tPath + ' >> ' + lPath"
+    },
+    {
+      "op_name": "format-uniprot",
+      "line_range": [
+        4981,
+        4988
+      ],
+      "cmd_additions": "cmd += ' ; cd {}'.format(seqDbNewPath)\ncmd += ' ; mkdir -p {}'.format(seqDbPath)\ncmd += ' ; rm -f my_*'\ncmd += ' ; gunzip -c {}'.format(' '.join(uniprot_files))\ncmd += '| {} -dbtype prot -parse_seqids -title my_uniprot_all -out my_uniprot_all -max_file_sz 2000000000'.format(makeblastdb_command)\ncmd += ' ; mv my_* {}/'.format(seqDbPath)\ncmd += ' > ' + tPath + ' 2>&1 ; cat ' + tPath + ' >> ' + lPath",
+      "full_cmd": "cmd += ' ; BLAST_USAGE_REPORT=false ; export BLAST_USAGE_REPORT '\ncmd += ' ; cd {}'.format(seqDbNewPath)\ncmd += ' ; mkdir -p {}'.format(seqDbPath)\ncmd += ' ; rm -f my_*'\ncmd += ' ; gunzip -c {}'.format(' '.join(uniprot_files))\ncmd += '| {} -dbtype prot -parse_seqids -title my_uniprot_all -out my_uniprot_all -max_file_sz 2000000000'.format(makeblastdb_command)\ncmd += ' ; mv my_* {}/'.format(seqDbPath)\ncmd += ' > ' + tPath + ' 2>&1 ; cat ' + tPath + ' >> ' + lPath"
+    },
+    {
+      "op_name": "format-gb",
+      "line_range": [
+        4990,
+        4998
+      ],
+      "cmd_additions": "cmd += ' ; cd {}'.format(seqDbNewPath)\ncmd += ' ; mkdir -p {}'.format(seqDbPath)\ncmd += ' ; for fn in nt*.gz; do gzip -d -c $fn | tar xf -; done'\ncmd += ' ; flist=`ls -1 {}/nt* | grep -v .gz`'.format(seqDbNewPath)\ncmd += ' ; for fn in $flist; do mv $fn {}/; done'.format(seqDbPath)\ncmd += ' ; rm -f {}/my_ncbi_nt.nal'.format(seqDbPath)\ncmd += ' ; ln -s nt.nal {}/my_ncbi_nt.nal'.format(seqDbPath)\ncmd += ' > ' + tPath + ' 2>&1 ; cat ' + tPath + ' >> ' + lPath",
+      "full_cmd": "cmd += ' ; BLAST_USAGE_REPORT=false ; export BLAST_USAGE_REPORT '\ncmd += ' ; cd {}'.format(seqDbNewPath)\ncmd += ' ; mkdir -p {}'.format(seqDbPath)\ncmd += ' ; for fn in nt*.gz; do gzip -d -c $fn | tar xf -; done'\ncmd += ' ; flist=`ls -1 {}/nt* | grep -v .gz`'.format(seqDbNewPath)\ncmd += ' ; for fn in $flist; do mv $fn {}/; done'.format(seqDbPath)\ncmd += ' ; rm -f {}/my_ncbi_nt.nal'.format(seqDbPath)\ncmd += ' ; ln -s nt.nal {}/my_ncbi_nt.nal'.format(seqDbPath)\ncmd += ' > ' + tPath + ' 2>&1 ; cat ' + tPath + ' >> ' + lPath"
+    }
+  ]
+}

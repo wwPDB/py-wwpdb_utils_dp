@@ -1,0 +1,155 @@
+{
+  "method": "__emStep",
+  "line_range": [
+    3327,
+    3644
+  ],
+  "preamble_cmd": "",
+  "variables": {
+    "raw": {
+      "__site_config_command": "'. %s/init/env.sh -s %s -l %s' % (self.__siteConfigDir, self.__siteId, self.__siteLoc)"
+    },
+    "non_raw": {
+      "__packagePath": "self.__cICommon.get_site_packages_path()",
+      "__deployPath": "self.__getConfigPath('SITE_DEPLOY_PATH')",
+      "__localAppsPath": "self.__cICommon.get_site_local_apps_path()",
+      "__siteConfigDir": "self.__getConfigPath('TOP_WWPDB_SITE_CONFIG_DIR')",
+      "__siteLoc": "self.__cI.get('WWPDB_SITE_LOC')",
+      "iPath": "self.__getSourceWrkFile(self.__stepNo)",
+      "oPath": "self.__getResultWrkFile(self.__stepNo)",
+      "lPath": "self.__getLogWrkFile(self.__stepNo)",
+      "ePath": "self.__getErrWrkFile(self.__stepNo)",
+      "iret": "self.__run(cmd, lPathFull, op)"
+    }
+  },
+  "operations": [
+    {
+      "op_name": "em2em-spider",
+      "line_range": [
+        3381,
+        3410
+      ],
+      "cmd_additions": "cmd += (os.path.join(self.__wrkPath, 'COMMANDS.sh'))\ncmd += ' >& ' + ePath + ' && '\ncmd += mapfix_command('tmp.map')\ncmd += ' ; } 2>> ' + ePath + ' 1> ' + lPath",
+      "full_cmd": "cmd += (os.path.join(self.__wrkPath, 'COMMANDS.sh'))\ncmd += ' >& ' + ePath + ' && '\ncmd += mapfix_command('tmp.map')\ncmd += ' ; } 2>> ' + ePath + ' 1> ' + lPath"
+    },
+    {
+      "op_name": "mapfix-big",
+      "line_range": [
+        3412,
+        3414
+      ],
+      "cmd_additions": "cmd += mapfix_command(iPath)\ncmd += ' ; } 2> ' + ePath + ' 1> ' + lPath",
+      "full_cmd": "cmd += mapfix_command(iPath)\ncmd += ' ; } 2> ' + ePath + ' 1> ' + lPath"
+    },
+    {
+      "op_name": "fsc_check",
+      "line_range": [
+        3416,
+        3431
+      ],
+      "cmd_additions": "cmd += 'export LD_LIBRARY_PATH=' + (os.path.join((os.path.join(self.__packagePath, '..')), 'lib')) + '; '\ncmd += 'xmllint --format --((ConfigInfoAppEm(self.__siteId)).get_emd_fsc_scheme_file_path()) ' + ((ConfigInfoAppEm(self.__siteId)).get_emd_fsc_scheme_file_path()) + ' ' + iPath\ncmd += ' ; } 2> ' + lPath + ' 1>' + oPath",
+      "full_cmd": "cmd += 'export LD_LIBRARY_PATH=' + (os.path.join((os.path.join(self.__packagePath, '..')), 'lib')) + '; '\ncmd += 'xmllint --format --((ConfigInfoAppEm(self.__siteId)).get_emd_fsc_scheme_file_path()) ' + ((ConfigInfoAppEm(self.__siteId)).get_emd_fsc_scheme_file_path()) + ' ' + iPath\ncmd += ' ; } 2> ' + lPath + ' 1>' + oPath"
+    },
+    {
+      "op_name": "img-convert",
+      "line_range": [
+        3433,
+        3451
+      ],
+      "cmd_additions": "cmd += ('('('('('convert +repage -quiet -resize x400 ') +repage -quiet -resize x400 ') +repage -quiet -resize x400 ') +repage -quiet -resize x400 ') +repage -quiet -resize x400 ')\ncmd += iPath + ' png:' + oPath\ncmd += ' ; } 2> ' + lPath",
+      "full_cmd": "cmd += ('('('('('convert +repage -quiet -resize x400 ') +repage -quiet -resize x400 ') +repage -quiet -resize x400 ') +repage -quiet -resize x400 ') +repage -quiet -resize x400 ')\ncmd += iPath + ' png:' + oPath\ncmd += ' ; } 2> ' + lPath"
+    },
+    {
+      "op_name": "annot-read-map-header",
+      "line_range": [
+        3455,
+        3476
+      ],
+      "cmd_additions": "cmd += self.__javaPath + ' -Xms256m -Xmx256m -jar ' + (os.path.join(self.__packagePath, 'mapFix', 'mapFixAnot.jar'))\ncmd += ' -in ' + iPath + ' -out  dummy-out.map '\ncmd += ' -voxel 1.0 1.0 1.0 -label test '\ncmd += ' ; } 2> ' + ePath + ' 1> ' + oPath\ncmd += ' ; cat ' + ePath + ' > ' + lPath",
+      "full_cmd": "cmd += self.__javaPath + ' -Xms256m -Xmx256m -jar ' + (os.path.join(self.__packagePath, 'mapFix', 'mapFixAnot.jar'))\ncmd += ' -in ' + iPath + ' -out  dummy-out.map '\ncmd += ' -voxel 1.0 1.0 1.0 -label test '\ncmd += ' ; } 2> ' + ePath + ' 1> ' + oPath\ncmd += ' ; cat ' + ePath + ' > ' + lPath"
+    },
+    {
+      "op_name": "annot-read-map-header-in-place",
+      "line_range": [
+        3478,
+        3501
+      ],
+      "cmd_additions": "cmd += self.__javaPath + ' -Xms256m -Xmx256m -jar ' + (os.path.join(self.__packagePath, 'mapFix', 'mapFixAnot.jar'))\ncmd += ' -in ' + inpMapFilePath + ' -out  dummy-out.map '\ncmd += ' -voxel 1.0 1.0 1.0 -label test '\ncmd += ' ; } 2> ' + ePath + ' 1> ' + oPath\ncmd += ' ; cat ' + ePath + ' > ' + lPath",
+      "full_cmd": "cmd += self.__javaPath + ' -Xms256m -Xmx256m -jar ' + (os.path.join(self.__packagePath, 'mapFix', 'mapFixAnot.jar'))\ncmd += ' -in ' + inpMapFilePath + ' -out  dummy-out.map '\ncmd += ' -voxel 1.0 1.0 1.0 -label test '\ncmd += ' ; } 2> ' + ePath + ' 1> ' + oPath\ncmd += ' ; cat ' + ePath + ' > ' + lPath"
+    },
+    {
+      "op_name": "annot-update-map-header-in-place",
+      "line_range": [
+        3503,
+        3553
+      ],
+      "cmd_additions": "cmd += self.__javaPath + ' -Xms256m -Xmx256m -jar ' + (os.path.join(self.__packagePath, 'mapFix', 'mapFixAnot.jar'))\ncmd += ' -in ' + inpMapFilePath + ' -out  ' + outMapFilePath\ncmd += ' ; } 2> ' + ePath + ' 1> ' + oPath\ncmd += ' ; cat ' + ePath + ' > ' + lPath",
+      "full_cmd": "cmd += self.__javaPath + ' -Xms256m -Xmx256m -jar ' + (os.path.join(self.__packagePath, 'mapFix', 'mapFixAnot.jar'))\ncmd += ' -in ' + inpMapFilePath + ' -out  ' + outMapFilePath\ncmd += ' ; } 2> ' + ePath + ' 1> ' + oPath\ncmd += ' ; cat ' + ePath + ' > ' + lPath",
+      "branches": [
+        {
+          "condition": "'voxel' in self.__inputParamDict",
+          "if_cmd": "cmd += ' -voxel ' + argVal"
+        },
+        {
+          "condition": "'cell' in self.__inputParamDict",
+          "if_cmd": "cmd += ' -cell ' + argVal"
+        },
+        {
+          "condition": "'label' in self.__inputParamDict",
+          "if_cmd": "cmd += ' -label ' + argVal"
+        },
+        {
+          "condition": "'gridsampling' in self.__inputParamDict",
+          "if_cmd": "cmd += ' -gridsampling ' + argVal"
+        },
+        {
+          "condition": "'gridstart' in self.__inputParamDict",
+          "if_cmd": "cmd += ' -gridstart ' + argVal"
+        },
+        {
+          "condition": "'options' in self.__inputParamDict",
+          "if_cmd": "cmd += ' ' + argVal"
+        }
+      ]
+    },
+    {
+      "op_name": "deposit-update-map-header-in-place",
+      "line_range": [
+        3554,
+        3586
+      ],
+      "cmd_additions": "cmd += self.__javaPath + ' -Xms256m -Xmx256m -jar ' + (os.path.join(self.__packagePath, 'mapFix', 'mapFixDep.jar'))\ncmd += ' -in ' + inpMapFilePath + ' -out  ' + outMapFilePath\ncmd += ' ; } 2> ' + ePath + ' 1> ' + oPath\ncmd += ' ; cat ' + ePath + ' > ' + lPath",
+      "full_cmd": "cmd += self.__javaPath + ' -Xms256m -Xmx256m -jar ' + (os.path.join(self.__packagePath, 'mapFix', 'mapFixDep.jar'))\ncmd += ' -in ' + inpMapFilePath + ' -out  ' + outMapFilePath\ncmd += ' ; } 2> ' + ePath + ' 1> ' + oPath\ncmd += ' ; cat ' + ePath + ' > ' + lPath",
+      "branches": [
+        {
+          "condition": "'voxel' in self.__inputParamDict",
+          "if_cmd": "cmd += ' -voxel ' + argVal\ncmd += ' -label ' + argVal"
+        },
+        {
+          "condition": "'options' in self.__inputParamDict",
+          "if_cmd": "cmd += ' ' + argVal"
+        }
+      ]
+    },
+    {
+      "op_name": "em-map-model-upload-check",
+      "line_range": [
+        3588,
+        3612
+      ],
+      "cmd_additions": "cmd += ' :; } ; '\ncmd += self.__site_config_command + ' ; '\ncmd += f' > {(os.path.join(outDirPath, f'{op}.log'))} 2>&1 ;'",
+      "full_cmd": "cmd += ' :; } ; '\ncmd += self.__site_config_command + ' ; '\ncmd += f' > {(os.path.join(outDirPath, f'{op}.log'))} 2>&1 ;'",
+      "branches": [
+        {
+          "condition": "'input_file_path' in self.__inputParamDict",
+          "if_cmd": "cmd += f\"python -m wwpdb.utils.emdb.checkemupload.checkemupload --input {self.__inputParamDict['input_file_path']}\"",
+          "else_cmd": "cmd += f'python -m wwpdb.utils.emdb.checkemupload.checkemupload --primmap {inpMapFilePath}'"
+        },
+        {
+          "condition": "outFilePath",
+          "if_cmd": "cmd += f' --output {outFilePath}'"
+        }
+      ]
+    }
+  ]
+}

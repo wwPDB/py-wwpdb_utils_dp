@@ -1,0 +1,51 @@
+annotateComp
+blastn_command (function)
+blastp_command (function)
+bond_dist
+cal_polymer_linkage_distance
+CalculateDistantWater
+checkCifUtil
+CheckCoorFormat
+ChemCompAssign_main
+cif-version
+CifCheck
+cifexch-v3.2
+cifexch2
+COMMANDS.sh (shell_script)
+convert (system)
+dbLoaderCmd (variable)
+dssp
+GenNMRStarCSFile
+GetAddAnnotation
+GetBasePairInfo
+GetCisPeptide
+GetCorresInfo
+GetLinkAndSSBond
+GetSecondStruct
+getsite_cif
+gunzip (system)
+gzip (system)
+importmats
+java (jar: mapFixAnot.jar, mapFixDep.jar)
+makeblastdb_command (function)
+makeReportFromFile.csh (shell_script)
+mapfix_command (function)
+matchComp
+maxitCmd (variable)
+MergePisaData
+MergeSeqModuleData
+MergeSiteData
+mmcif2XML
+MovingWater
+PdbxConverter
+pisa
+python (module)
+stride
+switch-atom-element
+updateInstance
+UpdatePTMAnnotation
+UpdateValidateCategories
+valCmd (variable)
+valdation_with_cif_output
+wget (system)
+xmllint (system)

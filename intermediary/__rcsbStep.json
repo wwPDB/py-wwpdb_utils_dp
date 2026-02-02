@@ -1,0 +1,470 @@
+{
+  "method": "__rcsbStep",
+  "line_range": [
+    3771,
+    4556
+  ],
+  "preamble_cmd": "",
+  "variables": {
+    "raw": {
+      "__site_config_command": "'. %s/init/env.sh -s %s -l %s' % (self.__siteConfigDir, self.__siteId, self.__siteLoc)"
+    },
+    "non_raw": {
+      "__packagePath": "self.__cICommon.get_site_packages_path()",
+      "__ccAppsPath": "self.__cICommon.get_site_cc_apps_path()",
+      "__pdbxDictPath": "self.__cICommon.get_mmcif_dict_path()",
+      "__pdbxV4DictName": "self.__cI.get('SITE_PDBX_V4_DICT_NAME', 'missing')",
+      "__ccCvsPath": "self.__cIAppCc.get_site_cc_cvs_path()",
+      "__patternPath": "self.__cIAppCc.get_cc_fp_patterns()",
+      "__ccDictPathSdb": "self.__cIAppCc.get_cc_dict_serial()",
+      "__ccDictPathIdx": "self.__cIAppCc.get_cc_dict_idx()",
+      "__pathDdlSdb": "os.path.join(self.__pdbxDictPath, 'mmcif_ddl.sdb')",
+      "__pathPdbxDictSdb": "self.__cICommon.get_mmcif_next_dictionary_sdb_file_path()",
+      "__pathPdbxV4DictSdb": "os.path.join(self.__pdbxDictPath, self.__pdbxV4DictName + '.sdb')",
+      "__pathPdbxDictOdb": "self.__cICommon.get_mmcif_next_dictionary_odb_file_path()",
+      "__oeDirPath": "self.__cICommon.get_site_cc_oe_dir()",
+      "__oeLicensePath": "self.__cICommon.get_site_cc_oe_licence()",
+      "__babelLibPath": "self.__cICommon.get_site_cc_babel_lib()",
+      "__babelDirPath": "self.__cICommon.get_site_cc_babel_dir()",
+      "__babelDataDirPath": "self.__cICommon.get_site_cc_babel_datadir()",
+      "__cactvsDirPath": "self.__cICommon.get_site_cc_cactvs_dir()",
+      "__acdDirPath": "self.__cICommon.get_site_cc_acd_dir()",
+      "__corinaDirPath": "os.path.join(self.__cICommon.get_site_cc_corina_dir(), 'bin')",
+      "__inchiDirPath": "self.__cICommon.get_site_cc_inchi_dir()",
+      "__siteConfigDir": "self.__getConfigPath('TOP_WWPDB_SITE_CONFIG_DIR')",
+      "__siteLoc": "self.__cI.get('WWPDB_SITE_LOC')",
+      "iPath": "self.__getSourceWrkFile(self.__stepNo)",
+      "iPathList": "self.__getSourceWrkFileList(self.__stepNo)",
+      "oPath": "self.__getResultWrkFile(self.__stepNo)",
+      "lPath": "self.__getLogWrkFile(self.__stepNo)",
+      "ePath": "self.__getErrWrkFile(self.__stepNo)",
+      "tPath": "self.__getTmpWrkFile(self.__stepNo)",
+      "iret": "self.__run(cmd, lPathFull, op)"
+    }
+  },
+  "operations": [
+    {
+      "op_name": "rename-atoms",
+      "line_range": [
+        3849,
+        3855
+      ],
+      "cmd_additions": "cmd += (' ; ' + (os.path.join(self.__ccAppsPath, 'bin', 'switch-atom-element')) + ' -dicodb ' + self.__ccDictPathSdb) + ' -file ' + iPath\ncmd += ' > ' + tPath + ' 2>&1 ; cat ' + tPath + ' >> ' + lPath\ncmd += ' ; mv -f ' + iPath + '.cif ' + oPath\ncmd += ' > ' + tPath + ' 2>&1 ; cat ' + tPath + ' >> ' + lPath",
+      "full_cmd": "cmd += (' ; ' + (os.path.join(self.__ccAppsPath, 'bin', 'switch-atom-element')) + ' -dicodb ' + self.__ccDictPathSdb) + ' -file ' + iPath\ncmd += ' > ' + tPath + ' 2>&1 ; cat ' + tPath + ' >> ' + lPath\ncmd += ' ; mv -f ' + iPath + '.cif ' + oPath\ncmd += ' > ' + tPath + ' 2>&1 ; cat ' + tPath + ' >> ' + lPath"
+    },
+    {
+      "op_name": "chem-comp-annotate-comp",
+      "line_range": [
+        3857,
+        3881
+      ],
+      "cmd_additions": "cmd += ' ; CC_TOOLS=' + os.path.join(self.__ccAppsPath, 'bin') + ' ; export CC_TOOLS '\ncmd += ' ; ACD_DIR=' + self.__acdDirPath + ' ; export ACD_DIR '\ncmd += ' ; CACTVS_DIR=' + self.__cactvsDirPath + ' ; export CACTVS_DIR '\ncmd += ' ; CORINA_DIR=' + self.__corinaDirPath + ' ; export CORINA_DIR '\ncmd += ' ; INCHI_DIR=' + self.__inchiDirPath + ' ; export INCHI_DIR '\ncmd += ' ; OE_DIR=' + self.__oeDirPath + ' ; export OE_DIR '\ncmd += ' ; OE_LICENSE=' + self.__oeLicensePath + ' ; export OE_LICENSE '\ncmd += ' ; BABEL_DIR=' + self.__babelDirPath + ' ; export BABEL_DIR '\ncmd += ' ; BABEL_DATADIR=' + self.__babelDataDirPath + ' ; export BABEL_DATADIR '\ncmd += ' ; CACTVS_DIR=' + self.__cactvsDirPath + ' ; export CACTVS_DIR '\ncmd += ' ; LD_LIBRARY_PATH=' + self.__babelLibPath + ':' + os.path.join(self.__localAppsPath, 'lib') + ':' + self.__acdDirPath + ' ; export LD_LIBRARY_PATH '\ncmd += (' ; ' + (os.path.join(self.__ccAppsPath, 'bin', 'annotateComp')) + ' -i ' + iPath + ' -op ' + (\"'stereo-cactvs|aro-cactvs|descriptor-oe|descriptor-cactvs|descriptor-inchi|name-oe|name-acd|xyz-ideal-corina|xyz-model-h-oe|rename|fix'\") + ' -o ' + oPath + ' -export_format pdbx ')\ncmd += ' > ' + tPath + ' 2>&1 ; cat ' + tPath + ' > ' + lPath",
+      "full_cmd": "cmd += ' ; CC_TOOLS=' + os.path.join(self.__ccAppsPath, 'bin') + ' ; export CC_TOOLS '\ncmd += ' ; ACD_DIR=' + self.__acdDirPath + ' ; export ACD_DIR '\ncmd += ' ; CACTVS_DIR=' + self.__cactvsDirPath + ' ; export CACTVS_DIR '\ncmd += ' ; CORINA_DIR=' + self.__corinaDirPath + ' ; export CORINA_DIR '\ncmd += ' ; INCHI_DIR=' + self.__inchiDirPath + ' ; export INCHI_DIR '\ncmd += ' ; OE_DIR=' + self.__oeDirPath + ' ; export OE_DIR '\ncmd += ' ; OE_LICENSE=' + self.__oeLicensePath + ' ; export OE_LICENSE '\ncmd += ' ; BABEL_DIR=' + self.__babelDirPath + ' ; export BABEL_DIR '\ncmd += ' ; BABEL_DATADIR=' + self.__babelDataDirPath + ' ; export BABEL_DATADIR '\ncmd += ' ; CACTVS_DIR=' + self.__cactvsDirPath + ' ; export CACTVS_DIR '\ncmd += ' ; LD_LIBRARY_PATH=' + self.__babelLibPath + ':' + os.path.join(self.__localAppsPath, 'lib') + ':' + self.__acdDirPath + ' ; export LD_LIBRARY_PATH '\ncmd += (' ; ' + (os.path.join(self.__ccAppsPath, 'bin', 'annotateComp')) + ' -i ' + iPath + ' -op ' + (\"'stereo-cactvs|aro-cactvs|descriptor-oe|descriptor-cactvs|descriptor-inchi|name-oe|name-acd|xyz-ideal-corina|xyz-model-h-oe|rename|fix'\") + ' -o ' + oPath + ' -export_format pdbx ')\ncmd += ' > ' + tPath + ' 2>&1 ; cat ' + tPath + ' > ' + lPath"
+    },
+    {
+      "op_name": "metal-findgeo",
+      "line_range": [
+        3883,
+        3929
+      ],
+      "cmd_additions": "cmd += f' ; cp {iPath} {(iPath.strip() + '.cif')}'\ncmd += f\" ; python -m wwpdb.utils.dp.metal.findgeo.processFindGeo {' '.join(([]))}\"\ncmd += f\" ; cp {os.path.join(('findgeo'), 'findgeo_report.json')} {oPath}\"\ncmd += f' > {tPath} 2>&1 ; cat {tPath} > {lPath}'",
+      "full_cmd": "cmd += f' ; cp {iPath} {(iPath.strip() + '.cif')}'\ncmd += f\" ; python -m wwpdb.utils.dp.metal.findgeo.processFindGeo {' '.join(([]))}\"\ncmd += f\" ; cp {os.path.join(('findgeo'), 'findgeo_report.json')} {oPath}\"\ncmd += f' > {tPath} 2>&1 ; cat {tPath} > {lPath}'"
+    },
+    {
+      "op_name": "metal-metalcoord-stats",
+      "line_range": [
+        3931,
+        3990
+      ],
+      "cmd_additions": "cmd += f' ; cp {iPath} {(iPath.strip() + '.cif')}'\ncmd += f\" ; python -m wwpdb.utils.dp.metal.metalcoord.processMetalCoordStats {' '.join(([]))}\"\ncmd += f\" ; cp {os.path.join(('metalcoord'), 'metalcoord_report.json')} {oPath}\"\ncmd += f' > {tPath} 2>&1 ; cat {tPath} > {lPath}'",
+      "full_cmd": "cmd += f' ; cp {iPath} {(iPath.strip() + '.cif')}'\ncmd += f\" ; python -m wwpdb.utils.dp.metal.metalcoord.processMetalCoordStats {' '.join(([]))}\"\ncmd += f\" ; cp {os.path.join(('metalcoord'), 'metalcoord_report.json')} {oPath}\"\ncmd += f' > {tPath} 2>&1 ; cat {tPath} > {lPath}'",
+      "branches": [
+        {
+          "condition": "os.path.exists(metalcoord_exe_standalone)",
+          "if_cmd": null,
+          "else_cmd": "cmd += f' ; source {ccp4_setup} '"
+        }
+      ]
+    },
+    {
+      "op_name": "metal-metalcoord-update",
+      "line_range": [
+        3992,
+        4052
+      ],
+      "cmd_additions": "cmd += f' ; source {(os.path.join(self.__packagePath, 'metallo', 'ccp4-9', 'bin', 'ccp4.setup-sh'))} '\ncmd += f' ; cp {iPath} {(iPath.strip() + '.cif')}'\ncmd += f\" ; python -m wwpdb.utils.dp.metal.metalcoord.processMetalCoordUpdate {' '.join(([]))}\"\ncmd += f\" ; cp {os.path.join(('metalcoord'), 'servalcat_updated.cif')} {oPath}\"\ncmd += f' > {tPath} 2>&1 ; cat {tPath} > {lPath}'",
+      "full_cmd": "cmd += f' ; source {(os.path.join(self.__packagePath, 'metallo', 'ccp4-9', 'bin', 'ccp4.setup-sh'))} '\ncmd += f' ; cp {iPath} {(iPath.strip() + '.cif')}'\ncmd += f\" ; python -m wwpdb.utils.dp.metal.metalcoord.processMetalCoordUpdate {' '.join(([]))}\"\ncmd += f\" ; cp {os.path.join(('metalcoord'), 'servalcat_updated.cif')} {oPath}\"\ncmd += f' > {tPath} 2>&1 ; cat {tPath} > {lPath}'"
+    },
+    {
+      "op_name": "chem-comp-dict-makeindex",
+      "line_range": [
+        4054,
+        4066
+      ],
+      "cmd_additions": "cmd += ' ; OE_DIR=' + self.__oeDirPath + ' ; export OE_DIR '\ncmd += ' ; OE_LICENSE=' + self.__oeLicensePath + ' ; export OE_LICENSE '\ncmd += ' ;  ln -s ' + iPath + ' ' + (iPath + '.sdb')\ncmd += (' ; ' + (os.path.join(self.__ccAppsPath, 'bin', 'matchComp')) + '  -v -lib ' + (iPath + '.sdb') + ' -type makeindex -fplib ' + self.__patternPath) + ' -index ' + oPath\ncmd += ' > ' + tPath + ' 2>&1 ;  cat ' + tPath + ' > ' + lPath\ncmd += ' ; cat matchComp.log  >> ' + lPath",
+      "full_cmd": "cmd += ' ; OE_DIR=' + self.__oeDirPath + ' ; export OE_DIR '\ncmd += ' ; OE_LICENSE=' + self.__oeLicensePath + ' ; export OE_LICENSE '\ncmd += ' ;  ln -s ' + iPath + ' ' + (iPath + '.sdb')\ncmd += (' ; ' + (os.path.join(self.__ccAppsPath, 'bin', 'matchComp')) + '  -v -lib ' + (iPath + '.sdb') + ' -type makeindex -fplib ' + self.__patternPath) + ' -index ' + oPath\ncmd += ' > ' + tPath + ' 2>&1 ;  cat ' + tPath + ' > ' + lPath\ncmd += ' ; cat matchComp.log  >> ' + lPath"
+    },
+    {
+      "op_name": "chem-comp-dict-serialize",
+      "line_range": [
+        4067,
+        4074
+      ],
+      "cmd_additions": "cmd += (' ; ' + (os.path.join(self.__ccAppsPath, 'bin', 'checkCifUtil')) + ' -i ' + iPath + ' -op serialize ') + ' -osdb ' + oPath\ncmd += ' > ' + tPath + ' 2>&1 ; cat ' + tPath + ' > ' + lPath\ncmd += ' ; cat checkCifUtilIO.log  >> ' + lPath",
+      "full_cmd": "cmd += (' ; ' + (os.path.join(self.__ccAppsPath, 'bin', 'checkCifUtil')) + ' -i ' + iPath + ' -op serialize ') + ' -osdb ' + oPath\ncmd += ' > ' + tPath + ' 2>&1 ; cat ' + tPath + ' > ' + lPath\ncmd += ' ; cat checkCifUtilIO.log  >> ' + lPath"
+    },
+    {
+      "op_name": "initial-version",
+      "line_range": [
+        4075,
+        4081
+      ],
+      "cmd_additions": "cmd += (' ; ' + (os.path.join(self.__rcsbAppsPath, 'bin', 'cif-version'))) + ' -newfile ' + iPath\ncmd += ' > ' + tPath + ' 2>&1 ; cat ' + tPath + ' >> ' + lPath\ncmd += ' ; mv -f ' + iPath + '.cif ' + oPath\ncmd += ' > ' + tPath + ' 2>&1 ; cat ' + tPath + ' >> ' + lPath",
+      "full_cmd": "cmd += (' ; ' + (os.path.join(self.__rcsbAppsPath, 'bin', 'cif-version'))) + ' -newfile ' + iPath\ncmd += ' > ' + tPath + ' 2>&1 ; cat ' + tPath + ' >> ' + lPath\ncmd += ' ; mv -f ' + iPath + '.cif ' + oPath\ncmd += ' > ' + tPath + ' 2>&1 ; cat ' + tPath + ' >> ' + lPath"
+    },
+    {
+      "op_name": "check-cif",
+      "line_range": [
+        4082,
+        4093
+      ],
+      "cmd_additions": "cmd += (' ; ' + (os.path.join(self.__packagePath, 'dict', 'bin', 'CifCheck'))) + ' -f ' + iPath\ncmd += ' -dictSdb ' + self.__pathPdbxDictSdb\ncmd += ' > ' + tPath + ' 2>&1 ; cat ' + tPath + ' >> ' + lPath\ncmd += ' ; touch ' + iPath + '-diag.log '\ncmd += ' ; touch ' + iPath + '-parser.log '\ncmd += ' ; cat ' + iPath + '-parser.log > ' + oPath\ncmd += ' ; cat ' + iPath + '-diag.log  >> ' + oPath",
+      "full_cmd": "cmd += (' ; ' + (os.path.join(self.__packagePath, 'dict', 'bin', 'CifCheck'))) + ' -f ' + iPath\ncmd += ' -dictSdb ' + self.__pathPdbxDictSdb\ncmd += ' > ' + tPath + ' 2>&1 ; cat ' + tPath + ' >> ' + lPath\ncmd += ' ; touch ' + iPath + '-diag.log '\ncmd += ' ; touch ' + iPath + '-parser.log '\ncmd += ' ; cat ' + iPath + '-parser.log > ' + oPath\ncmd += ' ; cat ' + iPath + '-diag.log  >> ' + oPath",
+      "branches": [
+        {
+          "condition": "'first_block' in self.__inputParamDict",
+          "if_cmd": "cmd += ' -checkFirstBlock'"
+        }
+      ]
+    },
+    {
+      "op_name": "check-cif-v4",
+      "line_range": [
+        4095,
+        4103
+      ],
+      "cmd_additions": "cmd += (' ; ' + (os.path.join(self.__packagePath, 'dict', 'bin', 'CifCheck'))) + ' -f ' + iPath\ncmd += ' -dictSdb ' + self.__pathPdbxV4DictSdb\ncmd += ' > ' + tPath + ' 2>&1 ; cat ' + tPath + ' >> ' + lPath\ncmd += ' ; touch ' + iPath + '-diag.log '",
+      "full_cmd": "cmd += (' ; ' + (os.path.join(self.__packagePath, 'dict', 'bin', 'CifCheck'))) + ' -f ' + iPath\ncmd += ' -dictSdb ' + self.__pathPdbxV4DictSdb\ncmd += ' > ' + tPath + ' 2>&1 ; cat ' + tPath + ' >> ' + lPath\ncmd += ' ; touch ' + iPath + '-diag.log '",
+      "branches": [
+        {
+          "condition": "'first_block' in self.__inputParamDict",
+          "if_cmd": "cmd += ' -checkFirstBlock'"
+        }
+      ]
+    },
+    {
+      "op_name": "check-cif-ext",
+      "line_range": [
+        4105,
+        4121
+      ],
+      "cmd_additions": "cmd += (' ; ' + (os.path.join(self.__packagePath, 'dict', 'bin', 'CifCheck'))) + ' -f ' + iPath\ncmd += ' -dictSdb ' + (self.__nameToDictPath((self.__inputParamDict.get('dictionary', 'deposit'))))\ncmd += ' > ' + tPath + ' 2>&1 ; cat ' + tPath + ' >> ' + lPath\ncmd += ' ; touch ' + iPath + '-diag.log '\ncmd += ' ; touch ' + iPath + '-parser.log '\ncmd += ' ; cat ' + iPath + '-parser.log > ' + oPath\ncmd += ' ; cat ' + iPath + '-diag.log  >> ' + oPath",
+      "full_cmd": "cmd += (' ; ' + (os.path.join(self.__packagePath, 'dict', 'bin', 'CifCheck'))) + ' -f ' + iPath\ncmd += ' -dictSdb ' + (self.__nameToDictPath((self.__inputParamDict.get('dictionary', 'deposit'))))\ncmd += ' > ' + tPath + ' 2>&1 ; cat ' + tPath + ' >> ' + lPath\ncmd += ' ; touch ' + iPath + '-diag.log '\ncmd += ' ; touch ' + iPath + '-parser.log '\ncmd += ' ; cat ' + iPath + '-parser.log > ' + oPath\ncmd += ' ; cat ' + iPath + '-diag.log  >> ' + oPath",
+      "branches": [
+        {
+          "condition": "'first_block' in self.__inputParamDict",
+          "if_cmd": "cmd += ' -checkFirstBlock'"
+        }
+      ]
+    },
+    {
+      "op_name": "cif2pdbx-public",
+      "line_range": [
+        4123,
+        4143
+      ],
+      "cmd_additions": "cmd += (' ; ' + (os.path.join(self.__packagePath, 'dict', 'bin', 'cifexch2')) + ' -dicSdb ' + self.__nameToDictPath('deposit') + ' -pdbxDicSdb ' + self.__nameToDictPath('archive_current') + ' -reorder  -strip -op in  -pdbids ') + ' -input ' + iPath + ' -output ' + oPath\ncmd += ' > ' + tPath + ' 2>&1 ; cat ' + tPath + ' >> ' + lPath",
+      "full_cmd": "cmd += (' ; ' + (os.path.join(self.__packagePath, 'dict', 'bin', 'cifexch2')) + ' -dicSdb ' + self.__nameToDictPath('deposit') + ' -pdbxDicSdb ' + self.__nameToDictPath('archive_current') + ' -reorder  -strip -op in  -pdbids ') + ' -input ' + iPath + ' -output ' + oPath\ncmd += ' > ' + tPath + ' 2>&1 ; cat ' + tPath + ' >> ' + lPath",
+      "branches": [
+        {
+          "condition": "'option' in self.__inputParamDict",
+          "if_cmd": "cmd += ' ' + self.__inputParamDict['option']"
+        }
+      ]
+    },
+    {
+      "op_name": "cif2pdbx-ext",
+      "line_range": [
+        4145,
+        4166
+      ],
+      "cmd_additions": "cmd += (' ; ' + (os.path.join(self.__packagePath, 'dict', 'bin', 'cifexch2')) + ' -dicSdb ' + sDictSdb + ' -pdbxDicSdb ' + dDictSdb + ' -reorder  -strip -op in  -pdbids ') + ' -input ' + iPath + ' -output ' + oPath\ncmd += ' > ' + tPath + ' 2>&1 ; cat ' + tPath + ' >> ' + lPath",
+      "full_cmd": "cmd += (' ; ' + (os.path.join(self.__packagePath, 'dict', 'bin', 'cifexch2')) + ' -dicSdb ' + sDictSdb + ' -pdbxDicSdb ' + dDictSdb + ' -reorder  -strip -op in  -pdbids ') + ' -input ' + iPath + ' -output ' + oPath\ncmd += ' > ' + tPath + ' 2>&1 ; cat ' + tPath + ' >> ' + lPath",
+      "branches": [
+        {
+          "condition": "'option' in self.__inputParamDict",
+          "if_cmd": "cmd += ' ' + self.__inputParamDict['option']"
+        }
+      ]
+    },
+    {
+      "op_name": "cif2pdbx",
+      "line_range": [
+        4168,
+        4176
+      ],
+      "cmd_additions": "cmd += (' ; ' + (os.path.join(self.__localAppsPath, 'bin', 'cifexch-v3.2')) + ' -ddlodb ' + self.__pathDdlSdb + ' -dicodb ' + self.__pathPdbxDictSdb) + ' -inlist ' + iPathList\ncmd += ' ; mv -f ' + iPath + '.tr ' + oPath\ncmd += ' > ' + tPath + ' 2>&1 ; cat ' + tPath + ' >> ' + lPath",
+      "full_cmd": "cmd += (' ; ' + (os.path.join(self.__localAppsPath, 'bin', 'cifexch-v3.2')) + ' -ddlodb ' + self.__pathDdlSdb + ' -dicodb ' + self.__pathPdbxDictSdb) + ' -inlist ' + iPathList\ncmd += ' ; mv -f ' + iPath + '.tr ' + oPath\ncmd += ' > ' + tPath + ' 2>&1 ; cat ' + tPath + ' >> ' + lPath"
+    },
+    {
+      "op_name": "pdbx2xml",
+      "line_range": [
+        4178,
+        4183
+      ],
+      "cmd_additions": "cmd += (' ; ' + (os.path.join(self.__localAppsPath, 'bin', 'mmcif2XML')) + ' -prefix  pdbx -ns PDBx -funct mmcif2xmlall ') + ' -f ' + iPath\ncmd += ' > ' + tPath + ' 2>&1 ; cat ' + tPath + ' >> ' + lPath",
+      "full_cmd": "cmd += (' ; ' + (os.path.join(self.__localAppsPath, 'bin', 'mmcif2XML')) + ' -prefix  pdbx -ns PDBx -funct mmcif2xmlall ') + ' -f ' + iPath\ncmd += ' > ' + tPath + ' 2>&1 ; cat ' + tPath + ' >> ' + lPath"
+    },
+    {
+      "op_name": "pdb2dssp",
+      "line_range": [
+        4185,
+        4189
+      ],
+      "cmd_additions": "cmd += (' ;  ' + (os.path.join(self.__localAppsPath, 'bin', 'dssp'))) + '  ' + iPath + ' ' + oPath\ncmd += ' > ' + tPath + ' 2>&1 ; cat ' + tPath + ' >> ' + lPath",
+      "full_cmd": "cmd += (' ;  ' + (os.path.join(self.__localAppsPath, 'bin', 'dssp'))) + '  ' + iPath + ' ' + oPath\ncmd += ' > ' + tPath + ' 2>&1 ; cat ' + tPath + ' >> ' + lPath"
+    },
+    {
+      "op_name": "pdb2stride",
+      "line_range": [
+        4191,
+        4195
+      ],
+      "cmd_additions": "cmd += (' ;  ' + (os.path.join(self.__localAppsPath, 'bin', 'stride'))) + ' -f' + oPath + ' ' + iPath\ncmd += ' > ' + tPath + ' 2>&1 ; cat ' + tPath + ' >> ' + lPath",
+      "full_cmd": "cmd += (' ;  ' + (os.path.join(self.__localAppsPath, 'bin', 'stride'))) + ' -f' + oPath + ' ' + iPath\ncmd += ' > ' + tPath + ' 2>&1 ; cat ' + tPath + ' >> ' + lPath"
+    },
+    {
+      "op_name": "poly-link-dist",
+      "line_range": [
+        4197,
+        4202
+      ],
+      "cmd_additions": "cmd += ' ; RCSBROOT=' + self.__rcsbAppsPath + ' ; export RCSBROOT '\ncmd += (' ; ' + (os.path.join(self.__rcsbAppsPath, 'bin', 'cal_polymer_linkage_distance'))) + ' -i ' + iPath + ' -o ' + oPath\ncmd += ' > ' + tPath + ' 2>&1 ; cat ' + tPath + ' >> ' + lPath",
+      "full_cmd": "cmd += ' ; RCSBROOT=' + self.__rcsbAppsPath + ' ; export RCSBROOT '\ncmd += (' ; ' + (os.path.join(self.__rcsbAppsPath, 'bin', 'cal_polymer_linkage_distance'))) + ' -i ' + iPath + ' -o ' + oPath\ncmd += ' > ' + tPath + ' 2>&1 ; cat ' + tPath + ' >> ' + lPath"
+    },
+    {
+      "op_name": "chem-comp-link",
+      "line_range": [
+        4203,
+        4212
+      ],
+      "cmd_additions": "cmd += ' ; RCSBROOT=' + self.__rcsbAppsPath + ' ; export RCSBROOT '\ncmd += (' ; ' + (os.path.join(self.__rcsbAppsPath, 'bin', 'bond_dist'))) + ' -i ' + iPath + ' -o ' + oPath + ' -format cif '\ncmd += ' > ' + tPath + ' 2>&1 ; cat ' + tPath + ' >> ' + lPath\ncmd += ' ; cat bond_dist.err' + ' >> ' + lPath",
+      "full_cmd": "cmd += ' ; RCSBROOT=' + self.__rcsbAppsPath + ' ; export RCSBROOT '\ncmd += (' ; ' + (os.path.join(self.__rcsbAppsPath, 'bin', 'bond_dist'))) + ' -i ' + iPath + ' -o ' + oPath + ' -format cif '\ncmd += ' > ' + tPath + ' 2>&1 ; cat ' + tPath + ' >> ' + lPath\ncmd += ' ; cat bond_dist.err' + ' >> ' + lPath",
+      "branches": [
+        {
+          "condition": "'cc_link_radii' in self.__inputParamDict",
+          "if_cmd": "cmd += ' -link_radii ' + link_radii"
+        }
+      ]
+    },
+    {
+      "op_name": "chem-comp-assign",
+      "line_range": [
+        4213,
+        4281
+      ],
+      "cmd_additions": "cmd += ' ; RCSBROOT=' + self.__rcsbAppsPath + ' ; export RCSBROOT '\ncmd += ' ; OE_DIR=' + self.__oeDirPath + ' ; export OE_DIR '\ncmd += ' ; OE_LICENSE=' + self.__oeLicensePath + ' ; export OE_LICENSE '\ncmd += ' ; BABEL_DIR=' + self.__babelDirPath + ' ; export BABEL_DIR '\ncmd += ' ; BABEL_DATADIR=' + self.__babelDataDirPath + ' ; export BABEL_DATADIR '\ncmd += ' ; CACTVS_DIR=' + self.__cactvsDirPath + ' ; export CACTVS_DIR '\ncmd += ' ; LD_LIBRARY_PATH=' + self.__babelLibPath + ':' + os.path.join(self.__packagePath, 'ccp4', 'lib') + ':' + os.path.join(self.__localAppsPath, 'lib') + ' ; export LD_LIBRARY_PATH '\ncmd += ' ; env '\ncmd += (' ; rm -f ' + oPath + ' ; ' + (os.path.join(self.__ccAppsPath, 'bin', 'ChemCompAssign_main'))) + ('') + ('') + ('') + ('') + ' -i ' + iPath + ' -of ' + oPath + ' -o ' + self.__wrkPath + ' -ifmt pdbx ' + ' -id ' + (self.__inputParamDict['id'])\ncmd += ' -libsdb ' + self.__ccDictPathSdb + ' -idxFile ' + self.__ccDictPathIdx\ncmd += ' > ' + tPath + ' 2>&1 ; cat ' + tPath + ' >> ' + lPath",
+      "full_cmd": "cmd += ' ; RCSBROOT=' + self.__rcsbAppsPath + ' ; export RCSBROOT '\ncmd += ' ; OE_DIR=' + self.__oeDirPath + ' ; export OE_DIR '\ncmd += ' ; OE_LICENSE=' + self.__oeLicensePath + ' ; export OE_LICENSE '\ncmd += ' ; BABEL_DIR=' + self.__babelDirPath + ' ; export BABEL_DIR '\ncmd += ' ; BABEL_DATADIR=' + self.__babelDataDirPath + ' ; export BABEL_DATADIR '\ncmd += ' ; CACTVS_DIR=' + self.__cactvsDirPath + ' ; export CACTVS_DIR '\ncmd += ' ; LD_LIBRARY_PATH=' + self.__babelLibPath + ':' + os.path.join(self.__packagePath, 'ccp4', 'lib') + ':' + os.path.join(self.__localAppsPath, 'lib') + ' ; export LD_LIBRARY_PATH '\ncmd += ' ; env '\ncmd += (' ; rm -f ' + oPath + ' ; ' + (os.path.join(self.__ccAppsPath, 'bin', 'ChemCompAssign_main'))) + ('') + ('') + ('') + ('') + ' -i ' + iPath + ' -of ' + oPath + ' -o ' + self.__wrkPath + ' -ifmt pdbx ' + ' -id ' + (self.__inputParamDict['id'])\ncmd += ' -libsdb ' + self.__ccDictPathSdb + ' -idxFile ' + self.__ccDictPathIdx\ncmd += ' > ' + tPath + ' 2>&1 ; cat ' + tPath + ' >> ' + lPath",
+      "branches": [
+        {
+          "condition": "'cc_link_file_path' in self.__inputParamDict",
+          "if_cmd": "cmd += ' -bond_info ' + self.__inputParamDict['cc_link_file_path']"
+        },
+        {
+          "condition": "'cc_instance_id' in self.__inputParamDict",
+          "if_cmd": "cmd += ' -radii_inst_id ' + self.__inputParamDict['cc_instance_id']"
+        },
+        {
+          "condition": "'cc_bond_radii' in self.__inputParamDict",
+          "if_cmd": "cmd += ' -bond_radii ' + self.__inputParamDict['cc_bond_radii']"
+        }
+      ]
+    },
+    {
+      "op_name": "chem-comp-assign-skip",
+      "line_range": [
+        4213,
+        4281
+      ],
+      "cmd_additions": "cmd += ' ; RCSBROOT=' + self.__rcsbAppsPath + ' ; export RCSBROOT '\ncmd += ' ; OE_DIR=' + self.__oeDirPath + ' ; export OE_DIR '\ncmd += ' ; OE_LICENSE=' + self.__oeLicensePath + ' ; export OE_LICENSE '\ncmd += ' ; BABEL_DIR=' + self.__babelDirPath + ' ; export BABEL_DIR '\ncmd += ' ; BABEL_DATADIR=' + self.__babelDataDirPath + ' ; export BABEL_DATADIR '\ncmd += ' ; CACTVS_DIR=' + self.__cactvsDirPath + ' ; export CACTVS_DIR '\ncmd += ' ; LD_LIBRARY_PATH=' + self.__babelLibPath + ':' + os.path.join(self.__packagePath, 'ccp4', 'lib') + ':' + os.path.join(self.__localAppsPath, 'lib') + ' ; export LD_LIBRARY_PATH '\ncmd += ' ; env '\ncmd += (' ; rm -f ' + oPath + ' ; ' + (os.path.join(self.__ccAppsPath, 'bin', 'ChemCompAssign_main'))) + ('') + ('') + ('') + ('') + ' -i ' + iPath + ' -of ' + oPath + ' -o ' + self.__wrkPath + ' -ifmt pdbx ' + ' -id ' + (self.__inputParamDict['id'])\ncmd += ' -libsdb ' + self.__ccDictPathSdb + ' -idxFile ' + self.__ccDictPathIdx\ncmd += ' > ' + tPath + ' 2>&1 ; cat ' + tPath + ' >> ' + lPath",
+      "full_cmd": "cmd += ' ; RCSBROOT=' + self.__rcsbAppsPath + ' ; export RCSBROOT '\ncmd += ' ; OE_DIR=' + self.__oeDirPath + ' ; export OE_DIR '\ncmd += ' ; OE_LICENSE=' + self.__oeLicensePath + ' ; export OE_LICENSE '\ncmd += ' ; BABEL_DIR=' + self.__babelDirPath + ' ; export BABEL_DIR '\ncmd += ' ; BABEL_DATADIR=' + self.__babelDataDirPath + ' ; export BABEL_DATADIR '\ncmd += ' ; CACTVS_DIR=' + self.__cactvsDirPath + ' ; export CACTVS_DIR '\ncmd += ' ; LD_LIBRARY_PATH=' + self.__babelLibPath + ':' + os.path.join(self.__packagePath, 'ccp4', 'lib') + ':' + os.path.join(self.__localAppsPath, 'lib') + ' ; export LD_LIBRARY_PATH '\ncmd += ' ; env '\ncmd += (' ; rm -f ' + oPath + ' ; ' + (os.path.join(self.__ccAppsPath, 'bin', 'ChemCompAssign_main'))) + ('') + ('') + ('') + ('') + ' -i ' + iPath + ' -of ' + oPath + ' -o ' + self.__wrkPath + ' -ifmt pdbx ' + ' -id ' + (self.__inputParamDict['id'])\ncmd += ' -libsdb ' + self.__ccDictPathSdb + ' -idxFile ' + self.__ccDictPathIdx\ncmd += ' > ' + tPath + ' 2>&1 ; cat ' + tPath + ' >> ' + lPath",
+      "branches": [
+        {
+          "condition": "'cc_link_file_path' in self.__inputParamDict",
+          "if_cmd": "cmd += ' -bond_info ' + self.__inputParamDict['cc_link_file_path']"
+        },
+        {
+          "condition": "'cc_instance_id' in self.__inputParamDict",
+          "if_cmd": "cmd += ' -radii_inst_id ' + self.__inputParamDict['cc_instance_id']"
+        },
+        {
+          "condition": "'cc_bond_radii' in self.__inputParamDict",
+          "if_cmd": "cmd += ' -bond_radii ' + self.__inputParamDict['cc_bond_radii']"
+        }
+      ]
+    },
+    {
+      "op_name": "chem-comp-assign-exact",
+      "line_range": [
+        4213,
+        4281
+      ],
+      "cmd_additions": "cmd += ' ; RCSBROOT=' + self.__rcsbAppsPath + ' ; export RCSBROOT '\ncmd += ' ; OE_DIR=' + self.__oeDirPath + ' ; export OE_DIR '\ncmd += ' ; OE_LICENSE=' + self.__oeLicensePath + ' ; export OE_LICENSE '\ncmd += ' ; BABEL_DIR=' + self.__babelDirPath + ' ; export BABEL_DIR '\ncmd += ' ; BABEL_DATADIR=' + self.__babelDataDirPath + ' ; export BABEL_DATADIR '\ncmd += ' ; CACTVS_DIR=' + self.__cactvsDirPath + ' ; export CACTVS_DIR '\ncmd += ' ; LD_LIBRARY_PATH=' + self.__babelLibPath + ':' + os.path.join(self.__packagePath, 'ccp4', 'lib') + ':' + os.path.join(self.__localAppsPath, 'lib') + ' ; export LD_LIBRARY_PATH '\ncmd += ' ; env '\ncmd += (' ; rm -f ' + oPath + ' ; ' + (os.path.join(self.__ccAppsPath, 'bin', 'ChemCompAssign_main'))) + ('') + ('') + ('') + ('') + ' -i ' + iPath + ' -of ' + oPath + ' -o ' + self.__wrkPath + ' -ifmt pdbx ' + ' -id ' + (self.__inputParamDict['id'])\ncmd += ' -libsdb ' + self.__ccDictPathSdb + ' -idxFile ' + self.__ccDictPathIdx\ncmd += ' > ' + tPath + ' 2>&1 ; cat ' + tPath + ' >> ' + lPath",
+      "full_cmd": "cmd += ' ; RCSBROOT=' + self.__rcsbAppsPath + ' ; export RCSBROOT '\ncmd += ' ; OE_DIR=' + self.__oeDirPath + ' ; export OE_DIR '\ncmd += ' ; OE_LICENSE=' + self.__oeLicensePath + ' ; export OE_LICENSE '\ncmd += ' ; BABEL_DIR=' + self.__babelDirPath + ' ; export BABEL_DIR '\ncmd += ' ; BABEL_DATADIR=' + self.__babelDataDirPath + ' ; export BABEL_DATADIR '\ncmd += ' ; CACTVS_DIR=' + self.__cactvsDirPath + ' ; export CACTVS_DIR '\ncmd += ' ; LD_LIBRARY_PATH=' + self.__babelLibPath + ':' + os.path.join(self.__packagePath, 'ccp4', 'lib') + ':' + os.path.join(self.__localAppsPath, 'lib') + ' ; export LD_LIBRARY_PATH '\ncmd += ' ; env '\ncmd += (' ; rm -f ' + oPath + ' ; ' + (os.path.join(self.__ccAppsPath, 'bin', 'ChemCompAssign_main'))) + ('') + ('') + ('') + ('') + ' -i ' + iPath + ' -of ' + oPath + ' -o ' + self.__wrkPath + ' -ifmt pdbx ' + ' -id ' + (self.__inputParamDict['id'])\ncmd += ' -libsdb ' + self.__ccDictPathSdb + ' -idxFile ' + self.__ccDictPathIdx\ncmd += ' > ' + tPath + ' 2>&1 ; cat ' + tPath + ' >> ' + lPath",
+      "branches": [
+        {
+          "condition": "'cc_link_file_path' in self.__inputParamDict",
+          "if_cmd": "cmd += ' -bond_info ' + self.__inputParamDict['cc_link_file_path']"
+        },
+        {
+          "condition": "'cc_instance_id' in self.__inputParamDict",
+          "if_cmd": "cmd += ' -radii_inst_id ' + self.__inputParamDict['cc_instance_id']"
+        },
+        {
+          "condition": "'cc_bond_radii' in self.__inputParamDict",
+          "if_cmd": "cmd += ' -bond_radii ' + self.__inputParamDict['cc_bond_radii']"
+        }
+      ]
+    },
+    {
+      "op_name": "chem-comp-assign-comp",
+      "line_range": [
+        4282,
+        4307
+      ],
+      "cmd_additions": "cmd += ' ; RCSBROOT=' + self.__rcsbAppsPath + ' ; export RCSBROOT '\ncmd += ' ; OE_DIR=' + self.__oeDirPath + ' ; export OE_DIR '\ncmd += ' ; OE_LICENSE=' + self.__oeLicensePath + ' ; export OE_LICENSE '\ncmd += ' ; BABEL_DIR=' + self.__babelDirPath + ' ; export BABEL_DIR '\ncmd += ' ; BABEL_DATADIR=' + self.__babelDataDirPath + ' ; export BABEL_DATADIR '\ncmd += ' ; CACTVS_DIR=' + self.__cactvsDirPath + ' ; export CACTVS_DIR '\ncmd += ' ; LD_LIBRARY_PATH=' + self.__babelLibPath + ':' + os.path.join(self.__packagePath, 'ccp4', 'lib') + ':' + os.path.join(self.__localAppsPath, 'lib') + ' ; export LD_LIBRARY_PATH '\ncmd += ' ; env ; rm -f ' + oPath + ' ; ' + os.path.join(self.__ccAppsPath, 'bin', 'ChemCompAssign_main')\ncmd += ' -i ' + iPath + ' -of ' + oPath + ' -o ' + self.__wrkPath + ' -ifmt comp -id ' + (self.__inputParamDict['id'])\ncmd += ' -search_inst_id ' + (self.__inputParamDict['cc_instance_id']) + ' -libsdb ' + self.__ccDictPathSdb + ' -idxFile ' + self.__ccDictPathIdx\ncmd += ' > ' + tPath + ' 2>&1 ; cat ' + tPath + ' >> ' + lPath",
+      "full_cmd": "cmd += ' ; RCSBROOT=' + self.__rcsbAppsPath + ' ; export RCSBROOT '\ncmd += ' ; OE_DIR=' + self.__oeDirPath + ' ; export OE_DIR '\ncmd += ' ; OE_LICENSE=' + self.__oeLicensePath + ' ; export OE_LICENSE '\ncmd += ' ; BABEL_DIR=' + self.__babelDirPath + ' ; export BABEL_DIR '\ncmd += ' ; BABEL_DATADIR=' + self.__babelDataDirPath + ' ; export BABEL_DATADIR '\ncmd += ' ; CACTVS_DIR=' + self.__cactvsDirPath + ' ; export CACTVS_DIR '\ncmd += ' ; LD_LIBRARY_PATH=' + self.__babelLibPath + ':' + os.path.join(self.__packagePath, 'ccp4', 'lib') + ':' + os.path.join(self.__localAppsPath, 'lib') + ' ; export LD_LIBRARY_PATH '\ncmd += ' ; env ; rm -f ' + oPath + ' ; ' + os.path.join(self.__ccAppsPath, 'bin', 'ChemCompAssign_main')\ncmd += ' -i ' + iPath + ' -of ' + oPath + ' -o ' + self.__wrkPath + ' -ifmt comp -id ' + (self.__inputParamDict['id'])\ncmd += ' -search_inst_id ' + (self.__inputParamDict['cc_instance_id']) + ' -libsdb ' + self.__ccDictPathSdb + ' -idxFile ' + self.__ccDictPathIdx\ncmd += ' > ' + tPath + ' 2>&1 ; cat ' + tPath + ' >> ' + lPath"
+    },
+    {
+      "op_name": "chem-comp-assign-validation",
+      "line_range": [
+        4308,
+        4357
+      ],
+      "cmd_additions": "cmd += ' ; RCSBROOT=' + self.__rcsbAppsPath + ' ; export RCSBROOT '\ncmd += ' ; OE_DIR=' + self.__oeDirPath + ' ; export OE_DIR '\ncmd += ' ; OE_LICENSE=' + self.__oeLicensePath + ' ; export OE_LICENSE '\ncmd += ' ; BABEL_DIR=' + self.__babelDirPath + ' ; export BABEL_DIR '\ncmd += ' ; BABEL_DATADIR=' + self.__babelDataDirPath + ' ; export BABEL_DATADIR '\ncmd += ' ; CACTVS_DIR=' + self.__cactvsDirPath + ' ; export CACTVS_DIR '\ncmd += ' ; LD_LIBRARY_PATH=' + self.__babelLibPath + ':' + os.path.join(self.__packagePath, 'ccp4', 'lib') + ':' + os.path.join(self.__localAppsPath, 'lib') + ' ; export LD_LIBRARY_PATH '\ncmd += ' ; env '\ncmd += (' ; ' + (os.path.join(self.__ccAppsPath, 'bin', 'ChemCompAssign_main'))) + ' -i ' + iPath + ' -of ' + oPath + ' -o ' + self.__wrkPath + ' -ifmt comp ' + ' -id ' + (self.__inputParamDict['id'])\ncmd += ' -libsdb ' + self.__ccDictPathSdb + ' -idxFile ' + self.__ccDictPathIdx\ncmd += ' -force '\ncmd += ' -log ' + self.__inputParamDict['cc_validation_log_file']\ncmd += ' > ' + tPath + ' 2>&1 ; cat ' + tPath + ' >> ' + lPath",
+      "full_cmd": "cmd += ' ; RCSBROOT=' + self.__rcsbAppsPath + ' ; export RCSBROOT '\ncmd += ' ; OE_DIR=' + self.__oeDirPath + ' ; export OE_DIR '\ncmd += ' ; OE_LICENSE=' + self.__oeLicensePath + ' ; export OE_LICENSE '\ncmd += ' ; BABEL_DIR=' + self.__babelDirPath + ' ; export BABEL_DIR '\ncmd += ' ; BABEL_DATADIR=' + self.__babelDataDirPath + ' ; export BABEL_DATADIR '\ncmd += ' ; CACTVS_DIR=' + self.__cactvsDirPath + ' ; export CACTVS_DIR '\ncmd += ' ; LD_LIBRARY_PATH=' + self.__babelLibPath + ':' + os.path.join(self.__packagePath, 'ccp4', 'lib') + ':' + os.path.join(self.__localAppsPath, 'lib') + ' ; export LD_LIBRARY_PATH '\ncmd += ' ; env '\ncmd += (' ; ' + (os.path.join(self.__ccAppsPath, 'bin', 'ChemCompAssign_main'))) + ' -i ' + iPath + ' -of ' + oPath + ' -o ' + self.__wrkPath + ' -ifmt comp ' + ' -id ' + (self.__inputParamDict['id'])\ncmd += ' -libsdb ' + self.__ccDictPathSdb + ' -idxFile ' + self.__ccDictPathIdx\ncmd += ' -force '\ncmd += ' -log ' + self.__inputParamDict['cc_validation_log_file']\ncmd += ' > ' + tPath + ' 2>&1 ; cat ' + tPath + ' >> ' + lPath",
+      "branches": [
+        {
+          "condition": "'cc_validation_ref_file_path' in self.__inputParamDict",
+          "if_cmd": "cmd += ' -ref ' + self.__inputParamDict['cc_validation_ref_file_path']"
+        },
+        {
+          "condition": "'cc_validation_instid_list' in self.__inputParamDict",
+          "if_cmd": "cmd += ' -search_inst_id ' + self.__inputParamDict['cc_validation_instid_list']"
+        },
+        {
+          "condition": "'coord_file_path' in self.__inputParamDict",
+          "if_cmd": "cmd += ' -search_inst_coord_file ' + self.__inputParamDict['coord_file_path']"
+        }
+      ]
+    },
+    {
+      "op_name": "chem-comp-do-report",
+      "line_range": [
+        4358,
+        4399
+      ],
+      "cmd_additions": "cmd += ' ; OE_DIR=' + self.__oeDirPath + ' ; export OE_DIR '\ncmd += ' ; OE_LICENSE=' + self.__oeLicensePath + ' ; export OE_LICENSE '\ncmd += ' ; ' + os.path.join(self.__ccAppsPath, 'bin', 'makeReportFromFile.csh')\ncmd += ' ' + os.path.join(self.__ccAppsPath, 'bin') + ' ' + reportPath + ' ' + ((str(self.__inputParamDict['defid']).upper()) + '.cif')\ncmd += ' ' + reportRelativePath + ' ' + ((str(self.__inputParamDict['defid']).upper()) + '_report.html')\ncmd += ' > ' + tPath + ' 2>&1 ; cat ' + tPath + ' >> ' + lPath",
+      "full_cmd": "cmd += ' ; OE_DIR=' + self.__oeDirPath + ' ; export OE_DIR '\ncmd += ' ; OE_LICENSE=' + self.__oeLicensePath + ' ; export OE_LICENSE '\ncmd += ' ; ' + os.path.join(self.__ccAppsPath, 'bin', 'makeReportFromFile.csh')\ncmd += ' ' + os.path.join(self.__ccAppsPath, 'bin') + ' ' + reportPath + ' ' + ((str(self.__inputParamDict['defid']).upper()) + '.cif')\ncmd += ' ' + reportRelativePath + ' ' + ((str(self.__inputParamDict['defid']).upper()) + '_report.html')\ncmd += ' > ' + tPath + ' 2>&1 ; cat ' + tPath + ' >> ' + lPath"
+    },
+    {
+      "op_name": "chem-comp-align-img-gen",
+      "line_range": [
+        4401,
+        4411
+      ],
+      "cmd_additions": "cmd += ' ; {} '.format(self.__site_config_command)\ncmd += ' ; OE_DIR=' + self.__oeDirPath + ' ; export OE_DIR '\ncmd += ' ; OE_LICENSE=' + self.__oeLicensePath + ' ; export OE_LICENSE '\ncmd += (' ; python -m wwpdb.apps.ccmodule.reports.ChemCompBigAlignImages') + ' image.txt'\ncmd += ' > ' + tPath + ' 2>&1 ; cat ' + tPath + ' >> ' + lPath",
+      "full_cmd": "cmd += ' ; {} '.format(self.__site_config_command)\ncmd += ' ; OE_DIR=' + self.__oeDirPath + ' ; export OE_DIR '\ncmd += ' ; OE_LICENSE=' + self.__oeLicensePath + ' ; export OE_LICENSE '\ncmd += (' ; python -m wwpdb.apps.ccmodule.reports.ChemCompBigAlignImages') + ' image.txt'\ncmd += ' > ' + tPath + ' 2>&1 ; cat ' + tPath + ' >> ' + lPath"
+    },
+    {
+      "op_name": "chem-comp-align-images",
+      "line_range": [
+        4412,
+        4426
+      ],
+      "cmd_additions": "cmd += ' ; {} '.format(self.__site_config_command)\ncmd += ' ; OE_DIR=' + self.__oeDirPath + ' ; export OE_DIR '\ncmd += ' ; OE_LICENSE=' + self.__oeLicensePath + ' ; export OE_LICENSE '\ncmd += (' ; python -m wwpdb.apps.ccmodule.reports.ChemCompAlignImages') + ' -v -i %s -f %s' % ((self.__inputParamDict['(self.__inputParamDict['(self.__inputParamDict['(self.__inputParamDict['(self.__inputParamDict['ccid'])'])'])'])']), (self.__inputParamDict['file_list_path']))\ncmd += ' > ' + tPath + ' 2>&1 ; cat ' + tPath + ' >> ' + lPath",
+      "full_cmd": "cmd += ' ; {} '.format(self.__site_config_command)\ncmd += ' ; OE_DIR=' + self.__oeDirPath + ' ; export OE_DIR '\ncmd += ' ; OE_LICENSE=' + self.__oeLicensePath + ' ; export OE_LICENSE '\ncmd += (' ; python -m wwpdb.apps.ccmodule.reports.ChemCompAlignImages') + ' -v -i %s -f %s' % ((self.__inputParamDict['(self.__inputParamDict['(self.__inputParamDict['(self.__inputParamDict['(self.__inputParamDict['ccid'])'])'])'])']), (self.__inputParamDict['file_list_path']))\ncmd += ' > ' + tPath + ' 2>&1 ; cat ' + tPath + ' >> ' + lPath"
+    },
+    {
+      "op_name": "chem-comp-gen-images",
+      "line_range": [
+        4427,
+        4455
+      ],
+      "cmd_additions": "cmd += ' ; {} '.format(self.__site_config_command)\ncmd += ' ; OE_DIR=' + self.__oeDirPath + ' ; export OE_DIR '\ncmd += ' ; OE_LICENSE=' + self.__oeLicensePath + ' ; export OE_LICENSE '\ncmd += (' ; python -m wwpdb.apps.ccmodule.reports.ChemCompGenImage') + ' -v -i %s -f %s -o %s --(300) %s --label %s' % ((self.__inputParamDict['(self.__inputParamDict['(self.__inputParamDict['(self.__inputParamDict['(self.__inputParamDict['title'])'])'])'])']), (self.__inputParamDict['(self.__inputParamDict['(self.__inputParamDict['(self.__inputParamDict['(self.__inputParamDict['path'])'])'])'])']), (self.__inputParamDict['image_(self.__inputParamDict['(self.__inputParamDict['(self.__inputParamDict['(self.__inputParamDict['path'])'])'])'])']), (300), (False))\ncmd += ' > ' + tPath + ' 2>&1 ; cat ' + tPath + ' >> ' + lPath",
+      "full_cmd": "cmd += ' ; {} '.format(self.__site_config_command)\ncmd += ' ; OE_DIR=' + self.__oeDirPath + ' ; export OE_DIR '\ncmd += ' ; OE_LICENSE=' + self.__oeLicensePath + ' ; export OE_LICENSE '\ncmd += (' ; python -m wwpdb.apps.ccmodule.reports.ChemCompGenImage') + ' -v -i %s -f %s -o %s --(300) %s --label %s' % ((self.__inputParamDict['(self.__inputParamDict['(self.__inputParamDict['(self.__inputParamDict['(self.__inputParamDict['title'])'])'])'])']), (self.__inputParamDict['(self.__inputParamDict['(self.__inputParamDict['(self.__inputParamDict['(self.__inputParamDict['path'])'])'])'])']), (self.__inputParamDict['image_(self.__inputParamDict['(self.__inputParamDict['(self.__inputParamDict['(self.__inputParamDict['path'])'])'])'])']), (300), (False))\ncmd += ' > ' + tPath + ' 2>&1 ; cat ' + tPath + ' >> ' + lPath"
+    },
+    {
+      "op_name": "chem-comp-update-support-files",
+      "line_range": [
+        4456,
+        4459
+      ],
+      "cmd_additions": "cmd += ' ; {} '.format(self.__site_config_command)\ncmd += ' ; python -m wwpdb.apps.chem_ref_data.utils.ChemRefDataDbExec -v --update'\ncmd += ' > ' + tPath + ' 2>&1 ; cat ' + tPath + ' >> ' + lPath",
+      "full_cmd": "cmd += ' ; {} '.format(self.__site_config_command)\ncmd += ' ; python -m wwpdb.apps.chem_ref_data.utils.ChemRefDataDbExec -v --update'\ncmd += ' > ' + tPath + ' 2>&1 ; cat ' + tPath + ' >> ' + lPath"
+    },
+    {
+      "op_name": "citation-search-and-auto-release",
+      "line_range": [
+        4460,
+        4463
+      ],
+      "cmd_additions": "cmd += ' ; {} '.format(self.__site_config_command)\ncmd += ' ; python -m wwpdb.apps.releasemodule.update.RunAutoReReleaseProcess'\ncmd += ' > ' + tPath + ' 2>&1 ; cat ' + tPath + ' >> ' + lPath",
+      "full_cmd": "cmd += ' ; {} '.format(self.__site_config_command)\ncmd += ' ; python -m wwpdb.apps.releasemodule.update.RunAutoReReleaseProcess'\ncmd += ' > ' + tPath + ' 2>&1 ; cat ' + tPath + ' >> ' + lPath"
+    },
+    {
+      "op_name": "update-depui-taxonomy",
+      "line_range": [
+        4464,
+        4467
+      ],
+      "cmd_additions": "cmd += ' ; {} '.format(self.__site_config_command)\ncmd += ' ; python -m wwpdb.apps.deposit.depui.taxonomy.loadTaxonomyFromFTP --write_sql'\ncmd += ' > ' + tPath + ' 2>&1 ; cat ' + tPath + ' >> ' + lPath",
+      "full_cmd": "cmd += ' ; {} '.format(self.__site_config_command)\ncmd += ' ; python -m wwpdb.apps.deposit.depui.taxonomy.loadTaxonomyFromFTP --write_sql'\ncmd += ' > ' + tPath + ' 2>&1 ; cat ' + tPath + ' >> ' + lPath"
+    },
+    {
+      "op_name": "chem-ref-checkout",
+      "line_range": [
+        4468,
+        4475
+      ],
+      "cmd_additions": "cmd += ' ; {} '.format(self.__site_config_command)\ncmd += ' ; python -m wwp(self.__inputParamDict.get('(self.__inputParamDict.get('(self.__inputParamDict.get('(self.__inputParamDict.get('(self.__inputParamDict.get('db'))'))'))'))')).apps.chem_ref_data.utils.ChemRefDataDbExec --checkout --(self.__inputParamDict.get('(self.__inputParamDict.get('(self.__inputParamDict.get('(self.__inputParamDict.get('(self.__inputParamDict.get('db'))'))'))'))')) %s -v' % (self.__inputParamDict.get('(self.__inputParamDict.get('(self.__inputParamDict.get('(self.__inputParamDict.get('(self.__inputParamDict.get('db'))'))'))'))'))\ncmd += ' > ' + tPath + ' 2>&1 ; cat ' + tPath + ' >> ' + lPath",
+      "full_cmd": "cmd += ' ; {} '.format(self.__site_config_command)\ncmd += ' ; python -m wwp(self.__inputParamDict.get('(self.__inputParamDict.get('(self.__inputParamDict.get('(self.__inputParamDict.get('(self.__inputParamDict.get('db'))'))'))'))')).apps.chem_ref_data.utils.ChemRefDataDbExec --checkout --(self.__inputParamDict.get('(self.__inputParamDict.get('(self.__inputParamDict.get('(self.__inputParamDict.get('(self.__inputParamDict.get('db'))'))'))'))')) %s -v' % (self.__inputParamDict.get('(self.__inputParamDict.get('(self.__inputParamDict.get('(self.__inputParamDict.get('(self.__inputParamDict.get('db'))'))'))'))'))\ncmd += ' > ' + tPath + ' 2>&1 ; cat ' + tPath + ' >> ' + lPath"
+    },
+    {
+      "op_name": "chem-ref-sync",
+      "line_range": [
+        4476,
+        4483
+      ],
+      "cmd_additions": "cmd += ' ; {} '.format(self.__site_config_command)\ncmd += ' ; python -m wwp(self.__inputParamDict.get('(self.__inputParamDict.get('(self.__inputParamDict.get('(self.__inputParamDict.get('(self.__inputParamDict.get('db'))'))'))'))')).apps.chem_ref_data.utils.ChemRefDataDbExec --sync --(self.__inputParamDict.get('(self.__inputParamDict.get('(self.__inputParamDict.get('(self.__inputParamDict.get('(self.__inputParamDict.get('db'))'))'))'))')) %s -v' % (self.__inputParamDict.get('(self.__inputParamDict.get('(self.__inputParamDict.get('(self.__inputParamDict.get('(self.__inputParamDict.get('db'))'))'))'))'))\ncmd += ' > ' + tPath + ' 2>&1 ; cat ' + tPath + ' >> ' + lPath",
+      "full_cmd": "cmd += ' ; {} '.format(self.__site_config_command)\ncmd += ' ; python -m wwp(self.__inputParamDict.get('(self.__inputParamDict.get('(self.__inputParamDict.get('(self.__inputParamDict.get('(self.__inputParamDict.get('db'))'))'))'))')).apps.chem_ref_data.utils.ChemRefDataDbExec --sync --(self.__inputParamDict.get('(self.__inputParamDict.get('(self.__inputParamDict.get('(self.__inputParamDict.get('(self.__inputParamDict.get('db'))'))'))'))')) %s -v' % (self.__inputParamDict.get('(self.__inputParamDict.get('(self.__inputParamDict.get('(self.__inputParamDict.get('(self.__inputParamDict.get('db'))'))'))'))'))\ncmd += ' > ' + tPath + ' 2>&1 ; cat ' + tPath + ' >> ' + lPath"
+    },
+    {
+      "op_name": "chem-ref-load",
+      "line_range": [
+        4484,
+        4495
+      ],
+      "cmd_additions": "cmd += ' ; {} '.format(self.__site_config_command)\ncmd += ' ; python -m wwp(self.__inputParamDict.get('(self.__inputParamDict.get('(self.__inputParamDict.get('(self.__inputParamDict.get('(self.__inputParamDict.get('db'))'))'))'))')).apps.chem_ref_data.utils.ChemRefDataDbExec --load --(self.__inputParamDict.get('(self.__inputParamDict.get('(self.__inputParamDict.get('(self.__inputParamDict.get('(self.__inputParamDict.get('db'))'))'))'))')) %s --(int(self.__inputParamDict.get('(int(self.__inputParamDict.get('(int(self.__inputParamDict.get('(int(self.__inputParamDict.get('(int(self.__inputParamDict.get('numproc', 8)))', 8)))', 8)))', 8)))', 8))) %s -v' % ((self.__inputParamDict.get('(self.__inputParamDict.get('(self.__inputParamDict.get('(self.__inputParamDict.get('(self.__inputParamDict.get('db'))'))'))'))')), (int(self.__inputParamDict.get('(int(self.__inputParamDict.get('(int(self.__inputParamDict.get('(int(self.__inputParamDict.get('(int(self.__inputParamDict.get('numproc', 8)))', 8)))', 8)))', 8)))', 8))))\ncmd += ' > ' + tPath + ' 2>&1 ; cat ' + tPath + ' >> ' + lPath",
+      "full_cmd": "cmd += ' ; {} '.format(self.__site_config_command)\ncmd += ' ; python -m wwp(self.__inputParamDict.get('(self.__inputParamDict.get('(self.__inputParamDict.get('(self.__inputParamDict.get('(self.__inputParamDict.get('db'))'))'))'))')).apps.chem_ref_data.utils.ChemRefDataDbExec --load --(self.__inputParamDict.get('(self.__inputParamDict.get('(self.__inputParamDict.get('(self.__inputParamDict.get('(self.__inputParamDict.get('db'))'))'))'))')) %s --(int(self.__inputParamDict.get('(int(self.__inputParamDict.get('(int(self.__inputParamDict.get('(int(self.__inputParamDict.get('(int(self.__inputParamDict.get('numproc', 8)))', 8)))', 8)))', 8)))', 8))) %s -v' % ((self.__inputParamDict.get('(self.__inputParamDict.get('(self.__inputParamDict.get('(self.__inputParamDict.get('(self.__inputParamDict.get('db'))'))'))'))')), (int(self.__inputParamDict.get('(int(self.__inputParamDict.get('(int(self.__inputParamDict.get('(int(self.__inputParamDict.get('(int(self.__inputParamDict.get('numproc', 8)))', 8)))', 8)))', 8)))', 8))))\ncmd += ' > ' + tPath + ' 2>&1 ; cat ' + tPath + ' >> ' + lPath"
+    },
+    {
+      "op_name": "chem-ref-run-setup",
+      "line_range": [
+        4496,
+        4501
+      ],
+      "cmd_additions": "cmd += ' ; {} '.format(self.__site_config_command)\ncmd += ' ; python -m wwpdb.apps.chem_ref_data.utils.ChemRefDataDbExec --run_setup -v'\ncmd += ' > ' + tPath + ' 2>&1 ; cat ' + tPath + ' >> ' + lPath",
+      "full_cmd": "cmd += ' ; {} '.format(self.__site_config_command)\ncmd += ' ; python -m wwpdb.apps.chem_ref_data.utils.ChemRefDataDbExec --run_setup -v'\ncmd += ' > ' + tPath + ' 2>&1 ; cat ' + tPath + ' >> ' + lPath"
+    },
+    {
+      "op_name": "chem-ref-run-update",
+      "line_range": [
+        4502,
+        4507
+      ],
+      "cmd_additions": "cmd += ' ; {} '.format(self.__site_config_command)\ncmd += ' ; python -m wwpdb.apps.chem_ref_data.utils.ChemRefDataDbExec --run_update -v'\ncmd += ' > ' + tPath + ' 2>&1 ; cat ' + tPath + ' >> ' + lPath",
+      "full_cmd": "cmd += ' ; {} '.format(self.__site_config_command)\ncmd += ' ; python -m wwpdb.apps.chem_ref_data.utils.ChemRefDataDbExec --run_update -v'\ncmd += ' > ' + tPath + ' 2>&1 ; cat ' + tPath + ' >> ' + lPath"
+    }
+  ]
+}

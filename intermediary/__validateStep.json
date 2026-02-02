@@ -1,0 +1,39 @@
+{
+  "method": "__validateStep",
+  "line_range": [
+    3125,
+    3214
+  ],
+  "preamble_cmd": "cmd += ' ; RCSBROOT=' + self.__rcsbAppsPath + ' ; export RCSBROOT  '\ncmd += ' ; PDB2GLYCAN=' + os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan') + ' ; export PDB2GLYCAN '\ncmd += ' ; COMP_PATH=' + self.__ccCvsPath + ' ; export COMP_PATH  '\ncmd += ' ; DICT_SDB=' + self.__pathPdbxDictSdb + ' ; export DICT_SDB '",
+  "variables": {
+    "raw": {},
+    "non_raw": {
+      "__localAppsPath": "self.__cICommon.get_site_local_apps_path()",
+      "__packagePath": "self.__cICommon.get_site_packages_path()",
+      "__deployPath": "self.__getConfigPath('SITE_DEPLOY_PATH')",
+      "__ccCvsPath": "self.__cIAppCc.get_site_cc_cvs_path()",
+      "__prdccCvsPath": "self.__cIAppCc.get_site_prdcc_cvs_path()",
+      "__prdDictPath": "self.__cIAppCc.get_site_prd_dict_path()",
+      "__rcsbAppsPath": "self.__cICommon.get_site_annot_tools_path()",
+      "__pathPdbxDictSdb": "self.__cICommon.get_mmcif_next_dictionary_sdb_file_path()",
+      "iPath": "self.__getSourceWrkFile(self.__stepNo)",
+      "oPath": "self.__getResultWrkFile(self.__stepNo)",
+      "lPath": "self.__getLogWrkFile(self.__stepNo)",
+      "ePath": "self.__getErrWrkFile(self.__stepNo)",
+      "tPath": "self.__getTmpWrkFile(self.__stepNo)",
+      "valCmd": "os.path.join(self.__rcsbAppsPath, 'bin', 'validation_with_cif_output')",
+      "iret": "self.__run(cmd, lPathFull, op)"
+    }
+  },
+  "operations": [
+    {
+      "op_name": "validate-geometry",
+      "line_range": [
+        3180,
+        3187
+      ],
+      "cmd_additions": "cmd += (' ; ' + valCmd) + ' -cif ' + iPath + ' -output ' + oPath + ' -log validation-step.log '\ncmd += ' > ' + tPath + ' 2>&1 ; cat ' + tPath + ' >> ' + lPath\ncmd += ' ; cat validation-step.log ' + ' >> ' + lPath\ncmd += ' ; touch ' + iPath + '-parser.log '\ncmd += ' ; cat ' + iPath + '-parser.log >> ' + lPath",
+      "full_cmd": "cmd += ' ; RCSBROOT=' + self.__rcsbAppsPath + ' ; export RCSBROOT  '\ncmd += ' ; PDB2GLYCAN=' + os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan') + ' ; export PDB2GLYCAN '\ncmd += ' ; COMP_PATH=' + self.__ccCvsPath + ' ; export COMP_PATH  '\ncmd += ' ; DICT_SDB=' + self.__pathPdbxDictSdb + ' ; export DICT_SDB '\ncmd += (' ; ' + valCmd) + ' -cif ' + iPath + ' -output ' + oPath + ' -log validation-step.log '\ncmd += ' > ' + tPath + ' 2>&1 ; cat ' + tPath + ' >> ' + lPath\ncmd += ' ; cat validation-step.log ' + ' >> ' + lPath\ncmd += ' ; touch ' + iPath + '-parser.log '\ncmd += ' ; cat ' + iPath + '-parser.log >> ' + lPath"
+    }
+  ]
+}
