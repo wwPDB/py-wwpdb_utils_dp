@@ -1331,8 +1331,9 @@
       "envvars": [],
       "binaries": [
         {
-          "name": null,
-          "type": "none",
+          "name": "python",
+          "type": "python_module",
+          "module": "wwpdb.utils.emdb.checkemupload.checkemupload",
           "path_expr": null,
           "path_variable": null
         }
@@ -1384,8 +1385,8 @@
       ],
       "binaries": [
         {
-          "name": null,
-          "type": "none",
+          "name": "wget",
+          "type": "system",
           "path_expr": null,
           "path_variable": null
         }
