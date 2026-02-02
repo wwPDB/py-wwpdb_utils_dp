@@ -143,71 +143,68 @@ class RunRemote:
                 logger.warning(f"No job data found for job {job_id}")
                 return {}
             
-            # Get the main job entry (not step entries)
-            job_data = None
-            for job in data["jobs"]:
-                if job.get("job_id") == job_id or str(job.get("job_id")).startswith(f"{job_id}."):
-                    # Prefer the parent job, not steps
-                    if "." not in str(job.get("job_id", "")):
-                        job_data = job
-                        break
+            # Get the main job entry (first one should be the parent job)
+            job_data = data["jobs"][0]
             
-            if not job_data:
-                logger.warning(f"Could not parse job data for {job_id}")
-                return {}
+            if job_data.get("job_id") != job_id:
+                logger.warning(f"Job ID mismatch: expected {job_id}, got {job_data.get('job_id')}")
             
             metrics = {}
+            time_data = job_data.get("time", {})
             
-            # Extract timing metrics
-            submit_time = job_data.get("submit_time")
-            start_time = job_data.get("start_time")
-            end_time = job_data.get("end_time")
+            # Extract timing metrics (Unix timestamps in seconds)
+            submit_time = time_data.get("submission")
+            start_time = time_data.get("start")
+            end_time = time_data.get("end")
             
             if submit_time and end_time:
-                try:
-                    submit_dt = datetime.fromisoformat(submit_time.replace("Z", "+00:00"))
-                    end_dt = datetime.fromisoformat(end_time.replace("Z", "+00:00"))
-                    metrics["total_time_seconds"] = (end_dt - submit_dt).total_seconds()
-                except (ValueError, AttributeError) as e:
-                    logger.warning(f"Could not parse submit/end times: {e}")
+                metrics["total_time_seconds"] = end_time - submit_time
             
             if start_time and end_time:
-                try:
-                    start_dt = datetime.fromisoformat(start_time.replace("Z", "+00:00"))
-                    end_dt = datetime.fromisoformat(end_time.replace("Z", "+00:00"))
-                    metrics["execution_time_seconds"] = (end_dt - start_dt).total_seconds()
-                except (ValueError, AttributeError) as e:
-                    logger.warning(f"Could not parse start/end times: {e}")
+                metrics["execution_time_seconds"] = end_time - start_time
             
             if submit_time and start_time:
-                try:
-                    submit_dt = datetime.fromisoformat(submit_time.replace("Z", "+00:00"))
-                    start_dt = datetime.fromisoformat(start_time.replace("Z", "+00:00"))
-                    metrics["queue_time_seconds"] = (start_dt - submit_dt).total_seconds()
-                except (ValueError, AttributeError) as e:
-                    logger.warning(f"Could not parse queue times: {e}")
+                metrics["queue_time_seconds"] = start_time - submit_time
             
-            # Extract memory metrics (in MB)
-            mem_alloc = job_data.get("allocated_mem")
-            if mem_alloc:
-                # SLURM reports in MB by default
-                metrics["requested_memory_mb"] = int(mem_alloc) if isinstance(mem_alloc, str) else mem_alloc
+            # Extract CPU time from user and system time
+            user_time = time_data.get("user", {})
+            system_time = time_data.get("system", {})
             
-            mem_used = job_data.get("max_rss")
-            if mem_used:
-                # max_rss is in KB, convert to MB
-                metrics["used_memory_mb"] = int(mem_used) // 1024 if isinstance(mem_used, str) else mem_used // 1024
+            user_seconds = user_time.get("seconds", 0)
+            user_microseconds = user_time.get("microseconds", 0)
+            system_seconds = system_time.get("seconds", 0)
+            system_microseconds = system_time.get("microseconds", 0)
             
-            # Extract CPU metrics
-            cpu_alloc = job_data.get("allocated_cpus")
-            if cpu_alloc:
-                metrics["cpu_count"] = int(cpu_alloc) if isinstance(cpu_alloc, str) else cpu_alloc
+            metrics["cpu_time_seconds"] = (
+                user_seconds + user_microseconds / 1_000_000 +
+                system_seconds + system_microseconds / 1_000_000
+            )
             
-            # CPU time = user_cpu + system_cpu (in seconds)
-            user_cpu = job_data.get("user_cpu_seconds")
-            sys_cpu = job_data.get("system_cpu_seconds")
-            if user_cpu is not None and sys_cpu is not None:
-                metrics["cpu_time_seconds"] = float(user_cpu) + float(sys_cpu)
+            # Extract CPU count from required resources
+            required = job_data.get("required", {})
+            cpu_count = required.get("CPUs")
+            if cpu_count:
+                metrics["cpu_count"] = cpu_count
+            
+            # Extract requested memory from required resources (in MB)
+            mem_per_node = required.get("memory_per_node", {})
+            if mem_per_node.get("set"):
+                metrics["requested_memory_mb"] = mem_per_node.get("number")
+            
+            # Extract used memory from steps (if available)
+            steps = job_data.get("steps", [])
+            if steps:
+                batch_step = steps[0]  # Usually the batch step
+                tres_data = batch_step.get("tres", {})
+                requested_max = tres_data.get("requested", {}).get("max", [])
+                
+                # Find memory in the tres array
+                for tres_item in requested_max:
+                    if tres_item.get("type") == "mem":
+                        # Memory is in bytes, convert to MB
+                        mem_bytes = tres_item.get("count", 0)
+                        metrics["used_memory_mb"] = mem_bytes // (1024 * 1024)
+                        break
             
             logger.debug(f"Job {job_id} metrics: {metrics}")
             return metrics
