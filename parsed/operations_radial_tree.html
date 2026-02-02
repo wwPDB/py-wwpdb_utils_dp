@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Operations Radial Tree</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #1a1a2e;
+            color: #eee;
+            min-height: 100vh;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        .controls {
+            padding: 16px 24px;
+            background: #16213e;
+            border-bottom: 1px solid #0f3460;
+            display: flex;
+            gap: 24px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .control-group label {
+            font-size: 13px;
+            color: #94a3b8;
+            font-weight: 500;
+        }
+
+        select, button {
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid #0f3460;
+            background: #1a1a2e;
+            color: #eee;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        select:hover, button:hover {
+            border-color: #e94560;
+            background: #16213e;
+        }
+
+        button {
+            background: #e94560;
+            border-color: #e94560;
+            font-weight: 500;
+        }
+
+        button:hover {
+            background: #ff6b6b;
+            border-color: #ff6b6b;
+        }
+
+        .chart-container {
+            flex: 1;
+            overflow: hidden;
+            position: relative;
+        }
+
+        #chart {
+            width: 100%;
+            height: 100%;
+        }
+
+        .node circle {
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .node circle:hover {
+            filter: brightness(1.3);
+        }
+
+        .node text {
+            font-size: 10px;
+            fill: #cbd5e1;
+            pointer-events: none;
+        }
+
+        .node--root text {
+            font-size: 14px;
+            font-weight: 600;
+            fill: #fff;
+        }
+
+        .node--group text {
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .node--binary text {
+            font-size: 10px;
+        }
+
+        .node--operation text {
+            font-size: 9px;
+            fill: #94a3b8;
+        }
+
+        .link {
+            fill: none;
+            stroke: #334155;
+            stroke-width: 1px;
+            stroke-opacity: 0.6;
+        }
+
+        .tooltip {
+            position: absolute;
+            background: #16213e;
+            border: 1px solid #0f3460;
+            border-radius: 8px;
+            padding: 12px 16px;
+            font-size: 12px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s;
+            max-width: 300px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            z-index: 1000;
+        }
+
+        .tooltip.visible {
+            opacity: 1;
+        }
+
+        .tooltip-title {
+            font-weight: 600;
+            color: #e94560;
+            margin-bottom: 6px;
+        }
+
+        .tooltip-content {
+            color: #94a3b8;
+            line-height: 1.5;
+        }
+
+        .legend {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: #16213e;
+            border: 1px solid #0f3460;
+            border-radius: 8px;
+            padding: 12px 16px;
+            font-size: 11px;
+            max-height: calc(100% - 32px);
+            overflow-y: auto;
+        }
+
+        .legend-title {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #fff;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 4px;
+            cursor: pointer;
+            padding: 2px 4px;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+
+        .legend-item:hover {
+            background: rgba(233, 69, 96, 0.1);
+        }
+
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 3px;
+        }
+
+        .legend-label {
+            color: #94a3b8;
+        }
+
+        .stats {
+            position: absolute;
+            bottom: 16px;
+            left: 16px;
+            background: #16213e;
+            border: 1px solid #0f3460;
+            border-radius: 8px;
+            padding: 12px 16px;
+            font-size: 11px;
+        }
+
+        .stats-item {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 4px;
+        }
+
+        .stats-label {
+            color: #94a3b8;
+        }
+
+        .stats-value {
+            color: #e94560;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="controls">
+            <div class="control-group">
+                <label>Group by:</label>
+                <select id="groupBy">
+                    <option value="group">Group (step type)</option>
+                    <option value="binary">Binary name</option>
+                    <option value="binary_type">Binary type</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label>Color palette:</label>
+                <select id="colorPalette">
+                    <option value="vibrant">Vibrant</option>
+                    <option value="pastel">Pastel</option>
+                    <option value="ocean">Ocean</option>
+                    <option value="sunset">Sunset</option>
+                    <option value="forest">Forest</option>
+                    <option value="neon">Neon</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label>Radius:</label>
+                <select id="radiusSize">
+                    <option value="auto">Auto</option>
+                    <option value="compact">Compact</option>
+                    <option value="expanded">Expanded</option>
+                </select>
+            </div>
+            <button id="resetZoom">Reset Zoom</button>
+            <button id="exportSvg">Export SVG</button>
+        </div>
+        <div class="chart-container">
+            <div id="chart"></div>
+            <div class="tooltip" id="tooltip">
+                <div class="tooltip-title"></div>
+                <div class="tooltip-content"></div>
+            </div>
+            <div class="legend" id="legend">
+                <div class="legend-title">Groups</div>
+            </div>
+            <div class="stats" id="stats"></div>
+        </div>
+    </div>
+
+    <script>
+        // Color palettes
+        const COLOR_PALETTES = {
+            vibrant: ['#e94560', '#0f3460', '#533483', '#16a085', '#f39c12', '#e74c3c', '#3498db', '#9b59b6', '#1abc9c', '#e67e22', '#2ecc71', '#ff6b6b'],
+            pastel: ['#a8e6cf', '#dcedc1', '#ffd3b6', '#ffaaa5', '#ff8b94', '#b5e7a0', '#86af49', '#d5e1df', '#e3eaa7', '#f5d5cb', '#c9b1ff', '#ffc8dd'],
+            ocean: ['#0077b6', '#00b4d8', '#90e0ef', '#caf0f8', '#023e8a', '#0096c7', '#48cae4', '#ade8f4', '#03045e', '#0077b6', '#00b4d8', '#90e0ef'],
+            sunset: ['#ff7b00', '#ff8800', '#ff9500', '#ffa200', '#ffaa00', '#ffb700', '#ffc300', '#ffd000', '#ffdd00', '#ffea00', '#ef476f', '#ffd166'],
+            forest: ['#2d6a4f', '#40916c', '#52b788', '#74c69d', '#95d5b2', '#b7e4c7', '#d8f3dc', '#1b4332', '#081c15', '#344e41', '#588157', '#a3b18a'],
+            neon: ['#ff00ff', '#00ffff', '#ff0080', '#80ff00', '#0080ff', '#ff8000', '#8000ff', '#00ff80', '#ff0040', '#40ff00', '#0040ff', '#ff4000']
+        };
+
+        // Configuration
+        let config = {
+            groupBy: 'group',
+            colorPalette: 'vibrant',
+            radiusSize: 'auto'
+        };
+
+        let data = null;
+        let svg = null;
+        let g = null;
+        let zoom = null;
+
+        // Load data
+        async function loadData() {
+            try {
+                const response = await fetch('./operations_final_sub.json');
+                data = await response.json();
+                renderChart();
+            } catch (error) {
+                console.error('Error loading data:', error);
+                document.getElementById('chart').innerHTML = `
+                    <div style="display:flex;align-items:center;justify-content:center;height:100%;color:#e94560;">
+                        <p>Error loading data. Make sure operations_final_sub.json is in the same directory.</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Transform data into hierarchical structure
+        function transformData(operations, groupBy) {
+            const hierarchy = {
+                name: 'Operations',
+                children: []
+            };
+
+            const groupMap = new Map();
+
+            operations.forEach(op => {
+                let groupKey;
+
+                switch (groupBy) {
+                    case 'group':
+                        groupKey = op.group || 'ungrouped';
+                        break;
+                    case 'binary':
+                        // Use first binary name as group
+                        groupKey = op.binaries?.[0]?.name || 'no-binary';
+                        break;
+                    case 'binary_type':
+                        groupKey = op.binaries?.[0]?.type || 'unknown';
+                        break;
+                    default:
+                        groupKey = 'all';
+                }
+
+                if (!groupMap.has(groupKey)) {
+                    groupMap.set(groupKey, {
+                        name: groupKey,
+                        children: []
+                    });
+                }
+
+                // For group-based grouping, add binary as intermediate node
+                if (groupBy === 'group') {
+                    const groupNode = groupMap.get(groupKey);
+                    const binaryName = op.binaries?.[0]?.name || 'no-binary';
+
+                    // if (binaryName == "python") {
+                    //     binaryName = op.binaries?.[0]?.module || 'python_module';
+                    // }
+
+                    let binaryNode = groupNode.children.find(b => b.name === binaryName);
+                    if (!binaryNode) {
+                        binaryNode = {
+                            name: binaryName,
+                            binaryType: op.binaries?.[0]?.type,
+                            children: []
+                        };
+                        groupNode.children.push(binaryNode);
+                    }
+
+                    binaryNode.children.push({
+                        name: op.op_name,
+                        data: op
+                    });
+                } else {
+                    // Direct grouping
+                    groupMap.get(groupKey).children.push({
+                        name: op.op_name,
+                        data: op
+                    });
+                }
+            });
+
+            hierarchy.children = Array.from(groupMap.values())
+                .sort((a, b) => b.children.length - a.children.length);
+
+            return hierarchy;
+        }
+
+        // Create radial tree
+        function renderChart() {
+            if (!data) return;
+
+            const container = document.getElementById('chart');
+            container.innerHTML = '';
+
+            const width = container.clientWidth;
+            const height = container.clientHeight;
+            const cx = width / 2;
+            const cy = height / 2;
+
+            // Calculate radius based on setting
+            let radius;
+            switch (config.radiusSize) {
+                case 'compact':
+                    radius = Math.min(width, height) / 3;
+                    break;
+                case 'expanded':
+                    radius = Math.min(width, height) / 1.5;
+                    break;
+                default:
+                    radius = Math.min(width, height) / 2 - 120;
+            }
+
+            // Transform data
+            const hierarchyData = transformData(data.operations, config.groupBy);
+
+            // Create hierarchy
+            const root = d3.hierarchy(hierarchyData);
+
+            // Create tree layout
+            const tree = d3.tree()
+                .size([2 * Math.PI, radius])
+                .separation((a, b) => (a.parent === b.parent ? 1 : 2) / a.depth);
+
+            tree(root);
+
+            // Color scale
+            const colors = COLOR_PALETTES[config.colorPalette];
+            const groups = [...new Set(root.descendants().filter(d => d.depth === 1).map(d => d.data.name))];
+            const colorScale = d3.scaleOrdinal()
+                .domain(groups)
+                .range(colors);
+
+            // Create SVG
+            svg = d3.select(container)
+                .append('svg')
+                .attr('width', width)
+                .attr('height', height)
+                .attr('viewBox', [-cx, -cy, width, height])
+                .attr('style', 'font: 10px sans-serif;');
+
+            // Add zoom
+            zoom = d3.zoom()
+                .scaleExtent([0.3, 5])
+                .on('zoom', (event) => {
+                    g.attr('transform', event.transform);
+                });
+
+            svg.call(zoom);
+
+            g = svg.append('g');
+
+            // Draw links
+            g.append('g')
+                .attr('class', 'links')
+                .selectAll('path')
+                .data(root.links())
+                .join('path')
+                .attr('class', 'link')
+                .attr('d', d3.linkRadial()
+                    .angle(d => d.x)
+                    .radius(d => d.y));
+
+            // Draw nodes
+            const node = g.append('g')
+                .attr('class', 'nodes')
+                .selectAll('g')
+                .data(root.descendants())
+                .join('g')
+                .attr('class', d => {
+                    if (d.depth === 0) return 'node node--root';
+                    if (d.depth === 1) return 'node node--group';
+                    if (d.depth === 2 && config.groupBy === 'group') return 'node node--binary';
+                    return 'node node--operation';
+                })
+                .attr('transform', d => `rotate(${d.x * 180 / Math.PI - 90}) translate(${d.y},0)`);
+
+            // Node circles
+            node.append('circle')
+                .attr('r', d => {
+                    if (d.depth === 0) return 10;
+                    if (d.depth === 1) return 7;
+                    if (d.depth === 2 && config.groupBy === 'group') return 5;
+                    return 3;
+                })
+                .attr('fill', d => {
+                    if (d.depth === 0) return '#e94560';
+                    if (d.depth === 1) return colorScale(d.data.name);
+                    // Find parent group color
+                    let ancestor = d;
+                    while (ancestor.depth > 1) ancestor = ancestor.parent;
+                    return d3.color(colorScale(ancestor.data.name)).darker(d.depth * 0.3);
+                })
+                .attr('stroke', d => d.depth === 0 ? '#fff' : 'none')
+                .attr('stroke-width', 2)
+                .on('mouseover', showTooltip)
+                .on('mouseout', hideTooltip)
+                .on('click', (event, d) => {
+                    if (d.children) {
+                        // Zoom to node
+                        const x = d.y * Math.cos(d.x - Math.PI / 2);
+                        const y = d.y * Math.sin(d.x - Math.PI / 2);
+                        svg.transition()
+                            .duration(750)
+                            .call(zoom.transform, d3.zoomIdentity.translate(-x * 1.5, -y * 1.5).scale(2));
+                    }
+                });
+
+            // Node labels
+            node.append('text')
+                .attr('dy', '0.31em')
+                .attr('x', d => d.x < Math.PI === !d.children ? 6 : -6)
+                .attr('text-anchor', d => d.x < Math.PI === !d.children ? 'start' : 'end')
+                .attr('transform', d => d.x >= Math.PI ? 'rotate(180)' : null)
+                .text(d => {
+                    const name = d.data.name;
+                    // Truncate long names for leaf nodes
+                    if (!d.children && name.length > 25) {
+                        return name.substring(0, 22) + '...';
+                    }
+                    return name;
+                })
+                .clone(true).lower()
+                .attr('stroke', '#1a1a2e')
+                .attr('stroke-width', 3);
+
+            // Update legend
+            updateLegend(groups, colorScale);
+
+            // Update stats
+            updateStats(root, hierarchyData);
+        }
+
+        // Tooltip functions
+        function showTooltip(event, d) {
+            const tooltip = document.getElementById('tooltip');
+            const titleEl = tooltip.querySelector('.tooltip-title');
+            const contentEl = tooltip.querySelector('.tooltip-content');
+
+            titleEl.textContent = d.data.name;
+
+            let content = '';
+            if (d.depth === 0) {
+                content = `Total operations: ${data.operations.length}`;
+            } else if (d.depth === 1) {
+                const childCount = d.descendants().length - 1;
+                content = `Contains ${childCount} items`;
+            } else if (d.data.data) {
+                const op = d.data.data;
+                content = `<strong>Group:</strong> ${op.group || 'N/A'}<br>`;
+                content += `<strong>Binary:</strong> ${op.binaries?.[0]?.name || 'N/A'}<br>`;
+                content += `<strong>Type:</strong> ${op.binaries?.[0]?.type || 'N/A'}`;
+                if (op.envvars?.length) {
+                    content += `<br><strong>Env vars:</strong> ${op.envvars.length}`;
+                }
+            } else if (d.data.binaryType) {
+                content = `Type: ${d.data.binaryType}<br>Operations: ${d.children?.length || 0}`;
+            }
+
+            contentEl.innerHTML = content;
+
+            tooltip.classList.add('visible');
+
+            // Position tooltip
+            const rect = document.getElementById('chart').getBoundingClientRect();
+            let x = event.clientX - rect.left + 10;
+            let y = event.clientY - rect.top + 10;
+
+            // Keep tooltip in bounds
+            if (x + 250 > rect.width) x = x - 260;
+            if (y + 100 > rect.height) y = y - 110;
+
+            tooltip.style.left = x + 'px';
+            tooltip.style.top = y + 'px';
+        }
+
+        function hideTooltip() {
+            document.getElementById('tooltip').classList.remove('visible');
+        }
+
+        // Update legend
+        function updateLegend(groups, colorScale) {
+            const legend = document.getElementById('legend');
+            legend.innerHTML = '<div class="legend-title">Groups</div>';
+
+            groups.forEach(group => {
+                const item = document.createElement('div');
+                item.className = 'legend-item';
+                item.innerHTML = `
+                    <div class="legend-color" style="background: ${colorScale(group)}"></div>
+                    <span class="legend-label">${group}</span>
+                `;
+                legend.appendChild(item);
+            });
+        }
+
+        // Update stats
+        function updateStats(root, hierarchyData) {
+            const stats = document.getElementById('stats');
+            const totalOps = data.operations.length;
+            const totalGroups = hierarchyData.children.length;
+            const uniqueBinaries = new Set(data.operations.flatMap(op =>
+                op.binaries?.map(b => b.name).filter(Boolean) || []
+            )).size;
+
+            stats.innerHTML = `
+                <div class="stats-item">
+                    <span class="stats-label">Operations:</span>
+                    <span class="stats-value">${totalOps}</span>
+                </div>
+                <div class="stats-item">
+                    <span class="stats-label">Groups:</span>
+                    <span class="stats-value">${totalGroups}</span>
+                </div>
+                <div class="stats-item">
+                    <span class="stats-label">Unique binaries:</span>
+                    <span class="stats-value">${uniqueBinaries}</span>
+                </div>
+            `;
+        }
+
+        // Export SVG
+        function exportSvg() {
+            const svgEl = document.querySelector('#chart svg');
+            const svgData = new XMLSerializer().serializeToString(svgEl);
+            const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+            const url = URL.createObjectURL(svgBlob);
+
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `operations_radial_tree_${config.groupBy}.svg`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }
+
+        // Event listeners
+        document.getElementById('groupBy').addEventListener('change', (e) => {
+            config.groupBy = e.target.value;
+            renderChart();
+        });
+
+        document.getElementById('colorPalette').addEventListener('change', (e) => {
+            config.colorPalette = e.target.value;
+            renderChart();
+        });
+
+        document.getElementById('radiusSize').addEventListener('change', (e) => {
+            config.radiusSize = e.target.value;
+            renderChart();
+        });
+
+        document.getElementById('resetZoom').addEventListener('click', () => {
+            svg.transition()
+                .duration(750)
+                .call(zoom.transform, d3.zoomIdentity);
+        });
+
+        document.getElementById('exportSvg').addEventListener('click', exportSvg);
+
+        // Handle resize
+        window.addEventListener('resize', () => {
+            if (data) renderChart();
+        });
+
+        // Initialize
+        loadData();
+    </script>
+</body>
+</html>
