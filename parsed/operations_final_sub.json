@@ -1791,10 +1791,10 @@
       ],
       "binaries": [
         {
-          "name": null,
-          "type": "none",
-          "path_expr": null,
-          "path_variable": null
+          "name": "findframe",
+          "type": "executable",
+          "path_expr": "${PTSUITE}/bin/findframe",
+          "path_variable": "PTSUITE"
         }
       ],
       "notes": "No binary execution detected",
@@ -1823,10 +1823,10 @@
       ],
       "binaries": [
         {
-          "name": null,
-          "type": "none",
-          "path_expr": null,
-          "path_variable": null
+          "name": "makeassembly",
+          "type": "executable",
+          "path_expr": "${PTSUITE}/bin/makeassembly",
+          "path_variable": "PTSUITE"
         }
       ],
       "notes": "No binary execution detected",
