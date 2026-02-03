@@ -1,10 +1,58 @@
 {
   "metadata": {
     "source_file": "all_full_cmds.txt",
-    "total_operations": 110,
-    "extraction_date": "2026-02-02"
+    "total_operations": 195,
+    "extraction_date": "2026-02-03"
   },
   "operations": [
+    {
+      "op_name": "annot-add-default-assembly-info",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "AddDefaultAssembly",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__annotAppsPath, 'bin', 'AddDefaultAssembly')",
+          "path_variable": "self.__annotAppsPath"
+        },
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
+        }
+      ],
+      "notes": null
+    },
+    {
+      "op_name": "annot-add-version-info",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "AddVersionInfo",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__annotAppsPath, 'bin', 'AddVersionInfo')",
+          "path_variable": "self.__annotAppsPath"
+        },
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
+        }
+      ],
+      "notes": null
+    },
     {
       "op_name": "annot-base-pair-info",
       "envvars": [
@@ -19,9 +67,465 @@
           "type": "executable",
           "path_expr": "os.path.join(self.__annotAppsPath, 'bin', 'GetBasePairInfo')",
           "path_variable": "self.__annotAppsPath"
+        },
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
         }
       ],
       "notes": null
+    },
+    {
+      "op_name": "annot-check-ccd-definition",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "ChemCompDefChecker",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__annotAppsPath, 'bin', 'ChemCompDefChecker')",
+          "path_variable": "self.__annotAppsPath"
+        },
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
+        }
+      ],
+      "notes": null
+    },
+    {
+      "op_name": "annot-check-cif",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
+        },
+        {
+          "name": "CifCheck",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__packagePath, 'dict', 'bin', 'CifCheck')",
+          "path_variable": "self.__packagePath"
+        }
+      ],
+      "notes": null
+    },
+    {
+      "op_name": "annot-check-cs-file",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "CheckCSFile",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__annotAppsPath, 'bin', 'CheckCSFile')",
+          "path_variable": "self.__annotAppsPath"
+        },
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
+        }
+      ],
+      "notes": null
+    },
+    {
+      "op_name": "annot-check-mr-file",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "CheckMRFile",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__annotAppsPath, 'bin', 'CheckMRFile')",
+          "path_variable": "self.__annotAppsPath"
+        },
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
+        }
+      ],
+      "notes": null
+    },
+    {
+      "op_name": "annot-check-pdb-file",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "CheckPDBFile",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__annotAppsPath, 'bin', 'CheckPDBFile')",
+          "path_variable": "self.__annotAppsPath"
+        },
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
+        },
+        {
+          "name": "gzip",
+          "type": "system",
+          "path_expr": null,
+          "path_variable": null
+        },
+        {
+          "name": "tar",
+          "type": "system",
+          "path_expr": null,
+          "path_variable": null
+        }
+      ],
+      "notes": null
+    },
+    {
+      "op_name": "annot-check-select-number",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "CheckSelectNumber",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__annotAppsPath, 'bin', 'CheckSelectNumber')",
+          "path_variable": "self.__annotAppsPath"
+        },
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
+        }
+      ],
+      "notes": null
+    },
+    {
+      "op_name": "annot-check-sf-file",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "CheckSFFile",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__annotAppsPath, 'bin', 'CheckSFFile')",
+          "path_variable": "self.__annotAppsPath"
+        },
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
+        }
+      ],
+      "notes": null
+    },
+    {
+      "op_name": "annot-check-xml-stdinparse",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "StdInParse",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__localAppsPath, 'bin', 'StdInParse')",
+          "path_variable": "self.__localAppsPath"
+        },
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
+        }
+      ],
+      "notes": null
+    },
+    {
+      "op_name": "annot-check-xml-xmllint",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "xmllint",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__localAppsPath, 'bin', 'xmllint')",
+          "path_variable": "self.__localAppsPath"
+        },
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
+        }
+      ],
+      "notes": null
+    },
+    {
+      "op_name": "annot-chem-shifts-atom-name-check",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "shift_coord_check",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__annotAppsPath, 'bin', 'shift_coord_check')",
+          "path_variable": "self.__annotAppsPath"
+        },
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
+        },
+        {
+          "name": "maxitCmd",
+          "type": "variable",
+          "path_expr": null,
+          "path_variable": null
+        }
+      ],
+      "notes": "Uses maxitCmd variable"
+    },
+    {
+      "op_name": "annot-chem-shifts-update",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "update_chemical_shift",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__annotAppsPath, 'bin', 'update_chemical_shift')",
+          "path_variable": "self.__annotAppsPath"
+        },
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
+        }
+      ],
+      "notes": null
+    },
+    {
+      "op_name": "annot-chem-shifts-update-with-check",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "update_chemical_shift_with_check",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__annotAppsPath, 'bin', 'update_chemical_shift_with_check')",
+          "path_variable": "self.__annotAppsPath"
+        },
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
+        }
+      ],
+      "notes": null
+    },
+    {
+      "op_name": "annot-chem-shifts-upload-check",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "upload_shifts_check",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__annotAppsPath, 'bin', 'upload_shifts_check')",
+          "path_variable": "self.__annotAppsPath"
+        },
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
+        }
+      ],
+      "notes": null
+    },
+    {
+      "op_name": "annot-cif-to-pdbx-em-header",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
+        },
+        {
+          "name": "cifexch2",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__packagePath, 'dict', 'bin', 'cifexch2')",
+          "path_variable": "self.__packagePath"
+        }
+      ],
+      "notes": null
+    },
+    {
+      "op_name": "annot-cif-to-public-pdbx",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
+        },
+        {
+          "name": "cifexch2",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__packagePath, 'dict', 'bin', 'cifexch2')",
+          "path_variable": "self.__packagePath"
+        }
+      ],
+      "notes": null
+    },
+    {
+      "op_name": "annot-cif2cif",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
+        },
+        {
+          "name": "maxitCmd",
+          "type": "variable",
+          "path_expr": null,
+          "path_variable": null
+        }
+      ],
+      "notes": "Uses maxitCmd variable"
+    },
+    {
+      "op_name": "annot-cif2cif-dep",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
+        },
+        {
+          "name": "maxitCmd",
+          "type": "variable",
+          "path_expr": null,
+          "path_variable": null
+        }
+      ],
+      "notes": "Uses maxitCmd variable"
+    },
+    {
+      "op_name": "annot-cif2pdb",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
+        },
+        {
+          "name": "maxitCmd",
+          "type": "variable",
+          "path_expr": null,
+          "path_variable": null
+        }
+      ],
+      "notes": "Uses maxitCmd variable"
     },
     {
       "op_name": "annot-cif2pdbx-withpdbid",
@@ -37,6 +541,12 @@
           "type": "executable",
           "path_expr": "os.path.join(self.__annotAppsPath, 'bin', 'PdbxConverter')",
           "path_variable": "self.__annotAppsPath"
+        },
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
         }
       ],
       "notes": null
@@ -55,6 +565,37 @@
           "type": "executable",
           "path_expr": "os.path.join(self.__annotAppsPath, 'bin', 'GetCisPeptide')",
           "path_variable": "self.__annotAppsPath"
+        },
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
+        }
+      ],
+      "notes": null
+    },
+    {
+      "op_name": "annot-complexity",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
+        },
+        {
+          "name": "python",
+          "type": "python_module",
+          "module": "wwpdb.utils.dp.PdbxModelComplexity",
+          "path_expr": null,
+          "path_variable": null
         }
       ],
       "notes": null
@@ -73,6 +614,299 @@
           "type": "executable",
           "path_expr": "os.path.join(self.__annotAppsPath, 'bin', 'GetAddAnnotation')",
           "path_variable": "self.__annotAppsPath"
+        },
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
+        }
+      ],
+      "notes": null
+    },
+    {
+      "op_name": "annot-convert-close-contact-to-link",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "ConvertContactToLink",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__annotAppsPath, 'bin', 'ConvertContactToLink')",
+          "path_variable": "self.__annotAppsPath"
+        },
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
+        }
+      ],
+      "notes": null
+    },
+    {
+      "op_name": "annot-correct-freer-set",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "CorrectFreeRsetInSFFile",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__annotAppsPath, 'bin', 'CorrectFreeRsetInSFFile')",
+          "path_variable": "self.__annotAppsPath"
+        },
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
+        }
+      ],
+      "notes": null
+    },
+    {
+      "op_name": "annot-dcc-biso-full",
+      "envvars": [
+        "COMP_PATH",
+        "DCCPY_DIR",
+        "DEPLOY_DIR",
+        "DICT_SDB",
+        "PACKAGE_DIR",
+        "PDB2GLYCAN",
+        "RCSBROOT",
+        "TOOLS_DIR",
+        "WWPDB_SITE_ID"
+      ],
+      "binaries": [
+        {
+          "name": "dcc.sh",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__sfvalidPath, 'bin', 'dcc.sh')",
+          "path_variable": "self.__sfvalidPath"
+        },
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
+        }
+      ],
+      "notes": null
+    },
+    {
+      "op_name": "annot-dcc-fix-special-position",
+      "envvars": [
+        "COMP_PATH",
+        "DCCPY_DIR",
+        "DEPLOY_DIR",
+        "DICT_SDB",
+        "PACKAGE_DIR",
+        "PDB2GLYCAN",
+        "RCSBROOT",
+        "TOOLS_DIR",
+        "WWPDB_SITE_ID"
+      ],
+      "binaries": [
+        {
+          "name": "tool.sh",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__sfvalidPath, 'bin', 'tool.sh')",
+          "path_variable": "self.__sfvalidPath"
+        },
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
+        }
+      ],
+      "notes": null
+    },
+    {
+      "op_name": "annot-dcc-reassign-alt-ids",
+      "envvars": [
+        "COMP_PATH",
+        "DCCPY_DIR",
+        "DEPLOY_DIR",
+        "DICT_SDB",
+        "PACKAGE_DIR",
+        "PDB2GLYCAN",
+        "RCSBROOT",
+        "TOOLS_DIR",
+        "WWPDB_SITE_ID"
+      ],
+      "binaries": [
+        {
+          "name": "tool.sh",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__sfvalidPath, 'bin', 'tool.sh')",
+          "path_variable": "self.__sfvalidPath"
+        },
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
+        }
+      ],
+      "notes": null
+    },
+    {
+      "op_name": "annot-dcc-refine-report",
+      "envvars": [
+        "COMP_PATH",
+        "DCCPY_DIR",
+        "DEPLOY_DIR",
+        "DICT_SDB",
+        "PACKAGE_DIR",
+        "PDB2GLYCAN",
+        "RCSBROOT",
+        "TOOLS_DIR",
+        "WWPDB_SITE_ID"
+      ],
+      "binaries": [
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
+        }
+      ],
+      "notes": null
+    },
+    {
+      "op_name": "annot-dcc-report",
+      "envvars": [
+        "COMP_PATH",
+        "DCCPY_DIR",
+        "DEPLOY_DIR",
+        "DICT_SDB",
+        "PACKAGE_DIR",
+        "PDB2GLYCAN",
+        "RCSBROOT",
+        "TOOLS_DIR",
+        "WWPDB_SITE_ID"
+      ],
+      "binaries": [
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
+        }
+      ],
+      "notes": null
+    },
+    {
+      "op_name": "annot-dcc-special-position",
+      "envvars": [
+        "COMP_PATH",
+        "DCCPY_DIR",
+        "DEPLOY_DIR",
+        "DICT_SDB",
+        "PACKAGE_DIR",
+        "PDB2GLYCAN",
+        "RCSBROOT",
+        "TOOLS_DIR",
+        "WWPDB_SITE_ID"
+      ],
+      "binaries": [
+        {
+          "name": "tool.sh",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__sfvalidPath, 'bin', 'tool.sh')",
+          "path_variable": "self.__sfvalidPath"
+        },
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
+        }
+      ],
+      "notes": null
+    },
+    {
+      "op_name": "annot-dcc-validation",
+      "envvars": [
+        "COMP_PATH",
+        "DCCPY_DIR",
+        "DEPLOY_DIR",
+        "DICT_SDB",
+        "PACKAGE_DIR",
+        "PDB2GLYCAN",
+        "RCSBROOT",
+        "TOOLS_DIR",
+        "WWPDB_SITE_ID"
+      ],
+      "binaries": [
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
+        },
+        {
+          "name": "dcc.sh",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__packagePath, 'sf-valid', 'bin', 'dcc.sh')",
+          "path_variable": "self.__packagePath"
+        }
+      ],
+      "notes": null
+    },
+    {
+      "op_name": "annot-depict-chemical-shift",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "depict_chemical_shift",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__annotAppsPath, 'bin', 'depict_chemical_shift')",
+          "path_variable": "self.__annotAppsPath"
+        },
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
+        }
+      ],
+      "notes": null
+    },
+    {
+      "op_name": "annot-depict-molecule-json",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "DepictMolecule_Json",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__annotAppsPath, 'bin', 'DepictMolecule_Json')",
+          "path_variable": "self.__annotAppsPath"
+        },
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
         }
       ],
       "notes": null
@@ -91,6 +925,60 @@
           "type": "executable",
           "path_expr": "os.path.join(self.__annotAppsPath, 'bin', 'CalculateDistantWater')",
           "path_variable": "self.__annotAppsPath"
+        },
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
+        }
+      ],
+      "notes": null
+    },
+    {
+      "op_name": "annot-edit-chemical-shift",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "edit_chemical_shift",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__annotAppsPath, 'bin', 'edit_chemical_shift')",
+          "path_variable": "self.__annotAppsPath"
+        },
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
+        }
+      ],
+      "notes": null
+    },
+    {
+      "op_name": "annot-extra-checks",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "MiscChecking",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__annotAppsPath, 'bin', 'MiscChecking')",
+          "path_variable": "self.__annotAppsPath"
+        },
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
         }
       ],
       "notes": null
@@ -109,6 +997,12 @@
           "type": "executable",
           "path_expr": "os.path.join(self.__annotAppsPath, 'bin', 'CheckCoorFormat')",
           "path_variable": "self.__annotAppsPath"
+        },
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
         }
       ],
       "notes": null
@@ -127,6 +1021,156 @@
           "type": "executable",
           "path_expr": "os.path.join(self.__annotAppsPath, 'bin', 'CheckCoorFormat')",
           "path_variable": "self.__annotAppsPath"
+        },
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
+        }
+      ],
+      "notes": null
+    },
+    {
+      "op_name": "annot-gen-assem-pdbx",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "GenBioCIFFile",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__annotAppsPath, 'bin', 'GenBioCIFFile')",
+          "path_variable": "self.__annotAppsPath"
+        },
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
+        }
+      ],
+      "notes": null
+    },
+    {
+      "op_name": "annot-generte-nmr-data-str-file",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "GenNmrDataStarFile",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__annotAppsPath, 'bin', 'GenNmrDataStarFile')",
+          "path_variable": "self.__annotAppsPath"
+        },
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
+        }
+      ],
+      "notes": null
+    },
+    {
+      "op_name": "annot-get-biol-cif-file",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "GenBioCIFFile",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__annotAppsPath, 'bin', 'GenBioCIFFile')",
+          "path_variable": "self.__annotAppsPath"
+        },
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
+        },
+        {
+          "name": "gzip",
+          "type": "system",
+          "path_expr": null,
+          "path_variable": null
+        },
+        {
+          "name": "tar",
+          "type": "system",
+          "path_expr": null,
+          "path_variable": null
+        }
+      ],
+      "notes": null
+    },
+    {
+      "op_name": "annot-get-biol-pdb-file",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "GenBioPDBFile",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__annotAppsPath, 'bin', 'GenBioPDBFile')",
+          "path_variable": "self.__annotAppsPath"
+        },
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
+        },
+        {
+          "name": "gzip",
+          "type": "system",
+          "path_expr": null,
+          "path_variable": null
+        },
+        {
+          "name": "tar",
+          "type": "system",
+          "path_expr": null,
+          "path_variable": null
+        }
+      ],
+      "notes": null
+    },
+    {
+      "op_name": "annot-get-close-contact",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "DepictCloseContact",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__annotAppsPath, 'bin', 'DepictCloseContact')",
+          "path_variable": "self.__annotAppsPath"
+        },
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
         }
       ],
       "notes": null
@@ -145,6 +1189,144 @@
           "type": "executable",
           "path_expr": "os.path.join(self.__annotAppsPath, 'bin', 'GetCorresInfo')",
           "path_variable": "self.__annotAppsPath"
+        },
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
+        }
+      ],
+      "notes": null
+    },
+    {
+      "op_name": "annot-get-covalent-bond",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "DepictCovalentBond",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__annotAppsPath, 'bin', 'DepictCovalentBond')",
+          "path_variable": "self.__annotAppsPath"
+        },
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
+        }
+      ],
+      "notes": null
+    },
+    {
+      "op_name": "annot-get-em-exp-info",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "ReleaseUpdateGetEmInfo",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__annotAppsPath, 'bin', 'ReleaseUpdateGetEmInfo')",
+          "path_variable": "self.__annotAppsPath"
+        },
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
+        }
+      ],
+      "notes": null
+    },
+    {
+      "op_name": "annot-get-pdb-bundle",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "GetPdbBundle",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__annotAppsPath, 'bin', 'GetPdbBundle')",
+          "path_variable": "self.__annotAppsPath"
+        },
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
+        },
+        {
+          "name": "gzip",
+          "type": "system",
+          "path_expr": null,
+          "path_variable": null
+        },
+        {
+          "name": "tar",
+          "type": "system",
+          "path_expr": null,
+          "path_variable": null
+        }
+      ],
+      "notes": null
+    },
+    {
+      "op_name": "annot-get-pdb-file",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
+        },
+        {
+          "name": "maxitCmd",
+          "type": "variable",
+          "path_expr": null,
+          "path_variable": null
+        }
+      ],
+      "notes": "Uses maxitCmd variable"
+    },
+    {
+      "op_name": "annot-get-symmetry-operator",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "GetSymmetryOperator",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__annotAppsPath, 'bin', 'GetSymmetryOperator')",
+          "path_variable": "self.__annotAppsPath"
+        },
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
         }
       ],
       "notes": null
@@ -163,6 +1345,12 @@
           "type": "executable",
           "path_expr": "os.path.join(self.__annotAppsPath, 'bin', 'GetLinkAndSSBond')",
           "path_variable": "self.__annotAppsPath"
+        },
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
         }
       ],
       "notes": null
@@ -181,6 +1369,123 @@
           "type": "executable",
           "path_expr": "os.path.join(self.__annotAppsPath, 'bin', 'GetLinkAndSSBond')",
           "path_variable": "self.__annotAppsPath"
+        },
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
+        }
+      ],
+      "notes": null
+    },
+    {
+      "op_name": "annot-make-ligand-maps",
+      "envvars": [
+        "COMP_PATH",
+        "DCCPY_DIR",
+        "DEPLOY_DIR",
+        "DICT_SDB",
+        "PACKAGE_DIR",
+        "PDB2GLYCAN",
+        "RCSBROOT",
+        "TOOLS_DIR",
+        "WWPDB_SITE_ID"
+      ],
+      "binaries": [
+        {
+          "name": "dcc.sh",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__sfvalidPath, 'bin', 'dcc.sh')",
+          "path_variable": "self.__sfvalidPath"
+        },
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
+        }
+      ],
+      "notes": null
+    },
+    {
+      "op_name": "annot-make-maps",
+      "envvars": [
+        "COMP_PATH",
+        "DCCPY_DIR",
+        "DEPLOY_DIR",
+        "DICT_SDB",
+        "PACKAGE_DIR",
+        "PDB2GLYCAN",
+        "RCSBROOT",
+        "TOOLS_DIR",
+        "WWPDB_SITE_ID"
+      ],
+      "binaries": [
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
+        },
+        {
+          "name": "dcc.sh",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__packagePath, 'sf-valid', 'bin', 'dcc.sh')",
+          "path_variable": "self.__packagePath"
+        }
+      ],
+      "notes": null
+    },
+    {
+      "op_name": "annot-make-omit-maps",
+      "envvars": [
+        "COMP_PATH",
+        "DCCPY_DIR",
+        "DEPLOY_DIR",
+        "DICT_SDB",
+        "PACKAGE_DIR",
+        "PDB2GLYCAN",
+        "RCSBROOT",
+        "TOOLS_DIR",
+        "WWPDB_SITE_ID"
+      ],
+      "binaries": [
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
+        },
+        {
+          "name": "dcc.sh",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__packagePath, 'sf-valid', 'bin', 'dcc.sh')",
+          "path_variable": "self.__packagePath"
+        }
+      ],
+      "notes": null
+    },
+    {
+      "op_name": "annot-merge-pointsuite-info",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "MergePointSuiteResult",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__annotAppsPath, 'bin', 'MergePointSuiteResult')",
+          "path_variable": "self.__annotAppsPath"
+        },
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
         }
       ],
       "notes": null
@@ -199,6 +1504,12 @@
           "type": "executable",
           "path_expr": "os.path.join(self.__annotAppsPath, 'bin', 'MergeSeqModuleData')",
           "path_variable": "self.__annotAppsPath"
+        },
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
         }
       ],
       "notes": null
@@ -217,6 +1528,156 @@
           "type": "executable",
           "path_expr": "os.path.join(self.__annotAppsPath, 'bin', 'MergeSiteData')",
           "path_variable": "self.__annotAppsPath"
+        },
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
+        }
+      ],
+      "notes": null
+    },
+    {
+      "op_name": "annot-merge-tls-range-data",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "MergeTLSData",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__rcsbAppsPath, 'bin', 'MergeTLSData')",
+          "path_variable": "self.__rcsbAppsPath"
+        },
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
+        }
+      ],
+      "notes": null
+    },
+    {
+      "op_name": "annot-merge-xyz",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "MergeCoordinates",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__annotAppsPath, 'bin', 'MergeCoordinates')",
+          "path_variable": "self.__annotAppsPath"
+        },
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
+        }
+      ],
+      "notes": null
+    },
+    {
+      "op_name": "annot-misc-checking",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "MiscChecking",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__annotAppsPath, 'bin', 'MiscChecking')",
+          "path_variable": "self.__annotAppsPath"
+        },
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
+        }
+      ],
+      "notes": null
+    },
+    {
+      "op_name": "annot-move-xyz-by-matrix",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "MovingCoordByMatrix",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__annotAppsPath, 'bin', 'MovingCoordByMatrix')",
+          "path_variable": "self.__annotAppsPath"
+        },
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
+        }
+      ],
+      "notes": null
+    },
+    {
+      "op_name": "annot-move-xyz-by-symop",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "MovingCoordBySymmetry",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__annotAppsPath, 'bin', 'MovingCoordBySymmetry')",
+          "path_variable": "self.__annotAppsPath"
+        },
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
+        }
+      ],
+      "notes": null
+    },
+    {
+      "op_name": "annot-nef-update-with-check",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "check_update_nmr_data_file",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__annotAppsPath, 'bin', 'check_update_nmr_data_file')",
+          "path_variable": "self.__annotAppsPath"
+        },
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
         }
       ],
       "notes": null
@@ -235,9 +1696,63 @@
           "type": "executable",
           "path_expr": "os.path.join(self.__annotAppsPath, 'bin', 'UpdatePTMAnnotation')",
           "path_variable": "self.__annotAppsPath"
+        },
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
         }
       ],
       "notes": null
+    },
+    {
+      "op_name": "annot-pdb2cif",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
+        },
+        {
+          "name": "maxitCmd",
+          "type": "variable",
+          "path_expr": null,
+          "path_variable": null
+        }
+      ],
+      "notes": "Uses maxitCmd variable"
+    },
+    {
+      "op_name": "annot-pdb2cif-dep",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
+        },
+        {
+          "name": "maxitCmd",
+          "type": "variable",
+          "path_expr": null,
+          "path_variable": null
+        }
+      ],
+      "notes": "Uses maxitCmd variable"
     },
     {
       "op_name": "annot-pdbx2nmrstar",
@@ -253,6 +1768,108 @@
           "type": "executable",
           "path_expr": "os.path.join(self.__annotAppsPath, 'bin', 'GenNMRStarCSFile')",
           "path_variable": "self.__annotAppsPath"
+        },
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
+        }
+      ],
+      "notes": null
+    },
+    {
+      "op_name": "annot-poly-link-dist",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "cal_polymer_linkage_distance",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__annotAppsPath, 'bin', 'cal_polymer_linkage_distance')",
+          "path_variable": "self.__annotAppsPath"
+        },
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
+        }
+      ],
+      "notes": null
+    },
+    {
+      "op_name": "annot-poly-link-dist-json",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "cal_polymer_linkage_distance_json",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__annotAppsPath, 'bin', 'cal_polymer_linkage_distance_json')",
+          "path_variable": "self.__annotAppsPath"
+        },
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
+        }
+      ],
+      "notes": null
+    },
+    {
+      "op_name": "annot-public-pdbx-to-xml",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
+        },
+        {
+          "name": "mmcif2XML",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__packagePath, 'dict', 'bin', 'mmcif2XML')",
+          "path_variable": "self.__packagePath"
+        }
+      ],
+      "notes": null
+    },
+    {
+      "op_name": "annot-public-pdbx-to-xml-noatom",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
+        },
+        {
+          "name": "mmcif2XML",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__packagePath, 'dict', 'bin', 'mmcif2XML')",
+          "path_variable": "self.__packagePath"
         }
       ],
       "notes": null
@@ -271,6 +1888,12 @@
           "type": "executable",
           "path_expr": "os.path.join(self.__annotAppsPath, 'bin', 'PdbxConverter')",
           "path_variable": "self.__annotAppsPath"
+        },
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
         }
       ],
       "notes": null
@@ -285,14 +1908,19 @@
       ],
       "binaries": [
         {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
+        },
+        {
           "name": "maxitCmd",
           "type": "variable",
           "path_expr": null,
-          "path_variable": null,
-          "description": "maxit executable"
+          "path_variable": null
         }
       ],
-      "notes": null
+      "notes": "Uses maxitCmd variable"
     },
     {
       "op_name": "annot-rcsb2pdbx-strip",
@@ -308,6 +1936,12 @@
           "type": "executable",
           "path_expr": "os.path.join(self.__annotAppsPath, 'bin', 'PdbxConverter')",
           "path_variable": "self.__annotAppsPath"
+        },
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
         }
       ],
       "notes": null
@@ -326,6 +1960,12 @@
           "type": "executable",
           "path_expr": "os.path.join(self.__annotAppsPath, 'bin', 'PdbxConverter')",
           "path_variable": "self.__annotAppsPath"
+        },
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
         }
       ],
       "notes": null
@@ -344,6 +1984,12 @@
           "type": "executable",
           "path_expr": "os.path.join(self.__annotAppsPath, 'bin', 'PdbxConverter')",
           "path_variable": "self.__annotAppsPath"
+        },
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
         }
       ],
       "notes": null
@@ -362,6 +2008,12 @@
           "type": "executable",
           "path_expr": "os.path.join(self.__annotAppsPath, 'bin', 'PdbxConverter')",
           "path_variable": "self.__annotAppsPath"
+        },
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
         }
       ],
       "notes": null
@@ -376,14 +2028,19 @@
       ],
       "binaries": [
         {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
+        },
+        {
           "name": "maxitCmd",
           "type": "variable",
           "path_expr": null,
-          "path_variable": null,
-          "description": "maxit executable"
+          "path_variable": null
         }
       ],
-      "notes": null
+      "notes": "Uses maxitCmd variable"
     },
     {
       "op_name": "annot-rcsbeps2pdbx-strip-plus-entity",
@@ -395,14 +2052,19 @@
       ],
       "binaries": [
         {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
+        },
+        {
           "name": "maxitCmd",
           "type": "variable",
           "path_expr": null,
-          "path_variable": null,
-          "description": "maxit executable"
+          "path_variable": null
         }
       ],
-      "notes": null
+      "notes": "Uses maxitCmd variable"
     },
     {
       "op_name": "annot-read-map-header",
@@ -412,8 +2074,8 @@
           "name": "java",
           "type": "java_jar",
           "jar": "mapFixAnot.jar",
-          "path_expr": null,
-          "path_variable": "self.__javaPath"
+          "path_expr": "os.path.join(self.__packagePath, 'mapFix', 'mapFixAnot.jar')",
+          "path_variable": null
         }
       ],
       "notes": null
@@ -426,8 +2088,92 @@
           "name": "java",
           "type": "java_jar",
           "jar": "mapFixAnot.jar",
+          "path_expr": "os.path.join(self.__packagePath, 'mapFix', 'mapFixAnot.jar')",
+          "path_variable": null
+        }
+      ],
+      "notes": null
+    },
+    {
+      "op_name": "annot-release-update",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "ReleaseUpdate",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__annotAppsPath, 'bin', 'ReleaseUpdate')",
+          "path_variable": "self.__annotAppsPath"
+        },
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
+        },
+        {
+          "name": "gzip",
+          "type": "system",
           "path_expr": null,
-          "path_variable": "self.__javaPath"
+          "path_variable": null
+        },
+        {
+          "name": "tar",
+          "type": "system",
+          "path_expr": null,
+          "path_variable": null
+        }
+      ],
+      "notes": null
+    },
+    {
+      "op_name": "annot-remove-covalent-bond",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "RemoveCovalentBond",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__annotAppsPath, 'bin', 'RemoveCovalentBond')",
+          "path_variable": "self.__annotAppsPath"
+        },
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
+        }
+      ],
+      "notes": null
+    },
+    {
+      "op_name": "annot-reorder-models",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "ReorderModels",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__annotAppsPath, 'bin', 'ReorderModels')",
+          "path_variable": "self.__annotAppsPath"
+        },
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
         }
       ],
       "notes": null
@@ -446,6 +2192,12 @@
           "type": "executable",
           "path_expr": "os.path.join(self.__annotAppsPath, 'bin', 'MovingWater')",
           "path_variable": "self.__annotAppsPath"
+        },
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
         }
       ],
       "notes": null
@@ -464,6 +2216,12 @@
           "type": "executable",
           "path_expr": "os.path.join(self.__annotAppsPath, 'bin', 'MovingWater')",
           "path_variable": "self.__annotAppsPath"
+        },
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
         }
       ],
       "notes": null
@@ -484,14 +2242,19 @@
           "path_variable": "self.__annotAppsPath"
         },
         {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
+        },
+        {
           "name": "maxitCmd",
           "type": "variable",
           "path_expr": null,
-          "path_variable": null,
-          "description": "maxit executable"
+          "path_variable": null
         }
       ],
-      "notes": null
+      "notes": "Uses maxitCmd variable"
     },
     {
       "op_name": "annot-reposition-solvent-add-derived-void",
@@ -507,6 +2270,12 @@
           "type": "executable",
           "path_expr": "os.path.join(self.__annotAppsPath, 'bin', 'MovingWater')",
           "path_variable": "self.__annotAppsPath"
+        },
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
         }
       ],
       "notes": null
@@ -525,6 +2294,43 @@
           "type": "executable",
           "path_expr": "os.path.join(self.__annotAppsPath, 'bin', 'GetSecondStruct')",
           "path_variable": "self.__annotAppsPath"
+        },
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
+        }
+      ],
+      "notes": null
+    },
+    {
+      "op_name": "annot-sf-convert",
+      "envvars": [
+        "CCP4",
+        "COMP_PATH",
+        "DCCPY",
+        "DCCPY_DIR",
+        "DEPLOY_DIR",
+        "DICT_SDB",
+        "PACKAGE_DIR",
+        "PDB2GLYCAN",
+        "RCSBROOT",
+        "TOOLS_DIR",
+        "WWPDB_SITE_ID"
+      ],
+      "binaries": [
+        {
+          "name": "sf_convert",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__sfvalidPath, 'bin', 'sf_convert')",
+          "path_variable": "self.__sfvalidPath"
+        },
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
         }
       ],
       "notes": null
@@ -548,10 +2354,61 @@
       ],
       "binaries": [
         {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
+        },
+        {
           "name": "getsite_cif",
           "type": "executable",
           "path_expr": "os.path.join(self.__packagePath, 'getsite-cif', 'bin', 'getsite_cif')",
           "path_variable": "self.__packagePath"
+        }
+      ],
+      "notes": null
+    },
+    {
+      "op_name": "annot-tls-range-correction",
+      "envvars": [
+        "CCP4",
+        "COMP_PATH",
+        "DICT_SDB",
+        "PACKAGE_DIR",
+        "PDB2GLYCAN",
+        "RCSBROOT",
+        "WWPDB_SITE_ID"
+      ],
+      "binaries": [
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
+        }
+      ],
+      "notes": null
+    },
+    {
+      "op_name": "annot-update-dep-assembly-info",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "UpdateDepositorAssemblyInfo",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__annotAppsPath, 'bin', 'UpdateDepositorAssemblyInfo')",
+          "path_variable": "self.__annotAppsPath"
+        },
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
         }
       ],
       "notes": null
@@ -564,8 +2421,56 @@
           "name": "java",
           "type": "java_jar",
           "jar": "mapFixAnot.jar",
-          "path_expr": null,
-          "path_variable": "self.__javaPath"
+          "path_expr": "os.path.join(self.__packagePath, 'mapFix', 'mapFixAnot.jar')",
+          "path_variable": null
+        }
+      ],
+      "notes": null
+    },
+    {
+      "op_name": "annot-update-molecule",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "UpdateMolecule",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__annotAppsPath, 'bin', 'UpdateMolecule')",
+          "path_variable": "self.__annotAppsPath"
+        },
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
+        }
+      ],
+      "notes": null
+    },
+    {
+      "op_name": "annot-update-terminal-atoms",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "UpdateTerminalAtom",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__annotAppsPath, 'bin', 'UpdateTerminalAtom')",
+          "path_variable": "self.__annotAppsPath"
+        },
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
         }
       ],
       "notes": null
@@ -584,6 +2489,12 @@
           "type": "executable",
           "path_expr": "os.path.join(self.__annotAppsPath, 'bin', 'UpdateValidateCategories')",
           "path_variable": "self.__annotAppsPath"
+        },
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
         }
       ],
       "notes": null
@@ -602,6 +2513,70 @@
           "type": "executable",
           "path_expr": "os.path.join(self.__annotAppsPath, 'bin', 'valdation_with_cif_output')",
           "path_variable": "self.__annotAppsPath"
+        },
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
+        }
+      ],
+      "notes": null
+    },
+    {
+      "op_name": "annot-wwpdb-validate-all",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "OE_DIR",
+        "OE_LICENSE",
+        "PACKAGE_DIR",
+        "PATH",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
+        },
+        {
+          "name": "python",
+          "type": "python_module",
+          "module": "wwpdb.apps.validation.src.validator",
+          "path_expr": null,
+          "path_variable": null
+        }
+      ],
+      "notes": null
+    },
+    {
+      "op_name": "annot-wwpdb-validate-all-v2",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "OE_DIR",
+        "OE_LICENSE",
+        "PACKAGE_DIR",
+        "PATH",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
+        },
+        {
+          "name": "python",
+          "type": "python_module",
+          "module": "wwpdb.apps.validation.src.validator",
+          "path_expr": null,
+          "path_variable": null
         }
       ],
       "notes": null
@@ -611,15 +2586,81 @@
       "envvars": [
         "BLAST_USAGE_REPORT"
       ],
+      "binaries": [],
+      "notes": "No binary found - environment setup only or complex conditional"
+    },
+    {
+      "op_name": "carbohydrate-remediation",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
       "binaries": [
         {
-          "name": null,
-          "type": "none",
+          "name": "CarbohydrateRemediation",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__annotAppsPath, 'bin', 'CarbohydrateRemediation')",
+          "path_variable": "self.__annotAppsPath"
+        },
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
+        }
+      ],
+      "notes": null
+    },
+    {
+      "op_name": "carbohydrate-remediation-test",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "CarbohydrateRemediation",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__annotAppsPath, 'bin', 'CarbohydrateRemediation')",
+          "path_variable": "self.__annotAppsPath"
+        },
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
+        }
+      ],
+      "notes": null
+    },
+    {
+      "op_name": "centre-of-mass",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
+        },
+        {
+          "name": "python",
+          "type": "python_module",
+          "module": "wwpdb.utils.dp.CentreOfMass",
           "path_expr": null,
           "path_variable": null
         }
       ],
-      "notes": "No binary execution detected"
+      "notes": null
     },
     {
       "op_name": "check-cif",
@@ -861,7 +2902,7 @@
       "binaries": [
         {
           "name": "makeReportFromFile.csh",
-          "type": "shell_script",
+          "type": "executable",
           "path_expr": "os.path.join(self.__ccAppsPath, 'bin', 'makeReportFromFile.csh')",
           "path_variable": "self.__ccAppsPath"
         }
@@ -899,6 +2940,12 @@
           "type": "executable",
           "path_expr": "os.path.join(self.__annotAppsPath, 'bin', 'updateInstance')",
           "path_variable": "self.__annotAppsPath"
+        },
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
         }
       ],
       "notes": null
@@ -944,7 +2991,7 @@
           "path_variable": null
         }
       ],
-      "notes": "Contains malformed parser artifacts (nested parentheses)"
+      "notes": null
     },
     {
       "op_name": "chem-ref-load",
@@ -958,7 +3005,7 @@
           "path_variable": null
         }
       ],
-      "notes": "Contains malformed parser artifacts (nested parentheses)"
+      "notes": null
     },
     {
       "op_name": "chem-ref-run-setup",
@@ -1000,7 +3047,7 @@
           "path_variable": null
         }
       ],
-      "notes": "Contains malformed parser artifacts (nested parentheses)"
+      "notes": null
     },
     {
       "op_name": "cif-rcsb2cif-pdbx",
@@ -1012,14 +3059,19 @@
       ],
       "binaries": [
         {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__cICommon.get_site_packages_path()), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__cICommon.get_site_packages_path())"
+        },
+        {
           "name": "maxitCmd",
           "type": "variable",
           "path_expr": null,
-          "path_variable": null,
-          "description": "maxit executable"
+          "path_variable": null
         }
       ],
-      "notes": null
+      "notes": "Uses maxitCmd variable"
     },
     {
       "op_name": "cif-seqed2cif-pdbx",
@@ -1031,14 +3083,19 @@
       ],
       "binaries": [
         {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__cICommon.get_site_packages_path()), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__cICommon.get_site_packages_path())"
+        },
+        {
           "name": "maxitCmd",
           "type": "variable",
           "path_expr": null,
-          "path_variable": null,
-          "description": "maxit executable"
+          "path_variable": null
         }
       ],
-      "notes": null
+      "notes": "Uses maxitCmd variable"
     },
     {
       "op_name": "cif2cif",
@@ -1050,14 +3107,67 @@
       ],
       "binaries": [
         {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
+        },
+        {
           "name": "maxitCmd",
           "type": "variable",
           "path_expr": null,
-          "path_variable": null,
-          "description": "maxit executable"
+          "path_variable": null
         }
       ],
-      "notes": null
+      "notes": "Uses maxitCmd variable"
+    },
+    {
+      "op_name": "cif2cif",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__cICommon.get_site_packages_path()), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__cICommon.get_site_packages_path())"
+        },
+        {
+          "name": "maxitCmd",
+          "type": "variable",
+          "path_expr": null,
+          "path_variable": null
+        }
+      ],
+      "notes": "Uses maxitCmd variable"
+    },
+    {
+      "op_name": "cif2cif-dep",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
+        },
+        {
+          "name": "maxitCmd",
+          "type": "variable",
+          "path_expr": null,
+          "path_variable": null
+        }
+      ],
+      "notes": "Uses maxitCmd variable"
     },
     {
       "op_name": "cif2cif-ebi",
@@ -1069,14 +3179,19 @@
       ],
       "binaries": [
         {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__cICommon.get_site_packages_path()), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__cICommon.get_site_packages_path())"
+        },
+        {
           "name": "maxitCmd",
           "type": "variable",
           "path_expr": null,
-          "path_variable": null,
-          "description": "maxit executable"
+          "path_variable": null
         }
       ],
-      "notes": null
+      "notes": "Uses maxitCmd variable"
     },
     {
       "op_name": "cif2cif-pdbx",
@@ -1088,14 +3203,19 @@
       ],
       "binaries": [
         {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__cICommon.get_site_packages_path()), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__cICommon.get_site_packages_path())"
+        },
+        {
           "name": "maxitCmd",
           "type": "variable",
           "path_expr": null,
-          "path_variable": null,
-          "description": "maxit executable"
+          "path_variable": null
         }
       ],
-      "notes": null
+      "notes": "Uses maxitCmd variable"
     },
     {
       "op_name": "cif2cif-pdbx-skip-process",
@@ -1107,14 +3227,19 @@
       ],
       "binaries": [
         {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__cICommon.get_site_packages_path()), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__cICommon.get_site_packages_path())"
+        },
+        {
           "name": "maxitCmd",
           "type": "variable",
           "path_expr": null,
-          "path_variable": null,
-          "description": "maxit executable"
+          "path_variable": null
         }
       ],
-      "notes": null
+      "notes": "Uses maxitCmd variable"
     },
     {
       "op_name": "cif2cif-remove",
@@ -1126,14 +3251,19 @@
       ],
       "binaries": [
         {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__cICommon.get_site_packages_path()), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__cICommon.get_site_packages_path())"
+        },
+        {
           "name": "maxitCmd",
           "type": "variable",
           "path_expr": null,
-          "path_variable": null,
-          "description": "maxit executable"
+          "path_variable": null
         }
       ],
-      "notes": null
+      "notes": "Uses maxitCmd variable"
     },
     {
       "op_name": "cif2pdb",
@@ -1145,14 +3275,43 @@
       ],
       "binaries": [
         {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
+        },
+        {
           "name": "maxitCmd",
           "type": "variable",
           "path_expr": null,
-          "path_variable": null,
-          "description": "maxit executable"
+          "path_variable": null
         }
       ],
-      "notes": null
+      "notes": "Uses maxitCmd variable"
+    },
+    {
+      "op_name": "cif2pdb",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__cICommon.get_site_packages_path()), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__cICommon.get_site_packages_path())"
+        },
+        {
+          "name": "maxitCmd",
+          "type": "variable",
+          "path_expr": null,
+          "path_variable": null
+        }
+      ],
+      "notes": "Uses maxitCmd variable"
     },
     {
       "op_name": "cif2pdb-assembly",
@@ -1164,14 +3323,19 @@
       ],
       "binaries": [
         {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__cICommon.get_site_packages_path()), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__cICommon.get_site_packages_path())"
+        },
+        {
           "name": "maxitCmd",
           "type": "variable",
           "path_expr": null,
-          "path_variable": null,
-          "description": "maxit executable"
+          "path_variable": null
         }
       ],
-      "notes": null
+      "notes": "Uses maxitCmd variable"
     },
     {
       "op_name": "cif2pdbx",
@@ -1234,8 +3398,7 @@
           "name": "dbLoaderCmd",
           "type": "variable",
           "path_expr": null,
-          "path_variable": null,
-          "description": "database loader"
+          "path_variable": null
         }
       ],
       "notes": null
@@ -1248,8 +3411,33 @@
           "name": "java",
           "type": "java_jar",
           "jar": "mapFixDep.jar",
+          "path_expr": "os.path.join(self.__packagePath, 'mapFix', 'mapFixDep.jar')",
+          "path_variable": null
+        }
+      ],
+      "notes": null
+    },
+    {
+      "op_name": "em-density-bcif",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
+        },
+        {
+          "name": "python",
+          "type": "python_module",
+          "module": "wwpdb.utils.dp.electron_density.em_density_map",
           "path_expr": null,
-          "path_variable": "self.__javaPath"
+          "path_variable": null
         }
       ],
       "notes": null
@@ -1257,15 +3445,8 @@
     {
       "op_name": "em-map-model-upload-check",
       "envvars": [],
-      "binaries": [
-        {
-          "name": null,
-          "type": "none",
-          "path_expr": null,
-          "path_variable": null
-        }
-      ],
-      "notes": "No binary execution detected"
+      "binaries": [],
+      "notes": "No binary found - environment setup only or complex conditional"
     },
     {
       "op_name": "em2em-spider",
@@ -1274,18 +3455,17 @@
         {
           "name": "COMMANDS.sh",
           "type": "shell_script",
-          "path_expr": null,
+          "path_expr": "os.path.join(self.__wrkPath, 'COMMANDS.sh')",
           "path_variable": null
         },
         {
           "name": "mapfix_command",
           "type": "function",
           "path_expr": null,
-          "path_variable": null,
-          "description": "map fix function"
+          "path_variable": null
         }
       ],
-      "notes": null
+      "notes": "Uses mapfix_command function"
     },
     {
       "op_name": "fetch-gb",
@@ -1307,15 +3487,8 @@
       "envvars": [
         "BLAST_USAGE_REPORT"
       ],
-      "binaries": [
-        {
-          "name": null,
-          "type": "none",
-          "path_expr": null,
-          "path_variable": null
-        }
-      ],
-      "notes": "No binary execution detected"
+      "binaries": [],
+      "notes": "No binary found - environment setup only or complex conditional"
     },
     {
       "op_name": "format-gb",
@@ -1325,6 +3498,12 @@
       "binaries": [
         {
           "name": "gzip",
+          "type": "system",
+          "path_expr": null,
+          "path_variable": null
+        },
+        {
+          "name": "tar",
           "type": "system",
           "path_expr": null,
           "path_variable": null
@@ -1339,17 +3518,16 @@
       ],
       "binaries": [
         {
-          "name": "gunzip",
-          "type": "system",
+          "name": "makeblastdb_command",
+          "type": "variable",
           "path_expr": null,
           "path_variable": null
         },
         {
-          "name": "makeblastdb_command",
-          "type": "function",
+          "name": "gunzip",
+          "type": "system",
           "path_expr": null,
-          "path_variable": null,
-          "description": "BLAST database builder"
+          "path_variable": null
         }
       ],
       "notes": null
@@ -1365,6 +3543,30 @@
           "type": "system",
           "path_expr": null,
           "path_variable": null
+        }
+      ],
+      "notes": null
+    },
+    {
+      "op_name": "get-branch-polymer-info",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "GetBranchPolymerInfo",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__annotAppsPath, 'bin', 'GetBranchPolymerInfo')",
+          "path_variable": "self.__annotAppsPath"
+        },
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
         }
       ],
       "notes": null
@@ -1403,11 +3605,10 @@
           "name": "mapfix_command",
           "type": "function",
           "path_expr": null,
-          "path_variable": null,
-          "description": "map fix function"
+          "path_variable": null
         }
       ],
-      "notes": null
+      "notes": "Uses mapfix_command function"
     },
     {
       "op_name": "metal-findgeo",
@@ -1461,14 +3662,67 @@
       ],
       "binaries": [
         {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
+        },
+        {
           "name": "maxitCmd",
           "type": "variable",
           "path_expr": null,
-          "path_variable": null,
-          "description": "maxit executable"
+          "path_variable": null
         }
       ],
-      "notes": null
+      "notes": "Uses maxitCmd variable"
+    },
+    {
+      "op_name": "pdb2cif",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__cICommon.get_site_packages_path()), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__cICommon.get_site_packages_path())"
+        },
+        {
+          "name": "maxitCmd",
+          "type": "variable",
+          "path_expr": null,
+          "path_variable": null
+        }
+      ],
+      "notes": "Uses maxitCmd variable"
+    },
+    {
+      "op_name": "pdb2cif-dep",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
+        },
+        {
+          "name": "maxitCmd",
+          "type": "variable",
+          "path_expr": null,
+          "path_variable": null
+        }
+      ],
+      "notes": "Uses maxitCmd variable"
     },
     {
       "op_name": "pdb2cif-ebi",
@@ -1480,14 +3734,19 @@
       ],
       "binaries": [
         {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__cICommon.get_site_packages_path()), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__cICommon.get_site_packages_path())"
+        },
+        {
           "name": "maxitCmd",
           "type": "variable",
           "path_expr": null,
-          "path_variable": null,
-          "description": "maxit executable"
+          "path_variable": null
         }
       ],
-      "notes": null
+      "notes": "Uses maxitCmd variable"
     },
     {
       "op_name": "pdb2dssp",
@@ -1525,14 +3784,19 @@
       ],
       "binaries": [
         {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__cICommon.get_site_packages_path()), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__cICommon.get_site_packages_path())"
+        },
+        {
           "name": "maxitCmd",
           "type": "variable",
           "path_expr": null,
-          "path_variable": null,
-          "description": "maxit executable"
+          "path_variable": null
         }
       ],
-      "notes": null
+      "notes": "Uses maxitCmd variable"
     },
     {
       "op_name": "pdbx2pdb-assembly",
@@ -1544,14 +3808,19 @@
       ],
       "binaries": [
         {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__cICommon.get_site_packages_path()), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__cICommon.get_site_packages_path())"
+        },
+        {
           "name": "maxitCmd",
           "type": "variable",
           "path_expr": null,
-          "path_variable": null,
-          "description": "maxit executable"
+          "path_variable": null
         }
       ],
-      "notes": null
+      "notes": "Uses maxitCmd variable"
     },
     {
       "op_name": "pdbx2xml",
@@ -1690,15 +3959,8 @@
       "envvars": [
         "PTSUITE"
       ],
-      "binaries": [
-        {
-          "name": null,
-          "type": "none",
-          "path_expr": null,
-          "path_variable": null
-        }
-      ],
-      "notes": "No binary execution detected"
+      "binaries": [],
+      "notes": "No binary found - environment setup only or complex conditional"
     },
     {
       "op_name": "pointsuite-importmats",
@@ -1720,15 +3982,8 @@
       "envvars": [
         "PTSUITE"
       ],
-      "binaries": [
-        {
-          "name": null,
-          "type": "none",
-          "path_expr": null,
-          "path_variable": null
-        }
-      ],
-      "notes": "No binary execution detected"
+      "binaries": [],
+      "notes": "No binary found - environment setup only or complex conditional"
     },
     {
       "op_name": "poly-link-dist",
@@ -1741,6 +3996,107 @@
           "type": "executable",
           "path_expr": "os.path.join(self.__rcsbAppsPath, 'bin', 'cal_polymer_linkage_distance')",
           "path_variable": "self.__rcsbAppsPath"
+        }
+      ],
+      "notes": null
+    },
+    {
+      "op_name": "prd-family-mapping",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "get-prd-family-mapping",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__annotAppsPath, 'bin', 'get-prd-family-mapping')",
+          "path_variable": "self.__annotAppsPath"
+        },
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
+        }
+      ],
+      "notes": null
+    },
+    {
+      "op_name": "prd-process-summary",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "OE_DIR",
+        "OE_LICENSE",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
+        },
+        {
+          "name": "python",
+          "type": "python_module",
+          "module": "wwpdb.apps.entity_transform.depict.ProcessSummary_main",
+          "path_expr": null,
+          "path_variable": null
+        }
+      ],
+      "notes": null
+    },
+    {
+      "op_name": "prd-search",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "PRDCC_PATH",
+        "PRD_DICT_PATH",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "GetPrdMatch",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__annotAppsPath, 'bin', 'GetPrdMatch')",
+          "path_variable": "self.__annotAppsPath"
+        },
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
+        }
+      ],
+      "notes": null
+    },
+    {
+      "op_name": "prd-summary-serialize",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "get-prd-summary",
+          "type": "executable",
+          "path_expr": "os.path.join(self.__annotAppsPath, 'bin', 'get-prd-summary')",
+          "path_variable": "self.__annotAppsPath"
+        },
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
         }
       ],
       "notes": null
@@ -1767,10 +4123,9 @@
       "binaries": [
         {
           "name": "blastn_command",
-          "type": "function",
+          "type": "variable",
           "path_expr": null,
-          "path_variable": null,
-          "description": "BLAST nucleotide search"
+          "path_variable": null
         }
       ],
       "notes": null
@@ -1784,10 +4139,9 @@
       "binaries": [
         {
           "name": "blastp_command",
-          "type": "function",
+          "type": "variable",
           "path_expr": null,
-          "path_variable": null,
-          "description": "BLAST protein search"
+          "path_variable": null
         }
       ],
       "notes": null
@@ -1802,14 +4156,19 @@
       ],
       "binaries": [
         {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__cICommon.get_site_packages_path()), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__cICommon.get_site_packages_path())"
+        },
+        {
           "name": "maxitCmd",
           "type": "variable",
           "path_expr": null,
-          "path_variable": null,
-          "description": "maxit executable"
+          "path_variable": null
         }
       ],
-      "notes": null
+      "notes": "Uses maxitCmd variable"
     },
     {
       "op_name": "sync-depositors",
@@ -1823,7 +4182,7 @@
           "path_variable": null
         }
       ],
-      "notes": "Contains malformed parser artifacts (nested parentheses)"
+      "notes": null
     },
     {
       "op_name": "update-depui-taxonomy",
@@ -1849,11 +4208,41 @@
       ],
       "binaries": [
         {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
+        },
+        {
           "name": "valCmd",
           "type": "variable",
           "path_expr": null,
-          "path_variable": null,
-          "description": "validation command"
+          "path_variable": null
+        }
+      ],
+      "notes": null
+    },
+    {
+      "op_name": "xray-density-bcif",
+      "envvars": [
+        "COMP_PATH",
+        "DICT_SDB",
+        "PDB2GLYCAN",
+        "RCSBROOT"
+      ],
+      "binaries": [
+        {
+          "name": "PDB2Glycan",
+          "type": "executable",
+          "path_expr": "os.path.join(os.path.abspath(self.__packagePath), 'pdb2glycan', 'bin', 'PDB2Glycan')",
+          "path_variable": "os.path.abspath(self.__packagePath)"
+        },
+        {
+          "name": "python",
+          "type": "python_module",
+          "module": "wwpdb.utils.dp.electron_density.x_ray_density_map",
+          "path_expr": null,
+          "path_variable": null
         }
       ],
       "notes": null

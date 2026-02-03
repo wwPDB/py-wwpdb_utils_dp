@@ -127,17 +127,25 @@ class CmdBuilder:
 
 def is_op_comparison(node: ast.Compare) -> list[str] | None:
     """
-    Check if this is a comparison of the form 'op == "value"'.
+    Check if this is a comparison of the form 'op == "value"' or 'op in ["value1", "value2"]'.
     Returns list of operation names if it is, None otherwise.
-    Handles both single comparisons and 'or' conditions.
     """
     ops = []
 
     # Check if left side is 'op'
     if isinstance(node.left, ast.Name) and node.left.id == "op":
-        for comparator in node.comparators:
-            if isinstance(comparator, ast.Constant) and isinstance(comparator.value, str):
-                ops.append(comparator.value)
+        # Check each comparison operator and comparator pair
+        for comp_op, comparator in zip(node.ops, node.comparators):
+            if isinstance(comp_op, ast.Eq):
+                # op == "value"
+                if isinstance(comparator, ast.Constant) and isinstance(comparator.value, str):
+                    ops.append(comparator.value)
+            elif isinstance(comp_op, ast.In):
+                # op in ["value1", "value2"] or op in ("value1", "value2")
+                if isinstance(comparator, (ast.List, ast.Tuple)):
+                    for elt in comparator.elts:
+                        if isinstance(elt, ast.Constant) and isinstance(elt.value, str):
+                            ops.append(elt.value)
 
     return ops if ops else None
 
@@ -461,6 +469,48 @@ def find_method(tree: ast.Module, method_name: str) -> ast.FunctionDef | None:
     return None
 
 
+class IfElifCollector(ast.NodeVisitor):
+    """Collect all if/elif statements from the AST."""
+
+    def __init__(self, source_lines: list[str]):
+        self.source_lines = source_lines
+        self.if_statements = []
+
+    def visit_If(self, node: ast.If) -> None:
+        """Visit an If node."""
+        # Extract the test condition
+        test_str = ast.unparse(node.test)
+        
+        # Get line information
+        line_num = node.lineno
+        end_line = node.end_lineno
+        
+        # Determine if this is an if or elif (by checking if it's in orelse of another If)
+        # We'll mark it during processing based on context
+        
+        # Extract the source code for this if/elif block
+        source_lines_range = self.source_lines[line_num - 1:end_line]
+        source_code = '\n'.join(source_lines_range)
+        
+        self.if_statements.append({
+            'type': 'if' if not hasattr(node, '_is_elif') else 'elif',
+            'line': line_num,
+            'end_line': end_line,
+            'condition': test_str,
+            'source': source_code,
+        })
+        
+        # Continue visiting nested nodes
+        self.generic_visit(node)
+
+
+def collect_all_if_elif(tree: ast.Module, source_lines: list[str]) -> list[dict]:
+    """Collect all if/elif statements from the AST tree."""
+    collector = IfElifCollector(source_lines)
+    collector.visit(tree)
+    return collector.if_statements
+
+
 def main():
     # Read source file
     with open(SOURCE_FILE, "r") as f:
@@ -473,6 +523,30 @@ def main():
 
     # Create output directory
     os.makedirs(OUTPUT_DIR, exist_ok=True)
+
+    # Collect all if/elif statements
+    all_if_elif = collect_all_if_elif(tree, source_lines)
+    
+    # Write all if/elif statements to a file
+    if_elif_output_path = os.path.join(OUTPUT_DIR, "all_if_elif_statements.txt")
+    with open(if_elif_output_path, "w") as f:
+        f.write("=" * 80 + "\n")
+        f.write("ALL IF/ELIF STATEMENTS FOUND BY AST PARSER\n")
+        f.write("=" * 80 + "\n\n")
+        
+        for i, stmt in enumerate(all_if_elif, 1):
+            f.write(f"Statement #{i}\n")
+            f.write(f"Type: {stmt['type'].upper()}\n")
+            f.write(f"Line: {stmt['line']} - {stmt['end_line']}\n")
+            f.write(f"Condition: {stmt['condition']}\n")
+            f.write(f"Source Code:\n")
+            f.write("-" * 40 + "\n")
+            f.write(stmt['source'] + "\n")
+            f.write("-" * 40 + "\n")
+            f.write("\n")
+    
+    print(f"Found {len(all_if_elif)} if/elif statements")
+    print(f"Written to: {if_elif_output_path}")
 
     # Process each method
     for method_name in STEP_METHODS:
