@@ -135,6 +135,7 @@
 #                 Add "annot-check-ccd-definition" operator
 # 19-Jan-2025 zf  Add "annot-get-em-exp-info"
 # 10-Nov-2025 cs  Add op of "metal-findgeo", "metal-metalcoord-stats", "metal-metalcoord-update", calling dp.metal submodules
+# 10-Nov-2025 cs  split op of "metal-findgeo" into "metal-findgeo-stats" for Entry annotation and "metal-findgeo-update" for CCD annotation
 ##
 """
 Wrapper class for data processing and chemical component utilities.
@@ -256,7 +257,8 @@ class RcsbDpUtility:
             "chem-ref-load",
             "chem-ref-run-setup",
             "chem-ref-run-update",
-            "metal-findgeo",
+            "metal-findgeo-stats",
+            "metal-findgeo-update",
             "metal-metalcoord-stats",
             "metal-metalcoord-update",
         ]
@@ -3865,14 +3867,12 @@ class RcsbDpUtility:
             cmd += thisCmd
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " > " + lPath
 
-        elif op == "metal-findgeo":
-            # changes to the default FindGeo options must be set before setting self.op("metal-findgeo"), e.g.
-            # self.addInput(name="excluded-donors", value="H")  # for checking carbon-metal interaction
+        elif op == "metal-findgeo-stats":
+            # changes to the default FindGeo options must be set before setting self.op("metal-findgeo-stats"), e.g.
             # self.addInput(name="metal", value="Fe")  # run on a specific metal element only
             # self.addInput(name="excluded-metals", value="Mg,Ca")  # exlcuding a list of metal elements
             # self.addInput(name="threshold", value="2.9")  # extend the default 2.8 range search
             # self.addInput(name="workdir", value="/tmp")  # output to a folder other than the default "./findgeo"
-
             # self.setTimeout(1800)  # set timeout to 30 minutes for FindGeo processing if needed
 
             # retrieve java binary and FindGeo jar file from package path
@@ -3913,12 +3913,68 @@ class RcsbDpUtility:
             l_findgeo_args = []
             for key_new, value_new in d_findgeo_args.items():
                 l_findgeo_args.append(f"--{key_new} {value_new}")
+                l_findgeo_args.append("--compare-donors")
 
             # run FindGeo and parse results into <workdir>/findgeo_report.json, which will be copied as result file
             cmd += f" ; python -m wwpdb.utils.dp.metal.findgeo.processFindGeo {' '.join(l_findgeo_args)}"
             cmd += f" ; cp {os.path.join(workdir, 'findgeo_report.json')} {oPath}"
             cmd += f" > {tPath} 2>&1 ; cat {tPath} > {lPath}"
-            logger.info("to run metal-findgeo full commands: %s", cmd)
+            logger.info("to run metal-findgeo-stats full commands: %s", cmd)
+
+        elif op == "metal-findgeo-update":
+            # changes to the default FindGeo options must be set before setting self.op("metal-findgeo-update"), e.g.
+            # self.addInput(name="metal", value="Fe")  # run on a specific metal element only
+            # self.addInput(name="excluded-metals", value="Mg,Ca")  # exlcuding a list of metal elements
+            # self.addInput(name="threshold", value="2.9")  # extend the default 2.8 range search
+            # self.addInput(name="workdir", value="/tmp")  # output to a folder other than the default "./findgeo"
+            # self.setTimeout(1800)  # set timeout to 30 minutes for FindGeo processing if needed
+
+            # retrieve java binary and FindGeo jar file from package path
+            java_exe = os.path.join(self.__packagePath, "java", "jre", "bin", "java")
+            logger.info("To use java executable at %s", java_exe)
+            if not os.path.exists(java_exe):
+                java_exe = "java"  # fallback to just "java" in case it's in PATH
+            findgeo_locations = [
+                os.path.join(self.__packagePath, "FindGeo", "FindGeo.jar"),
+                os.path.join(self.__packagePath, "metallo", "FindGeo", "FindGeo.jar")
+            ]
+            findgeo_jar = next((path for path in findgeo_locations if os.path.exists(path)), None)
+            if findgeo_jar:
+                logger.info("To use FindGeo Jar file at %s", findgeo_jar)
+            else:
+                logger.error("Cannot find FindGeo Jar file in packagePath")
+
+            # create a copy of input file with .cif extension for FindGeo to work
+            fn_input = iPath.strip() + ".cif"  # must have .cif extension for FindGeo to work
+            cmd += f" ; cp {iPath} {fn_input}"
+
+            # start constructing FindGeo command line arguments
+            d_findgeo_args = {
+                "java-exe": java_exe,
+                "findgeo-jar": findgeo_jar,
+                "input": fn_input,
+            }
+
+            # add caller-specified FindGeo options if added to self.__inputParamDict by self.addInput()
+            logger.info("findgeo caller-set options: %s", self.__inputParamDict)
+            workdir = "findgeo"  # default FindGeo output subfolder within the session folder
+            for key, value in self.__inputParamDict.items():
+                if key in ["excluded-donors", "metal", "excluded-metals", "threshold", "workdir", "pdb", "java-exe", "findgeo-jar", "input"]:
+                    d_findgeo_args[key] = value  # add or override defaults with caller-specified options
+                if key == "workdir":
+                    workdir = value  # update workdir if specified by caller
+
+            l_findgeo_args = []
+            for key_new, value_new in d_findgeo_args.items():
+                l_findgeo_args.append(f"--{key_new} {value_new}")
+                l_findgeo_args.append("--compare-donors")
+                l_findgeo_args.append("--filter")
+
+            # run FindGeo and parse results into <workdir>/findgeo_report.json, which will be copied as result file
+            cmd += f" ; python -m wwpdb.utils.dp.metal.findgeo.processFindGeo {' '.join(l_findgeo_args)}"
+            cmd += f" ; cp {os.path.join(workdir, 'findgeo_report.json')} {oPath}"
+            cmd += f" > {tPath} 2>&1 ; cat {tPath} > {lPath}"
+            logger.info("to run metal-findgeo-update full commands: %s", cmd)
 
         elif op == "metal-metalcoord-stats":
             # changes to the default metalcoord options must be set before setting self.op("metal-metalcoord-stats"), e.g.

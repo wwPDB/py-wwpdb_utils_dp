@@ -15,10 +15,10 @@ from mmcif.io.IoAdapterCore import IoAdapterCore
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from wwpdb.utils.dp.metal.metal_util.readRef import readRefCoordNum, readRefCoordMap, readRefRedOx
+    from wwpdb.utils.dp.metal.metal_util.readRef import readRefCoordNum, readRefCoordMap, readRefRedOx, readRefMetalCarbon, readRefCoordException
 else:
     sys.path.append(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "metal_util"))
-    from readRef import readRefCoordNum, readRefCoordMap, readRefRedOx  # noqa: E402
+    from readRef import readRefCoordNum, readRefCoordMap, readRefRedOx, readRefMetalCarbon, readRefCoordException  # noqa: E402
 
 logger = logging.getLogger(__name__)
 
@@ -36,6 +36,8 @@ class ParseFindGeo:
         self.l_sites = []
         self.d_coord_num = readRefCoordNum()
         self.d_coord_map = readRefCoordMap("FindGeo")
+        self.l_carbon_metal = readRefMetalCarbon()
+        self.d_coord_exception = readRefCoordException()
         (self.d_redox, self.d_oxi) = readRefRedOx()
 
     def parse(self):
@@ -97,6 +99,17 @@ class ParseFindGeo:
             d_tophit["oxidation_state"] = self.d_oxi.get(metal)
         else:
             d_tophit["oxidation_state"] = ""
+        
+        if metal in self.l_carbon_metal:
+            d_tophit["carbon_metal"] = "YES"
+        else:            
+            d_tophit["carbon_metal"] = "NO"
+
+        if metal in self.d_coord_exception:
+            if d_tophit["class"] in self.d_coord_exception[metal]["Geometry-exclusion-FindGeo"]:
+                d_tophit["class_in_exception"] = "YES"
+            else:
+                d_tophit["class_in_exception"] = "NO"
 
         return d_tophit
 
@@ -223,7 +236,15 @@ class ParseFindGeo:
                 d_tophit["class"] = "irregular"
                 d_tophit["class_abbr"] = ""
                 d_tophit["tag"] = "Irregular"
-                d_tophit["rmsd"] = ""
+                lowest_rmsd = 999
+                for d_hit in l_hit:
+                    try:
+                        rmsd = float(d_hit["rmsd"])
+                        if rmsd < lowest_rmsd:
+                            lowest_rmsd = rmsd
+                    except ValueError:
+                        continue
+                d_tophit["rmsd"] = str(lowest_rmsd) if lowest_rmsd < 999 else ""
                 logger.warning("best geometry is irregular in %s, no geometry parameters output", filepath)
                 return d_tophit
 
@@ -328,7 +349,8 @@ class ParseFindGeo:
         """
         key_order = ["metal", "metalElement", "chain", "residue", "sequence", "icode", "altloc",
                      "coordination", "class", "class_abbr", "class_generic", "tag", "rmsd",
-                     "coordination_number_allowed", "redox_active", "oxidation_state"]
+                     "coordination_number_allowed", "redox_active", "oxidation_state",
+                     "carbon_metal", "class_in_exception"]
         l_sorted = []
         for d_row in self.l_sites:
             d_row_sorted = OrderedDict((key, d_row[key]) for key in key_order if key in d_row)

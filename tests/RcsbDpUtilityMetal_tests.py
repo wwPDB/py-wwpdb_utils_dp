@@ -30,10 +30,10 @@ logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 
-class TestFindGeo(unittest.TestCase):
+class TestFindGeoStats(unittest.TestCase):
     """
     -----------
-    Unit test for running the ``metal-findgeo`` operation of :class:`RcsbDpUtility`
+    Unit test for running the ``metal-findgeo-stats`` operation of :class:`RcsbDpUtility`
 
     ~~~~~
     - Initialize test environment variables and logging:
@@ -44,13 +44,13 @@ class TestFindGeo(unittest.TestCase):
     - Instantiate :class:`RcsbDpUtility` as ``self.dp`` with the above settings.
     - Define file paths:
         - ``self.fp_in`` -- path to input CIF (``TEST_DATA_DIR/"4DHV-internal.cif"``)
-        - ``self.fp_out`` -- expected output JSON path (``TEST_OUTPUT_DIR/"4DHV-metal-findgeo.json"``)
+        - ``self.fp_out`` -- expected output JSON path (``TEST_OUTPUT_DIR/"4DHV-metal-findgeo-stats.json"``)
 
     Test flow
     ~~~~~~~~~
     1. Enable debug mode on the data-processing utility::
     2. Import the CIF input::
-    3. Run the ``metal-findgeo`` operation::
+    3. Run the ``metal-findgeo-stats`` operation::
          - The test asserts that ``rt == 0`` indicating success.
     4. Export the operation result to ``self.fp_out``::
          - Assert that the exported file exists.
@@ -83,7 +83,7 @@ class TestFindGeo(unittest.TestCase):
         self.dp = RcsbDpUtility(tmpPath=self.__sessionPath, siteId=self.__siteId, verbose=self.__verbose, log=self.__lfh)
 
         self.fp_in = os.path.join(TEST_DATA_DIR, "4DHV-internal.cif")
-        self.fp_out = os.path.join(TEST_OUTPUT_DIR, "4DHV-metal-findgeo.json")
+        self.fp_out = os.path.join(TEST_OUTPUT_DIR, "4DHV-metal-findgeo-stats.json")
 
     def tearDown(self):
         # shutil.rmtree(TEST_OUTPUT_DIR, ignore_errors=True)  # enable cleanup after debugging
@@ -101,7 +101,96 @@ class TestFindGeo(unittest.TestCase):
         # self.dp.addInput(name="threshold", value="2.9")  # extend the default 2.8 range search
         # self.dp.addInput(name="workdir", value="/tmp")  # output findgeo temporary calculation data to a folder other than the default "./findgeo"
 
-        rt = self.dp.op("metal-findgeo")
+        rt = self.dp.op("metal-findgeo-stats")
+        logger.info("run FindGeo on %s with return code %s", self.fp_in, rt)
+        self.assertEqual(rt, 0)
+
+        try:
+            self.dp.exp(self.fp_out)
+            logger.info("test output filepath: %s", self.fp_out)
+            self.assertTrue(os.path.exists(self.fp_out))  # check if test file exists
+
+            with open(self.fp_out) as f:
+                data = json.load(f)
+                self.assertTrue(data)  # check if test file is empty
+
+        except Exception as e:
+            logger.exception("Failed to export: %s", e)
+            raise
+
+
+class TestFindGeoUpdate(unittest.TestCase):
+    """
+    -----------
+    Unit test for running the ``metal-findgeo-update`` operation of :class:`RcsbDpUtility`
+
+    ~~~~~
+    - Initialize test environment variables and logging:
+        - :attr:`__siteId` -- obtained via :func:`getSiteId`
+        - :attr:`__sessionPath` -- ``TEST_OUTPUT_DIR``
+        - :attr:`__verbose` -- ``False``
+        - :attr:`__lfh` -- ``sys.stderr``
+    - Instantiate :class:`RcsbDpUtility` as ``self.dp`` with the above settings.
+    - Define file paths:
+        - ``self.fp_in`` -- path to input CIF (``TEST_DATA_DIR/"4DHV-internal.cif"``)
+        - ``self.fp_out`` -- expected output JSON path (``TEST_OUTPUT_DIR/"4DHV-metal-findgeo-update.json"``)
+
+    Test flow
+    ~~~~~~~~~
+    1. Enable debug mode on the data-processing utility::
+    2. Import the CIF input::
+    3. Run the ``metal-findgeo-update`` operation::
+         - The test asserts that ``rt == 0`` indicating success.
+    4. Export the operation result to ``self.fp_out``::
+         - Assert that the exported file exists.
+         - Open and JSON-load the file and assert the resulting object is non-empty.
+    5. Any exceptions raised during export are logged and re-raised to surface failures.
+
+    Configurable behaviors
+    ~~~~~~~~~~~~~~~~~~~~~~
+    Optional inputs illustrated by commented examples in the test:
+    - ``excluded-donors`` -- element symbols to exclude as donors (e.g., ``"H"``).
+    - ``excluded-metals`` -- comma-separated metal elements to exclude (e.g., ``"Mg,Ca"``).
+    - ``metal`` -- restrict search to a specific metal element (e.g., ``"Fe"``).
+    - ``threshold`` -- distance threshold override (e.g., ``"2.9"``).
+    - ``workdir`` -- alternate temporary working directory for findgeo intermediate files.
+
+    ~~~~~
+    - This is a functional/integration-style unit test that depends on external test
+        data and the :class:`RcsbDpUtility` implementation.
+    - The test verifies end-to-end behavior (import → operation → export) and checks
+        only basic non-emptiness of the resulting JSON; it does not assert detailed
+        correctness of the findgeo output content.
+    """
+
+    def setUp(self):
+        self.__siteId = getSiteId()
+        self.__sessionPath = TEST_OUTPUT_DIR
+        self.__verbose = False
+        self.__lfh = sys.stderr
+
+        self.dp = RcsbDpUtility(tmpPath=self.__sessionPath, siteId=self.__siteId, verbose=self.__verbose, log=self.__lfh)
+
+        self.fp_in = os.path.join(TEST_DATA_DIR, "4DHV-internal.cif")
+        self.fp_out = os.path.join(TEST_OUTPUT_DIR, "4DHV-metal-findgeo-update.json")
+
+    def tearDown(self):
+        # shutil.rmtree(TEST_OUTPUT_DIR, ignore_errors=True)  # enable cleanup after debugging
+        pass
+
+    def test(self):
+        self.dp.setDebugMode(flag=True)
+        assert os.path.exists(self.fp_in), "Input file missing!"
+        self.dp.imp(self.fp_in)
+        logger.info("test input filepath: %s", self.fp_in)
+
+        # self.dp.addInput(name="excluded-donors", value="H")  # for checking carbon-metal interaction
+        # self.dp.addInput(name="excluded-metals", value="Mg,Ca")  # exlcuding a list of metal elements
+        # self.dp.addInput(name="metal", value="Fe")  # run on a specific metal element only
+        # self.dp.addInput(name="threshold", value="2.9")  # extend the default 2.8 range search
+        # self.dp.addInput(name="workdir", value="/tmp")  # output findgeo temporary calculation data to a folder other than the default "./findgeo"
+
+        rt = self.dp.op("metal-findgeo-update")
         logger.info("run FindGeo on %s with return code %s", self.fp_in, rt)
         self.assertEqual(rt, 0)
 
@@ -309,7 +398,8 @@ def suite():
     loader = unittest.TestLoader()
     test_suite = unittest.TestSuite()
 
-    test_suite.addTests(loader.loadTestsFromTestCase(TestFindGeo))
+    test_suite.addTests(loader.loadTestsFromTestCase(TestFindGeoStats))
+    test_suite.addTests(loader.loadTestsFromTestCase(TestFindGeoUpdate))
     test_suite.addTests(loader.loadTestsFromTestCase(TestMetalCoordStats))
     test_suite.addTests(loader.loadTestsFromTestCase(TestMetalCoordUpdate))
 

@@ -90,6 +90,51 @@ def readRefCoordMap(program):
     return d_coord_map
 
 
+def readRefMetalCarbon():
+    """
+    Reads a CSV file containing elements of candidate for metal-carbon bond and returns list of elements.
+
+    :returns: list of element names (str).
+    :rtype: list
+
+    .. note::
+        - Assumes the CSV file is located at ``REF_PATH/carbon_metal_bond.csv`` and contains columns named ``Metals`` and ``ccd_ids``.
+    """
+
+    filepath = os.path.join(REF_PATH, "carbon_metal_bond.csv")
+    l_metal_carbon = []
+    with open(filepath) as f:
+        reader = csv.DictReader(f, delimiter="\t")
+        for d_row in reader:
+            metal = d_row['Metals'].strip()
+            l_metal_carbon.append(metal)
+    return l_metal_carbon
+
+
+def readRefCoordException():
+    """
+    Reads a CSV file containing threshold and exceptions for coordination classes annotation on CCD and returns a dictionary mapping metal element.
+
+    :returns: A dictionary where keys are metal names (str) and values are dict of threshold and exception geometries.
+    :rtype: dict
+
+    .. note::
+        - Assumes the CSV file is located at ``REF_PATH/threshold_exception_ccd_annotation.csv``.
+    """
+
+    filepath = os.path.join(REF_PATH, "threshold_exception_ccd_annotation.csv")
+    d_coord_exception = {}
+    with open(filepath) as f:
+        reader = csv.DictReader(f, delimiter="\t")
+        for d_row in reader:
+            metal = d_row['Element'].strip()
+            d_one = {}
+            for item in ['Percent-threshold', 'Geometry-exclusion-FindGeo', 'Geometry-exclusion-MetalCoord']:
+                d_one[item] = d_row[item].strip()
+            d_coord_exception[metal] = d_one
+    return d_coord_exception
+
+
 # def main():
 #     d_coord_num = readRefCoordNum()
 #     print(d_coord_num)
@@ -100,6 +145,10 @@ def readRefCoordMap(program):
 #     (d_redox, d_oxi) = readRefRedOx()
 #     print(d_redox)
 #     print(d_oxi)
+#     (l_metal_carbon) = readRefMetalCarbon()
+#     print(l_metal_carbon)
+#     (d_coord_exception) = readRefCoordException()
+#     print(d_coord_exception["Mg"])
 
 # if __name__ == "__main__":
 #     main()
