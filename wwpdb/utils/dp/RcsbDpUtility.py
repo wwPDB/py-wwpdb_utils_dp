@@ -4031,7 +4031,10 @@ class RcsbDpUtility:
             l_metalcoord_args = []
             for key_new, value_new in d_metalcoord_args.items():
                 l_metalcoord_args.append(f"--{key_new} {value_new}")
-
+            
+            # limit CPU/threads
+            n_cpu = os.cpu_count()/4
+            cmd += f" ; OMP_NUM_THREADS={n_cpu}; export OMP_NUM_THREADS"
             # run metalcoord and parse results into <workdir>/metalcoord_report.json, which will be copied as result file
             cmd += f" ; python -m wwpdb.utils.dp.metal.metalcoord.processMetalCoordStats {' '.join(l_metalcoord_args)}"
             cmd += f" ; cp {os.path.join(workdir, 'metalcoord_report.json')} {oPath}"
@@ -4093,7 +4096,9 @@ class RcsbDpUtility:
             for key_new, value_new in d_metalcoord_args.items():
                 l_metalcoord_args.append(f"--{key_new} {value_new}")
                 l_metalcoord_args.append(f"--filter")
-
+            # limit CPU/threads
+            n_cpu = os.cpu_count()/4
+            cmd += f" ; OMP_NUM_THREADS={n_cpu}; export OMP_NUM_THREADS"
             # run metalcoord and parse results into <workdir>/metalcoord_report.json, which will be copied as result file
             cmd += f" ; python -m wwpdb.utils.dp.metal.metalcoord.processMetalCoordStats {' '.join(l_metalcoord_args)}"
             cmd += f" ; cp {os.path.join(workdir, 'metalcoord_report.json')} {oPath}"
@@ -4152,7 +4157,9 @@ class RcsbDpUtility:
             l_metalcoord_args = []
             for key_new, value_new in d_metalcoord_args.items():
                 l_metalcoord_args.append(f"--{key_new} {value_new}")
-
+            # limit CPU/threads
+            n_cpu = os.cpu_count()/4
+            cmd += f" ; OMP_NUM_THREADS={n_cpu}; export OMP_NUM_THREADS"
             # run metalcoord and generate updated ligand cif at <workdir>/servalcat_updated.cif, which will be
             # copied as result file with charge and ideal coordinates; coordination info will be parsed and copied
             # into <workdir>/metalcoord_report.json;
