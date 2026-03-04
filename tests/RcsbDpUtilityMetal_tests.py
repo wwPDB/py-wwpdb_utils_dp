@@ -488,9 +488,10 @@ def suite():
     loader = unittest.TestLoader()
     test_suite = unittest.TestSuite()
 
-    test_suite.addTests(loader.loadTestsFromTestCase(TestFindGeoStats))
-    test_suite.addTests(loader.loadTestsFromTestCase(TestFindGeoUpdate))
+    test_suite.addTests(loader.loadTestsFromTestCase(TestFindGeo))
+    test_suite.addTests(loader.loadTestsFromTestCase(TestFindGeoFilterRegular))
     test_suite.addTests(loader.loadTestsFromTestCase(TestMetalCoordStats))
+    test_suite.addTests(loader.loadTestsFromTestCase(TestMetalCoordStatsFilterRegular))
     test_suite.addTests(loader.loadTestsFromTestCase(TestMetalCoordUpdate))
 
     return test_suite
