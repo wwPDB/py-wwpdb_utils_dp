@@ -195,17 +195,13 @@ def main():
         pMC.parse()
         l_sites_filtered = []
         for d_site in pMC.l_sites:
-        # filter output for CCD annotation
+        # filter to keep only regular geometry for CCD annotation
             # filter out empty class
             if not d_site.get("class").strip():
                 continue
-            # filter out procrustes > 0.2 or minus, or non-value
-            try:
-                procrustes = float(d_site.get("procrustes"))
-                if procrustes > 0.2 or procrustes < 0:
-                    continue
-            except ValueError:
-                continue  # also skip non-value output
+            # filter out non-Regular sites
+            if d_site.get("tag") != "Regular":
+                continue
             # filter out sites with non-allowed coordination number
             if d_site.get("coordination_number_allowed") == "NO":
                 continue

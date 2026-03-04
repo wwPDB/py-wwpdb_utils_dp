@@ -130,6 +130,7 @@ class ParseMetalCoord:
                 d_tophit["class_generic"] = ""
 
             metal = d_tophit["metalElement"]
+            # check against allowed coordination number
             if metal in self.d_coord_num:
                 allowed_coord_num = self.d_coord_num.get(metal)
                 if str(d_tophit["coordination"]) in allowed_coord_num:
@@ -138,34 +139,43 @@ class ParseMetalCoord:
                     d_tophit["coordination_number_allowed"] = "NO"
             else:
                 d_tophit["coordination_number_allowed"] = ""
-
+            # add redox marker
             if metal in self.d_redox:
                 d_tophit["redox_active"] = self.d_redox.get(metal)
             else:
                 d_tophit["redox_active"] = ""
-
+            # add oxidation state
             if metal in self.d_oxi:
                 d_tophit["oxidation_state"] = self.d_oxi.get(metal)
             else:
                 d_tophit["oxidation_state"] = ""
-
+            # add carbon_metal bond marker
             if metal in self.l_carbon_metal:
                 d_tophit["carbon_metal"] = "YES"
             else:            
                 d_tophit["carbon_metal"] = "NO"
-
+            # add exception marker
             if metal in self.d_coord_exception:
                 if d_tophit["class"] in self.d_coord_exception[metal]["Geometry-exclusion-MetalCoord"]:
                     d_tophit["class_in_exception"] = "YES"
                 else:
                     d_tophit["class_in_exception"] = "NO"
+            # mark positive procrustes < 0.2 as regular, and rest as irregular
+            try:
+                procrustes = float(d_tophit["procrustes"])
+                if procrustes >= 0 and procrustes <= 0.2:
+                    d_tophit["tag"] = "Regular"
+                else:
+                    d_tophit["tag"] = "Irregular"  # >0.2 or -1 marked as irregular
+            except ValueError:
+                d_tophit["tag"] = "Irregular"  # non-value output marked as irregular
 
     def sort(self):
         """
         sort self.l_sites
         """
         key_order = ["metal", "metalElement", "chain", "residue", "sequence", "icode", "altloc", "coordination", "class",
-                     "class_abbr", "class_generic", "descriptor", "procrustes", "count", "coordination_number_allowed",
+                     "class_abbr", "class_generic", "tag", "procrustes", "count", "descriptor", "coordination_number_allowed",
                      "redox_active", "oxidation_state", "carbon_metal", "class_in_exception", "sphere"]
         l_sorted = []
         for d_row in self.l_sites:

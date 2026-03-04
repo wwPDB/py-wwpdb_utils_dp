@@ -8,6 +8,7 @@ parses the output, and generates a report JSON file.
 """
 
 import argparse
+import json
 import logging
 import os
 import sys
@@ -40,6 +41,7 @@ def main():
     parser.add_argument("-p", "--pdb", help="PDB code or pdb file", type=str, required=True)
     parser.add_argument("-x", "--max_size", help="Maximum sample size for statistics.", type=int, default=100)
     parser.add_argument("-t", "--threshold", help="Procrustes distance threshold for finding COD reference.", type=float, default=0.3)
+    parser.add_argument("-z", "--filter", help="Filter to output regular geometry only for CCD annotation", action="store_true", default=False)
     args = parser.parse_args()
 
     l_args = ["metalcoord_exe", "workdir", "pdb", "max_size", "threshold"]
@@ -77,9 +79,30 @@ def main():
             pMC.parse()
         else:
             logger.error("failed to read MetalCoord results at %s, no output", fp_metalcoord_json)
-        output_json = os.path.join(d_args["workdir"], "metalcoord_report.json")
-        pMC.report(output_json)
-        logger.info("MetalCoord results written to %s", output_json)
+    if args.filter:
+        l_sites_filtered = []
+        for d_site in pMC.l_sites:
+        # filter to keep only regular geometry for CCD annotation
+            # filter out empty class
+            if not d_site.get("class").strip():
+                continue
+            # filter out non-Regular sites
+            if d_site.get("tag") != "Regular":
+                continue
+            # filter out sites with non-allowed coordination number
+            if d_site.get("coordination_number_allowed") == "NO":
+                continue
+            # filter out exception class
+            if d_site.get("class_in_exception") == "YES":
+                continue
+            # if not filtered out by any of the above criteria, add to the filtered list
+            l_sites_filtered.append(d_site)
+    else:
+        l_sites_filtered = pMC.l_sites
+    output_json = os.path.join(d_args["workdir"], "metalcoord_report.json")
+    with open(output_json, "w") as file:
+        json.dump(l_sites_filtered, file, indent=4)        
+    logger.info("MetalCoord results written to %s", output_json)
 
 
 if __name__ == "__main__":

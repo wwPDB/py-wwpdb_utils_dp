@@ -135,7 +135,7 @@
 #                 Add "annot-check-ccd-definition" operator
 # 19-Jan-2025 zf  Add "annot-get-em-exp-info"
 # 10-Nov-2025 cs  Add op of "metal-findgeo", "metal-metalcoord-stats", "metal-metalcoord-update", calling dp.metal submodules
-# 10-Nov-2025 cs  split op of "metal-findgeo" into "metal-findgeo-stats" for Entry annotation and "metal-findgeo-update" for CCD annotation
+# 04-Mar-2026 cs  Add op of "metal-findgeo-filter-regular" and "metal-metalcoord-filter-regular" to filter only regular geometry in for CCD annotation
 ##
 """
 Wrapper class for data processing and chemical component utilities.
@@ -257,10 +257,11 @@ class RcsbDpUtility:
             "chem-ref-load",
             "chem-ref-run-setup",
             "chem-ref-run-update",
-            "metal-findgeo-stats",
-            "metal-findgeo-update",
-            "metal-metalcoord-stats",
+            "metal-findgeo",
+            "metal-findgeo-filter-regular",
             "metal-metalcoord-update",
+            "metal-metalcoord-stats",
+            "metal-metalcoord-stats-filter-regular",
         ]
         self.__pisaOps = [
             "pisa-analysis",
@@ -3867,8 +3868,8 @@ class RcsbDpUtility:
             cmd += thisCmd
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " > " + lPath
 
-        elif op == "metal-findgeo-stats":
-            # changes to the default FindGeo options must be set before setting self.op("metal-findgeo-stats"), e.g.
+        elif op == "metal-findgeo":
+            # changes to the default FindGeo options must be set before setting self.op("metal-findgeo"), e.g.
             # self.addInput(name="metal", value="Fe")  # run on a specific metal element only
             # self.addInput(name="excluded-metals", value="Mg,Ca")  # exlcuding a list of metal elements
             # self.addInput(name="threshold", value="2.9")  # extend the default 2.8 range search
@@ -3919,10 +3920,10 @@ class RcsbDpUtility:
             cmd += f" ; python -m wwpdb.utils.dp.metal.findgeo.processFindGeo {' '.join(l_findgeo_args)}"
             cmd += f" ; cp {os.path.join(workdir, 'findgeo_report.json')} {oPath}"
             cmd += f" > {tPath} 2>&1 ; cat {tPath} > {lPath}"
-            logger.info("to run metal-findgeo-stats full commands: %s", cmd)
+            logger.info("to run metal-findgeo full commands: %s", cmd)
 
-        elif op == "metal-findgeo-update":
-            # changes to the default FindGeo options must be set before setting self.op("metal-findgeo-update"), e.g.
+        elif op == "metal-findgeo-filter-regular":
+            # changes to the default FindGeo options must be set before setting self.op("metal-findgeo-filter-regular"), e.g.
             # self.addInput(name="metal", value="Fe")  # run on a specific metal element only
             # self.addInput(name="excluded-metals", value="Mg,Ca")  # exlcuding a list of metal elements
             # self.addInput(name="threshold", value="2.9")  # extend the default 2.8 range search
@@ -3974,7 +3975,7 @@ class RcsbDpUtility:
             cmd += f" ; python -m wwpdb.utils.dp.metal.findgeo.processFindGeo {' '.join(l_findgeo_args)}"
             cmd += f" ; cp {os.path.join(workdir, 'findgeo_report.json')} {oPath}"
             cmd += f" > {tPath} 2>&1 ; cat {tPath} > {lPath}"
-            logger.info("to run metal-findgeo-update full commands: %s", cmd)
+            logger.info("to run metal-findgeo-filter-regular full commands: %s", cmd)
 
         elif op == "metal-metalcoord-stats":
             # changes to the default metalcoord options must be set before setting self.op("metal-metalcoord-stats"), e.g.
@@ -4037,8 +4038,70 @@ class RcsbDpUtility:
             cmd += f" > {tPath} 2>&1 ; cat {tPath} > {lPath}"
             logger.info("to run metal-metalcoord-stats full commands: %s", cmd)
 
+        elif op == "metal-metalcoord-stats-filter-regular":
+            # changes to the default metalcoord options must be set before setting self.op("metal-metalcoord-stats-filter-regular"), e.g.
+            # self.addInput(name="ligands", value=["0KA", "NCO"])  # list or string of CCD ID(s) of the metal ligand to check on, accepts comma-separated string or list of strings
+            # self.addInput(name="max_size", value="2000")  # Maximum sample size for reference statistics.
+            # self.addInput(name="threshold", value="0.2")  # Procrustes distance threshold for finding COD reference.
+            # self.addInput(name="workdir", value="/tmp")  # output to a folder other than the default "./metalcoord"
+            # self.addInput(name="pdb", value="4DHV")  # PDB code or pdb file as input
+            # self.addInput(name="metalcoord_exe", value="")  # MetalCoord executable file, only use for testing new versions
+
+            # self.setTimeout(1800)  # set timeout to 30 minutes for metalcoord processing if needed
+
+            # retrieve metalcoord executable from package path, first check standalone, then CCP4 package
+            metalcoord_exe_standalone = os.path.join(self.__packagePath, "metallo", "metalcoord", "bin", "metalCoord")
+            if os.path.exists(metalcoord_exe_standalone):
+                metalcoord_exe = metalcoord_exe_standalone
+            else:
+                ccp4_setup = os.path.join(self.__packagePath, "metallo", "ccp4-9", "bin", "ccp4.setup-sh")
+                cmd += f" ; source {ccp4_setup} "
+                metalcoord_exe_ccp4 = os.path.join(self.__packagePath, "metallo", "ccp4-9", "bin", "metalCoord")
+                if os.path.exists(metalcoord_exe_ccp4):
+                    metalcoord_exe = metalcoord_exe_ccp4
+                else:
+                    logger.error("MetalCoord executable not found in either standalone or CCP4 package paths.")
+                    metalcoord_exe = "metalCoord"  # fallback to just "metalCoord" in case it's in PATH
+            logger.info("To use MetalCoord executable at %s", metalcoord_exe)
+
+            # create a copy of model coordinates input file with .cif extension for MetalCoord to work
+            fn_input = iPath.strip() + ".cif"  # must have .cif extension for MetalCoord to work
+            cmd += f" ; cp {iPath} {fn_input}"
+
+            # start constructing metalcoord command line arguments
+            d_metalcoord_args = {
+                "metalcoord_exe": metalcoord_exe,
+                "pdb": fn_input,
+            }
+
+            # add caller-specified metalcoord options if added to self.__inputParamDict by self.addInput()
+            logger.info("metalcoord caller-set options: %s", self.__inputParamDict)
+            workdir = "metalcoord"  # default metalcoord output subfolder within the session folder
+            for key, value in self.__inputParamDict.items():
+                if key == "ligands":  # list or string of CCD ID(s) of the metal ligand to check on
+                    if isinstance(value, list):
+                        s_value = ','.join(value)
+                        d_metalcoord_args["ligands"] = s_value
+                    else:
+                        d_metalcoord_args["ligands"] = value
+                if key in ["max_size", "threshold", "workdir", "pdb", "metalcoord_exe"]:
+                    d_metalcoord_args[key] = value  # add or override defaults with caller-specified options
+                if key == "workdir":
+                    workdir = value  # update workdir if specified by caller
+
+            l_metalcoord_args = []
+            for key_new, value_new in d_metalcoord_args.items():
+                l_metalcoord_args.append(f"--{key_new} {value_new}")
+                l_metalcoord_args.append(f"--filter")
+
+            # run metalcoord and parse results into <workdir>/metalcoord_report.json, which will be copied as result file
+            cmd += f" ; python -m wwpdb.utils.dp.metal.metalcoord.processMetalCoordStats {' '.join(l_metalcoord_args)}"
+            cmd += f" ; cp {os.path.join(workdir, 'metalcoord_report.json')} {oPath}"
+            cmd += f" > {tPath} 2>&1 ; cat {tPath} > {lPath}"
+            logger.info("to run metal-metalcoord-stats-filter-regular full commands: %s", cmd)
+
         elif op == "metal-metalcoord-update":
-            # changes to the default metalcoord options must be set before setting self.op("metal-metalcoord-stats"), e.g.
+            # changes to the default metalcoord options must be set before setting self.op("metal-metalcoord-update"), e.g.
 
             # self.addInput(name="acedrg_exe", value="")  # Acedrg executable file, only use for testing new versions
             # self.addInput(name="metalcoord_exe", value="")  # MetalCoord executable file, only use for testing new versions

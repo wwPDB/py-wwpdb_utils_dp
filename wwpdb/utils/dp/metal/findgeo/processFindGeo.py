@@ -337,7 +337,7 @@ def main():
     parser.add_argument("-b", "--java-exe", help="Java executable filepath", type=str, required=True)
     parser.add_argument("-a", "--findgeo-jar", help="FindGeo compiled jar filepath", type=str, required=True)
     parser.add_argument("-c", "--compare-donors", help="Run comparison between excluding carbon donors or not", action="store_true", default=False)
-    parser.add_argument("-z", "--filter", help="Filter output for CCD annotation", action="store_true", default=False)
+    parser.add_argument("-z", "--filter", help="Filter to output regular geometry only for CCD annotation", action="store_true", default=False)
     args = parser.parse_args()
 
     l_args = ["excluded-donors", "format", "input", "metal", "overwright", "pdb", "threshold", "workdir", "excluded-metals", "java-exe", "findgeo-jar"]
@@ -364,6 +364,7 @@ def main():
             l_sites = json.load(f)
         l_sites_filtered = []
         for d_site in l_sites:
+        # filter to keep only regular geometry for CCD annotation
             # filter out empty class
             if not d_site.get("class").strip():
                 continue
