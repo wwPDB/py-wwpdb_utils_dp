@@ -364,6 +364,9 @@ def main():
             l_sites = json.load(f)
         l_sites_filtered = []
         for d_site in l_sites:
+            # filter out empty class
+            if not d_site.get("class").strip():
+                continue
             # filter out non-Regular sites
             if d_site.get("tag") != "Regular":
                 continue

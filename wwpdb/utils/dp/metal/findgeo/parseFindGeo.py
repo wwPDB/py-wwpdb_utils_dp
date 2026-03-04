@@ -36,9 +36,9 @@ class ParseFindGeo:
         self.l_sites = []
         self.d_coord_num = readRefCoordNum()
         self.d_coord_map = readRefCoordMap("FindGeo")
+        (self.d_redox, self.d_oxi) = readRefRedOx()
         self.l_carbon_metal = readRefMetalCarbon()
         self.d_coord_exception = readRefCoordException()
-        (self.d_redox, self.d_oxi) = readRefRedOx()
 
     def parse(self):
         """
