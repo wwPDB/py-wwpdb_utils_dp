@@ -3887,7 +3887,6 @@ class RcsbDpUtility:
 
         elif op == "metal-metalcoord-update":
             # changes to the default metalcoord options must be set before setting self.op("metal-metalcoord-update"), e.g.
-
             # self.addInput(name="acedrg_exe", value="")  # Acedrg executable file, only use for testing new versions
             # self.addInput(name="metalcoord_exe", value="")  # MetalCoord executable file, only use for testing new versions
             # self.addInput(name="servalcat_exe", value="")   # Servalcat executable file, only use for testing new versions
@@ -3895,13 +3894,10 @@ class RcsbDpUtility:
             # self.addInput(name="input", value="0KA.cif")  # Ligand cif file
             # self.addInput(name="pdb", value="4DHV")  # PDB code or pdb file for coodination reference, if missing then use most_commond option
             # self.addInput(name="threshold", value="0.2")  # Procrustes distance threshold for finding COD reference.
-
             # self.setTimeout(1800)  # set timeout to 30 minutes for metalcoord processing if needed
-
             # setup CCP4 environment first because Acedrg and Servalcat are CCP4 programs and will run for update mode
             ccp4_setup = os.path.join(self.__packagePath, "metallo", "ccp4-9", "bin", "ccp4.setup-sh")
             cmd += f" ; source {ccp4_setup} "
-
             # retrieve metalcoord executable from package path, first check standalone, then CCP4 package
             metalcoord_exe_standalone = os.path.join(self.__packagePath, "metallo", "metalcoord", "bin", "metalCoord")
             if os.path.exists(metalcoord_exe_standalone):
@@ -3914,17 +3910,14 @@ class RcsbDpUtility:
                     logger.error("MetalCoord executable not found in either standalone or CCP4 package paths.")
                     metalcoord_exe = "metalCoord"  # fallback to just "metalCoord" in case it's in PATH
             logger.info("To use MetalCoord executable at %s", metalcoord_exe)
-
             # create a copy of model coordinates input file with .cif extension for MetalCoord to work
             fn_input = iPath.strip() + ".cif"  # must have .cif extension for MetalCoord to work
             cmd += f" ; cp {iPath} {fn_input}"
-
             # start constructing metalcoord command line arguments
             d_metalcoord_args = {
                 "metalcoord_exe": metalcoord_exe,
                 "input": fn_input,
             }
-
             # add caller-specified metalcoord options if added to self.__inputParamDict by self.addInput()
             logger.info("metalcoord caller-set options: %s", self.__inputParamDict)
             workdir = "metalcoord"  # default metalcoord output subfolder within the session folder
@@ -3933,12 +3926,12 @@ class RcsbDpUtility:
                     d_metalcoord_args[key] = value  # add or override defaults with caller-specified options
                 if key == "workdir":
                     workdir = value
-
             l_metalcoord_args = []
             for key_new, value_new in d_metalcoord_args.items():
                 l_metalcoord_args.append(f"--{key_new} {value_new}")
             # limit CPU/threads
-            n_cpu = math.ceil(os.cpu_count() / 4)  # use 1/4 CPUs, but minimally 1
+            cpu_split = 4
+            n_cpu = math.ceil(os.cpu_count() / cpu_split)  # use 1/cpu_split CPUs, e.g. 1/4, but minimally 1 CPU
             cmd += f" ; OMP_NUM_THREADS={n_cpu}; export OMP_NUM_THREADS"
             # run metalcoord and generate updated ligand cif at <workdir>/servalcat_updated.cif, which will be
             # copied as result file with charge and ideal coordinates; coordination info will be parsed and copied
@@ -5132,7 +5125,7 @@ class RcsbDpUtility:
         for key_new, value_new in d_metalcoord_args.items():
             l_metalcoord_args.append(f"--{key_new} {value_new}")
         if b_filter:
-            l_findgeo_args.append("--filter")        
+            l_metalcoord_args.append("--filter")        
         # limit CPU/threads
         n_cpu = math.ceil(os.cpu_count() / cpu_split)  # use 1/cpu_split CPUs, e.g. 1/4, but minimally 1 CPU
         cmd += f" ; OMP_NUM_THREADS={n_cpu}; export OMP_NUM_THREADS"
