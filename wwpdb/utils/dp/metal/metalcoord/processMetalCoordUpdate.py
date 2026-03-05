@@ -195,7 +195,7 @@ def main():
         pMC.parse()
         l_sites_filtered = []
         for d_site in pMC.l_sites:
-        # filter to keep only regular geometry for CCD annotation
+            # filter to keep only regular geometry for CCD annotation
             # filter out empty class
             if not d_site.get("class").strip():
                 continue
@@ -213,7 +213,7 @@ def main():
         logger.info("filtered out %d sites that do not meet CCD annotation criteria", len(pMC.l_sites) - len(l_sites_filtered))
         output_json = os.path.join(args.workdir, "metalcoord_report.json")
         with open(output_json, "w") as file:
-            json.dump(l_sites_filtered, file, indent=4)        
+            json.dump(l_sites_filtered, file, indent=4)
         logger.info("MetalCoord results written to %s", output_json)
     else:
         logger.error("failed to read MetalCoord results at %s, no output", fp_metalcoord_json)

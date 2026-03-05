@@ -99,10 +99,10 @@ class ParseFindGeo:
             d_tophit["oxidation_state"] = self.d_oxi.get(metal)
         else:
             d_tophit["oxidation_state"] = ""
-        
+
         if metal in self.l_carbon_metal:
             d_tophit["carbon_metal"] = "YES"
-        else:            
+        else:
             d_tophit["carbon_metal"] = "NO"
 
         if metal in self.d_coord_exception:

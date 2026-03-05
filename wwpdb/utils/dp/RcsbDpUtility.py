@@ -3878,11 +3878,11 @@ class RcsbDpUtility:
             logger.info("to run metal-findgeo-filter-regular full commands: %s", cmd)
 
         elif op == "metal-metalcoord-stats":
-            cmd = self.__constructMetalCoordCommand(cmd, iPath, oPath, tPath, lPath, cpu_split=4, b_filter=False)
+            cmd = self.__constructMetalCoordCommand(cmd, iPath, oPath, tPath, lPath, cpu_split=1, b_filter=False)
             logger.info("to run metal-metalcoord-stats full commands: %s", cmd)
 
         elif op == "metal-metalcoord-stats-filter-regular":
-            cmd = self.__constructMetalCoordCommand(cmd, iPath, oPath, tPath, lPath, cpu_split=4, b_filter=True)
+            cmd = self.__constructMetalCoordCommand(cmd, iPath, oPath, tPath, lPath, cpu_split=1, b_filter=True)
             logger.info("to run metal-metalcoord-stats-filter-regular full commands: %s", cmd)
 
         elif op == "metal-metalcoord-update":
@@ -3930,7 +3930,7 @@ class RcsbDpUtility:
             for key_new, value_new in d_metalcoord_args.items():
                 l_metalcoord_args.append(f"--{key_new} {value_new}")
             # limit CPU/threads
-            cpu_split = 4
+            cpu_split = 1
             n_cpu = math.ceil(os.cpu_count() / cpu_split)  # use 1/cpu_split CPUs, e.g. 1/4, but minimally 1 CPU
             cmd += f" ; OMP_NUM_THREADS={n_cpu}; export OMP_NUM_THREADS"
             # run metalcoord and generate updated ligand cif at <workdir>/servalcat_updated.cif, which will be
@@ -5125,7 +5125,7 @@ class RcsbDpUtility:
         for key_new, value_new in d_metalcoord_args.items():
             l_metalcoord_args.append(f"--{key_new} {value_new}")
         if b_filter:
-            l_metalcoord_args.append("--filter")        
+            l_metalcoord_args.append("--filter")
         # limit CPU/threads
         n_cpu = math.ceil(os.cpu_count() / cpu_split)  # use 1/cpu_split CPUs, e.g. 1/4, but minimally 1 CPU
         cmd += f" ; OMP_NUM_THREADS={n_cpu}; export OMP_NUM_THREADS"

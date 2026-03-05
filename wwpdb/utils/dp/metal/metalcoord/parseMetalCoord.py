@@ -152,7 +152,7 @@ class ParseMetalCoord:
             # add carbon_metal bond marker
             if metal in self.l_carbon_metal:
                 d_tophit["carbon_metal"] = "YES"
-            else:            
+            else:
                 d_tophit["carbon_metal"] = "NO"
             # add exception marker
             if metal in self.d_coord_exception:

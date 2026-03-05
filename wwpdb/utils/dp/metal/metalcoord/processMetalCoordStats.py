@@ -82,7 +82,7 @@ def main():
     if args.filter:
         l_sites_filtered = []
         for d_site in pMC.l_sites:
-        # filter to keep only regular geometry for CCD annotation
+            # filter to keep only regular geometry for CCD annotation
             # filter out empty class
             if not d_site.get("class").strip():
                 continue
@@ -101,7 +101,7 @@ def main():
         l_sites_filtered = pMC.l_sites
     output_json = os.path.join(d_args["workdir"], "metalcoord_report.json")
     with open(output_json, "w") as file:
-        json.dump(l_sites_filtered, file, indent=4)        
+        json.dump(l_sites_filtered, file, indent=4)
     logger.info("MetalCoord results written to %s", output_json)
 
 

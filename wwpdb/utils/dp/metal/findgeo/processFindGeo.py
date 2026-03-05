@@ -11,7 +11,6 @@ Summary:
 """
 
 import argparse
-from ast import If
 import logging
 import json
 import os
@@ -98,11 +97,11 @@ def compareRmsd(d_site_exc, d_site_inc):
     rmsd_inc = d_site_inc.get("rmsd")
     try:
         rmsd_exc = float(rmsd_exc)
-    except Exception as e:
+    except ValueError:
         rmsd_exc = 99.0
     try:
         rmsd_inc = float(rmsd_inc)
-    except Exception as e:
+    except ValueError:
         rmsd_inc = 99.0
     if rmsd_exc <= rmsd_inc:
         return "exclude_carbon"
@@ -140,7 +139,7 @@ def compareResults(json_exclude_carbon, json_include_carbon):
     l_exclude_carbon = readJsonSiteList(json_exclude_carbon)
     # read json output of the run with Carbon included, if not found, set it to empty list
     l_include_carbon = readJsonSiteList(json_include_carbon)
-    # convert the list of sites into a dict with key as the site-identifying tuple and value as the original site dict 
+    # convert the list of sites into a dict with key as the site-identifying tuple and value as the original site dict
     # for both runs, which allows easy comparision between the two runs for the same metal site
     d_site_exclude_carbon = readSites(l_exclude_carbon)
     d_site_include_carbon = readSites(l_include_carbon)
@@ -171,7 +170,6 @@ def compareResults(json_exclude_carbon, json_include_carbon):
             l_sites.append(d_site_inc)
             continue
         # start geometry-based selection
-        d_site = {}  # initialize selected site dict
         tag_exc = d_site_exc.get("tag", "")
         tag_inc = d_site_inc.get("tag", "")
         # 2. If one method gives Regular result and the other gives non-Regular (Distorted or Irregular) then the Regular result is selected.
@@ -218,11 +216,11 @@ def compareResults(json_exclude_carbon, json_include_carbon):
                 coord_num_inc = d_site_inc.get("coordination")
                 try:
                     coord_num_exc = int(coord_num_exc)
-                except Exception as e:
+                except ValueError:
                     coord_num_exc = 0
-                try:                    
+                try:
                     coord_num_inc = int(coord_num_inc)
-                except Exception as e:
+                except ValueError:
                     coord_num_inc = 0
                 if coord_num_exc > coord_num_inc:
                     l_sites.append(d_site_exc)
@@ -348,11 +346,11 @@ def main():
     if args.compare_donors:
         # run with and without Carbon donor, then compare the results
         logger.info("run comparison between excluding Carbon donors or not")
-        rt = runCompare(d_args)
+        runCompare(d_args)
     else:
         # run FindGeo once with the provided arguments without comparison
         logger.info("run FindGeo with provided arguments without comparison between excluding Carbon donors or not")
-        rt = runOne(d_args)
+        runOne(d_args)
     if args.filter:
         # filter output for CCD annotation
         logger.info("filter output for CCD annotation")
@@ -364,7 +362,7 @@ def main():
             l_sites = json.load(f)
         l_sites_filtered = []
         for d_site in l_sites:
-        # filter to keep only regular geometry for CCD annotation
+            # filter to keep only regular geometry for CCD annotation
             # filter out empty class
             if not d_site.get("class").strip():
                 continue
