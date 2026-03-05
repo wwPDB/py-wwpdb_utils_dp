@@ -14,10 +14,10 @@ from collections import OrderedDict
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from wwpdb.utils.dp.metal.metal_util.readRef import readRefCoordNum, readRefCoordMap, readRefRedOx
+    from wwpdb.utils.dp.metal.metal_util.readRef import readRefCoordNum, readRefCoordMap, readRefRedOx, readRefMetalCarbon, readRefCoordException
 else:
     sys.path.append(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "metal_util"))
-    from readRef import readRefCoordNum, readRefCoordMap, readRefRedOx  # noqa: E402
+    from readRef import readRefCoordNum, readRefCoordMap, readRefRedOx, readRefMetalCarbon, readRefCoordException  # noqa: E402
 
 logger = logging.getLogger(__name__)
 
@@ -29,6 +29,8 @@ class ParseMetalCoord:
         self.d_coord_num = readRefCoordNum()
         self.d_coord_map = readRefCoordMap("metalCoord")
         (self.d_redox, self.d_oxi) = readRefRedOx()
+        self.l_carbon_metal = readRefMetalCarbon()
+        self.d_coord_exception = readRefCoordException()
         self.data = None
         self.l_sites = []
 
@@ -91,7 +93,7 @@ class ParseMetalCoord:
                 d_site_filtered[key1] = d_site[key1]
 
             # find the best coordination with lowest procruste value
-            threshold = 1.0
+            threshold = 10
             d_tophit = {}
             for d_coord in d_site["ligands"]:
                 score = d_coord["procrustes"]
@@ -128,6 +130,7 @@ class ParseMetalCoord:
                 d_tophit["class_generic"] = ""
 
             metal = d_tophit["metalElement"]
+            # check against allowed coordination number
             if metal in self.d_coord_num:
                 allowed_coord_num = self.d_coord_num.get(metal)
                 if str(d_tophit["coordination"]) in allowed_coord_num:
@@ -136,24 +139,44 @@ class ParseMetalCoord:
                     d_tophit["coordination_number_allowed"] = "NO"
             else:
                 d_tophit["coordination_number_allowed"] = ""
-
+            # add redox marker
             if metal in self.d_redox:
                 d_tophit["redox_active"] = self.d_redox.get(metal)
             else:
                 d_tophit["redox_active"] = ""
-
+            # add oxidation state
             if metal in self.d_oxi:
                 d_tophit["oxidation_state"] = self.d_oxi.get(metal)
             else:
                 d_tophit["oxidation_state"] = ""
+            # add carbon_metal bond marker
+            if metal in self.l_carbon_metal:
+                d_tophit["carbon_metal"] = "YES"
+            else:
+                d_tophit["carbon_metal"] = "NO"
+            # add exception marker
+            if metal in self.d_coord_exception:
+                if d_tophit["class"] in self.d_coord_exception[metal]["Geometry-exclusion-MetalCoord"]:
+                    d_tophit["class_in_exception"] = "YES"
+                else:
+                    d_tophit["class_in_exception"] = "NO"
+            # mark positive procrustes < 0.2 as regular, and rest as irregular
+            try:
+                procrustes = float(d_tophit["procrustes"])
+                if procrustes >= 0 and procrustes <= 0.2:
+                    d_tophit["tag"] = "Regular"
+                else:
+                    d_tophit["tag"] = "Irregular"  # >0.2 or -1 marked as irregular
+            except ValueError:
+                d_tophit["tag"] = "Irregular"  # non-value output marked as irregular
 
     def sort(self):
         """
         sort self.l_sites
         """
-        key_order = ["metal", "metalElement", "chain", "residue", "sequence", "icode", "altloc",
-                     "coordination", "class", "class_abbr", "class_generic", "descriptor", "procrustes", "count",
-                     "coordination_number_allowed", "redox_active", "oxidation_state", "sphere"]
+        key_order = ["metal", "metalElement", "chain", "residue", "sequence", "icode", "altloc", "coordination", "class",
+                     "class_abbr", "class_generic", "tag", "procrustes", "count", "descriptor", "coordination_number_allowed",
+                     "redox_active", "oxidation_state", "carbon_metal", "class_in_exception", "sphere"]
         l_sorted = []
         for d_row in self.l_sites:
             d_row_sorted = OrderedDict((key, d_row[key]) for key in key_order if key in d_row)

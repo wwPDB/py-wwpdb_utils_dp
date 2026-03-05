@@ -10,6 +10,7 @@ tegether with a json report summarizing the metal coordination.
 """
 
 import argparse
+import json
 import logging
 import os
 import sys
@@ -192,8 +193,27 @@ def main():
     pMC = ParseMetalCoord()
     if pMC.read(fp_metalcoord_json):
         pMC.parse()
+        l_sites_filtered = []
+        for d_site in pMC.l_sites:
+            # filter to keep only regular geometry for CCD annotation
+            # filter out empty class
+            if not d_site.get("class").strip():
+                continue
+            # filter out non-Regular sites
+            if d_site.get("tag") != "Regular":
+                continue
+            # filter out sites with non-allowed coordination number
+            if d_site.get("coordination_number_allowed") == "NO":
+                continue
+            # filter out exception class
+            if d_site.get("class_in_exception") == "YES":
+                continue
+            # if not filtered out by any of the above criteria, add to the filtered list
+            l_sites_filtered.append(d_site)
+        logger.info("filtered out %d sites that do not meet CCD annotation criteria", len(pMC.l_sites) - len(l_sites_filtered))
         output_json = os.path.join(args.workdir, "metalcoord_report.json")
-        pMC.report(output_json)
+        with open(output_json, "w") as file:
+            json.dump(l_sites_filtered, file, indent=4)
         logger.info("MetalCoord results written to %s", output_json)
     else:
         logger.error("failed to read MetalCoord results at %s, no output", fp_metalcoord_json)
