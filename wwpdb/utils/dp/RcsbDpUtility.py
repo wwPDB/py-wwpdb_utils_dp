@@ -4100,7 +4100,7 @@ class RcsbDpUtility:
                 link_radii = self.__inputParamDict["cc_link_radii"]
                 cmd += " -link_radii " + link_radii
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
-            cmd += " ; cat bond_dist.err" + " >> " + lPath
+            cmd += " ; cat bond_dist.log" + " >> " + lPath
         elif (op == "chem-comp-assign") or (op == "chem-comp-assign-skip") or (op == "chem-comp-assign-exact"):
             # set up
             #
