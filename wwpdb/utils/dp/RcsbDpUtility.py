@@ -3845,6 +3845,9 @@ class RcsbDpUtility:
 
         elif op == "chem-comp-annotate-comp":
             opAnnot = "'stereo-cactvs|aro-cactvs|descriptor-oe|descriptor-cactvs|descriptor-inchi|name-oe|name-acd|xyz-ideal-corina|xyz-model-h-oe|rename|fix'"
+            if "opAnnot" in self.__inputParamDict:
+                opAnnot = self.__inputParamDict["opAnnot"]
+            #
             cmd += " ; CC_TOOLS=" + os.path.join(self.__ccAppsPath, "bin") + " ; export CC_TOOLS "
             cmd += " ; ACD_DIR=" + self.__acdDirPath + " ; export ACD_DIR "
             cmd += " ; CACTVS_DIR=" + self.__cactvsDirPath + " ; export CACTVS_DIR "
