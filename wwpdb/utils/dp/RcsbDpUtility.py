@@ -5050,25 +5050,42 @@ class RcsbDpUtility:
     def __commandOnlyCallsPythonScripts(self, command):
         """Check if all executables in the command are Python scripts.
 
-        Extracts absolute paths invoked after semicolons in the shell command
-        and reads their first line.  Returns True only if every resolved
-        executable is a Python script (shebang contains "python").
+        Inspects each token invoked after semicolons in the shell command.
+        For absolute paths, reads the first bytes to check for a Python shebang.
+        Also recognises bare ``python`` / ``python3`` invocations (e.g.
+        ``python -m wwpdb.apps.validation...``).
+
+        Returns True when every executable is Python-based, meaning the
+        command does not need a container for ELF/glibc compatibility.
         Returns False (use the container) if any executable is ELF,
         a non-Python script, or cannot be read.
         """
-        paths = re.findall(r";\s*(/\S+)", command)
-        executables = [p for p in paths if os.path.isfile(p)]
-        if not executables:
-            return False
-        for path in executables:
-            try:
-                with open(path, "rb") as f:
-                    head = f.read(256)
-                if not (head[:2] == b"#!" and b"python" in head.split(b"\n")[0]):
+        # Match tokens invoked after semicolons — both absolute paths and bare commands
+        tokens = re.findall(r";\s*(\S+)", command)
+        # Filter to actionable commands: absolute paths to files, or bare python calls.
+        # Skip shell builtins/keywords (export, cd, cat, source, env, rm, mv, cp, touch, unset, .)
+        # and variable assignments (VAR=value).
+        skip = {"export", "cd", "cat", "source", ".", "env", "rm", "mv", "cp", "touch", "unset", "set"}
+        has_executables = False
+        for token in tokens:
+            if token in skip or "=" in token:
+                continue
+            if re.match(r"^python[23]?(\.\d+)?$", token):
+                has_executables = True
+                continue
+            if token.startswith("/") and os.path.isfile(token):
+                has_executables = True
+                try:
+                    with open(token, "rb") as f:
+                        head = f.read(256)
+                    if not (head[:2] == b"#!" and b"python" in head.split(b"\n")[0]):
+                        return False
+                except (IOError, OSError):
                     return False
-            except (IOError, OSError):
+            elif token.startswith("/"):
+                # Absolute path that doesn't exist — can't verify, assume not Python
                 return False
-        return True
+        return has_executables
 
     def __run(self, command, lPathFull, op):
         if self.__run_remote:

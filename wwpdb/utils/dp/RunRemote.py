@@ -200,6 +200,7 @@ export XDG_RUNTIME_DIR={self.run_dir}
         env_vars = [
             f"--env WWPDB_SITE_ID={self.siteId}",
             f"--env WWPDB_SITE_LOC={site_loc}",
+            "--env PYTHON=/usr/bin/python3",
         ]
         env_args = " ".join(env_vars)
 
