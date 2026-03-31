@@ -150,6 +150,7 @@ import glob
 import logging
 import math
 import os
+import re
 import random
 import shutil
 import signal
@@ -5046,6 +5047,29 @@ class RcsbDpUtility:
         logger.info("+RcsbDpUtility.__runTimeout() completed with return code %r\n", process.stdout.read())
         return 0
 
+    def __commandOnlyCallsPythonScripts(self, command):
+        """Check if all executables in the command are Python scripts.
+
+        Extracts absolute paths invoked after semicolons in the shell command
+        and reads their first line.  Returns True only if every resolved
+        executable is a Python script (shebang contains "python").
+        Returns False (use the container) if any executable is ELF,
+        a non-Python script, or cannot be read.
+        """
+        paths = re.findall(r";\s*(/\S+)", command)
+        executables = [p for p in paths if os.path.isfile(p)]
+        if not executables:
+            return False
+        for path in executables:
+            try:
+                with open(path, "rb") as f:
+                    head = f.read(256)
+                if not (head[:2] == b"#!" and b"python" in head.split(b"\n")[0]):
+                    return False
+            except (IOError, OSError):
+                return False
+        return True
+
     def __run(self, command, lPathFull, op):
         if self.__run_remote:
             random_suffix = random.randrange(9999999)  # noqa: S311
@@ -5059,7 +5083,7 @@ class RcsbDpUtility:
                 number_of_processors=self.__numThreads,
                 memory_limit=self.__startingMemory,
                 add_site_config=True,
-                use_singularity=self.__use_singularity,
+                use_singularity=self.__use_singularity and not self.__commandOnlyCallsPythonScripts(command),
                 singularity_image=self.__singularity_image,
                 singularity_bind_paths=self.__singularity_bind_paths,
                 partition=self.__partition,
