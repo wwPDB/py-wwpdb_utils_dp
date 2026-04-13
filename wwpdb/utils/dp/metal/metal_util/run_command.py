@@ -14,9 +14,6 @@ import logging
 from datetime import datetime
 import os
 
-# logger = logging.getLogger(__name__)
-
-
 class MetalCommandExecutionError(Exception):
     """Raised when a metal command execution fails, e.g. FindGeo and MetalCoord failure."""
     def __init__(self, cmd, code=None, stderr=None, stdout=None):
@@ -30,7 +27,11 @@ class MetalCommandExecutionError(Exception):
         super().__init__(message)
 
 
-def setup_logger(name="command_runner", log_dir="metal_command_logs"):
+class MetalCommandTimeoutError(MetalCommandExecutionError):
+    pass
+
+
+def setup_logger(name="cmd", log_dir="metal_command_logs", b_debug=True):
     """Use this only when an existing logger is not used for run_command() function below
     Create or retrieve a configured logger.
     """
@@ -40,11 +41,14 @@ def setup_logger(name="command_runner", log_dir="metal_command_logs"):
     if not logger.handlers:  # prevent duplicate handlers if called multiple times
         logger.setLevel(logging.DEBUG)
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        log_path = os.path.join(log_dir, f"cmd_{timestamp}.log")
+        log_path = os.path.join(log_dir, f"{name}_{timestamp}.log")
 
         # File handler
         fh = logging.FileHandler(log_path, encoding="utf-8")
-        fh.setLevel(logging.DEBUG)
+        if b_debug:
+            fh.setLevel(logging.DEBUG)
+        else:
+            fh.setLevel(logging.INFO)
 
         # Console handler, use for debugging
         ch = logging.StreamHandler()
@@ -52,7 +56,7 @@ def setup_logger(name="command_runner", log_dir="metal_command_logs"):
 
         # Format
         fmt = logging.Formatter(
-            fmt="%(asctime)s [%(levelname)s] %(message)s",
+            fmt="%(asctime)s [%(levelname)s] %(name)s-%(module)s-%(funcName)s-%(lineno)d: %(message)s",
             datefmt="%Y-%m-%d %H:%M:%S",
         )
         fh.setFormatter(fmt)
@@ -66,7 +70,7 @@ def setup_logger(name="command_runner", log_dir="metal_command_logs"):
     return logger
 
 
-def run_command(cmd, logger=None):
+def run_command(cmd, timeout_sec, logger=None):
     """Run a local command and raise CommandExecutionError on failure."""
     if logger is None:
         logger = setup_logger()
@@ -78,17 +82,19 @@ def run_command(cmd, logger=None):
             cmd,
             check=True,
             capture_output=True,
-            text=True
+            text=True,
+            timeout=timeout_sec
         )
         logger.debug(f"STDOUT:\n{result.stdout.strip()}")
         logger.info("✅ Command completed successfully.")
+
         return result.stdout
 
-    except FileNotFoundError as e:
+    except FileNotFoundError as e:  # binary command not found
         logger.error(f"❌ Binary not found: {e}")
         raise MetalCommandExecutionError(cmd, None, stderr=str(e)) from e
 
-    except subprocess.CalledProcessError as e:
+    except subprocess.CalledProcessError as e:  # command returned non-zero exit code, under check=True setting
         logger.error(f"❌ Command failed (exit code {e.returncode})")
         if e.stdout:
             logger.debug(f"STDOUT:\n{e.stdout.strip()}")
@@ -96,7 +102,15 @@ def run_command(cmd, logger=None):
             logger.error(f"STDERR:\n{e.stderr.strip()}")
         raise MetalCommandExecutionError(e.cmd, e.returncode, e.stderr, e.stdout) from e
 
-    except Exception as e:
+    except subprocess.TimeoutExpired as e:
+        logger.error(f"❌ Command timed out after {timeout_sec} seconds")
+        if e.stdout:
+            logger.debug(f"STDOUT before timeout:\n{e.stdout.strip()}")
+        if e.stderr:
+            logger.error(f"STDERR before timeout:\n{e.stderr.strip()}")
+        raise MetalCommandTimeoutError(e.cmd, None, stderr="Command timed out") from e
+
+    except Exception as e:  # catch any other exceptions, since this run is self-cotained and logged by itself
         logger.exception("❌ Unexpected error during command execution")
         raise MetalCommandExecutionError(cmd, None, stderr=str(e)) from e
 
@@ -104,7 +118,12 @@ def run_command(cmd, logger=None):
 # def main():
 #     logger = setup_logger(log_dir="log_test")
 #     try:
-#         output = run_command(["ls", "/nonexistent"], logger)
+#         output = run_command(["ls"], 3600, logger)  # success
+#         # output = run_command(["ls", "/nonexistent"], 3600, logger)  # expected to fail with non-zero exit code, but should be handled and logged by run_command
+#         # output = run_command(["lss"], 3600, logger)  # expected to fail with binary not found, but should be handled and logged by run_command
+#         # output = run_command(["sleep", "5"], 1, logger)  # expected to fail with timeout, but should be handled and logged by run_command
+#     except MetalCommandTimeoutError as e:
+#         logger.error(f"MetalCommandTimeoutError, Handled error: {e}")
 #     except MetalCommandExecutionError as e:
 #         logger.error(f"MetalCommandExecutionError, Handled error: {e}")
 

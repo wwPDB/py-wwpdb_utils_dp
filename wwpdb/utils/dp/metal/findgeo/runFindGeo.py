@@ -12,12 +12,26 @@ import sys
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from wwpdb.utils.dp.metal.metal_util.run_command import run_command, MetalCommandExecutionError  # noqa: E402
+    from wwpdb.utils.dp.metal.metal_util.run_command import run_command, MetalCommandExecutionError, MetalCommandTimeoutError  # noqa: E402
 else:
     sys.path.append(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "metal_util"))
-    from run_command import run_command, MetalCommandExecutionError  # noqa: E402
+    from run_command import run_command, MetalCommandExecutionError, MetalCommandTimeoutError  # noqa: E402
 
 logger = logging.getLogger(__name__)
+
+
+class ValidateParametersError(Exception):
+    def __init__(self, errors: dict):
+        self.errors = errors
+        super().__init__(str(errors))
+
+
+class FindGeoCommandExecutionError(MetalCommandExecutionError):
+    pass
+
+
+class FindGeoCommandTimeoutError(MetalCommandTimeoutError):
+    pass
 
 
 class RunFindGeo:
@@ -35,15 +49,14 @@ class RunFindGeo:
         "excluded-metals": Mg,Ca",
         "java-exe": "/path/to/java/executable",
         "findgeo-jar": "/path/to/FindGeo.jar"
+        "timeout": 3600
     }
     rFG = RunFindGeo(d_args)
     rFG.run()
     """
     def __init__(self, d_args):
         self.d_args = d_args
-        if not self.validateArgs():
-            logger.error("invalid arguments")
-            sys.exit(1)
+        self.validateArgs()
 
     def validateArgs(self):
         """
@@ -63,52 +76,42 @@ class RunFindGeo:
         :return: True if all validations pass, otherwise False
         :rtype: bool
         """
+        errors = {}
         if not os.path.exists(self.d_args['java-exe']):
-            logger.error("java executable not found: %s", self.d_args['java-exe'])
-            return False
+            errors["java-exe"] = "java executable not found: %s" % self.d_args['java-exe']
         if not os.path.exists(self.d_args['findgeo-jar']):
-            logger.error("FindGeo jar file not found: %s", self.d_args['findgeo-jar'])
-            return False
+            errors["findgeo-jar"] = "FindGeo jar file not found: %s" % self.d_args['findgeo-jar']
         if self.d_args['format'] not in ['cif', 'pdb']:
-            logger.error("invalid format: %s", self.d_args['format'])
-            return False
+            errors["format"] = "invalid format: %s" % self.d_args['format']
         if self.d_args['metal'].lower() != 'all':
             if self.d_args['metal'] and len(self.d_args['metal']) > 2:
-                logger.error("invalid metal symbol: %s", self.d_args['metal'])
-                return False
+                errors["metal"] = "invalid metal symbol: %s" % self.d_args['metal']
         if self.d_args['excluded-metals'] != 'None':
             l_metal = self.d_args['excluded-metals'].split(',')
             for metal in l_metal:
                 if len(metal) > 2:
-                    logger.error("invalid excluded-metals symbol: %s", self.d_args['excluded-metals'])
-                    return False
+                    errors["excluded-metals"] = "invalid excluded-metals symbol: %s" % self.d_args['excluded-metals']
         if self.d_args['threshold'] <= 1.0 or self.d_args['threshold'] >= 4.0:
-            logger.error("invalid threshold: %s", self.d_args['threshold'])
-            return False
+            errors["threshold"] = "invalid threshold: %s" % self.d_args['threshold']
         try:
             os.makedirs(self.d_args['workdir'], exist_ok=True)
         except Exception as e:
-            logger.error("cannot create workdir: %s with error %s", self.d_args['workdir'], e)
-            return False
+            errors["workdir"] = "cannot create workdir: %s with error %s" % (self.d_args['workdir'], e)
 
         # validate input and pdb arguments and pick the non-empty one to use as input
         self.input = []
         if self.d_args['input'] and os.path.exists(self.d_args['input']):
-            logger.info("using input file: %s", self.d_args['input'])
             self.input = ["--input", self.d_args['input']]
         else:
-            logger.info("input file not found: %s, try pdb id input", self.d_args['input'])
+            # try to check pdb id if input file is not valid
             if self.d_args['pdb']:
                 if len(self.d_args['pdb']) not in [4, 12]:
-                    logger.error("invalid pdb id: %s", self.d_args['pdb'])
-                    return False
-                logger.info("using pdb id: %s", self.d_args['pdb'])
+                    errors["pdb"] = "invalid pdb id: %s" % self.d_args['pdb']
                 self.input = ["--pdb", self.d_args['pdb'].lower()]
             else:
-                logger.error("must specify either input file or pdb id")
-                return False
-
-        return True
+                errors["input"] = "must specify either input file or pdb id"
+        if errors:
+            raise ValidateParametersError(errors)
 
     def run(self):
         """
@@ -123,6 +126,7 @@ class RunFindGeo:
             --workdir findgeo
             --excluded-metals Mg,Ca
             --overwrite
+            --timeout 3600
         example command with pdb id:
             /usr/local/opt/openjdk/bin/java
             -jar FindGeo.jar
@@ -133,6 +137,7 @@ class RunFindGeo:
             --workdir findgeo
             --excluded-metals Mg,Ca
             --overwrite
+            --timeout 3600
 
         :return: stdout from FindGeo if successful, otherwise None
         :rtype: str or None
@@ -151,11 +156,11 @@ class RunFindGeo:
         if self.d_args['excluded-metals'] != "None":
             l_command.extend(['--excluded-metals', self.d_args["excluded-metals"]])
 
-        logger.info("to run FindGeo full command:\n %s", ' '.join(l_command))
+        logger.info("to run FindGeo command:\n %s", ' '.join(l_command))
         try:
-            cmd_stdout = run_command(l_command)
-            logger.info("finished running FindGeo command on %s", self.input)
+            cmd_stdout = run_command(l_command, self.d_args['timeout'])
             return cmd_stdout
+        except MetalCommandTimeoutError as e:
+            raise FindGeoCommandTimeoutError(f"FindGeo command timed out after {self.d_args['timeout']} seconds: {e}") from e
         except MetalCommandExecutionError as e:
-            logger.error(f"MetalCommandExecutionError: {e}")
-            return None
+            raise FindGeoCommandExecutionError(f"FindGeo command execution error: {e}") from e

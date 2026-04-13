@@ -3873,23 +3873,30 @@ class RcsbDpUtility:
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " > " + lPath
 
         elif op == "metal-findgeo":
+            # run FindGeo for AnnMod, output all geometry output regardless of regular or not
             cmd = self.__constructFindGeoCommand(cmd, iPath, oPath, tPath, lPath, b_filter=False)
             logger.info("to run metal-findgeo full commands: %s", cmd)
 
         elif op == "metal-findgeo-filter-regular":
+            # run FindGeo for LigMod, output regular geometry only
             cmd = self.__constructFindGeoCommand(cmd, iPath, oPath, tPath, lPath, b_filter=True)
             logger.info("to run metal-findgeo-filter-regular full commands: %s", cmd)
 
         elif op == "metal-metalcoord-stats":
+            # run MetalCoord stats for AnnMod, output all geometry output regardless of regular or not
             cmd = self.__constructMetalCoordCommand(cmd, iPath, oPath, tPath, lPath, cpu_split=2, b_filter=False)
             logger.info("to run metal-metalcoord-stats full commands: %s", cmd)
 
         elif op == "metal-metalcoord-stats-filter-regular":
+            # run MetalCoord stats for LigMod, output regular geometry only
             cmd = self.__constructMetalCoordCommand(cmd, iPath, oPath, tPath, lPath, cpu_split=2, b_filter=True)
             logger.info("to run metal-metalcoord-stats-filter-regular full commands: %s", cmd)
 
         elif op == "metal-metalcoord-update":
-            # changes to the default metalcoord options must be set before setting self.op("metal-metalcoord-update"), e.g.
+            # run MetalCoord update for LigMod, output updated cif with charge and ideal coordinates, and a json report with coordination info; 
+            # use most_common option to find COD reference if no pdb input provided; 
+            # default Procrustes distance threshold is 0.2 for finding COD reference;
+            # default metalcoord options can be overridden before setting self.op("metal-metalcoord-update"), e.g.
             # self.addInput(name="acedrg_exe", value="")  # Acedrg executable file, only use for testing new versions
             # self.addInput(name="metalcoord_exe", value="")  # MetalCoord executable file, only use for testing new versions
             # self.addInput(name="servalcat_exe", value="")   # Servalcat executable file, only use for testing new versions
@@ -5078,7 +5085,7 @@ class RcsbDpUtility:
         return cmd
 
     def __constructMetalCoordCommand(self, cmd, iPath, oPath, tPath, lPath, cpu_split=4, b_filter=False):
-        """Construct command for running FindGeo, to be re-used for different operations
+        """Construct command for running MetalCoord, to be re-used for different operations
         """
         # changes to the default metalcoord options must be set before setting self.op("metal-metalcoord-stats"), e.g.
         # self.addInput(name="ligands", value=["0KA", "NCO"])  # list or string of CCD ID(s) of the metal ligand to check on, accepts comma-separated string or list of strings

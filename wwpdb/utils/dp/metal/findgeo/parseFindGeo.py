@@ -56,7 +56,7 @@ class ParseFindGeo:
                 if not d_tophit:
                     continue
                 d_tophit = self.amend(d_tophit)
-                logger.info("add row %s", d_tophit)
+                logger.debug("add top hit row %s", d_tophit)
                 self.l_sites.append(d_tophit)
 
         if self.l_sites:
@@ -124,7 +124,7 @@ class ParseFindGeo:
         if not os.path.isdir(subfolder):
             return None
 
-        logger.info("to process subfolder %s", subfolder)
+        logger.debug("to process subfolder %s", subfolder)
         l_subfolder = os.listdir(subfolder)
         if ("findgeo.out" not in l_subfolder):
             logger.warning("failed to find findgeo.out in %s", subfolder)
@@ -176,7 +176,7 @@ class ParseFindGeo:
         if not os.path.isfile(filepath):
             logger.error("failed to access %s", filepath)
             return {}
-        logger.info("to process %s", filepath)
+        logger.debug("to process %s", filepath)
         d_tophit = {}
         with open(filepath) as file:
             l_hit = []
@@ -184,7 +184,7 @@ class ParseFindGeo:
                 if line.startswith("Coordination number"):
                     l_line = line.strip().split(':')
                     d_tophit["coordination"] = l_line[-1].strip()
-                    logger.info("found coordination number %s", d_tophit["coordination"])
+                    logger.debug("found coordination number %s", d_tophit["coordination"])
                     b_found_coord = True
                 if "-" in line and "|" in line:
                     l_line = line.strip().split("|")
@@ -194,7 +194,7 @@ class ParseFindGeo:
                         d_hit["class"] = l_line[0].split("-")[1].strip().lower()
                         d_hit["tag"] = l_line[1].strip()
                         d_hit["rmsd"] = l_line[2].strip()
-                        logger.info("found coordination geometry %s, %s with tag %s RMSD %s",
+                        logger.debug("found coordination geometry %s, %s with tag %s RMSD %s",
                                     d_hit["class_abbr"], d_hit["class"], d_hit["tag"], d_hit["rmsd"])
                         l_hit.append(d_hit)
                 if line.startswith("Best geometry"):
@@ -205,12 +205,12 @@ class ParseFindGeo:
                         best_geo_name = _tmp.split("(Distorted)")[0].strip().lower()
                     elif "(Irregular)" in _tmp:
                         # best_geo_name = _tmp.split("(Irregular)")[0].strip().lower()
-                        logger.info("best geometry is irregular in %s, use 'irregular' and ignore geometry parameters", filepath)
+                        logger.debug("best geometry is irregular in %s, use 'irregular' and ignore geometry parameters", filepath)
                         best_geo_name = "irregular"
                     else:
                         logger.warning("cannot find best geometry format in %s, use 'undetected' by default", filepath)
                         best_geo_name = "undetected"
-                    logger.info("best geoemtry is %s", best_geo_name)
+                    logger.debug("best geoemtry is %s", best_geo_name)
 
             if not b_found_coord:
                 logger.warning("could not find coordination number in %s", filepath)
@@ -245,7 +245,7 @@ class ParseFindGeo:
                     except ValueError:
                         continue
                 d_tophit["rmsd"] = str(lowest_rmsd) if lowest_rmsd < 999 else ""
-                logger.warning("best geometry is irregular in %s, no geometry parameters output", filepath)
+                logger.info("best geometry is irregular in %s, no geometry parameters output", filepath)
                 return d_tophit
 
             for d_hit in l_hit:
@@ -288,7 +288,7 @@ class ParseFindGeo:
         :param filepath: path to findgeo.input file, if the input was in cif format
         :return: tuple (ccd_id, atom_label, chain, res_num, ins, alt), empty tuple if parsing fails
         """
-        logger.info("to run mmCIF parser on findgeo.input %s", filepath)
+        logger.debug("to parse findgeo mmCIF input to get metal atom information %s", filepath)
         d_metal_row = self.parseMmcif(filepath)
         if d_metal_row:
             atom_label = d_metal_row.get("label_atom_id", "").strip()
@@ -297,7 +297,7 @@ class ParseFindGeo:
             ins = d_metal_row.get("pdbx_PDB_ins_code", "").strip()
             res_num = d_metal_row.get("auth_seq_id", "").strip()
             chain = d_metal_row.get("auth_asym_id", "").strip()
-            logger.info("found ccd_id %s", ccd_id)
+            logger.debug("found ccd_id %s", ccd_id)
             return (ccd_id, atom_label, chain, res_num, ins, alt)
         else:
             logger.info("to parse findgeo.input by column guess on: %s", filepath)
@@ -363,6 +363,6 @@ class ParseFindGeo:
 
         :param filepath_json: path to output json file
         """
-        logger.info("to write report to %s", filepath_json)
+        logger.debug("to write report to %s", filepath_json)
         with open(filepath_json, "w") as file:
             json.dump(self.l_sites, file, indent=4)
