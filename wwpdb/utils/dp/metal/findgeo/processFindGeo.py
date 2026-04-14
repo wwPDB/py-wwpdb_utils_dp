@@ -344,6 +344,7 @@ def runOne(d_args):
         with open(output_json, "w") as file:
             json.dump({"error": "parameters-error", "details": e.errors}, file)
         return False
+    # no need to handle other exceptions because RunFindGeo.__init__() already handled them.
 
     try:
         cmd_stdout = rFG.run()
@@ -365,11 +366,7 @@ def runOne(d_args):
         with open(output_json, "w") as file:
             json.dump({"error": "execution-error", "details": str(e)}, file)
         return False
-    except Exception as e:
-        logger.exception("Unexpected error during FindGeo execution or parsing")
-        with open(output_json, "w") as file:
-            json.dump({"error": "unexpected-error", "details": str(e)}, file)
-        return False
+    # no need to handel other exceptions because RunFindGeo.run() already handled them. 
 
 
 def main():
@@ -394,7 +391,7 @@ def main():
     parser.add_argument("-a", "--findgeo-jar", help="FindGeo compiled jar filepath", type=str, required=True)
     parser.add_argument("-c", "--compare-donors", help="Run comparison between excluding carbon donors or not", action="store_true", default=False)
     parser.add_argument("-z", "--filter", help="Filter to output regular geometry only for CCD annotation", action="store_true", default=False)
-    parser.add_argument("-s", "--timeout", help="Timeout for FindGeo command in seconds", type=int, default=3600)
+    parser.add_argument("-s", "--timeout", help="Timeout in seconds for running FindGeo command, default is 3600 seconds (1 hour)", type=int, default=3600)
     args = parser.parse_args()
 
     l_args = ["excluded-donors", "format", "input", "metal", "overwright", "pdb", "threshold", "workdir", "excluded-metals", "java-exe", "findgeo-jar", "timeout"]
@@ -420,7 +417,7 @@ def main():
     # no exception handling below as the file and folder permission were just checked in methods above
     if args.filter:
         # filter output for CCD annotation
-        logger.info("filter output to keep only regular geometry for CCD annotation")
+        logger.info("to filter FindGeo results to keep regular geometry only for CCD annotation")
         with open(fp_json, "r") as f:
             l_sites = json.load(f)
         l_sites_filtered = []
@@ -440,8 +437,8 @@ def main():
                 continue
             # if not filtered out by any of the above criteria, add to the filtered list
             l_sites_filtered.append(d_site)
+            logger.info("%s regular sites filtered out of total %s sites after applying regular geometry filter", len(l_sites_filtered), len(l_sites))
         if l_sites_filtered != l_sites:
-            logger.info("filtered out %d sites that are not having regular geometry", len(l_sites) - len(l_sites_filtered))
             fp_json_filtered = os.path.join(d_args["workdir"], "findgeo_report.json")
             with open(fp_json_filtered, "w") as f:
                 json.dump(l_sites_filtered, f, indent=4)

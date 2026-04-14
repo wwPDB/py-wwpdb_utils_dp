@@ -71,10 +71,7 @@ class RunFindGeo:
         6. either input or pdb must be specified, but not both
         7. if input is specified, it must exist as a file
         8. if pdb is specified, it must be a valid PDB code (4 alphanumeric characters)
-        Return True if all validations pass, otherwise False
-
-        :return: True if all validations pass, otherwise False
-        :rtype: bool
+        raise ValidateParametersError with a dictionary of errors if any validation fails
         """
         errors = {}
         if not os.path.exists(self.d_args['java-exe']):
@@ -164,3 +161,6 @@ class RunFindGeo:
             raise FindGeoCommandTimeoutError(f"FindGeo command timed out after {self.d_args['timeout']} seconds: {e}") from e
         except MetalCommandExecutionError as e:
             raise FindGeoCommandExecutionError(f"FindGeo command execution error: {e}") from e
+        except Exception as e:
+            logger.exception("Unexpected error when running FindGeo: %s", e)
+            raise FindGeoCommandExecutionError(f"Unexpected error when running FindGeo: {e}") from e

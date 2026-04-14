@@ -13,12 +13,25 @@ import sys
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from wwpdb.utils.dp.metal.metal_util.run_command import MetalCommandExecutionError, run_command  # noqa: E402
+    from wwpdb.utils.dp.metal.metal_util.run_command import run_command, MetalCommandExecutionError, MetalCommandTimeoutError  # noqa: E402
 else:
     sys.path.append(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "metal_util"))
-    from run_command import MetalCommandExecutionError, run_command  # noqa: E402
+    from run_command import run_command, MetalCommandExecutionError, MetalCommandTimeoutError  # noqa: E402
 
 logger = logging.getLogger(__name__)
+
+class ValidateParametersError(Exception):
+    def __init__(self, errors: dict):
+        self.errors = errors
+        super().__init__(str(errors))
+
+
+class MetalCoordCommandExecutionError(MetalCommandExecutionError):
+    pass
+
+
+class MetalCoordCommandTimeoutError(MetalCommandTimeoutError):
+    pass
 
 
 class RunMetalCoord:
@@ -37,16 +50,54 @@ class RunMetalCoord:
     def __init__(self, d_args):
         self.d_args = d_args
         self.mode = None
-        if not self.d_args["metalcoord_exe"]:
-            logger.info("%s is called without explicit MetalCoord executable, to find in CCP4", self.__class__.__name__)
+        self.validateArgs()
+
+    def validateArgs(self):
+        """
+        validate arguments in d_args
+        raise ValidateParametersError with a dictionary of errors if any validation fails
+        """
+        errors = {}
+        if self.d_args["metalcoord_exe"]:
+            if os.path.exists(self.d_args["metalcoord_exe"]):
+                logger.info("use explicit MetalCoord executable at %s", self.d_args["metalcoord_exe"])
+            else:
+                errors["metalcoord_exe"] = f"explicit MetalCoord executable not found at {self.d_args['metalcoord_exe']}"
+        else:
+            # if not explicitly provided, try to find MetalCoord executable from CCP4 bin/ folder using CCP4 environment variable
             ccp4_dir = os.getenv("CCP4", default=None)
-            if not ccp4_dir:
-                raise KeyError("Environment variable 'CCP4' not found")
-            metalcoord_exe = os.path.join(ccp4_dir, "bin", "metalCoord")
-            if not os.path.exists(metalcoord_exe):
-                raise FileNotFoundError("MetalCoord executable not found in CCP4 bin/ folder")
-            self.d_args["metalcoord_exe"] = metalcoord_exe
-            logger.info("use MetalCoord executable at %s", metalcoord_exe)
+            if ccp4_dir:
+                metalcoord_exe = os.path.join(ccp4_dir, "bin", "metalCoord")
+                if os.path.exists(metalcoord_exe):
+                    self.d_args["metalcoord_exe"] = metalcoord_exe
+                    logger.info("use CCP4 MetalCoord executable at %s", metalcoord_exe)
+                else:
+                    errors["metalcoord_exe"] = f"CCP4 MetalCoord executable not found in {metalcoord_exe}"
+            else:
+                errors["metalcoord_exe"] = "explicity MetalCoord excecutable not provided, and cannot find CCP4 MetalCoord, Env var 'CCP4' is missing"
+
+        if os.path.exists(self.d_args["pdb"]):
+            logger.info("run on PDB file found at %s", self.d_args["pdb"])
+        elif len(self.d_args["pdb"]) in (4, 12) and self.d_args["pdb"].isalnum():
+            logger.info("run on PDB ID provided: %s", self.d_args["pdb"])
+        else:
+            errors["pdb"] = f"invalid PDB reference: {self.d_args['pdb']}, must be a valid PDB ID or an existing PDB/mmCIF file"
+
+        if self.d_args["ligand"] and self.d_args["ligand"].isalnum() and len(self.d_args["ligand"]) in (1,2,3,5):
+            logger.info("ligand code provided: %s", self.d_args["ligand"])
+        else:
+            errors["ligand"] = f"invalid ligand code: {self.d_args['ligand']}, must be alphanumeric and 1, 2, 3, or 5 characters long"
+
+        if not isinstance(self.d_args["max_size"], int) or self.d_args["max_size"] <= 10:
+            errors["max_size"] = f"invalid max_size: {self.d_args['max_size']}, must be a positive integer greater than 10"
+
+        try:
+            os.makedirs(self.d_args['workdir'], exist_ok=True)
+        except Exception as e:
+            errors["workdir"] = "cannot create workdir: %s with error %s" % (self.d_args['workdir'], e)
+
+        if errors:
+            raise ValidateParametersError(errors)
 
     def setInputMode(self, mode):
         self.mode = mode  # stats or update
@@ -66,6 +117,7 @@ class RunMetalCoord:
             --pdb 1PG9.cif  # accept both PDB ID and PDB/mmCIF file
             --output metalcoord/1PT.json
             --max_size 100
+            --timeout 3600
         :return: stdout from MetalCoord if successful, otherwise None
         :rtype: str or None
         """
@@ -77,14 +129,16 @@ class RunMetalCoord:
         fp_out = os.path.join(self.d_args["workdir"], f"{self.d_args['ligand']}.json")
         l_command.extend(["--output", fp_out])
 
-        logger.info("to run MetalCoord full command:\n %s", ' '.join(l_command))
+        logger.info("to run MetalCoord stats mode full command:\n %s", ' '.join(l_command))
         try:
-            cmd_stdout = run_command(l_command)
-            logger.info("finished running MetalCoord stats mode on %s of %s", self.d_args["ligand"], self.d_args["pdb"])
+            cmd_stdout = run_command(l_command, self.d_args["timeout"])
             return cmd_stdout
+        except MetalCommandTimeoutError as e:
+            raise MetalCoordCommandTimeoutError(f"MetalCoord stats command timed out after {self.d_args['timeout']} seconds: {e}") from e
         except MetalCommandExecutionError as e:
-            logger.error(f"MetalCommandExecutionError: {e}")
-            return None
+            raise MetalCoordCommandExecutionError(f"MetalCoord stats command execution error: {e}") from e
+        except Exception as e:
+            raise MetalCoordCommandExecutionError(f"Unexpected error while running MetalCoord stats command: {e}") from e
 
     def runUpdate(self):
         """
@@ -118,33 +172,36 @@ class RunMetalCoord:
             logger.info("to run MetalCoord update mode by most_common option without model")
             l_command.extend(["--cif", "--cl", "most_common"])
 
-        logger.info("to run MetalCoord full command:\n %s", ' '.join(l_command))
+        logger.info("to run MetalCoord update mode full command:\n %s", ' '.join(l_command))
         try:
             cmd_stdout = run_command(l_command)
-            logger.info("finished running MetalCoord update mode on %s by %s", self.d_args["input"], self.d_args["pdb"])
             return cmd_stdout
+        except MetalCommandTimeoutError as e:
+            raise MetalCoordCommandTimeoutError(f"MetalCoord update command timed out after {self.d_args['timeout']} seconds: {e}") from e
         except MetalCommandExecutionError as e:
-            logger.error(f"MetalCommandExecutionError: {e}")
-            return None
+            raise MetalCoordCommandExecutionError(f"MetalCoord update command execution error: {e}") from e
+        except Exception as e:
+            raise MetalCoordCommandExecutionError(f"Unexpected error while running MetalCoord update command: {e}") from e
 
 
-def main():
-    d_args = {"metalcoord_exe": None,
-              "ligand": "0KA",
-              "pdb": "4DHV",
-              "workdir": "metalcoord",
-              "max_size": 100,
-              "threshold": 0.1
-              }
-    try:
-        rMC = RunMetalCoord(d_args)
-    except Exception as e:
-        print(e)
-        sys.exit(1)
-    rMC.setInputMode("stats")
-    cmd_stdout = rMC.run()
-    print(cmd_stdout)
+# def main():
+#     d_args = {"metalcoord_exe": "/Users/chenghua/Projects/RunMetalCoord/py-run_metalCoord/venv/bin/metalCoord",
+#               "ligand": "0KA",
+#               "pdb": "4DHV",
+#               "workdir": "metalcoord",
+#               "max_size": 100,
+#               "threshold": 0.1,
+#               "timeout": 3600,
+#               }
+#     try:
+#         rMC = RunMetalCoord(d_args)
+#     except Exception as e:
+#         print(e)
+#         sys.exit(1)
+#     rMC.setInputMode("stats")
+#     cmd_stdout = rMC.run()
+#     print(cmd_stdout)
 
 
-if __name__ == "__main__":
-    main()
+# if __name__ == "__main__":
+#     main()

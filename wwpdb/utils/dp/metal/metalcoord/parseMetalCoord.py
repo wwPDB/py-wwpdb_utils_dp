@@ -22,6 +22,11 @@ else:
 logger = logging.getLogger(__name__)
 
 
+class MetalCoordParseError(Exception):
+    """Raised when there is an error in parsing MetalCoord output."""
+    pass
+
+
 class ParseMetalCoord:
     """Wrapper to parse MetalCoord output files
     """
@@ -42,29 +47,20 @@ class ParseMetalCoord:
         try:
             with open(fp_metalcoord, "r") as f:
                 self.data = json.load(f)
-                logger.info("JSON loaded successfully from %s", fp_metalcoord)
+                logger.debug("JSON loaded successfully from %s", fp_metalcoord)
                 if self.data:
-                    logger.info("json file %s is not empty", fp_metalcoord)
-                    return True
+                    logger.debug("json file %s is not empty", fp_metalcoord)
                 else:
-                    logger.warning("json file %s is empty, STOP process", fp_metalcoord)
-                    return False
-        except FileNotFoundError:
-            logger.error("Error: File not found at %s", fp_metalcoord)
-            return False
-
-        except PermissionError:
-            logger.error("Error: Permission denied when trying to open %s.", fp_metalcoord)
-            return False
-
+                    logger.warning("json file %s is empty, no output for the ligand, continue next process", fp_metalcoord)
+        except FileNotFoundError as e:
+            raise MetalCoordParseError(f"File not found: {fp_metalcoord}") from e
+        except PermissionError as e:
+            raise MetalCoordParseError(f"Permission denied when trying to open: {fp_metalcoord}") from e
         except json.JSONDecodeError as e:
-            logger.error("Error: Failed to decode JSON for %s — %s", fp_metalcoord, e)
-            return False
-
+            raise MetalCoordParseError(f"Failed to decode JSON for {fp_metalcoord} — {e}") from e
         except Exception as e:
-            logger.error("Unexpected error in loading data from %s: %s", fp_metalcoord, e)
-            return False
-
+            raise MetalCoordParseError(f"An unexpected error occurred while reading {fp_metalcoord} — {e}") from e
+        
     def parse(self):
         """
         parse MetalCoord output folder to extract top hit coordination geometry for each site.
@@ -74,18 +70,23 @@ class ParseMetalCoord:
         4. store the results in self.l_sites
         5. sort self.l_sites by metal, chain, residue, sequence, icode
         """
-        self.filter()
-        logger.info("finished filtering the MetalCoord output json")
-        if self.l_sites:
-            self.amend()
-            logger.info("finished adding info to the output json")
-            self.sort()
-        else:
-            logger.warning("no metal sites parsed")
+        try:
+            logger.info("to extract the best geometry for each metal site based on procrustes score")
+            self.filter()
+            if self.l_sites:
+                logger.info("to add additional metal annotation")
+                self.amend()
+                logger.info("to sort output for each site")
+                self.sort()
+            else:
+                logger.warning("no metal sites parsed, continue next process")
+        except Exception as e:
+            raise MetalCoordParseError(f"An unexpected error occurred during parsing: {e}") from e
 
     def filter(self):
         """
         Extract a compact, top-hit summary for each metal site from self.data.
+        This filter method is not the one to filter Regular geometry site only.
         """
         for d_site in self.data:
             d_site_filtered = {}
@@ -108,7 +109,7 @@ class ParseMetalCoord:
 
             # record only coordination ligands in the new "sphere" record
             d_site_filtered["sphere"] = d_tophit["order"]
-
+            logger.debug("for site %s, best coordination geometry is %s with procrustes score %s", d_site_filtered["metal"], d_site_filtered["class"], d_site_filtered["procrustes"])
             self.l_sites.append(d_site_filtered)
 
     def amend(self):
@@ -189,6 +190,5 @@ class ParseMetalCoord:
 
         :param filepath_json: path to output json file
         """
-        logger.info("to write report to %s", filepath_json)
         with open(filepath_json, "w") as file:
             json.dump(self.l_sites, file, indent=4)

@@ -151,6 +151,7 @@ def main():
     parser.add_argument("-i", "--input", help="Ligand cif file", type=str, required=True)
     parser.add_argument("-p", "--pdb", help="PDB code or pdb file", type=str, default=None)
     parser.add_argument("-t", "--threshold", help="Procrustes distance threshold.", type=float, default=0.3)
+    parser.add_argument("-s", "--timeout", help="Timeout in seconds for running MetalCoord command, default is 3600 seconds (1 hour)", type=int, default=3600)
     args = parser.parse_args()
 
     # run Acedrg
@@ -158,6 +159,7 @@ def main():
     d_args_acedrg["acedrg_exe"] = args.acedrg_exe
     d_args_acedrg["mmcif"] = args.input
     d_args_acedrg["out"] = os.path.join(args.workdir, "acedrg")
+    d_args_acedrg["timeout"] = args.timeout
     fp_acedrg_cif = callAcedrg(d_args_acedrg)
     if not fp_acedrg_cif:
         logger.error("Acedrg failed, STOP without output")
@@ -170,6 +172,7 @@ def main():
     d_args_metalcoord["input"] = fp_acedrg_cif  # use Acedrg output as input
     d_args_metalcoord["pdb"] = args.pdb
     d_args_metalcoord["threshold"] = args.threshold
+    d_args_metalcoord["timeout"] = args.timeout
     (fp_metalcoord_cif, fp_metalcoord_json) = callMetalCoord(d_args_metalcoord)
     if not fp_metalcoord_cif:
         logger.error("MetalCoord update mode failed, STOP without output")
@@ -180,6 +183,7 @@ def main():
     d_args_servalcat["servalcat_exe"] = None
     d_args_servalcat["update_dictionary"] = fp_metalcoord_cif  # use MetalCoord output as input
     d_args_servalcat["output_prefix"] = os.path.join(args.workdir, "servalcat")
+    d_args_servalcat["timeout"] = args.timeout
     fp_servalcat_cif = callServalcat(d_args_servalcat)
     if not fp_servalcat_cif:
         logger.error("Servalcat failed, STOP without output")

@@ -56,7 +56,7 @@ class TestRunMetalCoord(unittest.TestCase):
         l_command.extend([sys.executable, os.path.join(METAL_DIR, "metalcoord", "processMetalCoordStats.py")])
         l_command.extend(["--ligands", "0KA"])
         l_command.extend(["--pdb", "4DHV"])
-        folder = "metalcoord_4DHV_public_0KA_for_entry"
+        folder = "metalcoord_4DHV_public_0KA_all_geometry"
         l_command.extend(["--workdir", folder])
         if self.b_standalone_metalcoord:
             metalcoord_exe = "/Users/chenghua/Projects/RunMetalCoord/py-run_metalCoord/venv/bin/metalCoord"
@@ -68,6 +68,7 @@ class TestRunMetalCoord(unittest.TestCase):
             os.makedirs(TEST_TEMP_DIR, exist_ok=True)
         except Exception as e:
             print("cannot create workdir: %s with error %s", TEST_TEMP_DIR, e)
+            sys.exit(1)
 
         os.chdir(TEST_TEMP_DIR)
         os.system(command)
@@ -98,7 +99,7 @@ class TestRunMetalCoord(unittest.TestCase):
         l_command.extend([sys.executable, os.path.join(METAL_DIR, "metalcoord", "processMetalCoordStats.py")])
         l_command.extend(["--ligands", "0KA"])
         l_command.extend(["--pdb", "4DHV"])
-        folder = "metalcoord_4DHV_public_0KA_for_CCD"
+        folder = "metalcoord_4DHV_public_0KA_regular_geometry"
         l_command.extend(["--workdir", folder])
         l_command.append("--filter")
         if self.b_standalone_metalcoord:
@@ -111,6 +112,7 @@ class TestRunMetalCoord(unittest.TestCase):
             os.makedirs(TEST_TEMP_DIR, exist_ok=True)
         except Exception as e:
             print("cannot create workdir: %s with error %s", TEST_TEMP_DIR, e)
+            sys.exit(1)
 
         os.chdir(TEST_TEMP_DIR)
         os.system(command)
@@ -141,8 +143,9 @@ class TestRunMetalCoord(unittest.TestCase):
         l_command.extend([sys.executable, os.path.join(METAL_DIR, "metalcoord", "processMetalCoordStats.py")])
         l_command.extend(["--ligands", "0KA,NCO"])
         l_command.extend(["--pdb", "4DHV"])
-        folder = "metalcoord_4DHV_public_0KA_NCO_for_entry"
+        folder = "metalcoord_4DHV_public_0KA_NCO_regular_geometry"
         l_command.extend(["--workdir", folder])
+        l_command.append("--filter")
         if self.b_standalone_metalcoord:
             metalcoord_exe = "/Users/chenghua/Projects/RunMetalCoord/py-run_metalCoord/venv/bin/metalCoord"
             l_command.extend(["--metalcoord_exe", metalcoord_exe])
@@ -153,6 +156,7 @@ class TestRunMetalCoord(unittest.TestCase):
             os.makedirs(TEST_TEMP_DIR, exist_ok=True)
         except Exception as e:
             print("cannot create workdir: %s with error %s", TEST_TEMP_DIR, e)
+            sys.exit(1)
 
         os.chdir(TEST_TEMP_DIR)
         os.system(command)
@@ -164,6 +168,139 @@ class TestRunMetalCoord(unittest.TestCase):
             data = json.load(f)
             self.assertTrue(data)  # test file is not empty
 
+    def testTimeout(self):
+        l_command = []
+        if not self.b_standalone_metalcoord:
+            ccp4_dir = os.getenv("CCP4", None)
+            if ccp4_dir:
+                print("Found CCP4 env at %s" % ccp4_dir)
+            else:
+                print("Setup CCP4")
+                onedep_package_dir = os.getenv("PACKAGE_DIR", None)
+                if onedep_package_dir:
+                    print("Test in OneDep environment")
+                    ccp4_dir = os.path.join(onedep_package_dir, "metallo", "ccp4-9")
+                else:
+                    print("Test in local development")
+                    ccp4_dir = "/Applications/ccp4-9"
+                l_command.append(f"source {ccp4_dir}/bin/ccp4.setup-sh;")
+        l_command.extend([sys.executable, os.path.join(METAL_DIR, "metalcoord", "processMetalCoordStats.py")])
+        l_command.extend(["--ligands", "0KA"])
+        l_command.extend(["--pdb", "4DHV"])
+        folder = "metalcoord_4DHV_public_0KA_timeout"
+        l_command.extend(["--workdir", folder])
+        l_command.extend(["--timeout", "1"])  # set timeout to 1 second to trigger timeout error
+        if self.b_standalone_metalcoord:
+            metalcoord_exe = "/Users/chenghua/Projects/RunMetalCoord/py-run_metalCoord/venv/bin/metalCoord"
+            l_command.extend(["--metalcoord_exe", metalcoord_exe])
+        command = " ".join(l_command)
+        print(command)
+
+        try:
+            os.makedirs(TEST_TEMP_DIR, exist_ok=True)
+        except Exception as e:
+            print("cannot create workdir: %s with error %s", TEST_TEMP_DIR, e)
+            sys.exit(1)
+
+        os.chdir(TEST_TEMP_DIR)
+        os.system(command)
+
+        fp_metalcoord_json = os.path.join(TEST_TEMP_DIR, folder, "metalcoord_report.json")
+        self.assertTrue(os.path.exists(fp_metalcoord_json))  # test file exist
+
+        with open(fp_metalcoord_json) as f:
+            data = json.load(f)
+            self.assertTrue(data["error"] == "timeout")   
+
+    def testParameterError(self):
+        l_command = []
+        if not self.b_standalone_metalcoord:
+            ccp4_dir = os.getenv("CCP4", None)
+            if ccp4_dir:
+                print("Found CCP4 env at %s" % ccp4_dir)
+            else:
+                print("Setup CCP4")
+                onedep_package_dir = os.getenv("PACKAGE_DIR", None)
+                if onedep_package_dir:
+                    print("Test in OneDep environment")
+                    ccp4_dir = os.path.join(onedep_package_dir, "metallo", "ccp4-9")
+                else:
+                    print("Test in local development")
+                    ccp4_dir = "/Applications/ccp4-9"
+                l_command.append(f"source {ccp4_dir}/bin/ccp4.setup-sh;")
+        l_command.extend([sys.executable, os.path.join(METAL_DIR, "metalcoord", "processMetalCoordStats.py")])
+        l_command.extend(["--ligands", "0KAX"])  # wrong ligand ID to trigger parameter error
+        l_command.extend(["--pdb", "4DHV"])
+        folder = "metalcoord_4DHV_public_0KA_parameters_error"
+        l_command.extend(["--workdir", folder])
+        if self.b_standalone_metalcoord:
+            metalcoord_exe = "/Users/chenghua/Projects/RunMetalCoord/py-run_metalCoord/venv/bin/metalCoord"
+            l_command.extend(["--metalcoord_exe", metalcoord_exe])
+        command = " ".join(l_command)
+        print(command)
+
+        try:
+            os.makedirs(TEST_TEMP_DIR, exist_ok=True)
+        except Exception as e:
+            print("cannot create workdir: %s with error %s", TEST_TEMP_DIR, e)
+            sys.exit(1)
+
+        os.chdir(TEST_TEMP_DIR)
+        os.system(command)
+
+        fp_metalcoord_json = os.path.join(TEST_TEMP_DIR, folder, "metalcoord_report.json")
+        self.assertTrue(os.path.exists(fp_metalcoord_json))  # test file exist
+
+        with open(fp_metalcoord_json) as f:
+            data = json.load(f)
+            self.assertTrue(data["error"] == "parameters-error")  
+
+    def testPermissionError(self):
+        l_command = []
+        if not self.b_standalone_metalcoord:
+            ccp4_dir = os.getenv("CCP4", None)
+            if ccp4_dir:
+                print("Found CCP4 env at %s" % ccp4_dir)
+            else:
+                print("Setup CCP4")
+                onedep_package_dir = os.getenv("PACKAGE_DIR", None)
+                if onedep_package_dir:
+                    print("Test in OneDep environment")
+                    ccp4_dir = os.path.join(onedep_package_dir, "metallo", "ccp4-9")
+                else:
+                    print("Test in local development")
+                    ccp4_dir = "/Applications/ccp4-9"
+                l_command.append(f"source {ccp4_dir}/bin/ccp4.setup-sh;")
+        l_command.extend([sys.executable, os.path.join(METAL_DIR, "metalcoord", "processMetalCoordStats.py")])
+        l_command.extend(["--ligands", "0KA"])  # wrong ligand ID to trigger execution error
+        l_command.extend(["--pdb", "4DHV"])
+        folder = "metalcoord_4DHV_public_0KA_permission_error"
+        l_command.extend(["--workdir", "/test1"])  # dangerous test to check execution permission error, local only test, which will cause execution error instead of permission error since the workdir is created by current user but not accessible
+        if self.b_standalone_metalcoord:
+            metalcoord_exe = "/Users/chenghua/Projects/RunMetalCoord/py-run_metalCoord/venv/bin/metalCoord"
+            l_command.extend(["--metalcoord_exe", metalcoord_exe])
+        command = " ".join(l_command)
+        print(command)
+
+        try:
+            os.makedirs(TEST_TEMP_DIR, exist_ok=True)
+        except Exception as e:
+            print("cannot create workdir: %s with error %s", TEST_TEMP_DIR, e)
+            sys.exit(1)
+
+        os.chdir(TEST_TEMP_DIR)
+        os.system(command)
+
+        fp_metalcoord_json = os.path.join(TEST_TEMP_DIR, folder, "metalcoord_report.json")
+        self.assertFalse(os.path.exists(fp_metalcoord_json))  # test file exist
+
 
 if __name__ == "__main__":
-    unittest.main()
+    test_suite = unittest.TestSuite()
+    test_suite.addTest(TestRunMetalCoord("testOneLig"))
+    test_suite.addTest(TestRunMetalCoord("testOneLigFilterRegular"))
+    test_suite.addTest(TestRunMetalCoord("testTwoLig"))
+    test_suite.addTest(TestRunMetalCoord("testTimeout"))
+    test_suite.addTest(TestRunMetalCoord("testParameterError"))
+    # test_suite.addTest(TestRunMetalCoord("testPermissionError"))
+    unittest.TextTestRunner().run(test_suite)

@@ -53,7 +53,7 @@ class TestRunFindGeo(unittest.TestCase):
         l_command.extend(["--findgeo-jar", findgeo_jar])
         l_command.extend(["--input", os.path.join(TEST_DATA_DIR, "8D3M-internal.cif")])
         l_command.append("--compare")
-        folder = "findgeo_8D3M_internal_compare_for_entry"
+        folder = "findgeo_8D3M_internal_compare_all_geometry"
         l_command.extend(["--workdir", folder])
         command = " ".join(l_command)
         print(command)
@@ -88,7 +88,7 @@ class TestRunFindGeo(unittest.TestCase):
         l_command.extend(["--findgeo-jar", findgeo_jar])
         l_command.extend(["--pdb", "4DHV"])
         l_command.append("--compare")
-        folder = "findgeo_4DHV_public_compare_for_entry"
+        folder = "findgeo_4DHV_public_compare_all_geometry"
         l_command.extend(["--workdir", folder])
         command = " ".join(l_command)
         print(command)
@@ -124,7 +124,7 @@ class TestRunFindGeo(unittest.TestCase):
         l_command.extend(["--input", os.path.join(TEST_DATA_DIR, "8D3M-internal.cif")])
         l_command.append("--compare")
         l_command.append("--filter")
-        folder = "findgeo_8D3M_internal_compare_for_CCD"
+        folder = "findgeo_8D3M_internal_compare_regular_geometry"
         l_command.extend(["--workdir", folder])
         command = " ".join(l_command)
         print(command)
@@ -160,7 +160,7 @@ class TestRunFindGeo(unittest.TestCase):
         l_command.extend(["--pdb", "4DHV"])
         l_command.append("--compare")
         l_command.append("--filter")
-        folder = "findgeo_4DHV_public_compare_for_CCD"
+        folder = "findgeo_4DHV_public_compare_regular_geometry"
         l_command.extend(["--workdir", folder])
         command = " ".join(l_command)
         print(command)
@@ -196,7 +196,7 @@ class TestRunFindGeo(unittest.TestCase):
         l_command.extend(["--findgeo-jar", findgeo_jar])
         l_command.extend(["--input", os.path.join(TEST_DATA_DIR, "8D3M-internal.cif")])
         l_command.append("--compare")
-        folder = "findgeo_8D3M_internal_compare_for_entry"
+        folder = "findgeo_8D3M_internal_compare_timeout"
         l_command.extend(["--workdir", folder])
         l_command.extend(["--timeout", "1"])
         command = " ".join(l_command)
@@ -232,7 +232,7 @@ class TestRunFindGeo(unittest.TestCase):
         l_command.extend(["--findgeo-jar", findgeo_jar])
         l_command.extend(["--input", os.path.join(TEST_DATA_DIR, "8D3M-internal.cif")])
         l_command.append("--compare")
-        folder = "findgeo_8D3M_internal_compare_for_entry"
+        folder = "findgeo_8D3M_internal_compare_parameters_error"
         l_command.extend(["--workdir", folder])
         l_command.extend(["--format", "mmCIF"])  # use mmCIF format to cause execution error since FindGeo.jar does not support mmCIF input, which will cause execution error instead of timeout error
         command = " ".join(l_command)
@@ -268,7 +268,7 @@ class TestRunFindGeo(unittest.TestCase):
         l_command.extend(["--findgeo-jar", findgeo_jar])
         l_command.extend(["--input", os.path.join(TEST_DATA_DIR, "8D3M-internal.cif")])
         l_command.append("--compare")
-        folder = "findgeo_8D3M_internal_compare_for_entry"
+        folder = "findgeo_8D3M_internal_compare_execution_error"
         l_command.extend(["--workdir", folder])
         l_command.extend(["--metal", "A"])  # use invalid metal to cause execution error since FindGeo.jar does not support mmCIF input, which will cause execution error instead of timeout error
         command = " ".join(l_command)
@@ -304,7 +304,7 @@ class TestRunFindGeo(unittest.TestCase):
         l_command.extend(["--findgeo-jar", findgeo_jar])
         l_command.extend(["--input", os.path.join(TEST_DATA_DIR, "8D3M-internal.cif")])
         l_command.append("--compare")
-        folder = "findgeo_8D3M_internal_compare_for_entry"
+        folder = "findgeo_8D3M_internal_compare_permission_error"
         l_command.extend(["--workdir", "/test1"])  # dangerous test to check execution permission error, local only test
         command = " ".join(l_command)
         print(command)
