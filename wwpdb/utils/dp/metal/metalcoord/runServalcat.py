@@ -12,12 +12,25 @@ import sys
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from wwpdb.utils.dp.metal.metal_util.run_command import MetalCommandExecutionError, run_command  # noqa: E402
+    from wwpdb.utils.dp.metal.metal_util.run_command import run_command, MetalCommandExecutionError, MetalCommandTimeoutError  # noqa: E402
 else:
     sys.path.append(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "metal_util"))
-    from run_command import MetalCommandExecutionError, run_command  # noqa: E402
+    from run_command import run_command, MetalCommandExecutionError, MetalCommandTimeoutError  # noqa: E402
 
 logger = logging.getLogger(__name__)
+
+class ServalcatParametersError(Exception):
+    def __init__(self, errors: dict):
+        self.errors = errors
+        super().__init__(str(errors))
+
+
+class ServalcatCommandExecutionError(MetalCommandExecutionError):
+    pass
+
+
+class ServalcatCommandTimeoutError(MetalCommandTimeoutError):
+    pass
 
 
 class RunServalcat:
@@ -25,16 +38,37 @@ class RunServalcat:
     """
     def __init__(self, d_args):
         self.d_args = d_args
-        if not self.d_args["servalcat_exe"]:
-            logger.info("%s is called without explicit servalcat executable, to find in CCP4", self.__class__.__name__)
+        self.validateArgs()
+
+    def validateArgs(self):
+        """
+        validate arguments in d_args
+        raise ServalcatParametersError with a dictionary of errors if any validation fails
+        """
+        errors = {}
+        if self.d_args["servalcat_exe"]:
+            if os.path.exists(self.d_args["servalcat_exe"]):
+                logger.info("use explicit Servalcat executable at %s", self.d_args["servalcat_exe"])
+            else:
+                errors["servalcat_exe"] = f"explicit Servalcat executable not found at {self.d_args['servalcat_exe']}"
+        else:
+            # if not explicitly provided, try to find Servalcat executable from CCP4 bin/ folder using CCP4 environment variable
             ccp4_dir = os.getenv("CCP4", default=None)
-            if not ccp4_dir:
-                raise KeyError("Environment variable 'CCP4' not found")
-            servalcat_exe = os.path.join(ccp4_dir, "bin", "servalcat")
-            if not os.path.exists(servalcat_exe):
-                raise FileNotFoundError("servalcat executable not found in CCP4 bin/ folder")
-            self.d_args["servalcat_exe"] = servalcat_exe
-            logger.info("use servalcat executable at %s", servalcat_exe)
+            if ccp4_dir:
+                servalcat_exe = os.path.join(ccp4_dir, "bin", "servalcat")
+                if os.path.exists(servalcat_exe):
+                    self.d_args["servalcat_exe"] = servalcat_exe
+                    logger.info("use CCP4 Servalcat executable at %s", servalcat_exe)
+                else:
+                    errors["servalcat_exe"] = f"CCP4 Servalcat executable not found in {servalcat_exe}"
+            else:
+                errors["servalcat_exe"] = "explicitly Servalcat executable not provided, and cannot find CCP4 Servalcat, Env var 'CCP4' is missing"
+
+        if not os.path.exists(self.d_args["update_dictionary"]):
+            errors["update_dictionary"] = f"failed to find update dictionary input file at: {self.d_args['update_dictionary']}"
+
+        if errors:
+            raise ServalcatParametersError(errors)
 
     def run(self):
         """
@@ -52,31 +86,31 @@ class RunServalcat:
 
         logger.info("to run servalcat full command:\n %s", ' '.join(l_command))
         try:
-            cmd_stdout = run_command(l_command)
-            logger.info("finished running servalcat on %s", self.d_args["update_dictionary"])
+            cmd_stdout = run_command(l_command, self.d_args.get("timeout"))
             return cmd_stdout
+        except MetalCommandTimeoutError as e:
+            raise ServalcatCommandTimeoutError(f"Servalcat command timed out after {self.d_args.get('timeout')} seconds: {e}") from e
         except MetalCommandExecutionError as e:
-            logger.error(f"MetalCommandExecutionError: {e}")
-            return None
+            raise ServalcatCommandExecutionError(f"Servalcat command execution error: {e}") from e
 
 
-def main():
-    fp_in = "metalcoord/metalcoord.cif"
-    fp_out_root = "servalcat"
+# def main():
+#     fp_in = "metalcoord/metalcoord.cif"
+#     fp_out_root = "servalcat"
 
-    d_args = {"servalcat_exe": None,
-              "update_dictionary": fp_in,
-              "output_prefix": fp_out_root,
-              }
+#     d_args = {"servalcat_exe": None,
+#               "update_dictionary": fp_in,
+#               "output_prefix": fp_out_root,
+#               }
 
-    try:
-        rST = RunServalcat(d_args)
-    except Exception as e:
-        print(e)
-        sys.exit(1)
-    cmd_stdout = rST.run()
-    print(cmd_stdout)
+#     try:
+#         rST = RunServalcat(d_args)
+#     except Exception as e:
+#         print(e)
+#         sys.exit(1)
+#     cmd_stdout = rST.run()
+#     print(cmd_stdout)
 
 
-if __name__ == "__main__":
-    main()
+# if __name__ == "__main__":
+#     main()

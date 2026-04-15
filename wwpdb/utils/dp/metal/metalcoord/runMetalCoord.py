@@ -20,7 +20,7 @@ else:
 
 logger = logging.getLogger(__name__)
 
-class ValidateParametersError(Exception):
+class MetalCoordParametersError(Exception):
     def __init__(self, errors: dict):
         self.errors = errors
         super().__init__(str(errors))
@@ -55,7 +55,7 @@ class RunMetalCoord:
     def validateArgs(self):
         """
         validate arguments in d_args
-        raise ValidateParametersError with a dictionary of errors if any validation fails
+        raise MetalCoordParametersError with a dictionary of errors if any validation fails
         """
         errors = {}
         if self.d_args["metalcoord_exe"]:
@@ -76,28 +76,41 @@ class RunMetalCoord:
             else:
                 errors["metalcoord_exe"] = "explicity MetalCoord excecutable not provided, and cannot find CCP4 MetalCoord, Env var 'CCP4' is missing"
 
-        if os.path.exists(self.d_args["pdb"]):
-            logger.info("run on PDB file found at %s", self.d_args["pdb"])
-        elif len(self.d_args["pdb"]) in (4, 12) and self.d_args["pdb"].isalnum():
-            logger.info("run on PDB ID provided: %s", self.d_args["pdb"])
-        else:
-            errors["pdb"] = f"invalid PDB reference: {self.d_args['pdb']}, must be a valid PDB ID or an existing PDB/mmCIF file"
+        if self.d_args["pdb"]:
+            if os.path.exists(self.d_args["pdb"]):
+                logger.info("run on PDB file found at %s", self.d_args["pdb"])
+            elif len(self.d_args["pdb"]) in (4, 12) and self.d_args["pdb"].isalnum():
+                logger.info("run on PDB ID provided: %s", self.d_args["pdb"])
+            else:
+                errors["pdb"] = f"invalid PDB reference: {self.d_args['pdb']}, must be a valid PDB ID or an existing PDB/mmCIF file"
 
-        if self.d_args["ligand"] and self.d_args["ligand"].isalnum() and len(self.d_args["ligand"]) in (1,2,3,5):
-            logger.info("ligand code provided: %s", self.d_args["ligand"])
-        else:
-            errors["ligand"] = f"invalid ligand code: {self.d_args['ligand']}, must be alphanumeric and 1, 2, 3, or 5 characters long"
+        if "ligand" in self.d_args and self.d_args["ligand"]:
+            if self.d_args["ligand"] and self.d_args["ligand"].isalnum() and len(self.d_args["ligand"]) in (1,2,3,5):
+                logger.info("ligand code provided: %s", self.d_args["ligand"])
+            else:
+                errors["ligand"] = f"invalid ligand code: {self.d_args['ligand']}, must be alphanumeric and 1, 2, 3, or 5 characters long"
 
-        if not isinstance(self.d_args["max_size"], int) or self.d_args["max_size"] <= 10:
-            errors["max_size"] = f"invalid max_size: {self.d_args['max_size']}, must be a positive integer greater than 10"
+        if "max_size" in self.d_args and self.d_args["max_size"]:
+            if not isinstance(self.d_args["max_size"], int) or self.d_args["max_size"] <= 10:
+                errors["max_size"] = f"invalid max_size: {self.d_args['max_size']}, must be a positive integer greater than 10"
+
+        if "input" in self.d_args and self.d_args["input"]:
+            if os.path.exists(self.d_args["input"]):
+                logger.info("run on input cif file found at %s", self.d_args["input"])
+            else:
+                errors["input"] = f"failed to find input cif file at: {self.d_args['input']}"
+
+        if "threshold" in self.d_args and self.d_args["threshold"]:
+            if not isinstance(self.d_args["threshold"], (int, float)) or self.d_args["threshold"] < 0:
+                errors["threshold"] = f"invalid threshold: {self.d_args['threshold']}, must be a non-negative number"                
 
         try:
             os.makedirs(self.d_args['workdir'], exist_ok=True)
         except Exception as e:
-            errors["workdir"] = "cannot create workdir: %s with error %s" % (self.d_args['workdir'], e)
+            errors["workdir"] = f"cannot create workdir: {self.d_args['workdir']} with error {e}"
 
         if errors:
-            raise ValidateParametersError(errors)
+            raise MetalCoordParametersError(errors)
 
     def setInputMode(self, mode):
         self.mode = mode  # stats or update
@@ -174,7 +187,7 @@ class RunMetalCoord:
 
         logger.info("to run MetalCoord update mode full command:\n %s", ' '.join(l_command))
         try:
-            cmd_stdout = run_command(l_command)
+            cmd_stdout = run_command(l_command, self.d_args["timeout"])
             return cmd_stdout
         except MetalCommandTimeoutError as e:
             raise MetalCoordCommandTimeoutError(f"MetalCoord update command timed out after {self.d_args['timeout']} seconds: {e}") from e

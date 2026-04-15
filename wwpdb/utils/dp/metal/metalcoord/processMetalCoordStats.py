@@ -15,12 +15,12 @@ import sys
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from wwpdb.utils.dp.metal.metalcoord.runMetalCoord import RunMetalCoord, MetalCoordCommandExecutionError, MetalCoordCommandTimeoutError, ValidateParametersError  # noqa: E402
+    from wwpdb.utils.dp.metal.metalcoord.runMetalCoord import RunMetalCoord, MetalCoordCommandExecutionError, MetalCoordCommandTimeoutError, MetalCoordParametersError  # noqa: E402
     from wwpdb.utils.dp.metal.metalcoord.parseMetalCoord import ParseMetalCoord, MetalCoordParseError  # noqa: E402
     from wwpdb.utils.dp.metal.metal_util.run_command import setup_logger  # noqa: E402
 else:
     sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    from metalcoord.runMetalCoord import RunMetalCoord, MetalCoordCommandExecutionError, MetalCoordCommandTimeoutError, ValidateParametersError  # noqa: E402
+    from metalcoord.runMetalCoord import RunMetalCoord, MetalCoordCommandExecutionError, MetalCoordCommandTimeoutError, MetalCoordParametersError  # noqa: E402
     from metalcoord.parseMetalCoord import ParseMetalCoord, MetalCoordParseError  # noqa: E402
     from metal_util.run_command import setup_logger  # noqa: E402
 
@@ -61,7 +61,7 @@ def main():
 
         try:
             rMC = RunMetalCoord(d_args)
-        except ValidateParametersError as e:
+        except MetalCoordParametersError as e:
             logger.error("Validate Parameters error: %s", e.errors)
             with open(output_json, "w") as file:
                 json.dump({"error": "parameters-error", "details": e.errors}, file)
@@ -131,7 +131,7 @@ def main():
 
     with open(output_json, "w") as file:
         json.dump(l_sites_filtered, file, indent=4)
-    logger.info("MetalCoord results written to %s", output_json)
+    logger.info("MetalCoord stats mode results written to %s", output_json)
 
 
 if __name__ == "__main__":
