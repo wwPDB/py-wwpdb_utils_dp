@@ -21,41 +21,63 @@ else:
 logger = logging.getLogger(__name__)
 
 class MetalCoordParametersError(Exception):
+    """
+    Raised when there is a parameter validation error for MetalCoord.
+
+    :param errors: Dictionary of parameter errors.
+    :type errors: dict
+    """
     def __init__(self, errors: dict):
         self.errors = errors
         super().__init__(str(errors))
 
 
 class MetalCoordCommandExecutionError(MetalCommandExecutionError):
+    """
+    Raised when MetalCoord command execution fails.
+    """
     pass
 
 
 class MetalCoordCommandTimeoutError(MetalCommandTimeoutError):
+    """
+    Raised when MetalCoord command execution times out.
+    """
     pass
 
 
 class RunMetalCoord:
-    """Wrapper to run MetalCoord with arguments similar to command line
-    Example usage:
-    d_args = {
-        "metalcoord_exe": "/path/to/metalcoord/MetalCoord",
-        "ligand": "1PT",
-        "pdb": "1PG9.cif",
-        "workdir": "metalcoord",
-        "max_size": 100,
-    }
-    rMC = RunMetalCoord(d_args)
-    rMC.run()
+    """
+    Wrapper to run MetalCoord with arguments similar to command line.
+
+    Example usage::
+
+        d_args = {
+            "metalcoord_exe": "/path/to/metalcoord/MetalCoord",
+            "ligand": "1PT",
+            "pdb": "1PG9.cif",
+            "workdir": "metalcoord",
+            "max_size": 100,
+        }
+        rMC = RunMetalCoord(d_args)
+        rMC.run()
     """
     def __init__(self, d_args):
+        """
+        Initialize RunMetalCoord with arguments and validate them.
+
+        :param d_args: Dictionary of arguments for running MetalCoord.
+        :type d_args: dict
+        """
         self.d_args = d_args
         self.mode = None
         self.validateArgs()
 
     def validateArgs(self):
         """
-        validate arguments in d_args
-        raise MetalCoordParametersError with a dictionary of errors if any validation fails
+        Validate arguments in d_args.
+
+        :raises MetalCoordParametersError: If any validation fails, with a dictionary of errors.
         """
         errors = {}
         if self.d_args["metalcoord_exe"]:
@@ -113,9 +135,21 @@ class RunMetalCoord:
             raise MetalCoordParametersError(errors)
 
     def setInputMode(self, mode):
+        """
+        Set the input mode for MetalCoord ("stats" or "update").
+
+        :param mode: Mode to set ("stats" or "update").
+        :type mode: str
+        """
         self.mode = mode  # stats or update
 
     def run(self):
+        """
+        Run MetalCoord in the selected mode ("stats" or "update").
+
+        :return: Output from MetalCoord if successful, otherwise None.
+        :rtype: str or None
+        """
         if self.mode == "stats":
             return self.runStats()
         if self.mode == "update":
@@ -123,16 +157,16 @@ class RunMetalCoord:
 
     def runStats(self):
         """
-        run MetalCoord stats mode with arguments in d_args
-        example command:
-            MetalCoord stats
-            --ligand 1PT
-            --pdb 1PG9.cif  # accept both PDB ID and PDB/mmCIF file
-            --output metalcoord/1PT.json
-            --max_size 100
-            --timeout 3600
+        Run MetalCoord in stats mode with arguments in d_args.
+
+        Example command::
+
+            MetalCoord stats --ligand 1PT --pdb 1PG9.cif --output metalcoord/1PT.json --max_size 100 --timeout 3600
+
         :return: stdout from MetalCoord if successful, otherwise None
         :rtype: str or None
+        :raises MetalCoordCommandTimeoutError: If the command times out.
+        :raises MetalCoordCommandExecutionError: If the command fails.
         """
         l_command = [self.d_args["metalcoord_exe"], "stats"]
         l_command.extend(["--ligand", self.d_args["ligand"].upper()])  # ensure ligand code is uppercase
@@ -155,23 +189,21 @@ class RunMetalCoord:
 
     def runUpdate(self):
         """
-        run MetalCoord stats mode with arguments in d_args, with two options to run:
-        if a PDB model reference is provided, i.e. seld.d_args["pdb"] is not empty, run update based on model;
-        if a PDB model reference is NOT provided, run update by most_common option.
-        example commands:
-        update based on a PDB model:
-            MetalCoord update
-            --input acedrg/1PT.cif
-            --output metalcoord/1PT.cif
-            --pdb 1PG9.cif
-        update by the most_common option referring to geometry observed in the PDB archive
-            MetalCoord update
-            --input acedrg/1PT.cif
-            --output metalcoord/1PT.cif
-            --cif
-            --cl most_common
+        Run MetalCoord in update mode with arguments in d_args.
+
+        Two options:
+            - If a PDB model reference is provided, run update based on model.
+            - If not, run update by most_common option.
+
+        Example commands::
+
+            MetalCoord update --input acedrg/1PT.cif --output metalcoord/1PT.cif --pdb 1PG9.cif
+            MetalCoord update --input acedrg/1PT.cif --output metalcoord/1PT.cif --cif --cl most_common
+
         :return: stdout from MetalCoord if successful, otherwise None
         :rtype: str or None
+        :raises MetalCoordCommandTimeoutError: If the command times out.
+        :raises MetalCoordCommandExecutionError: If the command fails.
         """
         l_command = [self.d_args["metalcoord_exe"], "update"]
         l_command.extend(["--input", self.d_args["input"]])

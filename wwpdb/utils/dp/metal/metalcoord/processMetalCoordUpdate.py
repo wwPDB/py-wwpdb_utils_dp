@@ -37,6 +37,7 @@ logger = logging.getLogger("metalcoord.processMetalCoordUpdate")
 def callAcedrg(d_args_acedrg):
     """
     Call Acedrg with the provided arguments and return the output CIF file path.
+
     :param d_args_acedrg: Dictionary of arguments for running Acedrg.
     :type d_args_acedrg: dict
     :returns: Path to the generated CIF file if successful, otherwise None.
@@ -70,12 +71,14 @@ def callAcedrg(d_args_acedrg):
 def callMetalCoord(d_args_metalcoord):
     """
     Run MetalCoord in "update" mode and return output file paths.
+
     Initializes a RunMetalCoord instance with the provided argument dictionary,
     runs MetalCoord in "update" mode, and if the expected CIF output is not
     produced, retries with a fallback option (clearing the 'pdb' input in the
     RunMetalCoord arguments). The function then checks for the presence of the
     files "metalcoord.cif" and "metalcoord.cif.json" in the supplied work directory
     and returns their paths when both are present.
+
     :param d_args_metalcoord: Dictionary of arguments for RunMetalCoord. Must
         include at least the "workdir" key indicating where output files are
         written; other keys are passed to RunMetalCoord.
@@ -135,9 +138,11 @@ def callMetalCoord(d_args_metalcoord):
 def callServalcat(d_args_servalcat):
     """
     Call Servalcat to process and update a CIF file.
+
     This function constructs and runs a RunServalcat instance using the provided
     argument dictionary. It logs the command output and then checks for an output
     CIF file based on the ``output_prefix`` entry in ``d_args_servalcat``.
+
     :param d_args_servalcat: Dictionary of arguments forwarded to RunServalcat.
         Must include the key ``output_prefix`` whose value is used to form the
         expected output filename "<output_prefix>_updated.cif".
@@ -177,9 +182,21 @@ def callServalcat(d_args_servalcat):
 
 def main():
     """
-    run Acedrg-MetalCoord-Servalcat, then parse the output and generate a report json file in stats mode.
-    Example usages:
-    > python runMetalCoordUpdate.py --input 0KA.cif --pdb 4DHV.cif
+    Run Acedrg-MetalCoord-Servalcat, then parse the output and generate a report JSON file in stats mode.
+
+    Example usages::
+
+        python runMetalCoordUpdate.py --input 0KA.cif --pdb 4DHV.cif
+
+    Command-line arguments:
+        -a, --acedrg_exe: Acedrg executable file
+        -b, --metalcoord_exe: MetalCoord executable file
+        -c, --servalcat_exe: Servalcat executable file
+        -w, --workdir: Directory to write outputs
+        -i, --input: Ligand cif file
+        -p, --pdb: PDB code or pdb file
+        -t, --threshold: Procrustes distance threshold
+        -s, --timeout: Timeout in seconds for running MetalCoord command
     """
     parser = argparse.ArgumentParser()
     parser.add_argument("-a", "--acedrg_exe", help="Acedrg executable file", type=str, default=None)

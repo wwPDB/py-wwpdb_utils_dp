@@ -23,14 +23,21 @@ logger = logging.getLogger(__name__)
 
 
 class MetalCoordParseError(Exception):
-    """Raised when there is an error in parsing MetalCoord output."""
+    """
+    Raised when there is an error in parsing MetalCoord output.
+    """
     pass
 
 
 class ParseMetalCoord:
-    """Wrapper to parse MetalCoord output files
+    """
+    Wrapper to parse MetalCoord output files.
+    Provides methods to read, parse, filter, amend, sort, and report MetalCoord results.
     """
     def __init__(self):
+        """
+        Initialize ParseMetalCoord and load reference data for annotation.
+        """
         self.d_coord_num = readRefCoordNum()
         self.d_coord_map = readRefCoordMap("metalCoord")
         (self.d_redox, self.d_oxi) = readRefRedOx()
@@ -40,9 +47,14 @@ class ParseMetalCoord:
         self.l_sites = []
 
     def read(self, fp_metalcoord):
-        """load json data from the MetalCoord output json file
-        :param fp_metalcoord: MetalCoord output json file
-        :return: bool True for successful loading or non-empty data
+        """
+        Load JSON data from the MetalCoord output JSON file.
+
+        :param fp_metalcoord: Path to MetalCoord output JSON file.
+        :type fp_metalcoord: str
+        :return: True if data loaded successfully or is non-empty, False otherwise.
+        :rtype: bool
+        :raises MetalCoordParseError: If file is not found, permission denied, or JSON decode fails.
         """
         try:
             with open(fp_metalcoord, "r") as f:
@@ -63,12 +75,12 @@ class ParseMetalCoord:
         
     def parse(self):
         """
-        parse MetalCoord output folder to extract top hit coordination geometry for each site.
-        1. iterate through each site folder in self.folder
-        2. for each site folder, parse MetalCoord.out to get top hit coordination geometry
-        3. parse MetalCoord.input to get metal atom information
-        4. store the results in self.l_sites
-        5. sort self.l_sites by metal, chain, residue, sequence, icode
+        Parse MetalCoord output data to extract top hit coordination geometry for each site.
+
+        1. Iterate through each site in self.data
+        2. For each site, find the best coordination geometry based on procrustes score
+        3. Store the results in self.l_sites
+        4. Sort self.l_sites by metal, chain, residue, sequence, icode
         """
         try:
             logger.info("to extract the best geometry for each metal site based on procrustes score")
@@ -86,6 +98,7 @@ class ParseMetalCoord:
     def filter(self):
         """
         Extract a compact, top-hit summary for each metal site from self.data.
+
         This filter method is not the one to filter Regular geometry site only.
         """
         for d_site in self.data:
@@ -114,13 +127,11 @@ class ParseMetalCoord:
 
     def amend(self):
         """
-        amend d_tophit with additional information from reference data
-        1. add generic geometry name from the coordination class mapping reference
-        2. check whether the coordination number is allowd in the coordination number reference
-        3. add RedOx active marker
+        Amend each top-hit site dictionary in self.l_sites with additional information from reference data.
 
-        :param d_tophit: dict with top hit information
-        :return: amended dict with additional information
+        1. Add generic geometry name from the coordination class mapping reference
+        2. Check whether the coordination number is allowed in the coordination number reference
+        3. Add RedOx active marker, oxidation state, carbon_metal bond marker, exception marker, and tag
         """
         for d_tophit in self.l_sites:
             geom = d_tophit["class"]
@@ -173,7 +184,7 @@ class ParseMetalCoord:
 
     def sort(self):
         """
-        sort self.l_sites
+        Sort self.l_sites by a predefined key order for output consistency.
         """
         key_order = ["metal", "metalElement", "chain", "residue", "sequence", "icode", "altloc", "coordination", "class",
                      "class_abbr", "class_generic", "tag", "procrustes", "count", "descriptor", "coordination_number_allowed",
@@ -186,9 +197,10 @@ class ParseMetalCoord:
 
     def report(self, filepath_json):
         """
-        write self.l_sites to a json file
+        Write self.l_sites to a JSON file.
 
-        :param filepath_json: path to output json file
+        :param filepath_json: Path to output JSON file.
+        :type filepath_json: str
         """
         with open(filepath_json, "w") as file:
             json.dump(self.l_sites, file, indent=4)

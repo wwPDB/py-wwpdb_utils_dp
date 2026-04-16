@@ -21,30 +21,60 @@ logger = logging.getLogger(__name__)
 
 
 class AcedrgParametersError(Exception):
+    """
+    Raised when there is a parameter validation error for Acedrg.
+
+    :param errors: Dictionary of parameter errors.
+    :type errors: dict
+    """
     def __init__(self, errors: dict):
         self.errors = errors
         super().__init__(str(errors))
 
 
 class AcedrgCommandExecutionError(MetalCommandExecutionError):
+    """
+    Raised when Acedrg command execution fails.
+    """
     pass
 
 
 class AcedrgCommandTimeoutError(MetalCommandTimeoutError):
+    """
+    Raised when Acedrg command execution times out.
+    """
     pass
 
 
 class RunAcedrg:
-    """Wrapper to run Acedrg with arguments
+    """
+    Wrapper to run Acedrg with arguments.
+
+    Example usage::
+
+        d_args = {
+            "acedrg_exe": "/path/to/acedrg",
+            "mmcif": "1PT.cif",
+            "out": "1PT_acedrg",
+        }
+        rAG = RunAcedrg(d_args)
+        rAG.run()
     """
     def __init__(self, d_args):
+        """
+        Initialize RunAcedrg with arguments and validate them.
+
+        :param d_args: Dictionary of arguments for running Acedrg.
+        :type d_args: dict
+        """
         self.d_args = d_args
         self.validateArgs()
 
     def validateArgs(self):
         """
-        validate arguments in d_args
-        raise AcedrgParametersError with a dictionary of errors if any validation fails
+        Validate arguments in d_args.
+
+        :raises AcedrgParametersError: If any validation fails, with a dictionary of errors.
         """
         errors = {}
         if self.d_args["acedrg_exe"]:
@@ -73,13 +103,16 @@ class RunAcedrg:
 
     def run(self):
         """
-        run Acedrg with arguments in d_args
-        example command:
-            Acedrg
-            --mmcif 1PT.cif
-            --out 1PT_acedrg  # name root of the output files
-        :return: stdout from MetalCoord if successful, otherwise None
+        Run Acedrg with arguments in d_args.
+
+        Example command::
+
+            Acedrg --mmcif 1PT.cif --out 1PT_acedrg
+
+        :return: stdout from Acedrg if successful, otherwise None
         :rtype: str or None
+        :raises AcedrgCommandTimeoutError: If the command times out.
+        :raises AcedrgCommandExecutionError: If the command fails.
         """
         l_command = [self.d_args["acedrg_exe"]]
         l_command.extend(["--mmcif", self.d_args["mmcif"]])

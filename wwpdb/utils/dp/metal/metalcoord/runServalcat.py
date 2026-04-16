@@ -20,30 +20,50 @@ else:
 logger = logging.getLogger(__name__)
 
 class ServalcatParametersError(Exception):
+    """
+    Raised when there is a parameter validation error for Servalcat.
+
+    :param errors: Dictionary of parameter errors.
+    :type errors: dict
+    """
     def __init__(self, errors: dict):
         self.errors = errors
         super().__init__(str(errors))
 
 
 class ServalcatCommandExecutionError(MetalCommandExecutionError):
+    """
+    Raised when Servalcat command execution fails.
+    """
     pass
 
 
 class ServalcatCommandTimeoutError(MetalCommandTimeoutError):
+    """
+    Raised when Servalcat command execution times out.
+    """
     pass
 
 
 class RunServalcat:
-    """Wrapper to run servalcat with arguments
+    """
+    Wrapper to run Servalcat with arguments.
     """
     def __init__(self, d_args):
+        """
+        Initialize RunServalcat with arguments and validate them.
+
+        :param d_args: Dictionary of arguments for running Servalcat.
+        :type d_args: dict
+        """
         self.d_args = d_args
         self.validateArgs()
 
     def validateArgs(self):
         """
-        validate arguments in d_args
-        raise ServalcatParametersError with a dictionary of errors if any validation fails
+        Validate arguments in d_args.
+
+        :raises ServalcatParametersError: If any validation fails, with a dictionary of errors.
         """
         errors = {}
         if self.d_args["servalcat_exe"]:
@@ -72,13 +92,16 @@ class RunServalcat:
 
     def run(self):
         """
-        run servalcat with arguments in d_args
-        example command:
-            servalcat
-            --update_dictionary 1PT.cif
-            --output_prefix 1PT_servalcat  # name root of the output files
-        :return: stdout from MetalCoord if successful, otherwise None
+        Run Servalcat with arguments in d_args.
+
+        Example command::
+
+            servalcat refine_geom --update_dictionary 1PT.cif --output_prefix 1PT_servalcat
+
+        :return: stdout from Servalcat if successful, otherwise None
         :rtype: str or None
+        :raises ServalcatCommandTimeoutError: If the command times out.
+        :raises ServalcatCommandExecutionError: If the command fails.
         """
         l_command = [self.d_args["servalcat_exe"], "refine_geom"]
         l_command.extend(["--update_dictionary", self.d_args["update_dictionary"]])

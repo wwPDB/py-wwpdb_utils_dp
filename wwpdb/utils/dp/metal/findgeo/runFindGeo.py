@@ -21,57 +21,80 @@ logger = logging.getLogger(__name__)
 
 
 class ValidateParametersError(Exception):
+    """
+    Exception raised for errors in the input parameters for FindGeo.
+
+    :param errors: Dictionary of parameter errors.
+    :type errors: dict
+    """
     def __init__(self, errors: dict):
         self.errors = errors
         super().__init__(str(errors))
 
 
 class FindGeoCommandExecutionError(MetalCommandExecutionError):
+    """
+    Exception raised when FindGeo command execution fails.
+    """
     pass
 
 
 class FindGeoCommandTimeoutError(MetalCommandTimeoutError):
+    """
+    Exception raised when FindGeo command times out.
+    """
     pass
 
 
 class RunFindGeo:
-    """Wrapper to run FindGeo with arguments similar to command line
-    Example usage:
-    d_args = {
-        "excluded-donors": "C,H",
-        "format": "cif",
-        "input": "2HYV.cif",  # or None if using pdb
-        "metal": None,
-        "overwright": True,
-        "pdb": None,          # or "2HYV" if using pdb
-        "threshold": 2.8,
-        "workdir": "./findgeo",
-        "excluded-metals": Mg,Ca",
-        "java-exe": "/path/to/java/executable",
-        "findgeo-jar": "/path/to/FindGeo.jar"
-        "timeout": 3600
-    }
-    rFG = RunFindGeo(d_args)
-    rFG.run()
+    """
+    Wrapper to run FindGeo with arguments similar to command line.
+
+    Example usage::
+
+        d_args = {
+            "excluded-donors": "C,H",
+            "format": "cif",
+            "input": "2HYV.cif",  # or None if using pdb
+            "metal": None,
+            "overwright": True,
+            "pdb": None,          # or "2HYV" if using pdb
+            "threshold": 2.8,
+            "workdir": "./findgeo",
+            "excluded-metals": "Mg,Ca",
+            "java-exe": "/path/to/java/executable",
+            "findgeo-jar": "/path/to/FindGeo.jar",
+            "timeout": 3600
+        }
+        rFG = RunFindGeo(d_args)
+        rFG.run()
     """
     def __init__(self, d_args):
+        """
+        Initialize the RunFindGeo object and validate arguments.
+
+        :param d_args: Dictionary of arguments for FindGeo execution.
+        :type d_args: dict
+        """
         self.d_args = d_args
         self.validateArgs()
 
     def validateArgs(self):
         """
-        validate arguments in d_args
-        required keys in d_args:
-        excluded-donors, format, input, metal, overwright, pdb, threshold, workdir, excluded-metals, java-exe, findgeo-jar
-        1. java-exe and findgeo-jar must exist as files
-        2. format must be either 'cif' or 'pdb'
-        3. if metal is specified, it must be a valid chemical symbol (1 or 2 letters)
-        4. threshold must be a float between 1.0 and 4.0
-        5. workdir must be a valid directory, create it if it does not exist
-        6. either input or pdb must be specified, but not both
-        7. if input is specified, it must exist as a file
-        8. if pdb is specified, it must be a valid PDB code (4 alphanumeric characters)
-        raise ValidateParametersError with a dictionary of errors if any validation fails
+        Validate arguments in d_args.
+
+        Required keys in d_args:
+            excluded-donors, format, input, metal, overwright, pdb, threshold, workdir, excluded-metals, java-exe, findgeo-jar
+        Validation steps:
+            1. java-exe and findgeo-jar must exist as files
+            2. format must be either 'cif' or 'pdb'
+            3. if metal is specified, it must be a valid chemical symbol (1 or 2 letters)
+            4. threshold must be a float between 1.0 and 4.0
+            5. workdir must be a valid directory, create it if it does not exist
+            6. either input or pdb must be specified, but not both
+            7. if input is specified, it must exist as a file
+            8. if pdb is specified, it must be a valid PDB code (4 alphanumeric characters)
+        Raises ValidateParametersError with a dictionary of errors if any validation fails.
         """
         errors = {}
         if not os.path.exists(self.d_args['java-exe']):
@@ -112,29 +135,33 @@ class RunFindGeo:
 
     def run(self):
         """
-        run FindGeo with arguments in d_args and self.input as input file or pdb id
-        example command with local input file:
-            /usr/local/opt/openjdk/bin/java
-            -jar FindGeo.jar
-            --input 2HYV.cif
-            --excluded-donors C,H
-            --format cif
-            --threshold 2.8
-            --workdir findgeo
-            --excluded-metals Mg,Ca
-            --overwrite
-            --timeout 3600
-        example command with pdb id:
-            /usr/local/opt/openjdk/bin/java
-            -jar FindGeo.jar
-            --pdb 2HYV
-            --excluded-donors C,H
-            --format cif
-            --threshold 2.8
-            --workdir findgeo
-            --excluded-metals Mg,Ca
-            --overwrite
-            --timeout 3600
+        Run FindGeo with arguments in d_args and self.input as input file or pdb id.
+
+        Example command with local input file::
+
+            /usr/local/opt/openjdk/bin/java \
+                -jar FindGeo.jar \
+                --input 2HYV.cif \
+                --excluded-donors C,H \
+                --format cif \
+                --threshold 2.8 \
+                --workdir findgeo \
+                --excluded-metals Mg,Ca \
+                --overwrite \
+                --timeout 3600
+
+        Example command with pdb id::
+
+            /usr/local/opt/openjdk/bin/java \
+                -jar FindGeo.jar \
+                --pdb 2HYV \
+                --excluded-donors C,H \
+                --format cif \
+                --threshold 2.8 \
+                --workdir findgeo \
+                --excluded-metals Mg,Ca \
+                --overwrite \
+                --timeout 3600
 
         :return: stdout from FindGeo if successful, otherwise None
         :rtype: str or None

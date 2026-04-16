@@ -15,7 +15,18 @@ from datetime import datetime
 import os
 
 class MetalCommandExecutionError(Exception):
-    """Raised when a metal command execution fails, e.g. FindGeo and MetalCoord failure."""
+    """
+    Raised when a metal command execution fails, e.g. FindGeo and MetalCoord failure.
+
+    :param cmd: The command that was executed.
+    :type cmd: list or str
+    :param code: The exit code returned by the command (if any).
+    :type code: int or None
+    :param stderr: The standard error output from the command (if any).
+    :type stderr: str or None
+    :param stdout: The standard output from the command (if any).
+    :type stdout: str or None
+    """
     def __init__(self, cmd, code=None, stderr=None, stdout=None):
         self.cmd = cmd
         self.code = code
@@ -28,12 +39,26 @@ class MetalCommandExecutionError(Exception):
 
 
 class MetalCommandTimeoutError(MetalCommandExecutionError):
+    """
+    Raised when a metal command execution times out.
+    """
     pass
 
 
 def setup_logger(name="cmd", log_dir="metal_command_logs", b_debug=True):
-    """Use this only when an existing logger is not used for run_command() function below
-    Create or retrieve a configured logger.
+    """
+    Create or retrieve a configured logger for command execution.
+
+    Use this only when an existing logger is not used for run_command().
+
+    :param name: Name of the logger.
+    :type name: str
+    :param log_dir: Directory to store log files.
+    :type log_dir: str
+    :param b_debug: Whether to set debug level logging.
+    :type b_debug: bool
+    :return: Configured logger instance.
+    :rtype: logging.Logger
     """
     os.makedirs(log_dir, exist_ok=True)
     logger = logging.getLogger(name)
@@ -71,7 +96,20 @@ def setup_logger(name="cmd", log_dir="metal_command_logs", b_debug=True):
 
 
 def run_command(cmd, timeout_sec, logger=None):
-    """Run a local command and raise CommandExecutionError on failure."""
+    """
+    Run a local command and raise MetalCommandExecutionError on failure.
+
+    :param cmd: The command to execute as a list of arguments.
+    :type cmd: list
+    :param timeout_sec: Timeout in seconds for the command.
+    :type timeout_sec: int
+    :param logger: Logger instance to use for logging (optional).
+    :type logger: logging.Logger or None
+    :return: The standard output from the command if successful.
+    :rtype: str
+    :raises MetalCommandExecutionError: If the command fails.
+    :raises MetalCommandTimeoutError: If the command times out.
+    """
     if logger is None:
         logger = setup_logger()
 

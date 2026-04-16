@@ -31,10 +31,24 @@ logger = logging.getLogger("metalcoord.processMetalCoordStats")
 
 def main():
     """
-    run MetalCoord and take arguments exactly like the command line for MetalCoord,
-    then parse the output and generate a report json file in stats mode.
-    Example usages:
-    > python runMetalCoord.py --ligands 0KA --pdb 4DHV.cif --max_size 100
+    Run MetalCoord in stats mode and generate a report JSON file.
+
+    This function takes arguments exactly like the command line for MetalCoord,
+    runs MetalCoord for each ligand, parses the output, and generates a report JSON file.
+
+    Example usages::
+
+        python runMetalCoord.py --ligands 0KA --pdb 4DHV.cif --max_size 100
+
+    Command-line arguments:
+        -b, --metalcoord_exe: MetalCoord executable file
+        -w, --workdir: Directory to write outputs
+        -l, --ligands: Ligand code or comma-separated multiple codes
+        -p, --pdb: PDB code or pdb file
+        -x, --max_size: Maximum sample size for statistics
+        -t, --threshold: Procrustes distance threshold for finding COD reference
+        -z, --filter: Filter to output regular geometry only for CCD annotation
+        -s, --timeout: Timeout in seconds for running MetalCoord command
     """
     parser = argparse.ArgumentParser()
     parser.add_argument("-b", "--metalcoord_exe", help="MetalCoord executable file", type=str, default=None)

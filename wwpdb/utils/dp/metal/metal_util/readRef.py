@@ -15,10 +15,15 @@ REF_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__
 
 def readRefRedOx():
     """
+    Read the metal oxidation state and redox activity reference data from a CSV file.
+
     The function expects a file named ``metal_oxidation_state.csv`` located in the directory specified by ``REF_PATH``.
     The CSV file should be tab-delimited and contain at least the columns ``Metals``, ``Redox active``, and ``Oxidation state``.
+
     :returns: A tuple containing two dictionaries:
-    :rtype: tuple
+        - d_redox (dict): Mapping of metal name (str) to redox activity (str).
+        - d_oxi (dict): Mapping of metal name (str) to oxidation state (str).
+    :rtype: tuple(dict, dict)
     :raises FileNotFoundError: If the CSV file does not exist.
     :raises KeyError: If expected columns are missing in the CSV file.
     """
@@ -37,10 +42,15 @@ def readRefRedOx():
 
 def readRefCoordNum():
     """
-    Reads the metal coordination number reference data from a CSV file and returns a dictionary mapping metal names to their coordination numbers.
-    The CSV file is expected to be located at REF_PATH/metal_coordination_number.csv, with tab-delimited columns 'Metals' and 'Coordination numbers'.
+    Read the metal coordination number reference data from a CSV file.
+
+    The CSV file is expected to be located at ``REF_PATH/metal_coordination_number.csv``,
+    with tab-delimited columns 'Metals' and 'Coordination numbers'.
+
     :returns: Dictionary mapping metal names (str) to lists of coordination numbers (str).
     :rtype: dict
+    :raises FileNotFoundError: If the CSV file does not exist.
+    :raises KeyError: If expected columns are missing in the CSV file.
     """
 
     filepath = os.path.join(REF_PATH, "metal_coordination_number.csv")
@@ -56,7 +66,7 @@ def readRefCoordNum():
 
 def readRefCoordMap(program):
     """
-    Reads a CSV file containing coordinate class mappings and returns a dictionary mapping geometry names to their abbreviations and PDB geometry names for a specified program.
+    Read a CSV file containing coordinate class mappings and return a dictionary mapping geometry names to their abbreviations and PDB geometry names for a specified program.
 
     :param str program: The name of the program to select the appropriate columns from the CSV file.
     :returns: A dictionary where keys are geometry names (lowercase) and values are dictionaries with 'abbr' (abbreviation, uppercase) and 'pdb_geom' (PDB geometry name, lowercase).
@@ -92,9 +102,9 @@ def readRefCoordMap(program):
 
 def readRefMetalCarbon():
     """
-    Reads a CSV file containing elements of candidate for metal-carbon bond and returns list of elements.
+    Read a CSV file containing elements that are candidates for metal-carbon bonds and return a list of elements.
 
-    :returns: list of element names (str).
+    :returns: List of element names (str).
     :rtype: list
 
     .. note::
@@ -113,9 +123,9 @@ def readRefMetalCarbon():
 
 def readRefCoordException():
     """
-    Reads a CSV file containing threshold and exceptions for coordination classes annotation on CCD and returns a dictionary mapping metal element.
+    Read a CSV file containing threshold and exceptions for coordination classes annotation on CCD and return a dictionary mapping metal elements.
 
-    :returns: A dictionary where keys are metal names (str) and values are dict of threshold and exception geometries.
+    :returns: A dictionary where keys are metal names (str) and values are dicts of threshold and exception geometries.
     :rtype: dict
 
     .. note::
