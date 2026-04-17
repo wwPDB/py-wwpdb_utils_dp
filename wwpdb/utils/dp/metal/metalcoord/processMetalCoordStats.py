@@ -6,6 +6,7 @@
 This script runs MetalCoord in stats mode for specified ligands and PDB files,
 parses the output, and generates a report JSON file.
 """
+# pylint: disable=duplicate-code
 
 import argparse
 import json
@@ -29,7 +30,7 @@ setup_logger(name="metalcoord", log_dir=".", b_debug=False)
 logger = logging.getLogger("metalcoord.processMetalCoordStats")
 
 
-def main():
+def main():  # pylint: disable=too-many-locals,too-many-branches,too-many-statements
     """
     Run MetalCoord in stats mode and generate a report JSON file.
 
@@ -77,7 +78,7 @@ def main():
             rMC = RunMetalCoord(d_args)
         except MetalCoordParametersError as e:
             logger.error("Validate Parameters error: %s", e.errors)
-            with open(output_json, "w") as file:
+            with open(output_json, "w", encoding="utf-8") as file:
                 json.dump({"error": "parameters-error", "details": e.errors}, file)
             sys.exit(0)
         # no need to handle exceptions because RunMetalCoord.__init__() already handled them.
@@ -88,12 +89,12 @@ def main():
             logger.debug(cmd_stdout)
         except MetalCoordCommandTimeoutError as e:
             logger.error("MetalCoord command timed out: %s", e)
-            with open(output_json, "w") as file:
+            with open(output_json, "w", encoding="utf-8") as file:
                 json.dump({"error": "timeout", "details": str(e)}, file)
             sys.exit(0)
         except MetalCoordCommandExecutionError as e:
             logger.error("MetalCoord command execution error: %s", e)
-            with open(output_json, "w") as file:
+            with open(output_json, "w", encoding="utf-8") as file:
                 json.dump({"error": "execution-error", "details": str(e)}, file)
             sys.exit(0)
         # no need to handle exceptions because RunMetalCoord.run() already handled them.
@@ -103,8 +104,8 @@ def main():
             l_json_outputs.append(fp_metalcoord_json)
         else:
             logger.error("Unexpected error when running MetalCoord: cannot find output file for ligand %s", ligand)
-            with open(output_json, "w") as file:
-                json.dump({"error": "unexpected-error", "details": "cannot find output file for ligand %s" % ligand}, file)
+            with open(output_json, "w", encoding="utf-8") as file:
+                json.dump({"error": "unexpected-error", "details": f"cannot find output file for ligand {ligand}"}, file)
             sys.exit(0)
 
     # parse MetalCoord results and generate report
@@ -116,8 +117,8 @@ def main():
             pMC.parse()
         except MetalCoordParseError as e:
             logger.error("failed to read MetalCoord results at %s, no output: %s", fp_metalcoord_json, e)
-            with open(output_json, "w") as file:
-                json.dump({"error": "unexpected-error", "details": "failed to read MetalCoord results at %s, no output: %s" % (fp_metalcoord_json, str(e))}, file)
+            with open(output_json, "w", encoding="utf-8") as file:
+                json.dump({"error": "unexpected-error", "details": f"failed to read MetalCoord results at {fp_metalcoord_json}, no output: {e}"}, file)
             sys.exit(0)
     if args.filter:
         logger.info("to filter MetalCoord results to keep regular geometry only for CCD annotation")
@@ -143,7 +144,7 @@ def main():
         l_sites_filtered = pMC.l_sites
         logger.info("No filtering applied, total %s sites in output", len(l_sites_filtered))
 
-    with open(output_json, "w") as file:
+    with open(output_json, "w", encoding="utf-8") as file:
         json.dump(l_sites_filtered, file, indent=4)
     logger.info("MetalCoord stats mode results written to %s", output_json)
 

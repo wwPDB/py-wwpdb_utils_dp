@@ -19,6 +19,7 @@ else:
 
 logger = logging.getLogger(__name__)
 
+
 class ServalcatParametersError(Exception):
     """
     Raised when there is a parameter validation error for Servalcat.
@@ -35,14 +36,12 @@ class ServalcatCommandExecutionError(MetalCommandExecutionError):
     """
     Raised when Servalcat command execution fails.
     """
-    pass
 
 
 class ServalcatCommandTimeoutError(MetalCommandTimeoutError):
     """
     Raised when Servalcat command execution times out.
     """
-    pass
 
 
 class RunServalcat:

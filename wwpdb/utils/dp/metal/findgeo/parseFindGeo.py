@@ -5,14 +5,16 @@
 """
 Wrapper to parse FindGeo output files
 """
+# pylint: disable=duplicate-code
 
 import json
+import logging
 import os
 import sys
-import logging
 from collections import OrderedDict
-from mmcif.io.IoAdapterCore import IoAdapterCore
 from typing import TYPE_CHECKING
+
+from mmcif.io.IoAdapterCore import IoAdapterCore
 
 if TYPE_CHECKING:
     from wwpdb.utils.dp.metal.metal_util.readRef import readRefCoordNum, readRefCoordMap, readRefRedOx, readRefMetalCarbon, readRefCoordException
@@ -23,7 +25,7 @@ else:
 logger = logging.getLogger(__name__)
 
 
-class ParseFindGeo:
+class ParseFindGeo:  # pylint: disable=too-many-instance-attributes
     """Wrapper to parse FindGeo output files
     Example usage:
     pFG = ParseFindGeo(/path/to/findgeo/output/folder, input_format="cif")
@@ -64,7 +66,7 @@ class ParseFindGeo:
         else:
             logger.warning("no metal sites parsed in %s", self.folder)
 
-    def amend(self, d_tophit):
+    def amend(self, d_tophit):  # pylint: disable=too-many-branches
         """
         amend d_tophit with additional information from reference data
         1. add generic geometry name from the coordination class mapping reference
@@ -126,7 +128,7 @@ class ParseFindGeo:
 
         logger.debug("to process subfolder %s", subfolder)
         l_subfolder = os.listdir(subfolder)
-        if ("findgeo.out" not in l_subfolder):
+        if "findgeo.out" not in l_subfolder:
             logger.warning("failed to find findgeo.out in %s", subfolder)
             return None
 
@@ -149,8 +151,7 @@ class ParseFindGeo:
 
         if not t_atom or len(t_atom) != 6:
             return None
-        else:
-            (ccd_id, atom_label, chain, res_num, ins, alt) = t_atom  # pylint: disable=unbalanced-tuple-unpacking
+        (ccd_id, atom_label, chain, res_num, ins, alt) = t_atom  # pylint: disable=unbalanced-tuple-unpacking
 
         element = site_name.split("_")[0]
         d_tophit["metal"] = atom_label
@@ -162,7 +163,7 @@ class ParseFindGeo:
         d_tophit["altloc"] = alt
         return d_tophit
 
-    def parseFindGeoOutPut(self, filepath):
+    def parseFindGeoOutPut(self, filepath):  # pylint: disable=too-many-return-statements,too-many-branches,too-many-statements
         """
         parse findgeo.out file to extract top hit coordination geometry
         1. coordination number
@@ -178,7 +179,7 @@ class ParseFindGeo:
             return {}
         logger.debug("to process %s", filepath)
         d_tophit = {}
-        with open(filepath) as file:
+        with open(filepath, encoding="utf-8") as file:
             l_hit = []
             for line in file:
                 if line.startswith("Coordination number"):
@@ -195,7 +196,7 @@ class ParseFindGeo:
                         d_hit["tag"] = l_line[1].strip()
                         d_hit["rmsd"] = l_line[2].strip()
                         logger.debug("found coordination geometry %s, %s with tag %s RMSD %s",
-                                    d_hit["class_abbr"], d_hit["class"], d_hit["tag"], d_hit["rmsd"])
+                                     d_hit["class_abbr"], d_hit["class"], d_hit["tag"], d_hit["rmsd"])
                         l_hit.append(d_hit)
                 if line.startswith("Best geometry"):
                     _tmp = line.strip().split(":")[1]
@@ -240,8 +241,7 @@ class ParseFindGeo:
                 for d_hit in l_hit:
                     try:
                         rmsd = float(d_hit["rmsd"])
-                        if rmsd < lowest_rmsd:
-                            lowest_rmsd = rmsd
+                        lowest_rmsd = min(lowest_rmsd, rmsd)
                     except ValueError:
                         continue
                 d_tophit["rmsd"] = str(lowest_rmsd) if lowest_rmsd < 999 else ""
@@ -266,7 +266,7 @@ class ParseFindGeo:
         :return: tuple (ccd_id, atom_label, chain, res_num, ins, alt), empty tuple if parsing fails
         """
         logger.info("to process %s", filepath)
-        with open(filepath) as file:
+        with open(filepath, encoding="utf-8") as file:
             line = file.readline()
             if line.startswith("ATOM") or line.startswith("HETATM"):
                 if len(line.strip()) >= 54:
@@ -299,20 +299,19 @@ class ParseFindGeo:
             chain = d_metal_row.get("auth_asym_id", "").strip()
             logger.debug("found ccd_id %s", ccd_id)
             return (ccd_id, atom_label, chain, res_num, ins, alt)
-        else:
-            logger.info("to parse findgeo.input by column guess on: %s", filepath)
-            with open(filepath) as file:
-                for line in file:
-                    if line.startswith("ATOM") or line.startswith("HETATM"):
-                        l_line = line.strip().split()
-                        atom_label = l_line[3]
-                        alt = l_line[4]
-                        ccd_id = l_line[5]
-                        ins = l_line[9]
-                        res_num = l_line[15]
-                        chain = l_line[17]
-                        logger.info("found ccd_id %s", ccd_id)
-                        return (ccd_id, atom_label, chain, res_num, ins, alt)
+        logger.info("to parse findgeo.input by column guess on: %s", filepath)
+        with open(filepath, encoding="utf-8") as file:
+            for line in file:
+                if line.startswith("ATOM") or line.startswith("HETATM"):
+                    l_line = line.strip().split()
+                    atom_label = l_line[3]
+                    alt = l_line[4]
+                    ccd_id = l_line[5]
+                    ins = l_line[9]
+                    res_num = l_line[15]
+                    chain = l_line[17]
+                    logger.info("found ccd_id %s", ccd_id)
+                    return (ccd_id, atom_label, chain, res_num, ins, alt)
         logger.error("failed to process %s", filepath)
         return ()
 
@@ -364,5 +363,5 @@ class ParseFindGeo:
         :param filepath_json: path to output json file
         """
         logger.debug("to write report to %s", filepath_json)
-        with open(filepath_json, "w") as file:
+        with open(filepath_json, "w", encoding="utf-8") as file:
             json.dump(self.l_sites, file, indent=4)

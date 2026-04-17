@@ -36,14 +36,12 @@ class AcedrgCommandExecutionError(MetalCommandExecutionError):
     """
     Raised when Acedrg command execution fails.
     """
-    pass
 
 
 class AcedrgCommandTimeoutError(MetalCommandTimeoutError):
     """
     Raised when Acedrg command execution times out.
     """
-    pass
 
 
 class RunAcedrg:

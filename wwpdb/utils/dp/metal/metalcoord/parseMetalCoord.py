@@ -5,6 +5,7 @@
 """
 Wrapper to parse MetalCoord output json file
 """
+# pylint: disable=duplicate-code
 
 import json
 import os
@@ -26,10 +27,9 @@ class MetalCoordParseError(Exception):
     """
     Raised when there is an error in parsing MetalCoord output.
     """
-    pass
 
 
-class ParseMetalCoord:
+class ParseMetalCoord:  # pylint: disable=too-many-instance-attributes
     """
     Wrapper to parse MetalCoord output files.
     Provides methods to read, parse, filter, amend, sort, and report MetalCoord results.
@@ -57,7 +57,7 @@ class ParseMetalCoord:
         :raises MetalCoordParseError: If file is not found, permission denied, or JSON decode fails.
         """
         try:
-            with open(fp_metalcoord, "r") as f:
+            with open(fp_metalcoord, "r", encoding="utf-8") as f:
                 self.data = json.load(f)
                 logger.debug("JSON loaded successfully from %s", fp_metalcoord)
                 if self.data:
@@ -70,9 +70,9 @@ class ParseMetalCoord:
             raise MetalCoordParseError(f"Permission denied when trying to open: {fp_metalcoord}") from e
         except json.JSONDecodeError as e:
             raise MetalCoordParseError(f"Failed to decode JSON for {fp_metalcoord} — {e}") from e
-        except Exception as e:
+        except Exception as e:  # pylint: disable=broad-exception-caught
             raise MetalCoordParseError(f"An unexpected error occurred while reading {fp_metalcoord} — {e}") from e
-        
+
     def parse(self):
         """
         Parse MetalCoord output data to extract top hit coordination geometry for each site.
@@ -92,7 +92,7 @@ class ParseMetalCoord:
                 self.sort()
             else:
                 logger.warning("no metal sites parsed, continue next process")
-        except Exception as e:
+        except Exception as e:  # pylint: disable=broad-exception-caught
             raise MetalCoordParseError(f"An unexpected error occurred during parsing: {e}") from e
 
     def filter(self):
@@ -125,7 +125,7 @@ class ParseMetalCoord:
             logger.debug("for site %s, best coordination geometry is %s with procrustes score %s", d_site_filtered["metal"], d_site_filtered["class"], d_site_filtered["procrustes"])
             self.l_sites.append(d_site_filtered)
 
-    def amend(self):
+    def amend(self):  # pylint: disable=too-many-branches
         """
         Amend each top-hit site dictionary in self.l_sites with additional information from reference data.
 
@@ -175,7 +175,7 @@ class ParseMetalCoord:
             # mark positive procrustes < 0.2 as regular, and rest as irregular
             try:
                 procrustes = float(d_tophit["procrustes"])
-                if procrustes >= 0 and procrustes <= 0.2:
+                if 0 <= procrustes <= 0.2:
                     d_tophit["tag"] = "Regular"
                 else:
                     d_tophit["tag"] = "Irregular"  # >0.2 or -1 marked as irregular
@@ -202,5 +202,5 @@ class ParseMetalCoord:
         :param filepath_json: Path to output JSON file.
         :type filepath_json: str
         """
-        with open(filepath_json, "w") as file:
+        with open(filepath_json, "w", encoding="utf-8") as file:
             json.dump(self.l_sites, file, indent=4)

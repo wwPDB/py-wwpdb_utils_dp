@@ -20,6 +20,7 @@ else:
 
 logger = logging.getLogger(__name__)
 
+
 class MetalCoordParametersError(Exception):
     """
     Raised when there is a parameter validation error for MetalCoord.
@@ -36,14 +37,12 @@ class MetalCoordCommandExecutionError(MetalCommandExecutionError):
     """
     Raised when MetalCoord command execution fails.
     """
-    pass
 
 
 class MetalCoordCommandTimeoutError(MetalCommandTimeoutError):
     """
     Raised when MetalCoord command execution times out.
     """
-    pass
 
 
 class RunMetalCoord:
@@ -73,7 +72,7 @@ class RunMetalCoord:
         self.mode = None
         self.validateArgs()
 
-    def validateArgs(self):
+    def validateArgs(self):  # pylint: disable=too-many-branches
         """
         Validate arguments in d_args.
 
@@ -107,7 +106,7 @@ class RunMetalCoord:
                 errors["pdb"] = f"invalid PDB reference: {self.d_args['pdb']}, must be a valid PDB ID or an existing PDB/mmCIF file"
 
         if "ligand" in self.d_args and self.d_args["ligand"]:
-            if self.d_args["ligand"] and self.d_args["ligand"].isalnum() and len(self.d_args["ligand"]) in (1,2,3,5):
+            if self.d_args["ligand"] and self.d_args["ligand"].isalnum() and len(self.d_args["ligand"]) in (1, 2, 3, 5):
                 logger.info("ligand code provided: %s", self.d_args["ligand"])
             else:
                 errors["ligand"] = f"invalid ligand code: {self.d_args['ligand']}, must be alphanumeric and 1, 2, 3, or 5 characters long"
@@ -124,11 +123,11 @@ class RunMetalCoord:
 
         if "threshold" in self.d_args and self.d_args["threshold"]:
             if not isinstance(self.d_args["threshold"], (int, float)) or self.d_args["threshold"] < 0:
-                errors["threshold"] = f"invalid threshold: {self.d_args['threshold']}, must be a non-negative number"                
+                errors["threshold"] = f"invalid threshold: {self.d_args['threshold']}, must be a non-negative number"
 
         try:
             os.makedirs(self.d_args['workdir'], exist_ok=True)
-        except Exception as e:
+        except Exception as e:  # pylint: disable=broad-exception-caught
             errors["workdir"] = f"cannot create workdir: {self.d_args['workdir']} with error {e}"
 
         if errors:
@@ -154,6 +153,7 @@ class RunMetalCoord:
             return self.runStats()
         if self.mode == "update":
             return self.runUpdate()
+        return None
 
     def runStats(self):
         """

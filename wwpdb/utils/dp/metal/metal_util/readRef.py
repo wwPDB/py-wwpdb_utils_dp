@@ -31,7 +31,7 @@ def readRefRedOx():
     filepath = os.path.join(REF_PATH, "metal_oxidation_state.csv")
     d_redox = {}
     d_oxi = {}
-    with open(filepath) as f:
+    with open(filepath, encoding="utf-8") as f:
         reader = csv.DictReader(f, delimiter="\t")
         for d_row in reader:
             metal = d_row['Metals'].strip()
@@ -55,7 +55,7 @@ def readRefCoordNum():
 
     filepath = os.path.join(REF_PATH, "metal_coordination_number.csv")
     d_coord_num = {}
-    with open(filepath) as f:
+    with open(filepath, encoding="utf-8") as f:
         reader = csv.DictReader(f, delimiter="\t")
         for d_row in reader:
             metal = d_row['Metals'].strip()
@@ -83,7 +83,7 @@ def readRefCoordMap(program):
     geom_header = f"Name {program}"
     abbr_header = f"Abbreviation {program}"
     pdb_header = "Name PDB"
-    with open(filepath) as f:
+    with open(filepath, encoding="utf-8") as f:
         reader = csv.DictReader(f, delimiter=",")
         for d_row in reader:
             geom = d_row[geom_header].strip().lower()
@@ -113,7 +113,7 @@ def readRefMetalCarbon():
 
     filepath = os.path.join(REF_PATH, "carbon_metal_bond.csv")
     l_metal_carbon = []
-    with open(filepath) as f:
+    with open(filepath, encoding="utf-8") as f:
         reader = csv.DictReader(f, delimiter="\t")
         for d_row in reader:
             metal = d_row['Metals'].strip()
@@ -134,7 +134,7 @@ def readRefCoordException():
 
     filepath = os.path.join(REF_PATH, "threshold_exception_ccd_annotation.csv")
     d_coord_exception = {}
-    with open(filepath) as f:
+    with open(filepath, encoding="utf-8") as f:
         reader = csv.DictReader(f, delimiter="\t")
         for d_row in reader:
             metal = d_row['Element'].strip()

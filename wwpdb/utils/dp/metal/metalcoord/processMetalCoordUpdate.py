@@ -8,6 +8,7 @@ process the input ligand CCD file metal based on provided marcromolecular struct
 output a ligand CIF file with updated ideal coordinates and charges,
 tegether with a json report summarizing the metal coordination.
 """
+# pylint: disable=duplicate-code
 
 import argparse
 import json
@@ -49,7 +50,7 @@ def callAcedrg(d_args_acedrg):
     except AcedrgParametersError as e:
         logger.error("Validate Parameters error: %s", e.errors)
         return None
-    
+
     try:
         cmd_stdout = rAG.run()
         logger.debug(cmd_stdout)
@@ -68,7 +69,7 @@ def callAcedrg(d_args_acedrg):
     return fp_acedrg_cif
 
 
-def callMetalCoord(d_args_metalcoord):
+def callMetalCoord(d_args_metalcoord):  # pylint: disable=too-many-return-statements
     """
     Run MetalCoord in "update" mode and return output file paths.
 
@@ -180,7 +181,7 @@ def callServalcat(d_args_servalcat):
     return fp_servalcat_cif
 
 
-def main():
+def main():  # pylint: disable=too-many-statements
     """
     Run Acedrg-MetalCoord-Servalcat, then parse the output and generate a report JSON file in stats mode.
 
@@ -220,7 +221,7 @@ def main():
     d_args_acedrg["timeout"] = args.timeout
     fp_acedrg_cif = callAcedrg(d_args_acedrg)
     if not fp_acedrg_cif:
-        with open(output_json, "w") as file:
+        with open(output_json, "w", encoding="utf-8") as file:
             json.dump({"error": "acedrg-failed", "details": "Acedrg failed to produce output CIF"}, file)
         sys.exit(0)
 
@@ -236,12 +237,12 @@ def main():
     (fp_metalcoord_cif, fp_metalcoord_json) = callMetalCoord(d_args_metalcoord)
     if not fp_metalcoord_cif:
         logger.error("MetalCoord update mode failed, STOP without output")
-        with open(output_json, "w") as file:
+        with open(output_json, "w", encoding="utf-8") as file:
             json.dump({"error": "metalcoord-failed", "details": "Acedrg succeeded; MetalCoord failed to produce output CIF"}, file)
         sys.exit(0)
 
     # run Servalcat
-    logger.info("to run Servalcat with the MetalCoord output %s to further optimize ideal coordinates for the ligand", fp_metalcoord_cif) 
+    logger.info("to run Servalcat with the MetalCoord output %s to further optimize ideal coordinates for the ligand", fp_metalcoord_cif)
     d_args_servalcat = {}
     d_args_servalcat["servalcat_exe"] = None
     d_args_servalcat["update_dictionary"] = fp_metalcoord_cif  # use MetalCoord output as input
@@ -250,7 +251,7 @@ def main():
     fp_servalcat_cif = callServalcat(d_args_servalcat)
     if not fp_servalcat_cif:
         logger.error("Servalcat failed, STOP without output")
-        with open(output_json, "w") as file:
+        with open(output_json, "w", encoding="utf-8") as file:
             json.dump({"error": "servalcat-failed", "details": "Acedrg and MetalCoord succeeded; Servalcat failed to produce output CIF"}, file)
         sys.exit(0)
 
@@ -263,7 +264,7 @@ def main():
         pMC.parse()
     except MetalCoordParseError as e:
         logger.error("failed to read MetalCoord results at %s, no output: %s", fp_metalcoord_json, e)
-        with open(output_json, "w") as file:
+        with open(output_json, "w", encoding="utf-8") as file:
             json.dump({"error": "unexpected-error", "details": f"failed to read MetalCoord results at {fp_metalcoord_json}, no output: {e}"}, file)
         sys.exit(0)
 
@@ -287,9 +288,10 @@ def main():
         l_sites_filtered.append(d_site)
     logger.info("%s regular sites filtered out of total %s sites after applying regular geometry filter", len(l_sites_filtered), len(pMC.l_sites))
 
-    with open(output_json, "w") as file:
+    with open(output_json, "w", encoding="utf-8") as file:
         json.dump(l_sites_filtered, file, indent=4)
     logger.info("MetalCoord update mode geometry results written to %s", output_json)
+
 
 if __name__ == "__main__":
     main()

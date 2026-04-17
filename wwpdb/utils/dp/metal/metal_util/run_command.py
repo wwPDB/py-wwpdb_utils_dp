@@ -14,6 +14,7 @@ import logging
 from datetime import datetime
 import os
 
+
 class MetalCommandExecutionError(Exception):
     """
     Raised when a metal command execution fails, e.g. FindGeo and MetalCoord failure.
@@ -42,7 +43,6 @@ class MetalCommandTimeoutError(MetalCommandExecutionError):
     """
     Raised when a metal command execution times out.
     """
-    pass
 
 
 def setup_logger(name="cmd", log_dir="metal_command_logs", b_debug=True):
@@ -90,7 +90,7 @@ def setup_logger(name="cmd", log_dir="metal_command_logs", b_debug=True):
         logger.addHandler(fh)
         logger.addHandler(ch)
 
-        logger.info(f"Logging to file: {log_path}")
+        logger.info("Logging to file: %s", log_path)
 
     return logger
 
@@ -113,7 +113,7 @@ def run_command(cmd, timeout_sec, logger=None):
     if logger is None:
         logger = setup_logger()
 
-    logger.info(f"▶ Running command: {' '.join(cmd)}")
+    logger.info("▶ Running command: %s", ' '.join(cmd))
 
     try:
         result = subprocess.run(
@@ -123,32 +123,32 @@ def run_command(cmd, timeout_sec, logger=None):
             text=True,
             timeout=timeout_sec
         )
-        logger.debug(f"STDOUT:\n{result.stdout.strip()}")
+        logger.debug("STDOUT:\n%s", result.stdout.strip())
         logger.info("✅ Command completed successfully.")
 
         return result.stdout
 
     except FileNotFoundError as e:  # binary command not found
-        logger.error(f"❌ Binary not found: {e}")
+        logger.error("❌ Binary not found: %s", e)
         raise MetalCommandExecutionError(cmd, None, stderr=str(e)) from e
 
     except subprocess.CalledProcessError as e:  # command returned non-zero exit code, under check=True setting
-        logger.error(f"❌ Command failed (exit code {e.returncode})")
+        logger.error("❌ Command failed (exit code %s)", e.returncode)
         if e.stdout:
-            logger.debug(f"STDOUT:\n{e.stdout.strip()}")
+            logger.debug("STDOUT:\n%s", e.stdout.strip())
         if e.stderr:
-            logger.error(f"STDERR:\n{e.stderr.strip()}")
+            logger.error("STDERR:\n%s", e.stderr.strip())
         raise MetalCommandExecutionError(e.cmd, e.returncode, e.stderr, e.stdout) from e
 
     except subprocess.TimeoutExpired as e:
-        logger.error(f"❌ Command timed out after {timeout_sec} seconds")
+        logger.error("❌ Command timed out after %s seconds", timeout_sec)
         if e.stdout:
-            logger.debug(f"STDOUT before timeout:\n{e.stdout.strip()}")
+            logger.debug("STDOUT before timeout:\n%s", e.stdout.strip())
         if e.stderr:
-            logger.error(f"STDERR before timeout:\n{e.stderr.strip()}")
+            logger.error("STDERR before timeout:\n%s", e.stderr.strip())
         raise MetalCommandTimeoutError(e.cmd, None, stderr="Command timed out") from e
 
-    except Exception as e:  # catch any other exceptions, since this run is self-cotained and logged by itself
+    except Exception as e:  # pylint: disable=broad-exception-caught
         logger.exception("❌ Unexpected error during command execution")
         raise MetalCommandExecutionError(cmd, None, stderr=str(e)) from e
 

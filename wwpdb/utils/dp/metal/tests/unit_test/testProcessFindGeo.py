@@ -180,7 +180,6 @@ class TestRunFindGeo(unittest.TestCase):
             data = json.load(f)
             self.assertTrue(data)  # test file is not empty
 
-
     def testTimeout(self):
         onedep_package_dir = os.getenv("PACKAGE_DIR", None)
         if onedep_package_dir:

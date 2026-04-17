@@ -210,7 +210,7 @@ class TestRunMetalCoord(unittest.TestCase):
 
         with open(fp_metalcoord_json) as f:
             data = json.load(f)
-            self.assertTrue(data["error"] == "timeout")   
+            self.assertTrue(data["error"] == "timeout")
 
     def testParameterError(self):
         l_command = []
@@ -253,7 +253,7 @@ class TestRunMetalCoord(unittest.TestCase):
 
         with open(fp_metalcoord_json) as f:
             data = json.load(f)
-            self.assertTrue(data["error"] == "parameters-error")  
+            self.assertTrue(data["error"] == "parameters-error")
 
     def testPermissionError(self):
         l_command = []
