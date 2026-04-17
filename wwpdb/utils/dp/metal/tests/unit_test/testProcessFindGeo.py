@@ -233,7 +233,7 @@ class TestRunFindGeo(unittest.TestCase):
         l_command.append("--compare")
         folder = "findgeo_8D3M_internal_compare_parameters_error"
         l_command.extend(["--workdir", folder])
-        l_command.extend(["--format", "mmCIF"])  # use mmCIF format to cause execution error since FindGeo.jar does not support mmCIF input, which will cause execution error instead of timeout error
+        l_command.extend(["--format", "mmCIF"])  # use mmCIF format to cause execution
         command = " ".join(l_command)
         print(command)
 
@@ -269,7 +269,7 @@ class TestRunFindGeo(unittest.TestCase):
         l_command.append("--compare")
         folder = "findgeo_8D3M_internal_compare_execution_error"
         l_command.extend(["--workdir", folder])
-        l_command.extend(["--metal", "A"])  # use invalid metal to cause execution error since FindGeo.jar does not support mmCIF input, which will cause execution error instead of timeout error
+        l_command.extend(["--metal", "A"])  # use invalid metal to cause execution error
         command = " ".join(l_command)
         print(command)
 

@@ -275,7 +275,7 @@ class TestRunMetalCoord(unittest.TestCase):
         l_command.extend(["--ligands", "0KA"])  # wrong ligand ID to trigger execution error
         l_command.extend(["--pdb", "4DHV"])
         folder = "metalcoord_4DHV_public_0KA_permission_error"
-        l_command.extend(["--workdir", "/test1"])  # dangerous test to check execution permission error, local only test, which will cause execution error instead of permission error since the workdir is created by current user but not accessible
+        l_command.extend(["--workdir", "/test1"])  # dangerous test to check execution permission error, local only test
         if self.b_standalone_metalcoord:
             metalcoord_exe = "/Users/chenghua/Projects/RunMetalCoord/py-run_metalCoord/venv/bin/metalCoord"
             l_command.extend(["--metalcoord_exe", metalcoord_exe])

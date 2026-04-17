@@ -3893,8 +3893,8 @@ class RcsbDpUtility:
             logger.info("to run metal-metalcoord-stats-filter-regular full commands: %s", cmd)
 
         elif op == "metal-metalcoord-update":
-            # run MetalCoord update for LigMod, output updated cif with charge and ideal coordinates, and a json report with coordination info; 
-            # use most_common option to find COD reference if no pdb input provided; 
+            # run MetalCoord update for LigMod, output updated cif with charge and ideal coordinates, and a json report with coordination info;
+            # use most_common option to find COD reference if no pdb input provided;
             # default Procrustes distance threshold is 0.2 for finding COD reference;
             # default metalcoord options can be overridden before setting self.op("metal-metalcoord-update"), e.g.
             # self.addInput(name="acedrg_exe", value="")  # Acedrg executable file, only use for testing new versions
