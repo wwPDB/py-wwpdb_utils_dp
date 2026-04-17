@@ -8,6 +8,7 @@ process the input ligand CCD file metal based on provided marcromolecular struct
 output a ligand CIF file with updated ideal coordinates and charges,
 tegether with a json report summarizing the metal coordination.
 """
+# pylint: disable=duplicate-code
 
 import argparse
 import json
@@ -17,25 +18,27 @@ import sys
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from wwpdb.utils.dp.metal.metalcoord.runAcedrg import RunAcedrg  # noqa: E402
-    from wwpdb.utils.dp.metal.metalcoord.runMetalCoord import RunMetalCoord  # noqa: E402
-    from wwpdb.utils.dp.metal.metalcoord.runServalcat import RunServalcat  # noqa: E402
-    from wwpdb.utils.dp.metal.metalcoord.parseMetalCoord import ParseMetalCoord  # noqa: E402
+    from wwpdb.utils.dp.metal.metalcoord.runAcedrg import RunAcedrg, AcedrgCommandExecutionError, AcedrgCommandTimeoutError, AcedrgParametersError  # noqa: E402
+    from wwpdb.utils.dp.metal.metalcoord.runMetalCoord import RunMetalCoord, MetalCoordCommandExecutionError, MetalCoordCommandTimeoutError, MetalCoordParametersError  # noqa: E402
+    from wwpdb.utils.dp.metal.metalcoord.runServalcat import RunServalcat, ServalcatCommandExecutionError, ServalcatCommandTimeoutError, ServalcatParametersError  # noqa: E402
+    from wwpdb.utils.dp.metal.metalcoord.parseMetalCoord import ParseMetalCoord, MetalCoordParseError  # noqa: E402
+    from wwpdb.utils.dp.metal.metal_util.run_command import setup_logger  # noqa: E402
 else:
-    sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-    from runAcedrg import RunAcedrg  # noqa: E402
-    from runMetalCoord import RunMetalCoord  # noqa: E402
-    from runServalcat import RunServalcat  # noqa: E402
-    from parseMetalCoord import ParseMetalCoord  # noqa: E402
+    sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    from metalcoord.runAcedrg import RunAcedrg, AcedrgCommandExecutionError, AcedrgCommandTimeoutError, AcedrgParametersError  # noqa: E402
+    from metalcoord.runMetalCoord import RunMetalCoord, MetalCoordCommandExecutionError, MetalCoordCommandTimeoutError, MetalCoordParametersError  # noqa: E402
+    from metalcoord.runServalcat import RunServalcat, ServalcatCommandExecutionError, ServalcatCommandTimeoutError, ServalcatParametersError  # noqa: E402
+    from metalcoord.parseMetalCoord import ParseMetalCoord, MetalCoordParseError  # noqa: E402
+    from metal_util.run_command import setup_logger  # noqa: E402
 
-logger = logging.getLogger(__name__)
-# logging.basicConfig(format="%(asctime)s - %(levelname)s - %(message)s")
-# logger.setLevel(logging.DEBUG)
+setup_logger(name="metalcoord", log_dir=".", b_debug=False)
+logger = logging.getLogger("metalcoord.processMetalCoordUpdate")
 
 
 def callAcedrg(d_args_acedrg):
     """
     Call Acedrg with the provided arguments and return the output CIF file path.
+
     :param d_args_acedrg: Dictionary of arguments for running Acedrg.
     :type d_args_acedrg: dict
     :returns: Path to the generated CIF file if successful, otherwise None.
@@ -44,29 +47,39 @@ def callAcedrg(d_args_acedrg):
 
     try:
         rAG = RunAcedrg(d_args_acedrg)
-    except Exception as e:
-        logger.error(e)
+    except AcedrgParametersError as e:
+        logger.error("Validate Parameters error: %s", e.errors)
         return None
 
-    cmd_stdout = rAG.run()
-    logger.info(cmd_stdout)
+    try:
+        cmd_stdout = rAG.run()
+        logger.debug(cmd_stdout)
+    except AcedrgCommandTimeoutError as e:
+        logger.error("Acedrg command timed out: %s", e)
+        return None
+    except AcedrgCommandExecutionError as e:
+        logger.error("Acedrg command execution error: %s", e)
+        return None
 
     fp_acedrg_cif = os.path.join(d_args_acedrg["out"] + ".cif")
-    if os.path.exists(fp_acedrg_cif):
-        return fp_acedrg_cif
-    else:
+    if not os.path.exists(fp_acedrg_cif):
+        logger.error("Acedrg output CIF file not found: %s, STOP process", fp_acedrg_cif)
         return None
 
+    return fp_acedrg_cif
 
-def callMetalCoord(d_args_metalcoord):
+
+def callMetalCoord(d_args_metalcoord):  # pylint: disable=too-many-return-statements
     """
     Run MetalCoord in "update" mode and return output file paths.
+
     Initializes a RunMetalCoord instance with the provided argument dictionary,
     runs MetalCoord in "update" mode, and if the expected CIF output is not
     produced, retries with a fallback option (clearing the 'pdb' input in the
     RunMetalCoord arguments). The function then checks for the presence of the
     files "metalcoord.cif" and "metalcoord.cif.json" in the supplied work directory
     and returns their paths when both are present.
+
     :param d_args_metalcoord: Dictionary of arguments for RunMetalCoord. Must
         include at least the "workdir" key indicating where output files are
         written; other keys are passed to RunMetalCoord.
@@ -82,33 +95,55 @@ def callMetalCoord(d_args_metalcoord):
 
     try:
         rMC = RunMetalCoord(d_args_metalcoord)
-    except Exception as e:
-        logger.error(e)
-        return None
+    except MetalCoordParametersError as e:
+        logger.error("Validate Parameters error: %s", e.errors)
+        return (None, None)
+
     rMC.setInputMode("update")
-    cmd_stdout1 = rMC.run()  # 1st MetalCoord run based on PDB model
-    logger.info(cmd_stdout1)
+    try:
+        cmd_stdout1 = rMC.run()  # 1st MetalCoord run based on PDB model
+        logger.debug(cmd_stdout1)
+    except MetalCoordCommandTimeoutError as e:
+        logger.error("MetalCoord command timed out: %s", e)
+        return (None, None)
+    except MetalCoordCommandExecutionError as e:
+        logger.error("MetalCoord command execution error: %s", e)
+        return (None, None)
 
     fp_metalcoord_cif = os.path.join(d_args_metalcoord["workdir"], "metalcoord.cif")
-    if not os.path.exists(fp_metalcoord_cif):
+    if not os.path.exists(fp_metalcoord_cif) and d_args_metalcoord.get("pdb"):
+        logger.warning("MetalCoord update mode with PDB model did not produce output CIF, retrying with 'most_common' option by clearing the 'pdb' argument")
         rMC.d_args["pdb"] = None
-        cmd_stdout2 = rMC.run()  # 2nd MetalCoord run by the option 'most_common'
-        logger.info(cmd_stdout2)
+        try:
+            cmd_stdout2 = rMC.run()  # 2nd MetalCoord run by the option 'most_common'
+            logger.debug(cmd_stdout2)
+        except MetalCoordCommandTimeoutError as e:
+            logger.error("MetalCoord command timed out: %s", e)
+            return (None, None)
+        except MetalCoordCommandExecutionError as e:
+            logger.error("MetalCoord command execution error: %s", e)
+            return (None, None)
+
+    if not os.path.exists(fp_metalcoord_cif):
+        logger.error("MetalCoord update mode failed to produce output CIF at %s, STOP process", fp_metalcoord_cif)
+        return (None, None)
 
     fp_metalcoord_json = os.path.join(d_args_metalcoord["workdir"], "metalcoord.cif.json")
-
-    if os.path.exists(fp_metalcoord_cif) and os.path.exists(fp_metalcoord_json):
-        return (fp_metalcoord_cif, fp_metalcoord_json)
-    else:
+    if not os.path.exists(fp_metalcoord_json):
+        logger.error("MetalCoord update mode failed to produce output JSON at %s, STOP process", fp_metalcoord_json)
         return (None, None)
+
+    return (fp_metalcoord_cif, fp_metalcoord_json)
 
 
 def callServalcat(d_args_servalcat):
     """
     Call Servalcat to process and update a CIF file.
+
     This function constructs and runs a RunServalcat instance using the provided
     argument dictionary. It logs the command output and then checks for an output
     CIF file based on the ``output_prefix`` entry in ``d_args_servalcat``.
+
     :param d_args_servalcat: Dictionary of arguments forwarded to RunServalcat.
         Must include the key ``output_prefix`` whose value is used to form the
         expected output filename "<output_prefix>_updated.cif".
@@ -124,24 +159,45 @@ def callServalcat(d_args_servalcat):
 
     try:
         rST = RunServalcat(d_args_servalcat)
-    except Exception as e:
-        logger.error(e)
+    except ServalcatParametersError as e:
+        logger.error("Validate Parameters error: %s", e.errors)
         return None
-    cmd_stdout = rST.run()
-    logger.info(cmd_stdout)
+
+    try:
+        cmd_stdout = rST.run()
+        logger.debug(cmd_stdout)
+    except ServalcatCommandTimeoutError as e:
+        logger.error("Servalcat command timed out: %s", e)
+        return None
+    except ServalcatCommandExecutionError as e:
+        logger.error("Servalcat command execution error: %s", e)
+        return None
+
     fp_servalcat_cif = d_args_servalcat["output_prefix"] + "_updated.cif"
-
-    if os.path.exists(fp_servalcat_cif):
-        return fp_servalcat_cif
-    else:
+    if not os.path.exists(fp_servalcat_cif):
+        logger.error("Servalcat failed to produce output at %s, STOP process", fp_servalcat_cif)
         return None
 
+    return fp_servalcat_cif
 
-def main():
+
+def main():  # pylint: disable=too-many-statements
     """
-    run Acedrg-MetalCoord-Servalcat, then parse the output and generate a report json file in stats mode.
-    Example usages:
-    > python runMetalCoordUpdate.py --input 0KA.cif --pdb 4DHV.cif
+    Run Acedrg-MetalCoord-Servalcat, then parse the output and generate a report JSON file in stats mode.
+
+    Example usages::
+
+        python runMetalCoordUpdate.py --input 0KA.cif --pdb 4DHV.cif
+
+    Command-line arguments:
+        -a, --acedrg_exe: Acedrg executable file
+        -b, --metalcoord_exe: MetalCoord executable file
+        -c, --servalcat_exe: Servalcat executable file
+        -w, --workdir: Directory to write outputs
+        -i, --input: Ligand cif file
+        -p, --pdb: PDB code or pdb file
+        -t, --threshold: Procrustes distance threshold
+        -s, --timeout: Timeout in seconds for running MetalCoord command
     """
     parser = argparse.ArgumentParser()
     parser.add_argument("-a", "--acedrg_exe", help="Acedrg executable file", type=str, default=None)
@@ -151,72 +207,90 @@ def main():
     parser.add_argument("-i", "--input", help="Ligand cif file", type=str, required=True)
     parser.add_argument("-p", "--pdb", help="PDB code or pdb file", type=str, default=None)
     parser.add_argument("-t", "--threshold", help="Procrustes distance threshold.", type=float, default=0.3)
+    parser.add_argument("-s", "--timeout", help="Timeout in seconds for running MetalCoord command, default is 3600 seconds (1 hour)", type=int, default=3600)
     args = parser.parse_args()
 
+    output_json = os.path.join(args.workdir, "metalcoord_report.json")  # use this json file to save MetalCoord results and also status
+
     # run Acedrg
+    logger.info("to run Acedrg with input cif file %s to generate ideal coordinates and charges for the ligand", args.input)
     d_args_acedrg = {}
     d_args_acedrg["acedrg_exe"] = args.acedrg_exe
     d_args_acedrg["mmcif"] = args.input
     d_args_acedrg["out"] = os.path.join(args.workdir, "acedrg")
+    d_args_acedrg["timeout"] = args.timeout
     fp_acedrg_cif = callAcedrg(d_args_acedrg)
     if not fp_acedrg_cif:
-        logger.error("Acedrg failed, STOP without output")
-        sys.exit(1)
+        with open(output_json, "w", encoding="utf-8") as file:
+            json.dump({"error": "acedrg-failed", "details": "Acedrg failed to produce output CIF"}, file)
+        sys.exit(0)
 
     # run MetalCoord
+    logger.info("to run MetalCoord update mode with Acedrg output %s as input to update distance and angle restraints for ServalCat, and generate metal coordination report", fp_acedrg_cif)
     d_args_metalcoord = {}
     d_args_metalcoord["metalcoord_exe"] = args.metalcoord_exe
     d_args_metalcoord["workdir"] = args.workdir
     d_args_metalcoord["input"] = fp_acedrg_cif  # use Acedrg output as input
     d_args_metalcoord["pdb"] = args.pdb
     d_args_metalcoord["threshold"] = args.threshold
+    d_args_metalcoord["timeout"] = args.timeout
     (fp_metalcoord_cif, fp_metalcoord_json) = callMetalCoord(d_args_metalcoord)
     if not fp_metalcoord_cif:
         logger.error("MetalCoord update mode failed, STOP without output")
-        sys.exit(1)
+        with open(output_json, "w", encoding="utf-8") as file:
+            json.dump({"error": "metalcoord-failed", "details": "Acedrg succeeded; MetalCoord failed to produce output CIF"}, file)
+        sys.exit(0)
 
     # run Servalcat
+    logger.info("to run Servalcat with the MetalCoord output %s to further optimize ideal coordinates for the ligand", fp_metalcoord_cif)
     d_args_servalcat = {}
     d_args_servalcat["servalcat_exe"] = None
     d_args_servalcat["update_dictionary"] = fp_metalcoord_cif  # use MetalCoord output as input
     d_args_servalcat["output_prefix"] = os.path.join(args.workdir, "servalcat")
+    d_args_servalcat["timeout"] = args.timeout
     fp_servalcat_cif = callServalcat(d_args_servalcat)
     if not fp_servalcat_cif:
         logger.error("Servalcat failed, STOP without output")
-        sys.exit(1)
+        with open(output_json, "w", encoding="utf-8") as file:
+            json.dump({"error": "servalcat-failed", "details": "Acedrg and MetalCoord succeeded; Servalcat failed to produce output CIF"}, file)
+        sys.exit(0)
 
-    if not fp_metalcoord_json:
-        logger.error("No MetalCoord output json")
-        sys.exit(1)
+    logger.info("Final ligand CIF successfully produced at %s", fp_servalcat_cif)
 
     logger.info("to parse MetalCoord results from %s", fp_metalcoord_json)
     pMC = ParseMetalCoord()
-    if pMC.read(fp_metalcoord_json):
+    try:
+        pMC.read(fp_metalcoord_json)
         pMC.parse()
-        l_sites_filtered = []
-        for d_site in pMC.l_sites:
-            # filter to keep only regular geometry for CCD annotation
-            # filter out empty class
-            if not d_site.get("class").strip():
-                continue
-            # filter out non-Regular sites
-            if d_site.get("tag") != "Regular":
-                continue
-            # filter out sites with non-allowed coordination number
-            if d_site.get("coordination_number_allowed") == "NO":
-                continue
-            # filter out exception class
-            if d_site.get("class_in_exception") == "YES":
-                continue
-            # if not filtered out by any of the above criteria, add to the filtered list
-            l_sites_filtered.append(d_site)
-        logger.info("filtered out %d sites that do not meet CCD annotation criteria", len(pMC.l_sites) - len(l_sites_filtered))
-        output_json = os.path.join(args.workdir, "metalcoord_report.json")
-        with open(output_json, "w") as file:
-            json.dump(l_sites_filtered, file, indent=4)
-        logger.info("MetalCoord results written to %s", output_json)
-    else:
-        logger.error("failed to read MetalCoord results at %s, no output", fp_metalcoord_json)
+    except MetalCoordParseError as e:
+        logger.error("failed to read MetalCoord results at %s, no output: %s", fp_metalcoord_json, e)
+        with open(output_json, "w", encoding="utf-8") as file:
+            json.dump({"error": "unexpected-error", "details": f"failed to read MetalCoord results at {fp_metalcoord_json}, no output: {e}"}, file)
+        sys.exit(0)
+
+    logger.info("to filter MetalCoord results to keep regular geometry only for CCD annotation")
+    l_sites_filtered = []
+    for d_site in pMC.l_sites:
+        # filter to keep only regular geometry for CCD annotation
+        # filter out empty class
+        if not d_site.get("class").strip():
+            continue
+        # filter out non-Regular sites
+        if d_site.get("tag") != "Regular":
+            continue
+        # filter out sites with non-allowed coordination number
+        if d_site.get("coordination_number_allowed") == "NO":
+            continue
+        # filter out exception class
+        if d_site.get("class_in_exception") == "YES":
+            continue
+        # if not filtered out by any of the above criteria, add to the filtered list
+        l_sites_filtered.append(d_site)
+    logger.info("%s regular sites filtered out of total %s sites after applying regular geometry filter", len(l_sites_filtered), len(pMC.l_sites))
+
+    with open(output_json, "w", encoding="utf-8") as file:
+        json.dump(l_sites_filtered, file, indent=4)
+    logger.info("MetalCoord update mode geometry results written to %s", output_json)
 
 
 if __name__ == "__main__":
