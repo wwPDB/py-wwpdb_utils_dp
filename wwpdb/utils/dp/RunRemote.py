@@ -41,7 +41,7 @@ class JobResult:
     """
     def __init__(
         self,
-        status,
+        status: JobStatus,
         job_id=None,
         retries_used=0,
         total_time_seconds=None,
@@ -52,7 +52,7 @@ class JobResult:
         cpu_count=None,
         cpu_time_seconds=None,
     ):
-        self.status = status
+        self.status: JobStatus = status
         self.job_id = job_id
         self.retries_used = retries_used
         # Timing metrics
