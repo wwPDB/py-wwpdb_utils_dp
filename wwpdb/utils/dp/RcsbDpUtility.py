@@ -5048,7 +5048,7 @@ class RcsbDpUtility:
                     job_result=result
                 )
 
-            if result.status == JobStatus.SUCCESS:
+            if result.status == JobStatus.COMPLETED:
                 return 0
             return -1
 
