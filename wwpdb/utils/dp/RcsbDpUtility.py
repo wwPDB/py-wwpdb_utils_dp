@@ -150,7 +150,6 @@ import glob
 import logging
 import math
 import os
-import re
 import random
 import shutil
 import signal
@@ -5047,46 +5046,6 @@ class RcsbDpUtility:
         logger.info("+RcsbDpUtility.__runTimeout() completed with return code %r\n", process.stdout.read())
         return 0
 
-    def __commandOnlyCallsPythonScripts(self, command):
-        """Check if all executables in the command are Python scripts.
-
-        Inspects each token invoked after semicolons in the shell command.
-        For absolute paths, reads the first bytes to check for a Python shebang.
-        Also recognises bare ``python`` / ``python3`` invocations (e.g.
-        ``python -m wwpdb.apps.validation...``).
-
-        Returns True when every executable is Python-based, meaning the
-        command does not need a container for ELF/glibc compatibility.
-        Returns False (use the container) if any executable is ELF,
-        a non-Python script, or cannot be read.
-        """
-        # Match tokens invoked after semicolons — both absolute paths and bare commands
-        tokens = re.findall(r";\s*(\S+)", command)
-        # Filter to actionable commands: absolute paths to files, or bare python calls.
-        # Skip shell builtins/keywords (export, cd, cat, source, env, rm, mv, cp, touch, unset, .)
-        # and variable assignments (VAR=value).
-        skip = {"export", "cd", "cat", "source", ".", "env", "rm", "mv", "cp", "touch", "unset", "set"}
-        has_executables = False
-        for token in tokens:
-            if token in skip or "=" in token:
-                continue
-            if re.match(r"^python[23]?(\.\d+)?$", token):
-                has_executables = True
-                continue
-            if token.startswith("/") and os.path.isfile(token):
-                has_executables = True
-                try:
-                    with open(token, "rb") as f:
-                        head = f.read(256)
-                    if not (head[:2] == b"#!" and b"python" in head.split(b"\n")[0]):
-                        return False
-                except (IOError, OSError):
-                    return False
-            elif token.startswith("/"):
-                # Absolute path that doesn't exist — can't verify, assume not Python
-                return False
-        return has_executables
-
     def __run(self, command, lPathFull, op):
         if self.__run_remote:
             random_suffix = random.randrange(9999999)  # noqa: S311
@@ -5100,7 +5059,7 @@ class RcsbDpUtility:
                 number_of_processors=self.__numThreads,
                 memory_limit=self.__startingMemory,
                 add_site_config=True,
-                use_singularity=self.__use_singularity and not self.__commandOnlyCallsPythonScripts(command),
+                use_singularity=self.__use_singularity,
                 singularity_image=self.__singularity_image,
                 singularity_bind_paths=self.__singularity_bind_paths,
                 partition=self.__partition,
