@@ -180,6 +180,9 @@ from wwpdb.utils.dp.RunRemote import RunRemote
 
 logger = logging.getLogger(__name__)
 
+DEFAULT_STARTING_RAM_MB = 2000
+DEFAULT_STARTING_NUM_THREADS = 2
+
 
 class RcsbDpUtility:
     """Wrapper class for data processing and chemical component utilities."""
@@ -425,8 +428,8 @@ class RcsbDpUtility:
         self.__stepNo = 0
         self.__stepNoSaved = None
         self.__timeout = 0
-        self.__numThreads = 1  # this is used by RunRemote to set the number of cores requested
-        self.__startingMemory = 2000  # this is used by RunRemote to set the starting RAM to be requested
+        self.__numThreads = DEFAULT_STARTING_NUM_THREADS  # this is used by RunRemote to set the number of cores requested
+        self.__startingMemory = DEFAULT_STARTING_RAM_MB  # this is used by RunRemote to set the starting RAM to be requested
 
         self.__run_remote = False
 
@@ -576,6 +579,8 @@ class RcsbDpUtility:
         if self.__testMode:
             logger.info("TestMode - bypass operation %s", op)
             return 0
+
+        self.__setOpResources(op)
         #
         if op in self.__maxitOps:
             self.__stepNo += 1
@@ -766,6 +771,20 @@ class RcsbDpUtility:
         return False
 
     ##
+    def __setOpResources(self, op):
+        if self.__startingMemory == DEFAULT_STARTING_RAM_MB:
+            # this means that the caller hasn't set a specific memory requirement,
+            # so we can set some defaults based on the operation type
+            op_mem = self.__cI.get("OP_RESOURCE__" + op.replace("-", "_").upper() + "__MEMORY_MB")
+            if op_mem is not None:
+                self.__startingMemory = op_mem
+        
+        if self.__numThreads == DEFAULT_STARTING_NUM_THREADS:
+            # same here for number of threads
+            op_threads = self.__cI.get("OP_RESOURCE__" + op.replace("-", "_").upper() + "__NUM_THREADS")
+            if op_threads is not None:
+                self.__numThreads = op_threads
+
     def __getSourceWrkFileList(self, stepNo):
         """Build a file containing the current list of source files."""
         fn = "input_file_list_" + str(stepNo)
@@ -1269,7 +1288,6 @@ class RcsbDpUtility:
             #
 
             # Set the initial memory for run remote use
-            self.__startingMemory = 2000
             validation_mode = "release"
             if "request_validation_mode" in self.__inputParamDict:
                 validation_mode = str(self.__inputParamDict["request_validation_mode"]).lower()
