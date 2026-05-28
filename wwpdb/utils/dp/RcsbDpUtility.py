@@ -429,6 +429,10 @@ class RcsbDpUtility:
         self.__startingMemory = 2000  # this is used by RunRemote to set the starting RAM to be requested
 
         self.__run_remote = False
+        self.__use_singularity = False
+        self.__singularity_image = None
+        self.__singularity_bind_paths = []
+        self.__partition = None
 
         self.__cI = ConfigInfo(self.__siteId)
         self.__cICommon = ConfigInfoAppCommon(self.__siteId)
@@ -436,6 +440,7 @@ class RcsbDpUtility:
         self.__cIVal = ConfigInfoAppValidation(self.__siteId)
         self.__initPath()
         self.__getRunRemote()
+        self.__getSingularity()
 
     def __getConfigPath(self, ky):
         try:
@@ -487,6 +492,39 @@ class RcsbDpUtility:
         else:
             self.__run_remote = False
 
+    def setUseSingularity(self, use_singularity=True):
+        """Enable or disable Singularity container execution."""
+        self.__use_singularity = use_singularity
+
+    def setSingularityImage(self, image_path):
+        """Set the path to the Singularity image file."""
+        if image_path and os.path.exists(image_path):
+            self.__singularity_image = image_path
+        else:
+            logger.warning("Singularity image path does not exist: %s", image_path)
+
+    def setSingularityBindPaths(self, bind_paths):
+        """Set additional bind paths for Singularity container.
+        
+        Args:
+            bind_paths: List of bind paths or comma-separated string
+        """
+        if isinstance(bind_paths, list):
+            self.__singularity_bind_paths = bind_paths
+        elif isinstance(bind_paths, str):
+            self.__singularity_bind_paths = [p.strip() for p in bind_paths.split(",")]
+        else:
+            logger.error("bind_paths must be a list or comma-separated string")
+
+    def setPartition(self, partition):
+        """Set the SLURM partition for remote execution.
+        
+        Args:
+            partition: SLURM partition name (e.g., 'standard', 'debug')
+        """
+        if partition:
+            self.__partition = str(partition)
+
     def __getRunRemote(self):
         try:
             if self.__cI.get("USE_COMPUTE_CLUSTER"):
@@ -494,6 +532,24 @@ class RcsbDpUtility:
                     self.setRunRemote()
         except Exception as e:  # noqa: BLE001
             logger.info("unable to get cluster queue %s", str(e))
+
+    def __getSingularity(self):
+        """Check configuration and enable Singularity if configured."""
+        try:
+            if self.__cI.get("USE_SINGULARITY"):
+                self.setUseSingularity(True)
+                
+                # Get custom image path if configured
+                singularity_image = self.__cI.get("SINGULARITY_IMAGE")
+                if singularity_image:
+                    self.setSingularityImage(singularity_image)
+                
+                # Get custom bind paths if configured
+                bind_paths = self.__cI.get("SINGULARITY_BIND_PATHS")
+                if bind_paths:
+                    self.setSingularityBindPaths(bind_paths)
+        except Exception as e:  # noqa: BLE001
+            logger.info("unable to get singularity configuration %s", str(e))
 
     def setRcsbAppsPath(self, fPath):
         """Set or overwrite the configuration setting for __rcsbAppsPath."""
@@ -5013,6 +5069,10 @@ class RcsbDpUtility:
                 number_of_processors=self.__numThreads,
                 memory_limit=self.__startingMemory,
                 add_site_config=True,
+                use_singularity=self.__use_singularity,
+                singularity_image=self.__singularity_image,
+                singularity_bind_paths=self.__singularity_bind_paths,
+                partition=self.__partition,
             ).run()
 
         if self.__timeout > 0:
