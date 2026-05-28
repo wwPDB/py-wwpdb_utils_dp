@@ -3906,14 +3906,14 @@ class RcsbDpUtility:
             # self.addInput(name="threshold", value="0.2")  # Procrustes distance threshold for finding COD reference.
             # self.setTimeout(1800)  # set timeout to 30 minutes for metalcoord processing if needed
             # setup CCP4 environment first because Acedrg and Servalcat are CCP4 programs and will run for update mode
-            ccp4_setup = os.path.join(self.__packagePath, "metallo", "ccp4-9", "bin", "ccp4.setup-sh")
-            cmd += f" ; source {ccp4_setup} "
+            ccp4_setup = os.path.join(self.__packagePath, "ccp4", "bin", "ccp4.setup-sh")
+            cmd += f" ; source {ccp4_setup} "  # setup CCP4 environment first for Acedrg and Servalcat, which are used for update mode
             # retrieve metalcoord executable from package path, first check standalone, then CCP4 package
-            metalcoord_exe_standalone = os.path.join(self.__packagePath, "metallo", "metalcoord", "bin", "metalCoord")
+            metalcoord_exe_standalone = os.path.join(self.__packagePath, "metalcoord", "bin", "metalCoord")
             if os.path.exists(metalcoord_exe_standalone):
                 metalcoord_exe = metalcoord_exe_standalone
             else:
-                metalcoord_exe_ccp4 = os.path.join(self.__packagePath, "metallo", "ccp4-9", "bin", "metalCoord")
+                metalcoord_exe_ccp4 = os.path.join(self.__packagePath, "ccp4", "bin", "metalCoord")
                 if os.path.exists(metalcoord_exe_ccp4):
                     metalcoord_exe = metalcoord_exe_ccp4
                 else:
@@ -5096,13 +5096,13 @@ class RcsbDpUtility:
         # self.addInput(name="metalcoord_exe", value="")  # MetalCoord executable file, only use for testing new versions
         # self.setTimeout(1800)  # set timeout to 30 minutes for metalcoord processing if needed
         # retrieve metalcoord executable from package path, first check standalone, then CCP4 package
-        metalcoord_exe_standalone = os.path.join(self.__packagePath, "metallo", "metalcoord", "bin", "metalCoord")
+        metalcoord_exe_standalone = os.path.join(self.__packagePath, "metalcoord", "bin", "metalCoord")
         if os.path.exists(metalcoord_exe_standalone):
             metalcoord_exe = metalcoord_exe_standalone
         else:
-            ccp4_setup = os.path.join(self.__packagePath, "metallo", "ccp4-9", "bin", "ccp4.setup-sh")
+            ccp4_setup = os.path.join(self.__packagePath, "ccp4", "bin", "ccp4.setup-sh")
             cmd += f" ; source {ccp4_setup} "
-            metalcoord_exe_ccp4 = os.path.join(self.__packagePath, "metallo", "ccp4-9", "bin", "metalCoord")
+            metalcoord_exe_ccp4 = os.path.join(self.__packagePath, "ccp4", "bin", "metalCoord")
             if os.path.exists(metalcoord_exe_ccp4):
                 metalcoord_exe = metalcoord_exe_ccp4
             else:
