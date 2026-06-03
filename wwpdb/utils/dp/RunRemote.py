@@ -1,5 +1,6 @@
 # pylint: disable=logging-format-interpolation
 import argparse
+import json
 import logging
 import os
 import shutil
@@ -8,6 +9,7 @@ import tempfile
 import time
 from enum import Enum
 from textwrap import dedent
+from datetime import datetime
 
 from wwpdb.utils.config.ConfigInfo import ConfigInfo, getSiteId
 
@@ -31,6 +33,37 @@ class JobStatus(Enum):
     FAILED = "FAILED"
     CANCELLED = "CANCELLED"
     OTHER = "OTHER"
+
+
+class JobResult:
+    """Result object containing job status and metrics.
+    May be used both for local and remote jobs.
+    """
+    def __init__(
+        self,
+        status: JobStatus,
+        job_id=None,
+        retries_used=0,
+        total_time_seconds=None,
+        execution_time_seconds=None,
+        queue_time_seconds=None,
+        requested_memory_mb=None,
+        used_memory_mb=None,
+        cpu_count=None,
+        cpu_time_seconds=None,
+    ):
+        self.status: JobStatus = status
+        self.job_id = job_id
+        self.retries_used = retries_used
+        # Timing metrics
+        self.total_time_seconds = total_time_seconds  # submission + execution
+        self.execution_time_seconds = execution_time_seconds  # actual job execution
+        self.queue_time_seconds = queue_time_seconds  # time waiting for node
+        # Resource metrics
+        self.requested_memory_mb = requested_memory_mb
+        self.used_memory_mb = used_memory_mb
+        self.cpu_count = cpu_count
+        self.cpu_time_seconds = cpu_time_seconds
 
 
 class RunRemote:
@@ -99,6 +132,90 @@ class RunRemote:
         subprocess.run(cmd, check=True)
         logger.info(f"Requeued failed job {job_id}")
 
+    def _get_job_metrics(self, job_id):
+        """Extract job metrics from SLURM using sacct."""
+        try:
+            cmd = ["sacct", "--json", "--jobs", str(job_id)]
+            output = subprocess.run(cmd, check=True, capture_output=True, text=True)
+            data = json.loads(output.stdout)
+            
+            if not data.get("jobs"):
+                logger.warning(f"No job data found for job {job_id}")
+                return {}
+            
+            # Get the main job entry (first one should be the parent job)
+            job_data = data["jobs"][0]
+            
+            if job_data.get("job_id") != job_id:
+                logger.warning(f"Job ID mismatch: expected {job_id}, got {job_data.get('job_id')}")
+            
+            metrics = {}
+            time_data = job_data.get("time", {})
+            
+            # Extract timing metrics (Unix timestamps in seconds)
+            submit_time = time_data.get("submission")
+            start_time = time_data.get("start")
+            end_time = time_data.get("end")
+            
+            if submit_time and end_time:
+                metrics["total_time_seconds"] = end_time - submit_time
+            
+            if start_time and end_time:
+                metrics["execution_time_seconds"] = end_time - start_time
+            
+            if submit_time and start_time:
+                metrics["queue_time_seconds"] = start_time - submit_time
+            
+            # Extract CPU time from user and system time
+            user_time = time_data.get("user", {})
+            system_time = time_data.get("system", {})
+            
+            user_seconds = user_time.get("seconds", 0)
+            user_microseconds = user_time.get("microseconds", 0)
+            system_seconds = system_time.get("seconds", 0)
+            system_microseconds = system_time.get("microseconds", 0)
+            
+            metrics["cpu_time_seconds"] = (
+                user_seconds + user_microseconds / 1_000_000 +
+                system_seconds + system_microseconds / 1_000_000
+            )
+            
+            # Extract CPU count from required resources
+            required = job_data.get("required", {})
+            cpu_count = required.get("CPUs")
+            if cpu_count:
+                metrics["cpu_count"] = cpu_count
+            
+            # Extract requested memory from required resources (in MB)
+            mem_per_node = required.get("memory_per_node", {})
+            if mem_per_node.get("set"):
+                metrics["requested_memory_mb"] = mem_per_node.get("number")
+            
+            # Extract used memory from steps (if available)
+            steps = job_data.get("steps", [])
+            if steps:
+                batch_step = steps[0]  # Usually the batch step
+                tres_data = batch_step.get("tres", {})
+                requested_max = tres_data.get("requested", {}).get("max", [])
+                
+                # Find memory in the tres array
+                for tres_item in requested_max:
+                    if tres_item.get("type") == "mem":
+                        # Memory is in bytes, convert to MB
+                        mem_bytes = tres_item.get("count", 0)
+                        metrics["used_memory_mb"] = mem_bytes // (1024 * 1024)
+                        break
+            
+            logger.debug(f"Job {job_id} metrics: {metrics}")
+            return metrics
+        
+        except subprocess.CalledProcessError as e:
+            logger.warning(f"Error running sacct for job {job_id}: {e}")
+            return {}
+        except (json.JSONDecodeError, KeyError, ValueError) as e:
+            logger.warning(f"Error parsing sacct output for job {job_id}: {e}")
+            return {}
+
     def monitor(self, job_id, frequency=10):
         """Monitor a job by ID, requeueing if it fails."""
         logging.info(f"Monitoring job {job_id}")  # noqa: LOG015
@@ -161,34 +278,58 @@ class RunRemote:
 
         return "{}; {}".format(site_config_command, self.command)
 
-    def run(self, retries=3):
+    def run(self, retries=3) -> JobResult:
         status = JobStatus.OTHER
+        job_id = None
         wf_command = self.command
 
         if self.add_site_config_database or self.add_site_config:
             wf_command = self._source_site_config(database=self.add_site_config_database)
 
+        retries_used = 0
         while retries > 0:
-            sbatch_cmd = self._build_sbatch_command(command=wf_command)
-            logger.info(" ".join(sbatch_cmd))
+            try:
+                sbatch_cmd = self._build_sbatch_command(command=wf_command)
+                logger.info(" ".join(sbatch_cmd))
 
-            output = subprocess.run(sbatch_cmd, check=True, capture_output=True)
-            job_id = int(output.stdout.decode("utf-8").split()[-1])
-            logger.debug(f"Submitted: {job_id}")
+                output = subprocess.run(sbatch_cmd, check=True, capture_output=True)
+                job_id = int(output.stdout.decode("utf-8").split()[-1])
+                logger.debug(f"Submitted: {job_id}")
 
-            self._cleanup()
-            status = self.monitor(job_id=job_id)
+                self._cleanup()
+                status = self.monitor(job_id=job_id)
 
-            if status == JobStatus.COMPLETED:
+                if status == JobStatus.COMPLETED:
+                    break
+
+                if status == JobStatus.OOM:
+                    self.memory_limit = str(int(self.memory_limit) * 2)
+
+                logger.info(f"Retrying job {job_id} with memory limit {self.memory_limit}")
+                retries -= 1
+                retries_used += 1
+            except subprocess.CalledProcessError as e:
+                logger.error(f"Error submitting job: {e}")
                 break
 
-            if status == JobStatus.OOM:
-                self.memory_limit = str(int(self.memory_limit) * 2)
-
-            logger.info(f"Retrying job {job_id} with memory limit {self.memory_limit}")
-            retries -= 1
-
-        return status
+        # Extract metrics from SLURM
+        metrics = self._get_job_metrics(job_id) if job_id else {}
+        
+        # Create result object with metrics
+        result = JobResult(
+            status=status,
+            job_id=job_id,
+            retries_used=retries_used,
+            total_time_seconds=metrics.get("total_time_seconds"),
+            execution_time_seconds=metrics.get("execution_time_seconds"),
+            queue_time_seconds=metrics.get("queue_time_seconds"),
+            requested_memory_mb=metrics.get("requested_memory_mb"),
+            used_memory_mb=metrics.get("used_memory_mb"),
+            cpu_count=metrics.get("cpu_count"),
+            cpu_time_seconds=metrics.get("cpu_time_seconds"),
+        )
+        
+        return result
 
 
 if __name__ == "__main__":
@@ -220,5 +361,6 @@ if __name__ == "__main__":
             add_site_config=args.add_site_config,
             add_site_config_database=args.add_site_config_with_database,
         )
-        status_ret = run_remote.run()
-        logger.info(f"Job finished with status: {status_ret}")
+        result = run_remote.run()
+        logger.info(f"Job finished with status: {result.status}")
+        logger.info(f"Job ID: {result.job_id}, Execution time: {result.execution_time_seconds}s, Queue time: {result.queue_time_seconds}s")

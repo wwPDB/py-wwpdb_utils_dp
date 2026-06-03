@@ -150,6 +150,7 @@ import glob
 import logging
 import math
 import os
+import re
 import random
 import shutil
 import signal
@@ -160,6 +161,8 @@ import sys
 import tempfile
 import time
 from subprocess import call
+
+from wwpdb.utils.dp.JobLogging import JobLogger, RunEnvironment
 
 try:
     from itertools import zip_longest
@@ -176,7 +179,7 @@ from wwpdb.utils.config.ConfigInfoApp import (
 )
 
 from wwpdb.utils.dp.PdbxStripCategory import PdbxStripCategory
-from wwpdb.utils.dp.RunRemote import RunRemote
+from wwpdb.utils.dp.RunRemote import RunRemote, JobResult, JobStatus
 
 logger = logging.getLogger(__name__)
 
@@ -202,6 +205,7 @@ class RcsbDpUtility:
         # This can be set explicity via the self.setWorkingDir() method or will be created
         # as a temporary path dynamically as a subdirectory of self.__tmpDir.
         #
+        self.__dep_id = None # used for metrics only
         self.__wrkPath = None
         self.__sourceFileList = []
         self.__resultPathList = []
@@ -436,6 +440,11 @@ class RcsbDpUtility:
         self.__cIVal = ConfigInfoAppValidation(self.__siteId)
         self.__initPath()
         self.__getRunRemote()
+        log_dir_path = self.__cI.get("JOB_METRICS_DIR_PATH")
+        self.__job_logger = None
+        if log_dir_path:
+            log_file_path = os.path.join(log_dir_path, f"wfe_metrics_{self.__siteId}.log")
+            self.__job_logger = JobLogger(log_file_path).start()
 
     def __getConfigPath(self, ky):
         try:
@@ -687,6 +696,11 @@ class RcsbDpUtility:
             return True
         #
         if self.__srcPath is not None:
+            # try to extract the deposition id with pattern D_\d+ from the source path
+            m = re.search(r"(D_\d+)", self.__srcPath)
+            if m:
+                self.__dep_id = m.group(1)
+
             if self.__wrkPath is None:
                 self.__makeTempWorkingDir()
             self.__stepNo = 0
@@ -759,6 +773,7 @@ class RcsbDpUtility:
         try:
             logger.info("+RcsbDpUtility.cleanup() removing working path %s\n", self.__wrkPath)
             shutil.rmtree(self.__wrkPath, ignore_errors=True)
+            self.__job_logger.stop()
             return True
         except Exception:  # noqa: BLE001
             logger.info("+RcsbDpUtility.cleanup() removal failed for working path %s\n", self.__wrkPath)
@@ -5001,10 +5016,19 @@ class RcsbDpUtility:
         return 0
 
     def __run(self, command, lPathFull, op):
+        if self.__job_logger is not None:
+            self.__job_logger.info(dep_id=self.__dep_id, op=op, command=command)
+        
+        if self.__dep_id is None:
+            # try to extract dep_id from command
+            m = re.search(r"(D_\d+)", command)
+            if m:
+                self.__dep_id = m.group(1)
+
         if self.__run_remote:
             random_suffix = random.randrange(9999999)  # noqa: S311
             job_name = "{}_{}".format(op, random_suffix)
-            return RunRemote(
+            result = RunRemote(
                 command=command,
                 job_name=job_name,
                 log_dir=os.path.dirname(lPathFull),
@@ -5014,10 +5038,27 @@ class RcsbDpUtility:
                 memory_limit=self.__startingMemory,
                 add_site_config=True,
             ).run()
+            
+            if self.__job_logger is not None:
+                self.__job_logger.job_result(
+                    dep_id=self.__dep_id,
+                    op=op,
+                    runenv=RunEnvironment.REMOTE,
+                    wfhost=socket.gethostname(),
+                    job_result=result
+                )
+
+            if result.status == JobStatus.COMPLETED:
+                return 0
+            return -1
 
         if self.__timeout > 0:
             return self.__runTimeout(command, self.__timeout, lPathFull)
+
         retcode = -1000
+        exec_time = 0.0
+        error_msg = None
+        start_time = time.time()
         try:
             retcode = call(command, shell=True)  # noqa: S602
             if retcode != 0:
@@ -5027,9 +5068,33 @@ class RcsbDpUtility:
                     retcode,
                 )
         except OSError as e:
-            logger.info("+RcsbDpUtility.__run() operation %s failed  with exception %r\n", self.__stepOpList, str(e))
-        except Exception:  # noqa: BLE001
+            error_msg = str(e)
+            logger.info("+RcsbDpUtility.__run() operation %s failed  with exception %r\n", self.__stepOpList, error_msg)
+        except Exception as e:  # noqa: BLE001
+            error_msg = str(e)
             logger.info("+RcsbDpUtility.__run() operation %s failed  with exception\n", self.__stepOpList)
+        finally:
+            exec_time = time.time() - start_time
+
+            # Log local execution to job logger
+            if self.__job_logger and op:
+                local_result = JobResult(
+                    status=retcode,
+                    retries_used=1,
+                    total_time_seconds=exec_time,
+                    execution_time_seconds=exec_time,
+                    queue_time_seconds=0.0,
+                    requested_memory_mb=self.__startingMemory,
+                    used_memory_mb=self.__startingMemory,
+                    cpu_count=int(self.__numThreads),
+                )
+                self.__job_logger.job_result(
+                    dep_id=self.__dep_id,
+                    op=op,
+                    runenv=RunEnvironment.LOCAL,
+                    wfhost=socket.gethostname(),
+                    job_result=local_result
+                )
         return retcode
 
     def __constructFindGeoCommand(self, cmd, iPath, oPath, tPath, lPath, b_filter=False):
