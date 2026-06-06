@@ -9,10 +9,10 @@ from the main application log, and handle errors by raising custom exceptions.
 The command-specific log can be used for debugging the 3rd party metal tools such as MetalCoord and FindGeo.
 """
 
-import subprocess
 import logging
-from datetime import datetime
 import os
+import subprocess
+from datetime import datetime
 
 
 class MetalCommandExecutionError(Exception):

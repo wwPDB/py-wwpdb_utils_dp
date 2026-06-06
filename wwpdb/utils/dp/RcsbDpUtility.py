@@ -150,8 +150,8 @@ import glob
 import logging
 import math
 import os
-import re
 import random
+import re
 import shutil
 import signal
 import socket
@@ -179,7 +179,7 @@ from wwpdb.utils.config.ConfigInfoApp import (
 )
 
 from wwpdb.utils.dp.PdbxStripCategory import PdbxStripCategory
-from wwpdb.utils.dp.RunRemote import RunRemote, JobResult, JobStatus
+from wwpdb.utils.dp.RunRemote import JobResult, JobStatus, RunRemote
 
 logger = logging.getLogger(__name__)
 
@@ -205,7 +205,7 @@ class RcsbDpUtility:
         # This can be set explicity via the self.setWorkingDir() method or will be created
         # as a temporary path dynamically as a subdirectory of self.__tmpDir.
         #
-        self.__dep_id = None # used for metrics only
+        self.__dep_id = None  # used for metrics only
         self.__wrkPath = None
         self.__sourceFileList = []
         self.__resultPathList = []
@@ -5018,7 +5018,7 @@ class RcsbDpUtility:
     def __run(self, command, lPathFull, op):
         if self.__job_logger is not None:
             self.__job_logger.info(dep_id=self.__dep_id, op=op, command=command)
-        
+
         if self.__dep_id is None:
             # try to extract dep_id from command
             m = re.search(r"(D_\d+)", command)
@@ -5038,7 +5038,7 @@ class RcsbDpUtility:
                 memory_limit=self.__startingMemory,
                 add_site_config=True,
             ).run()
-            
+
             if self.__job_logger is not None:
                 self.__job_logger.job_result(
                     dep_id=self.__dep_id,

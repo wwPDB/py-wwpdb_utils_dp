@@ -13,10 +13,10 @@ import sys
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from wwpdb.utils.dp.metal.metal_util.run_command import run_command, MetalCommandExecutionError, MetalCommandTimeoutError  # noqa: E402
+    from wwpdb.utils.dp.metal.metal_util.run_command import MetalCommandExecutionError, MetalCommandTimeoutError, run_command  # noqa: E402
 else:
     sys.path.append(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "metal_util"))
-    from run_command import run_command, MetalCommandExecutionError, MetalCommandTimeoutError  # noqa: E402
+    from run_command import MetalCommandExecutionError, MetalCommandTimeoutError, run_command  # noqa: E402
 
 logger = logging.getLogger(__name__)
 
@@ -105,23 +105,23 @@ class RunMetalCoord:
             else:
                 errors["pdb"] = f"invalid PDB reference: {self.d_args['pdb']}, must be a valid PDB ID or an existing PDB/mmCIF file"
 
-        if "ligand" in self.d_args and self.d_args["ligand"]:
+        if self.d_args.get("ligand"):
             if self.d_args["ligand"] and self.d_args["ligand"].isalnum() and len(self.d_args["ligand"]) in (1, 2, 3, 5):
                 logger.info("ligand code provided: %s", self.d_args["ligand"])
             else:
                 errors["ligand"] = f"invalid ligand code: {self.d_args['ligand']}, must be alphanumeric and 1, 2, 3, or 5 characters long"
 
-        if "max_size" in self.d_args and self.d_args["max_size"]:
+        if self.d_args.get("max_size"):
             if not isinstance(self.d_args["max_size"], int) or self.d_args["max_size"] <= 10:
                 errors["max_size"] = f"invalid max_size: {self.d_args['max_size']}, must be a positive integer greater than 10"
 
-        if "input" in self.d_args and self.d_args["input"]:
+        if self.d_args.get("input"):
             if os.path.exists(self.d_args["input"]):
                 logger.info("run on input cif file found at %s", self.d_args["input"])
             else:
                 errors["input"] = f"failed to find input cif file at: {self.d_args['input']}"
 
-        if "threshold" in self.d_args and self.d_args["threshold"]:
+        if self.d_args.get("threshold"):
             if not isinstance(self.d_args["threshold"], (int, float)) or self.d_args["threshold"] < 0:
                 errors["threshold"] = f"invalid threshold: {self.d_args['threshold']}, must be a non-negative number"
 

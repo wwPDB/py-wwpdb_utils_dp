@@ -9,14 +9,15 @@ Comments with self.dp.addInput are deliberately left in the code for users to se
 """
 
 # pylint: disable=unused-import
-import logging
 import json
+import logging
 import os
 import shutil  # noqa: F401
 import sys
 import unittest
 
 from wwpdb.utils.config.ConfigInfo import getSiteId
+
 from wwpdb.utils.dp.RcsbDpUtility import RcsbDpUtility
 
 DIR = os.path.dirname(os.path.abspath(__file__))

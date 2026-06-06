@@ -12,10 +12,10 @@ import sys
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from wwpdb.utils.dp.metal.metal_util.run_command import run_command, MetalCommandExecutionError, MetalCommandTimeoutError  # noqa: E402
+    from wwpdb.utils.dp.metal.metal_util.run_command import MetalCommandExecutionError, MetalCommandTimeoutError, run_command  # noqa: E402
 else:
     sys.path.append(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "metal_util"))
-    from run_command import run_command, MetalCommandExecutionError, MetalCommandTimeoutError  # noqa: E402
+    from run_command import MetalCommandExecutionError, MetalCommandTimeoutError, run_command  # noqa: E402
 
 logger = logging.getLogger(__name__)
 
@@ -120,14 +120,13 @@ class RunFindGeo:
         self.input = []
         if self.d_args['input'] and os.path.exists(self.d_args['input']):
             self.input = ["--input", self.d_args['input']]
+        # try to check pdb id if input file is not valid
+        elif self.d_args['pdb']:
+            if len(self.d_args['pdb']) not in [4, 12]:
+                errors["pdb"] = f"invalid pdb id: {self.d_args['pdb']}"
+            self.input = ["--pdb", self.d_args['pdb'].lower()]
         else:
-            # try to check pdb id if input file is not valid
-            if self.d_args['pdb']:
-                if len(self.d_args['pdb']) not in [4, 12]:
-                    errors["pdb"] = f"invalid pdb id: {self.d_args['pdb']}"
-                self.input = ["--pdb", self.d_args['pdb'].lower()]
-            else:
-                errors["input"] = "must specify either input file or pdb id"
+            errors["input"] = "must specify either input file or pdb id"
         if errors:
             raise ValidateParametersError(errors)
 

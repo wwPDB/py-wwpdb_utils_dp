@@ -14,20 +14,25 @@ best result for each metal site based on chemical rules, and generate a report j
 # pylint: disable=duplicate-code
 
 import argparse
-import logging
 import json
+import logging
 import os
 import sys
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from wwpdb.utils.dp.metal.findgeo.runFindGeo import RunFindGeo, FindGeoCommandExecutionError, FindGeoCommandTimeoutError, ValidateParametersError  # noqa: E402
     from wwpdb.utils.dp.metal.findgeo.parseFindGeo import ParseFindGeo  # noqa: E402
+    from wwpdb.utils.dp.metal.findgeo.runFindGeo import (  # noqa: E402
+        FindGeoCommandExecutionError,
+        FindGeoCommandTimeoutError,
+        RunFindGeo,
+        ValidateParametersError,
+    )
     from wwpdb.utils.dp.metal.metal_util.run_command import setup_logger  # noqa: E402
 else:
     sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    from findgeo.runFindGeo import RunFindGeo, FindGeoCommandExecutionError, FindGeoCommandTimeoutError, ValidateParametersError  # noqa: E402
     from findgeo.parseFindGeo import ParseFindGeo  # noqa: E402
+    from findgeo.runFindGeo import FindGeoCommandExecutionError, FindGeoCommandTimeoutError, RunFindGeo, ValidateParametersError  # noqa: E402
     from metal_util.run_command import setup_logger  # noqa: E402
 
 setup_logger(name="findgeo", log_dir=".", b_debug=False)
@@ -49,7 +54,7 @@ def readJson(fp):
     :rtype: list
     """
     try:
-        with open(fp, "r", encoding="utf-8") as f:
+        with open(fp, encoding="utf-8") as f:
             data = json.load(f)
             return data
     except FileNotFoundError as e:
@@ -423,7 +428,7 @@ def main():  # pylint: disable=too-many-statements
     if args.filter:
         # filter output for CCD annotation
         logger.info("to filter FindGeo results to keep regular geometry only for CCD annotation")
-        with open(fp_json, "r", encoding="utf-8") as f:
+        with open(fp_json, encoding="utf-8") as f:
             l_sites = json.load(f)
         l_sites_filtered = []
         for d_site in l_sites:

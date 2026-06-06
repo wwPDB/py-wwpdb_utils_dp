@@ -8,17 +8,17 @@ Wrapper to parse MetalCoord output json file
 # pylint: disable=duplicate-code
 
 import json
+import logging
 import os
 import sys
-import logging
 from collections import OrderedDict
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from wwpdb.utils.dp.metal.metal_util.readRef import readRefCoordNum, readRefCoordMap, readRefRedOx, readRefMetalCarbon, readRefCoordException
+    from wwpdb.utils.dp.metal.metal_util.readRef import readRefCoordException, readRefCoordMap, readRefCoordNum, readRefMetalCarbon, readRefRedOx
 else:
     sys.path.append(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "metal_util"))
-    from readRef import readRefCoordNum, readRefCoordMap, readRefRedOx, readRefMetalCarbon, readRefCoordException  # noqa: E402
+    from readRef import readRefCoordException, readRefCoordMap, readRefCoordNum, readRefMetalCarbon, readRefRedOx  # noqa: E402
 
 logger = logging.getLogger(__name__)
 
@@ -57,7 +57,7 @@ class ParseMetalCoord:  # pylint: disable=too-many-instance-attributes
         :raises MetalCoordParseError: If file is not found, permission denied, or JSON decode fails.
         """
         try:
-            with open(fp_metalcoord, "r", encoding="utf-8") as f:
+            with open(fp_metalcoord, encoding="utf-8") as f:
                 self.data = json.load(f)
                 logger.debug("JSON loaded successfully from %s", fp_metalcoord)
                 if self.data:
