@@ -34,8 +34,8 @@ def readRefRedOx():
     with open(filepath, encoding="utf-8") as f:
         reader = csv.DictReader(f, delimiter="\t")
         for d_row in reader:
-            metal = d_row['Metals'].strip()
-            d_redox[metal] = d_row['Redox active'].strip()
+            metal = d_row["Metals"].strip()
+            d_redox[metal] = d_row["Redox active"].strip()
             d_oxi[metal] = d_row["Oxidation state"]
     return (d_redox, d_oxi)
 
@@ -58,8 +58,8 @@ def readRefCoordNum():
     with open(filepath, encoding="utf-8") as f:
         reader = csv.DictReader(f, delimiter="\t")
         for d_row in reader:
-            metal = d_row['Metals'].strip()
-            coord_num = d_row['Coordination numbers'].strip()
+            metal = d_row["Metals"].strip()
+            coord_num = d_row["Coordination numbers"].strip()
             d_coord_num[metal] = coord_num.split(",")
     return d_coord_num
 
@@ -92,11 +92,11 @@ def readRefCoordMap(program):
             abbr = d_row[abbr_header].strip().upper()
             pdb_geom = d_row[pdb_header].strip().lower()
             if geom in d_coord_map:
-                print("duplicate geometry %s", geom)
+                print("duplicate geometry %s", geom)  # noqa: T201
                 continue
             d_coord_map[geom] = {}
-            d_coord_map[geom]['abbr'] = abbr
-            d_coord_map[geom]['pdb_geom'] = pdb_geom
+            d_coord_map[geom]["abbr"] = abbr
+            d_coord_map[geom]["pdb_geom"] = pdb_geom
     return d_coord_map
 
 
@@ -116,7 +116,7 @@ def readRefMetalCarbon():
     with open(filepath, encoding="utf-8") as f:
         reader = csv.DictReader(f, delimiter="\t")
         for d_row in reader:
-            metal = d_row['Metals'].strip()
+            metal = d_row["Metals"].strip()
             l_metal_carbon.append(metal)
     return l_metal_carbon
 
@@ -137,9 +137,9 @@ def readRefCoordException():
     with open(filepath, encoding="utf-8") as f:
         reader = csv.DictReader(f, delimiter="\t")
         for d_row in reader:
-            metal = d_row['Element'].strip()
+            metal = d_row["Element"].strip()
             d_one = {}
-            for item in ['Percent-threshold', 'Geometry-exclusion-FindGeo', 'Geometry-exclusion-MetalCoord']:
+            for item in ["Percent-threshold", "Geometry-exclusion-FindGeo", "Geometry-exclusion-MetalCoord"]:
                 d_one[item] = d_row[item].strip()
             d_coord_exception[metal] = d_one
     return d_coord_exception

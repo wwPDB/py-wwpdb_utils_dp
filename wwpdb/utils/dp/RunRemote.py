@@ -38,6 +38,7 @@ class JobResult:
     """Result object containing job status and metrics.
     May be used both for local and remote jobs.
     """
+
     def __init__(
         self,
         status: JobStatus,
@@ -174,10 +175,7 @@ class RunRemote:
             system_seconds = system_time.get("seconds", 0)
             system_microseconds = system_time.get("microseconds", 0)
 
-            metrics["cpu_time_seconds"] = (
-                user_seconds + user_microseconds / 1_000_000
-                + system_seconds + system_microseconds / 1_000_000
-            )
+            metrics["cpu_time_seconds"] = user_seconds + user_microseconds / 1_000_000 + system_seconds + system_microseconds / 1_000_000
 
             # Extract CPU count from required resources
             required = job_data.get("required", {})

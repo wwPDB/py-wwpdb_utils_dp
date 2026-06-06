@@ -27,6 +27,7 @@ class AcedrgParametersError(Exception):
     :param errors: Dictionary of parameter errors.
     :type errors: dict
     """
+
     def __init__(self, errors: dict):
         self.errors = errors
         super().__init__(str(errors))
@@ -58,6 +59,7 @@ class RunAcedrg:
         rAG = RunAcedrg(d_args)
         rAG.run()
     """
+
     def __init__(self, d_args):
         """
         Initialize RunAcedrg with arguments and validate them.
@@ -116,14 +118,16 @@ class RunAcedrg:
         l_command.extend(["--mmcif", self.d_args["mmcif"]])
         l_command.extend(["--out", self.d_args["out"]])
 
-        logger.info("to run Acedrg full command:\n %s", ' '.join(l_command))
+        logger.info("to run Acedrg full command:\n %s", " ".join(l_command))
         try:
             cmd_stdout = run_command(l_command, self.d_args.get("timeout"))
             return cmd_stdout
         except MetalCommandTimeoutError as e:
-            raise AcedrgCommandTimeoutError(f"Acedrg command timed out after {self.d_args.get('timeout')} seconds: {e}") from e
+            msg = f"Acedrg command timed out after {self.d_args.get('timeout')} seconds: {e}"
+            raise AcedrgCommandTimeoutError(msg) from e
         except MetalCommandExecutionError as e:
-            raise AcedrgCommandExecutionError(f"Acedrg command execution error: {e}") from e
+            msg = f"Acedrg command execution error: {e}"
+            raise AcedrgCommandExecutionError(msg) from e
 
 
 # def main():

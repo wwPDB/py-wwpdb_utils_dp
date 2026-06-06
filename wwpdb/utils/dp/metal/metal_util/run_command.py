@@ -28,6 +28,7 @@ class MetalCommandExecutionError(Exception):
     :param stdout: The standard output from the command (if any).
     :type stdout: str or None
     """
+
     def __init__(self, cmd, code=None, stderr=None, stdout=None):
         self.cmd = cmd
         self.code = code
@@ -65,7 +66,7 @@ def setup_logger(name="cmd", log_dir="metal_command_logs", b_debug=True):
 
     if not logger.handlers:  # prevent duplicate handlers if called multiple times
         logger.setLevel(logging.DEBUG)
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")  # noqa: DTZ005
         log_path = os.path.join(log_dir, f"{name}_{timestamp}.log")
 
         # File handler
@@ -113,16 +114,10 @@ def run_command(cmd, timeout_sec, logger=None):
     if logger is None:
         logger = setup_logger()
 
-    logger.info("▶ Running command: %s", ' '.join(cmd))
+    logger.info("▶ Running command: %s", " ".join(cmd))
 
     try:
-        result = subprocess.run(
-            cmd,
-            check=True,
-            capture_output=True,
-            text=True,
-            timeout=timeout_sec
-        )
+        result = subprocess.run(cmd, check=True, capture_output=True, text=True, timeout=timeout_sec)
         logger.debug("STDOUT:\n%s", result.stdout.strip())
         logger.info("✅ Command completed successfully.")
 

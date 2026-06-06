@@ -5040,13 +5040,7 @@ class RcsbDpUtility:
             ).run()
 
             if self.__job_logger is not None:
-                self.__job_logger.job_result(
-                    dep_id=self.__dep_id,
-                    op=op,
-                    runenv=RunEnvironment.REMOTE,
-                    wfhost=socket.gethostname(),
-                    job_result=result
-                )
+                self.__job_logger.job_result(dep_id=self.__dep_id, op=op, runenv=RunEnvironment.REMOTE, wfhost=socket.gethostname(), job_result=result)
 
             if result.status == JobStatus.COMPLETED:
                 return 0
@@ -5088,18 +5082,11 @@ class RcsbDpUtility:
                     used_memory_mb=self.__startingMemory,
                     cpu_count=int(self.__numThreads),
                 )
-                self.__job_logger.job_result(
-                    dep_id=self.__dep_id,
-                    op=op,
-                    runenv=RunEnvironment.LOCAL,
-                    wfhost=socket.gethostname(),
-                    job_result=local_result
-                )
+                self.__job_logger.job_result(dep_id=self.__dep_id, op=op, runenv=RunEnvironment.LOCAL, wfhost=socket.gethostname(), job_result=local_result)
         return retcode
 
     def __constructFindGeoCommand(self, cmd, iPath, oPath, tPath, lPath, b_filter=False):
-        """Construct command for running FindGeo, to be re-used for different operations
-        """
+        """Construct command for running FindGeo, to be re-used for different operations"""
         # changes to the default FindGeo options must be set before setting self.op("metal-findgeo"), e.g.
         # self.addInput(name="metal", value="Fe")  # run on a specific metal element only
         # self.addInput(name="excluded-metals", value="Mg,Ca")  # exlcuding a list of metal elements
@@ -5111,10 +5098,7 @@ class RcsbDpUtility:
         logger.info("To use java executable at %s", java_exe)
         if not os.path.exists(java_exe):
             java_exe = "java"  # fallback to just "java" in case it's in PATH
-        findgeo_locations = [
-            os.path.join(self.__packagePath, "FindGeo", "FindGeo.jar"),
-            os.path.join(self.__packagePath, "metallo", "FindGeo", "FindGeo.jar")
-        ]
+        findgeo_locations = [os.path.join(self.__packagePath, "FindGeo", "FindGeo.jar"), os.path.join(self.__packagePath, "metallo", "FindGeo", "FindGeo.jar")]
         findgeo_jar = next((path for path in findgeo_locations if os.path.exists(path)), None)
         if findgeo_jar:
             logger.info("To use FindGeo Jar file at %s", findgeo_jar)
@@ -5150,8 +5134,7 @@ class RcsbDpUtility:
         return cmd
 
     def __constructMetalCoordCommand(self, cmd, iPath, oPath, tPath, lPath, cpu_split=4, b_filter=False):
-        """Construct command for running MetalCoord, to be re-used for different operations
-        """
+        """Construct command for running MetalCoord, to be re-used for different operations"""
         # changes to the default metalcoord options must be set before setting self.op("metal-metalcoord-stats"), e.g.
         # self.addInput(name="ligands", value=["0KA", "NCO"])  # list or string of CCD ID(s) of the metal ligand to check on, accepts comma-separated string or list of strings
         # self.addInput(name="max_size", value="2000")  # Maximum sample size for reference statistics.
@@ -5188,7 +5171,7 @@ class RcsbDpUtility:
         for key, value in self.__inputParamDict.items():
             if key == "ligands":  # list or string of CCD ID(s) of the metal ligand to check on
                 if isinstance(value, list):
-                    s_value = ','.join(value)
+                    s_value = ",".join(value)
                     d_metalcoord_args["ligands"] = s_value
                 else:
                     d_metalcoord_args["ligands"] = value

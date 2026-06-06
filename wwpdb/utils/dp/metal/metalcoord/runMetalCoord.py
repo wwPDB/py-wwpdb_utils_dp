@@ -28,6 +28,7 @@ class MetalCoordParametersError(Exception):
     :param errors: Dictionary of parameter errors.
     :type errors: dict
     """
+
     def __init__(self, errors: dict):
         self.errors = errors
         super().__init__(str(errors))
@@ -61,6 +62,7 @@ class RunMetalCoord:
         rMC = RunMetalCoord(d_args)
         rMC.run()
     """
+
     def __init__(self, d_args):
         """
         Initialize RunMetalCoord with arguments and validate them.
@@ -126,8 +128,8 @@ class RunMetalCoord:
                 errors["threshold"] = f"invalid threshold: {self.d_args['threshold']}, must be a non-negative number"
 
         try:
-            os.makedirs(self.d_args['workdir'], exist_ok=True)
-        except Exception as e:  # pylint: disable=broad-exception-caught
+            os.makedirs(self.d_args["workdir"], exist_ok=True)
+        except Exception as e:  # noqa: BLE001 pylint: disable=broad-exception-caught
             errors["workdir"] = f"cannot create workdir: {self.d_args['workdir']} with error {e}"
 
         if errors:
@@ -176,16 +178,19 @@ class RunMetalCoord:
         fp_out = os.path.join(self.d_args["workdir"], f"{self.d_args['ligand']}.json")
         l_command.extend(["--output", fp_out])
 
-        logger.info("to run MetalCoord stats mode full command:\n %s", ' '.join(l_command))
+        logger.info("to run MetalCoord stats mode full command:\n %s", " ".join(l_command))
         try:
             cmd_stdout = run_command(l_command, self.d_args["timeout"])
             return cmd_stdout
         except MetalCommandTimeoutError as e:
-            raise MetalCoordCommandTimeoutError(f"MetalCoord stats command timed out after {self.d_args['timeout']} seconds: {e}") from e
+            msg = f"MetalCoord stats command timed out after {self.d_args['timeout']} seconds: {e}"
+            raise MetalCoordCommandTimeoutError(msg) from e
         except MetalCommandExecutionError as e:
-            raise MetalCoordCommandExecutionError(f"MetalCoord stats command execution error: {e}") from e
+            msg = f"MetalCoord stats command execution error: {e}"
+            raise MetalCoordCommandExecutionError(msg) from e
         except Exception as e:
-            raise MetalCoordCommandExecutionError(f"Unexpected error while running MetalCoord stats command: {e}") from e
+            msg = f"Unexpected error while running MetalCoord stats command: {e}"
+            raise MetalCoordCommandExecutionError(msg) from e
 
     def runUpdate(self):
         """
@@ -217,16 +222,19 @@ class RunMetalCoord:
             logger.info("to run MetalCoord update mode by most_common option without model")
             l_command.extend(["--cif", "--cl", "most_common"])
 
-        logger.info("to run MetalCoord update mode full command:\n %s", ' '.join(l_command))
+        logger.info("to run MetalCoord update mode full command:\n %s", " ".join(l_command))
         try:
             cmd_stdout = run_command(l_command, self.d_args["timeout"])
             return cmd_stdout
         except MetalCommandTimeoutError as e:
-            raise MetalCoordCommandTimeoutError(f"MetalCoord update command timed out after {self.d_args['timeout']} seconds: {e}") from e
+            msg = f"MetalCoord update command timed out after {self.d_args['timeout']} seconds: {e}"
+            raise MetalCoordCommandTimeoutError(msg) from e
         except MetalCommandExecutionError as e:
-            raise MetalCoordCommandExecutionError(f"MetalCoord update command execution error: {e}") from e
+            msg = f"MetalCoord update command execution error: {e}"
+            raise MetalCoordCommandExecutionError(msg) from e
         except Exception as e:
-            raise MetalCoordCommandExecutionError(f"Unexpected error while running MetalCoord update command: {e}") from e
+            msg = f"Unexpected error while running MetalCoord update command: {e}"
+            raise MetalCoordCommandExecutionError(msg) from e
 
 
 # def main():

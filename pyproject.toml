@@ -167,4 +167,6 @@ exclude = [
 
 "fix_gemmi_typing.py" = ["T201"]
 
-"tests/*" = ["TID252", "PLC1901", "S311", "T201"]
+"tests/*" = ["TID252", "PLC1901", "S311", "T201", "S101"]
+"wwpdb/utils/dp/metal/tests/*" = ["T201", "S605"]
+"wwpdb/utils/dp/JobLogging.py" = ["FA100"] # from __future__ import annotations` to simplify `typing.Optional`

@@ -213,7 +213,9 @@ def main():  # pylint: disable=too-many-statements
     parser.add_argument("-a", "--acedrg_exe", help="Acedrg executable file", type=str, default=None)
     parser.add_argument("-b", "--metalcoord_exe", help="MetalCoord executable file", type=str, default=None)
     parser.add_argument("-c", "--servalcat_exe", help="Servalcat executable file", type=str, default=None)
-    parser.add_argument("-w", "--workdir", help="Directory to write outputs. Default is metalcoord subfolder in the current folder", type=str, default="metalcoord")
+    parser.add_argument(
+        "-w", "--workdir", help="Directory to write outputs. Default is metalcoord subfolder in the current folder", type=str, default="metalcoord"
+    )
     parser.add_argument("-i", "--input", help="Ligand cif file", type=str, required=True)
     parser.add_argument("-p", "--pdb", help="PDB code or pdb file", type=str, default=None)
     parser.add_argument("-t", "--threshold", help="Procrustes distance threshold.", type=float, default=0.3)
@@ -236,7 +238,10 @@ def main():  # pylint: disable=too-many-statements
         sys.exit(0)
 
     # run MetalCoord
-    logger.info("to run MetalCoord update mode with Acedrg output %s as input to update distance and angle restraints for ServalCat, and generate metal coordination report", fp_acedrg_cif)
+    logger.info(
+        "to run MetalCoord update mode with Acedrg output %s as input to update distance and angle restraints for ServalCat, and generate metal coordination report",
+        fp_acedrg_cif,
+    )
     d_args_metalcoord = {}
     d_args_metalcoord["metalcoord_exe"] = args.metalcoord_exe
     d_args_metalcoord["workdir"] = args.workdir

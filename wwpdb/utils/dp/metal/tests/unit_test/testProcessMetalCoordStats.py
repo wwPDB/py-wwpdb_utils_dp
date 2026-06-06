@@ -66,7 +66,7 @@ class TestRunMetalCoord(unittest.TestCase):
 
         try:
             os.makedirs(TEST_TEMP_DIR, exist_ok=True)
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             print("cannot create workdir: %s with error %s", TEST_TEMP_DIR, e)
             sys.exit(1)
 
@@ -110,7 +110,7 @@ class TestRunMetalCoord(unittest.TestCase):
 
         try:
             os.makedirs(TEST_TEMP_DIR, exist_ok=True)
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             print("cannot create workdir: %s with error %s", TEST_TEMP_DIR, e)
             sys.exit(1)
 
@@ -154,7 +154,7 @@ class TestRunMetalCoord(unittest.TestCase):
 
         try:
             os.makedirs(TEST_TEMP_DIR, exist_ok=True)
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             print("cannot create workdir: %s with error %s", TEST_TEMP_DIR, e)
             sys.exit(1)
 
@@ -198,7 +198,7 @@ class TestRunMetalCoord(unittest.TestCase):
 
         try:
             os.makedirs(TEST_TEMP_DIR, exist_ok=True)
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             print("cannot create workdir: %s with error %s", TEST_TEMP_DIR, e)
             sys.exit(1)
 
@@ -241,7 +241,7 @@ class TestRunMetalCoord(unittest.TestCase):
 
         try:
             os.makedirs(TEST_TEMP_DIR, exist_ok=True)
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             print("cannot create workdir: %s with error %s", TEST_TEMP_DIR, e)
             sys.exit(1)
 
@@ -284,7 +284,7 @@ class TestRunMetalCoord(unittest.TestCase):
 
         try:
             os.makedirs(TEST_TEMP_DIR, exist_ok=True)
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             print("cannot create workdir: %s with error %s", TEST_TEMP_DIR, e)
             sys.exit(1)
 
