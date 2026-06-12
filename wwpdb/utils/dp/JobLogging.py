@@ -15,7 +15,6 @@ import json
 import logging
 import logging.handlers
 import os
-from queue import Queue
 from contextlib import contextmanager
 from enum import Enum
 from queue import Queue
@@ -63,9 +62,7 @@ class JobLogger:
 
         # Default format includes timestamp, level, and message
         if log_format is None:
-            log_format = (
-                "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-            )
+            log_format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
         self._log_format = log_format
         self._formatter = logging.Formatter(log_format)
 
@@ -83,9 +80,7 @@ class JobLogger:
         handler.setFormatter(self._formatter)
 
         # Create queue listener that writes to the handler
-        self._listener = logging.handlers.QueueListener(
-            self._queue, handler, respect_handler_level=True
-        )
+        self._listener = logging.handlers.QueueListener(self._queue, handler, respect_handler_level=True)
         self._listener.start()
 
     def _setup_logger(self) -> logging.Logger:
