@@ -15,9 +15,7 @@ import json
 import logging
 import logging.handlers
 import os
-from datetime import datetime, timedelta
 from queue import Queue
-from threading import Thread
 from contextlib import contextmanager
 from typing import Optional
 from enum import Enum
@@ -52,7 +50,7 @@ class JobLogger:
         """
         self.log_file_path = log_file_path
         self.logger_name = logger_name
-        self._queue: Optional[Queue] = None
+        self._queue: Queue = Queue(-1)
         self._listener: Optional[logging.handlers.QueueListener] = None
         self._logger: Optional[logging.Logger] = None
 
@@ -71,8 +69,7 @@ class JobLogger:
 
     def _setup_listener(self) -> None:
         """Set up the queue-based logger with time-based rotation."""
-        self._queue = Queue(-1)  # Unlimited queue size
-        
+
         # Create handler with 30-day time-based rotation
         # when='midnight' rotates at midnight, interval=30 means every 30 days
         handler = logging.handlers.TimedRotatingFileHandler(
