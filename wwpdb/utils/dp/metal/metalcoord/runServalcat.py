@@ -12,10 +12,10 @@ import sys
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from wwpdb.utils.dp.metal.metal_util.run_command import run_command, MetalCommandExecutionError, MetalCommandTimeoutError  # noqa: E402
+    from wwpdb.utils.dp.metal.metal_util.run_command import MetalCommandExecutionError, MetalCommandTimeoutError, run_command  # noqa: E402
 else:
     sys.path.append(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "metal_util"))
-    from run_command import run_command, MetalCommandExecutionError, MetalCommandTimeoutError  # noqa: E402
+    from run_command import MetalCommandExecutionError, MetalCommandTimeoutError, run_command  # noqa: E402
 
 logger = logging.getLogger(__name__)
 
@@ -27,6 +27,7 @@ class ServalcatParametersError(Exception):
     :param errors: Dictionary of parameter errors.
     :type errors: dict
     """
+
     def __init__(self, errors: dict):
         self.errors = errors
         super().__init__(str(errors))
@@ -48,6 +49,7 @@ class RunServalcat:
     """
     Wrapper to run Servalcat with arguments.
     """
+
     def __init__(self, d_args):
         """
         Initialize RunServalcat with arguments and validate them.
@@ -106,14 +108,16 @@ class RunServalcat:
         l_command.extend(["--update_dictionary", self.d_args["update_dictionary"]])
         l_command.extend(["--output_prefix", self.d_args["output_prefix"]])
 
-        logger.info("to run servalcat full command:\n %s", ' '.join(l_command))
+        logger.info("to run servalcat full command:\n %s", " ".join(l_command))
         try:
             cmd_stdout = run_command(l_command, self.d_args.get("timeout"))
             return cmd_stdout
         except MetalCommandTimeoutError as e:
-            raise ServalcatCommandTimeoutError(f"Servalcat command timed out after {self.d_args.get('timeout')} seconds: {e}") from e
+            msg = f"Servalcat command timed out after {self.d_args.get('timeout')} seconds: {e}"
+            raise ServalcatCommandTimeoutError(msg) from e
         except MetalCommandExecutionError as e:
-            raise ServalcatCommandExecutionError(f"Servalcat command execution error: {e}") from e
+            msg = f"Servalcat command execution error: {e}"
+            raise ServalcatCommandExecutionError(msg) from e
 
 
 # def main():

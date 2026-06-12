@@ -18,18 +18,28 @@ import sys
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from wwpdb.utils.dp.metal.metalcoord.runAcedrg import RunAcedrg, AcedrgCommandExecutionError, AcedrgCommandTimeoutError, AcedrgParametersError  # noqa: E402
-    from wwpdb.utils.dp.metal.metalcoord.runMetalCoord import RunMetalCoord, MetalCoordCommandExecutionError, MetalCoordCommandTimeoutError, MetalCoordParametersError  # noqa: E402
-    from wwpdb.utils.dp.metal.metalcoord.runServalcat import RunServalcat, ServalcatCommandExecutionError, ServalcatCommandTimeoutError, ServalcatParametersError  # noqa: E402
-    from wwpdb.utils.dp.metal.metalcoord.parseMetalCoord import ParseMetalCoord, MetalCoordParseError  # noqa: E402
     from wwpdb.utils.dp.metal.metal_util.run_command import setup_logger  # noqa: E402
+    from wwpdb.utils.dp.metal.metalcoord.parseMetalCoord import MetalCoordParseError, ParseMetalCoord  # noqa: E402
+    from wwpdb.utils.dp.metal.metalcoord.runAcedrg import AcedrgCommandExecutionError, AcedrgCommandTimeoutError, AcedrgParametersError, RunAcedrg  # noqa: E402
+    from wwpdb.utils.dp.metal.metalcoord.runMetalCoord import (  # noqa: E402
+        MetalCoordCommandExecutionError,
+        MetalCoordCommandTimeoutError,
+        MetalCoordParametersError,
+        RunMetalCoord,
+    )
+    from wwpdb.utils.dp.metal.metalcoord.runServalcat import (  # noqa: E402
+        RunServalcat,
+        ServalcatCommandExecutionError,
+        ServalcatCommandTimeoutError,
+        ServalcatParametersError,
+    )
 else:
     sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    from metalcoord.runAcedrg import RunAcedrg, AcedrgCommandExecutionError, AcedrgCommandTimeoutError, AcedrgParametersError  # noqa: E402
-    from metalcoord.runMetalCoord import RunMetalCoord, MetalCoordCommandExecutionError, MetalCoordCommandTimeoutError, MetalCoordParametersError  # noqa: E402
-    from metalcoord.runServalcat import RunServalcat, ServalcatCommandExecutionError, ServalcatCommandTimeoutError, ServalcatParametersError  # noqa: E402
-    from metalcoord.parseMetalCoord import ParseMetalCoord, MetalCoordParseError  # noqa: E402
     from metal_util.run_command import setup_logger  # noqa: E402
+    from metalcoord.parseMetalCoord import MetalCoordParseError, ParseMetalCoord  # noqa: E402
+    from metalcoord.runAcedrg import AcedrgCommandExecutionError, AcedrgCommandTimeoutError, AcedrgParametersError, RunAcedrg  # noqa: E402
+    from metalcoord.runMetalCoord import MetalCoordCommandExecutionError, MetalCoordCommandTimeoutError, MetalCoordParametersError, RunMetalCoord  # noqa: E402
+    from metalcoord.runServalcat import RunServalcat, ServalcatCommandExecutionError, ServalcatCommandTimeoutError, ServalcatParametersError  # noqa: E402
 
 setup_logger(name="metalcoord", log_dir=".", b_debug=False)
 logger = logging.getLogger("metalcoord.processMetalCoordUpdate")
@@ -203,7 +213,9 @@ def main():  # pylint: disable=too-many-statements
     parser.add_argument("-a", "--acedrg_exe", help="Acedrg executable file", type=str, default=None)
     parser.add_argument("-b", "--metalcoord_exe", help="MetalCoord executable file", type=str, default=None)
     parser.add_argument("-c", "--servalcat_exe", help="Servalcat executable file", type=str, default=None)
-    parser.add_argument("-w", "--workdir", help="Directory to write outputs. Default is metalcoord subfolder in the current folder", type=str, default="metalcoord")
+    parser.add_argument(
+        "-w", "--workdir", help="Directory to write outputs. Default is metalcoord subfolder in the current folder", type=str, default="metalcoord"
+    )
     parser.add_argument("-i", "--input", help="Ligand cif file", type=str, required=True)
     parser.add_argument("-p", "--pdb", help="PDB code or pdb file", type=str, default=None)
     parser.add_argument("-t", "--threshold", help="Procrustes distance threshold.", type=float, default=0.3)
@@ -226,7 +238,10 @@ def main():  # pylint: disable=too-many-statements
         sys.exit(0)
 
     # run MetalCoord
-    logger.info("to run MetalCoord update mode with Acedrg output %s as input to update distance and angle restraints for ServalCat, and generate metal coordination report", fp_acedrg_cif)
+    logger.info(
+        "to run MetalCoord update mode with Acedrg output %s as input to update distance and angle restraints for ServalCat, and generate metal coordination report",
+        fp_acedrg_cif,
+    )
     d_args_metalcoord = {}
     d_args_metalcoord["metalcoord_exe"] = args.metalcoord_exe
     d_args_metalcoord["workdir"] = args.workdir

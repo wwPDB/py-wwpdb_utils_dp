@@ -17,8 +17,10 @@ import logging.handlers
 import os
 from queue import Queue
 from contextlib import contextmanager
-from typing import Optional
 from enum import Enum
+from queue import Queue
+from typing import Optional
+
 
 class RunEnvironment(Enum):
     LOCAL = "LOCAL"
@@ -28,7 +30,7 @@ class RunEnvironment(Enum):
 class JobLogger:
     """
     Thread-safe logger for job execution and metrics.
-    
+
     Uses QueueHandler with QueueListener to safely handle concurrent
     writes from multiple processes to a single log file with 30-day
     time-based rotation.
@@ -90,7 +92,7 @@ class JobLogger:
         """Set up the logger with queue handler."""
         logger = logging.getLogger(self.logger_name)
         logger.setLevel(logging.DEBUG)
-        
+
         # Clear any existing handlers to avoid duplicates
         logger.handlers.clear()
 
@@ -110,7 +112,7 @@ class JobLogger:
         """
         if self._listener is None:
             self._setup_listener()
-        
+
         if self._logger is None:
             self._logger = self._setup_logger()
 
@@ -121,7 +123,7 @@ class JobLogger:
         if self._listener:
             self._listener.stop()
             self._listener = None
-        
+
         if self._logger:
             for handler in self._logger.handlers[:]:
                 self._logger.removeHandler(handler)
@@ -154,7 +156,7 @@ class JobLogger:
 
         Args:
             job_result: JobResult instance from RunRemote.run()
-        
+
         Output format:
             {"job_id": 12345, "status": "COMPLETED", "retries": 0, ...}
         """
@@ -173,7 +175,7 @@ class JobLogger:
             "status": status,
             "retries": job_result.retries_used,
         }
-        
+
         # Timing metrics (seconds)
         if job_result.queue_time_seconds is not None:
             metrics["queue_time_s"] = round(job_result.queue_time_seconds, 2)
@@ -181,7 +183,7 @@ class JobLogger:
             metrics["exec_time_s"] = round(job_result.execution_time_seconds, 2)
         if job_result.total_time_seconds is not None:
             metrics["total_time_s"] = round(job_result.total_time_seconds, 2)
-        
+
         # Resource metrics
         if job_result.requested_memory_mb is not None:
             metrics["req_mem_mb"] = job_result.requested_memory_mb
@@ -191,7 +193,7 @@ class JobLogger:
             metrics["cpus"] = job_result.cpu_count
         if job_result.cpu_time_seconds is not None:
             metrics["cpu_time_s"] = round(job_result.cpu_time_seconds, 2)
-        
+
         # Log as JSON
         self._logger.info(json.dumps(metrics))
 

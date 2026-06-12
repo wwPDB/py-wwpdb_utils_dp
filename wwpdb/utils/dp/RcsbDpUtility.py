@@ -150,8 +150,8 @@ import glob
 import logging
 import math
 import os
-import re
 import random
+import re
 import shutil
 import signal
 import socket
@@ -179,7 +179,7 @@ from wwpdb.utils.config.ConfigInfoApp import (
 )
 
 from wwpdb.utils.dp.PdbxStripCategory import PdbxStripCategory
-from wwpdb.utils.dp.RunRemote import RunRemote, JobResult, JobStatus
+from wwpdb.utils.dp.RunRemote import JobResult, JobStatus, RunRemote
 
 logger = logging.getLogger(__name__)
 
@@ -205,7 +205,7 @@ class RcsbDpUtility:
         # This can be set explicity via the self.setWorkingDir() method or will be created
         # as a temporary path dynamically as a subdirectory of self.__tmpDir.
         #
-        self.__dep_id = None # used for metrics only
+        self.__dep_id = None  # used for metrics only
         self.__wrkPath = None
         self.__sourceFileList = []
         self.__resultPathList = []
@@ -3921,14 +3921,14 @@ class RcsbDpUtility:
             # self.addInput(name="threshold", value="0.2")  # Procrustes distance threshold for finding COD reference.
             # self.setTimeout(1800)  # set timeout to 30 minutes for metalcoord processing if needed
             # setup CCP4 environment first because Acedrg and Servalcat are CCP4 programs and will run for update mode
-            ccp4_setup = os.path.join(self.__packagePath, "metallo", "ccp4-9", "bin", "ccp4.setup-sh")
-            cmd += f" ; source {ccp4_setup} "
+            ccp4_setup = os.path.join(self.__packagePath, "ccp4", "bin", "ccp4.setup-sh")
+            cmd += f" ; source {ccp4_setup} "  # setup CCP4 environment first for Acedrg and Servalcat, which are used for update mode
             # retrieve metalcoord executable from package path, first check standalone, then CCP4 package
-            metalcoord_exe_standalone = os.path.join(self.__packagePath, "metallo", "metalcoord", "bin", "metalCoord")
+            metalcoord_exe_standalone = os.path.join(self.__packagePath, "metalcoord", "bin", "metalCoord")
             if os.path.exists(metalcoord_exe_standalone):
                 metalcoord_exe = metalcoord_exe_standalone
             else:
-                metalcoord_exe_ccp4 = os.path.join(self.__packagePath, "metallo", "ccp4-9", "bin", "metalCoord")
+                metalcoord_exe_ccp4 = os.path.join(self.__packagePath, "ccp4", "bin", "metalCoord")
                 if os.path.exists(metalcoord_exe_ccp4):
                     metalcoord_exe = metalcoord_exe_ccp4
                 else:
@@ -5018,7 +5018,7 @@ class RcsbDpUtility:
     def __run(self, command, lPathFull, op):
         if self.__job_logger is not None:
             self.__job_logger.info(dep_id=self.__dep_id, op=op, command=command)
-        
+
         if self.__dep_id is None:
             # try to extract dep_id from command
             m = re.search(r"(D_\d+)", command)
@@ -5038,15 +5038,9 @@ class RcsbDpUtility:
                 memory_limit=self.__startingMemory,
                 add_site_config=True,
             ).run()
-            
+
             if self.__job_logger is not None:
-                self.__job_logger.job_result(
-                    dep_id=self.__dep_id,
-                    op=op,
-                    runenv=RunEnvironment.REMOTE,
-                    wfhost=socket.gethostname(),
-                    job_result=result
-                )
+                self.__job_logger.job_result(dep_id=self.__dep_id, op=op, runenv=RunEnvironment.REMOTE, wfhost=socket.gethostname(), job_result=result)
 
             if result.status == JobStatus.COMPLETED:
                 return 0
@@ -5088,18 +5082,11 @@ class RcsbDpUtility:
                     used_memory_mb=self.__startingMemory,
                     cpu_count=int(self.__numThreads),
                 )
-                self.__job_logger.job_result(
-                    dep_id=self.__dep_id,
-                    op=op,
-                    runenv=RunEnvironment.LOCAL,
-                    wfhost=socket.gethostname(),
-                    job_result=local_result
-                )
+                self.__job_logger.job_result(dep_id=self.__dep_id, op=op, runenv=RunEnvironment.LOCAL, wfhost=socket.gethostname(), job_result=local_result)
         return retcode
 
     def __constructFindGeoCommand(self, cmd, iPath, oPath, tPath, lPath, b_filter=False):
-        """Construct command for running FindGeo, to be re-used for different operations
-        """
+        """Construct command for running FindGeo, to be re-used for different operations"""
         # changes to the default FindGeo options must be set before setting self.op("metal-findgeo"), e.g.
         # self.addInput(name="metal", value="Fe")  # run on a specific metal element only
         # self.addInput(name="excluded-metals", value="Mg,Ca")  # exlcuding a list of metal elements
@@ -5111,10 +5098,7 @@ class RcsbDpUtility:
         logger.info("To use java executable at %s", java_exe)
         if not os.path.exists(java_exe):
             java_exe = "java"  # fallback to just "java" in case it's in PATH
-        findgeo_locations = [
-            os.path.join(self.__packagePath, "FindGeo", "FindGeo.jar"),
-            os.path.join(self.__packagePath, "metallo", "FindGeo", "FindGeo.jar")
-        ]
+        findgeo_locations = [os.path.join(self.__packagePath, "FindGeo", "FindGeo.jar"), os.path.join(self.__packagePath, "metallo", "FindGeo", "FindGeo.jar")]
         findgeo_jar = next((path for path in findgeo_locations if os.path.exists(path)), None)
         if findgeo_jar:
             logger.info("To use FindGeo Jar file at %s", findgeo_jar)
@@ -5150,8 +5134,7 @@ class RcsbDpUtility:
         return cmd
 
     def __constructMetalCoordCommand(self, cmd, iPath, oPath, tPath, lPath, cpu_split=4, b_filter=False):
-        """Construct command for running MetalCoord, to be re-used for different operations
-        """
+        """Construct command for running MetalCoord, to be re-used for different operations"""
         # changes to the default metalcoord options must be set before setting self.op("metal-metalcoord-stats"), e.g.
         # self.addInput(name="ligands", value=["0KA", "NCO"])  # list or string of CCD ID(s) of the metal ligand to check on, accepts comma-separated string or list of strings
         # self.addInput(name="max_size", value="2000")  # Maximum sample size for reference statistics.
@@ -5161,13 +5144,13 @@ class RcsbDpUtility:
         # self.addInput(name="metalcoord_exe", value="")  # MetalCoord executable file, only use for testing new versions
         # self.setTimeout(1800)  # set timeout to 30 minutes for metalcoord processing if needed
         # retrieve metalcoord executable from package path, first check standalone, then CCP4 package
-        metalcoord_exe_standalone = os.path.join(self.__packagePath, "metallo", "metalcoord", "bin", "metalCoord")
+        metalcoord_exe_standalone = os.path.join(self.__packagePath, "metalcoord", "bin", "metalCoord")
         if os.path.exists(metalcoord_exe_standalone):
             metalcoord_exe = metalcoord_exe_standalone
         else:
-            ccp4_setup = os.path.join(self.__packagePath, "metallo", "ccp4-9", "bin", "ccp4.setup-sh")
+            ccp4_setup = os.path.join(self.__packagePath, "ccp4", "bin", "ccp4.setup-sh")
             cmd += f" ; source {ccp4_setup} "
-            metalcoord_exe_ccp4 = os.path.join(self.__packagePath, "metallo", "ccp4-9", "bin", "metalCoord")
+            metalcoord_exe_ccp4 = os.path.join(self.__packagePath, "ccp4", "bin", "metalCoord")
             if os.path.exists(metalcoord_exe_ccp4):
                 metalcoord_exe = metalcoord_exe_ccp4
             else:
@@ -5188,7 +5171,7 @@ class RcsbDpUtility:
         for key, value in self.__inputParamDict.items():
             if key == "ligands":  # list or string of CCD ID(s) of the metal ligand to check on
                 if isinstance(value, list):
-                    s_value = ','.join(value)
+                    s_value = ",".join(value)
                     d_metalcoord_args["ligands"] = s_value
                 else:
                     d_metalcoord_args["ligands"] = value

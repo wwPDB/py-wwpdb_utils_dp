@@ -9,7 +9,6 @@ import tempfile
 import time
 from enum import Enum
 from textwrap import dedent
-from datetime import datetime
 
 from wwpdb.utils.config.ConfigInfo import ConfigInfo, getSiteId
 
@@ -39,6 +38,7 @@ class JobResult:
     """Result object containing job status and metrics.
     May be used both for local and remote jobs.
     """
+
     def __init__(
         self,
         status: JobStatus,
@@ -138,66 +138,63 @@ class RunRemote:
             cmd = ["sacct", "--json", "--jobs", str(job_id)]
             output = subprocess.run(cmd, check=True, capture_output=True, text=True)
             data = json.loads(output.stdout)
-            
+
             if not data.get("jobs"):
                 logger.warning(f"No job data found for job {job_id}")
                 return {}
-            
+
             # Get the main job entry (first one should be the parent job)
             job_data = data["jobs"][0]
-            
+
             if job_data.get("job_id") != job_id:
                 logger.warning(f"Job ID mismatch: expected {job_id}, got {job_data.get('job_id')}")
-            
+
             metrics = {}
             time_data = job_data.get("time", {})
-            
+
             # Extract timing metrics (Unix timestamps in seconds)
             submit_time = time_data.get("submission")
             start_time = time_data.get("start")
             end_time = time_data.get("end")
-            
+
             if submit_time and end_time:
                 metrics["total_time_seconds"] = end_time - submit_time
-            
+
             if start_time and end_time:
                 metrics["execution_time_seconds"] = end_time - start_time
-            
+
             if submit_time and start_time:
                 metrics["queue_time_seconds"] = start_time - submit_time
-            
+
             # Extract CPU time from user and system time
             user_time = time_data.get("user", {})
             system_time = time_data.get("system", {})
-            
+
             user_seconds = user_time.get("seconds", 0)
             user_microseconds = user_time.get("microseconds", 0)
             system_seconds = system_time.get("seconds", 0)
             system_microseconds = system_time.get("microseconds", 0)
-            
-            metrics["cpu_time_seconds"] = (
-                user_seconds + user_microseconds / 1_000_000 +
-                system_seconds + system_microseconds / 1_000_000
-            )
-            
+
+            metrics["cpu_time_seconds"] = user_seconds + user_microseconds / 1_000_000 + system_seconds + system_microseconds / 1_000_000
+
             # Extract CPU count from required resources
             required = job_data.get("required", {})
             cpu_count = required.get("CPUs")
             if cpu_count:
                 metrics["cpu_count"] = cpu_count
-            
+
             # Extract requested memory from required resources (in MB)
             mem_per_node = required.get("memory_per_node", {})
             if mem_per_node.get("set"):
                 metrics["requested_memory_mb"] = mem_per_node.get("number")
-            
+
             # Extract used memory from steps (if available)
             steps = job_data.get("steps", [])
             if steps:
                 batch_step = steps[0]  # Usually the batch step
                 tres_data = batch_step.get("tres", {})
                 requested_max = tres_data.get("requested", {}).get("max", [])
-                
+
                 # Find memory in the tres array
                 for tres_item in requested_max:
                     if tres_item.get("type") == "mem":
@@ -205,10 +202,10 @@ class RunRemote:
                         mem_bytes = tres_item.get("count", 0)
                         metrics["used_memory_mb"] = mem_bytes // (1024 * 1024)
                         break
-            
+
             logger.debug(f"Job {job_id} metrics: {metrics}")
             return metrics
-        
+
         except subprocess.CalledProcessError as e:
             logger.warning(f"Error running sacct for job {job_id}: {e}")
             return {}
@@ -314,7 +311,7 @@ class RunRemote:
 
         # Extract metrics from SLURM
         metrics = self._get_job_metrics(job_id) if job_id else {}
-        
+
         # Create result object with metrics
         result = JobResult(
             status=status,
@@ -328,11 +325,11 @@ class RunRemote:
             cpu_count=metrics.get("cpu_count"),
             cpu_time_seconds=metrics.get("cpu_time_seconds"),
         )
-        
+
         return result
 
 
-if __name__ == "__main__":
+def main():
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers(dest="comm")
 
@@ -364,3 +361,7 @@ if __name__ == "__main__":
         result = run_remote.run()
         logger.info(f"Job finished with status: {result.status}")
         logger.info(f"Job ID: {result.job_id}, Execution time: {result.execution_time_seconds}s, Queue time: {result.queue_time_seconds}s")
+
+
+if __name__ == "__main__":
+    main()

@@ -16,14 +16,19 @@ import sys
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from wwpdb.utils.dp.metal.metalcoord.runMetalCoord import RunMetalCoord, MetalCoordCommandExecutionError, MetalCoordCommandTimeoutError, MetalCoordParametersError  # noqa: E402
-    from wwpdb.utils.dp.metal.metalcoord.parseMetalCoord import ParseMetalCoord, MetalCoordParseError  # noqa: E402
     from wwpdb.utils.dp.metal.metal_util.run_command import setup_logger  # noqa: E402
+    from wwpdb.utils.dp.metal.metalcoord.parseMetalCoord import MetalCoordParseError, ParseMetalCoord  # noqa: E402
+    from wwpdb.utils.dp.metal.metalcoord.runMetalCoord import (  # noqa: E402
+        MetalCoordCommandExecutionError,
+        MetalCoordCommandTimeoutError,
+        MetalCoordParametersError,
+        RunMetalCoord,
+    )
 else:
     sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    from metalcoord.runMetalCoord import RunMetalCoord, MetalCoordCommandExecutionError, MetalCoordCommandTimeoutError, MetalCoordParametersError  # noqa: E402
-    from metalcoord.parseMetalCoord import ParseMetalCoord, MetalCoordParseError  # noqa: E402
     from metal_util.run_command import setup_logger  # noqa: E402
+    from metalcoord.parseMetalCoord import MetalCoordParseError, ParseMetalCoord  # noqa: E402
+    from metalcoord.runMetalCoord import MetalCoordCommandExecutionError, MetalCoordCommandTimeoutError, MetalCoordParametersError, RunMetalCoord  # noqa: E402
 
 
 setup_logger(name="metalcoord", log_dir=".", b_debug=False)
@@ -53,7 +58,9 @@ def main():  # pylint: disable=too-many-locals,too-many-branches,too-many-statem
     """
     parser = argparse.ArgumentParser()
     parser.add_argument("-b", "--metalcoord_exe", help="MetalCoord executable file", type=str, default=None)
-    parser.add_argument("-w", "--workdir", help="Directory to write outputs. Default is metalcoord subfolder in the current folder", type=str, default="metalcoord")
+    parser.add_argument(
+        "-w", "--workdir", help="Directory to write outputs. Default is metalcoord subfolder in the current folder", type=str, default="metalcoord"
+    )
     parser.add_argument("-l", "--ligands", help="Ligand code or comma-separated multiple codes, e.g. 0KA,NCO", type=str, required=True)
     parser.add_argument("-p", "--pdb", help="PDB code or pdb file", type=str, required=True)
     parser.add_argument("-x", "--max_size", help="Maximum sample size for statistics.", type=int, default=100)

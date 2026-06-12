@@ -12,10 +12,10 @@ import sys
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from wwpdb.utils.dp.metal.metal_util.run_command import run_command, MetalCommandExecutionError, MetalCommandTimeoutError  # noqa: E402
+    from wwpdb.utils.dp.metal.metal_util.run_command import MetalCommandExecutionError, MetalCommandTimeoutError, run_command  # noqa: E402
 else:
     sys.path.append(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "metal_util"))
-    from run_command import run_command, MetalCommandExecutionError, MetalCommandTimeoutError  # noqa: E402
+    from run_command import MetalCommandExecutionError, MetalCommandTimeoutError, run_command  # noqa: E402
 
 logger = logging.getLogger(__name__)
 
@@ -27,6 +27,7 @@ class ValidateParametersError(Exception):
     :param errors: Dictionary of parameter errors.
     :type errors: dict
     """
+
     def __init__(self, errors: dict):
         self.errors = errors
         super().__init__(str(errors))
@@ -56,17 +57,18 @@ class RunFindGeo:
             "input": "2HYV.cif",  # or None if using pdb
             "metal": None,
             "overwright": True,
-            "pdb": None,          # or "2HYV" if using pdb
+            "pdb": None,  # or "2HYV" if using pdb
             "threshold": 2.8,
             "workdir": "./findgeo",
             "excluded-metals": "Mg,Ca",
             "java-exe": "/path/to/java/executable",
             "findgeo-jar": "/path/to/FindGeo.jar",
-            "timeout": 3600
+            "timeout": 3600,
         }
         rFG = RunFindGeo(d_args)
         rFG.run()
     """
+
     def __init__(self, d_args):
         """
         Initialize the RunFindGeo object and validate arguments.
@@ -95,39 +97,38 @@ class RunFindGeo:
         Raises ValidateParametersError with a dictionary of errors if any validation fails.
         """
         errors = {}
-        if not os.path.exists(self.d_args['java-exe']):
+        if not os.path.exists(self.d_args["java-exe"]):
             errors["java-exe"] = f"java executable not found: {self.d_args['java-exe']}"
-        if not os.path.exists(self.d_args['findgeo-jar']):
+        if not os.path.exists(self.d_args["findgeo-jar"]):
             errors["findgeo-jar"] = f"FindGeo jar file not found: {self.d_args['findgeo-jar']}"
-        if self.d_args['format'] not in ['cif', 'pdb']:
+        if self.d_args["format"] not in ["cif", "pdb"]:
             errors["format"] = f"invalid format: {self.d_args['format']}"
-        if self.d_args['metal'].lower() != 'all':
-            if self.d_args['metal'] and len(self.d_args['metal']) > 2:
+        if self.d_args["metal"].lower() != "all":
+            if self.d_args["metal"] and len(self.d_args["metal"]) > 2:
                 errors["metal"] = f"invalid metal symbol: {self.d_args['metal']}"
-        if self.d_args['excluded-metals'] != 'None':
-            l_metal = self.d_args['excluded-metals'].split(',')
+        if self.d_args["excluded-metals"] != "None":
+            l_metal = self.d_args["excluded-metals"].split(",")
             for metal in l_metal:
                 if len(metal) > 2:
                     errors["excluded-metals"] = f"invalid excluded-metals symbol: {self.d_args['excluded-metals']}"
-        if self.d_args['threshold'] <= 1.0 or self.d_args['threshold'] >= 4.0:
+        if self.d_args["threshold"] <= 1.0 or self.d_args["threshold"] >= 4.0:
             errors["threshold"] = f"invalid threshold: {self.d_args['threshold']}"
         try:
-            os.makedirs(self.d_args['workdir'], exist_ok=True)
-        except Exception as e:  # pylint: disable=broad-exception-caught
+            os.makedirs(self.d_args["workdir"], exist_ok=True)
+        except Exception as e:  # noqa: BLE001 pylint: disable=broad-exception-caught
             errors["workdir"] = f"cannot create workdir: {self.d_args['workdir']} with error {e}"
 
         # validate input and pdb arguments and pick the non-empty one to use as input
         self.input = []
-        if self.d_args['input'] and os.path.exists(self.d_args['input']):
-            self.input = ["--input", self.d_args['input']]
+        if self.d_args["input"] and os.path.exists(self.d_args["input"]):
+            self.input = ["--input", self.d_args["input"]]
+        # try to check pdb id if input file is not valid
+        elif self.d_args["pdb"]:
+            if len(self.d_args["pdb"]) not in [4, 12]:
+                errors["pdb"] = f"invalid pdb id: {self.d_args['pdb']}"
+            self.input = ["--pdb", self.d_args["pdb"].lower()]
         else:
-            # try to check pdb id if input file is not valid
-            if self.d_args['pdb']:
-                if len(self.d_args['pdb']) not in [4, 12]:
-                    errors["pdb"] = f"invalid pdb id: {self.d_args['pdb']}"
-                self.input = ["--pdb", self.d_args['pdb'].lower()]
-            else:
-                errors["input"] = "must specify either input file or pdb id"
+            errors["input"] = "must specify either input file or pdb id"
         if errors:
             raise ValidateParametersError(errors)
 
@@ -166,26 +167,29 @@ class RunFindGeo:
         """
         l_command = [self.d_args["java-exe"], "-jar", self.d_args["findgeo-jar"]]
         l_command.extend(self.input)  # get input from either --input or --pdb
-        for arg in ['format', 'threshold', 'workdir']:
+        for arg in ["format", "threshold", "workdir"]:
             if self.d_args[arg]:
-                l_command.extend([f'--{arg}', str(self.d_args[arg])])
-        if self.d_args["metal"] and self.d_args["metal"].lower() != 'all':
-            l_command.extend(['--metal', self.d_args["metal"]])
-        if self.d_args['overwright']:
-            l_command.append('--overwrite')
-        if self.d_args['excluded-donors'] != "C,H":
-            l_command.extend(['--excluded-donors', self.d_args["excluded-donors"]])
-        if self.d_args['excluded-metals'] != "None":
-            l_command.extend(['--excluded-metals', self.d_args["excluded-metals"]])
+                l_command.extend([f"--{arg}", str(self.d_args[arg])])
+        if self.d_args["metal"] and self.d_args["metal"].lower() != "all":
+            l_command.extend(["--metal", self.d_args["metal"]])
+        if self.d_args["overwright"]:
+            l_command.append("--overwrite")
+        if self.d_args["excluded-donors"] != "C,H":
+            l_command.extend(["--excluded-donors", self.d_args["excluded-donors"]])
+        if self.d_args["excluded-metals"] != "None":
+            l_command.extend(["--excluded-metals", self.d_args["excluded-metals"]])
 
-        logger.info("to run FindGeo command:\n %s", ' '.join(l_command))
+        logger.info("to run FindGeo command:\n %s", " ".join(l_command))
         try:
-            cmd_stdout = run_command(l_command, self.d_args['timeout'])
+            cmd_stdout = run_command(l_command, self.d_args["timeout"])
             return cmd_stdout
         except MetalCommandTimeoutError as e:
-            raise FindGeoCommandTimeoutError(f"FindGeo command timed out after {self.d_args['timeout']} seconds: {e}") from e
+            msg = f"FindGeo command timed out after {self.d_args['timeout']} seconds: {e}"
+            raise FindGeoCommandTimeoutError(msg) from e
         except MetalCommandExecutionError as e:
-            raise FindGeoCommandExecutionError(f"FindGeo command execution error: {e}") from e
+            msg = f"FindGeo command execution error: {e}"
+            raise FindGeoCommandExecutionError(msg) from e
         except Exception as e:  # pylint: disable=broad-exception-caught
             logger.exception("Unexpected error when running FindGeo: %s", e)
-            raise FindGeoCommandExecutionError(f"Unexpected error when running FindGeo: {e}") from e
+            msg = f"Unexpected error when running FindGeo: {e}"
+            raise FindGeoCommandExecutionError(msg) from e

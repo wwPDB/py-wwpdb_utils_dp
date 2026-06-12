@@ -14,20 +14,25 @@ best result for each metal site based on chemical rules, and generate a report j
 # pylint: disable=duplicate-code
 
 import argparse
-import logging
 import json
+import logging
 import os
 import sys
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from wwpdb.utils.dp.metal.findgeo.runFindGeo import RunFindGeo, FindGeoCommandExecutionError, FindGeoCommandTimeoutError, ValidateParametersError  # noqa: E402
     from wwpdb.utils.dp.metal.findgeo.parseFindGeo import ParseFindGeo  # noqa: E402
+    from wwpdb.utils.dp.metal.findgeo.runFindGeo import (  # noqa: E402
+        FindGeoCommandExecutionError,
+        FindGeoCommandTimeoutError,
+        RunFindGeo,
+        ValidateParametersError,
+    )
     from wwpdb.utils.dp.metal.metal_util.run_command import setup_logger  # noqa: E402
 else:
     sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    from findgeo.runFindGeo import RunFindGeo, FindGeoCommandExecutionError, FindGeoCommandTimeoutError, ValidateParametersError  # noqa: E402
     from findgeo.parseFindGeo import ParseFindGeo  # noqa: E402
+    from findgeo.runFindGeo import FindGeoCommandExecutionError, FindGeoCommandTimeoutError, RunFindGeo, ValidateParametersError  # noqa: E402
     from metal_util.run_command import setup_logger  # noqa: E402
 
 setup_logger(name="findgeo", log_dir=".", b_debug=False)
@@ -49,17 +54,21 @@ def readJson(fp):
     :rtype: list
     """
     try:
-        with open(fp, "r", encoding="utf-8") as f:
+        with open(fp, encoding="utf-8") as f:
             data = json.load(f)
             return data
     except FileNotFoundError as e:
-        raise jsonValidationError(f"JSON file not found: {fp}") from e
+        msg = f"JSON file not found: {fp}"
+        raise jsonValidationError(msg) from e
     except json.JSONDecodeError as e:
-        raise jsonValidationError(f"Invalid JSON in file {fp}: {e}") from e
+        msg = f"Invalid JSON in file {fp}: {e}"
+        raise jsonValidationError(msg) from e
     except OSError as e:
-        raise jsonValidationError(f"Error reading file {fp}: {e}") from e
+        msg = f"Error reading file {fp}: {e}"
+        raise jsonValidationError(msg) from e
     except Exception as e:  # pylint: disable=broad-exception-caught
-        raise jsonValidationError(f"Unexpected error reading JSON file {fp}: {e}") from e
+        msg = f"Unexpected error reading JSON file {fp}: {e}"
+        raise jsonValidationError(msg) from e
 
 
 def readSites(l_sites):
@@ -260,10 +269,10 @@ def runCompare(d_args):  # pylint: disable=too-many-statements
     """
     filepath_json = os.path.join(d_args["workdir"], "findgeo_report.json")  # final output json file path
     try:
-        os.makedirs(d_args['workdir'], exist_ok=True)
+        os.makedirs(d_args["workdir"], exist_ok=True)
     except Exception as e:  # pylint: disable=broad-exception-caught
-        logger.exception("cannot create workdir: %s with error %s", d_args['workdir'], e)
-        print(f"ERROR: cannot create workdir: {d_args['workdir']} with error {e}", file=sys.stderr)
+        logger.exception("cannot create workdir: %s with error %s", d_args["workdir"], e)
+        print(f"ERROR: cannot create workdir: {d_args['workdir']} with error {e}", file=sys.stderr)  # noqa: T201
         sys.exit(1)
 
     l_exclude_donors = d_args["excluded-donors"].split(",")
@@ -271,7 +280,7 @@ def runCompare(d_args):  # pylint: disable=too-many-statements
         l_exclude_carbon = l_exclude_donors
         l_include_carbon = [d for d in l_exclude_donors if d != "C"]
     else:
-        l_exclude_carbon = ["C"] + l_exclude_donors
+        l_exclude_carbon = ["C"] + l_exclude_donors  # noqa: RUF005
         l_include_carbon = l_exclude_donors
 
     # 1st run with Carbon donor excluded
@@ -383,7 +392,13 @@ def main():  # pylint: disable=too-many-statements
     > python runFindGeo.py --java-exe /path/to/java --findgeo-jar /path/to/FindGeo.jar --pdb 2HYV
     """
     parser = argparse.ArgumentParser()
-    parser.add_argument("-e", "--excluded-donors", help="Chemical symbols of the atoms (separated by commas) excluded from metal ligands. Default is 'H,D' ", type=str, default="H,D")
+    parser.add_argument(
+        "-e",
+        "--excluded-donors",
+        help="Chemical symbols of the atoms (separated by commas) excluded from metal ligands. Default is 'H,D' ",
+        type=str,
+        default="H,D",
+    )
     parser.add_argument("-f", "--format", help="Local file format (i.e. cif or pdb).", type=str, default="cif")
     parser.add_argument("-i", "--input", help="Local PDB/mmCIF local file.", type=str, default=None)
     parser.add_argument("-m", "--metal", help="Chemical symbol of the metal of interest. Default is all metals.", type=str, default="All")
@@ -399,7 +414,20 @@ def main():  # pylint: disable=too-many-statements
     parser.add_argument("-s", "--timeout", help="Timeout in seconds for running FindGeo command, default is 3600 seconds (1 hour)", type=int, default=3600)
     args = parser.parse_args()
 
-    l_args = ["excluded-donors", "format", "input", "metal", "overwright", "pdb", "threshold", "workdir", "excluded-metals", "java-exe", "findgeo-jar", "timeout"]
+    l_args = [
+        "excluded-donors",
+        "format",
+        "input",
+        "metal",
+        "overwright",
+        "pdb",
+        "threshold",
+        "workdir",
+        "excluded-metals",
+        "java-exe",
+        "findgeo-jar",
+        "timeout",
+    ]
     d_args = {}
     for arg in l_args:
         key = arg.replace("-", "_")  # CLI arguments with - are converted to _ in argparse, e.g. --a-b args.a_b
@@ -416,14 +444,14 @@ def main():  # pylint: disable=too-many-statements
     # examine the results and exit if not found
     fp_json = os.path.join(d_args["workdir"], "findgeo_report.json")
     if not os.path.exists(fp_json):
-        print(f"ERROR: cannot find FindGeo report json at {fp_json}", file=sys.stderr)
+        print(f"ERROR: cannot find FindGeo report json at {fp_json}", file=sys.stderr)  # noqa: T201
         sys.exit(1)
 
     # no exception handling below as the file and folder permission were just checked in methods above
     if args.filter:
         # filter output for CCD annotation
         logger.info("to filter FindGeo results to keep regular geometry only for CCD annotation")
-        with open(fp_json, "r", encoding="utf-8") as f:
+        with open(fp_json, encoding="utf-8") as f:
             l_sites = json.load(f)
         l_sites_filtered = []
         for d_site in l_sites:

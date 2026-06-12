@@ -13,10 +13,10 @@ import sys
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from wwpdb.utils.dp.metal.metal_util.run_command import run_command, MetalCommandExecutionError, MetalCommandTimeoutError  # noqa: E402
+    from wwpdb.utils.dp.metal.metal_util.run_command import MetalCommandExecutionError, MetalCommandTimeoutError, run_command  # noqa: E402
 else:
     sys.path.append(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "metal_util"))
-    from run_command import run_command, MetalCommandExecutionError, MetalCommandTimeoutError  # noqa: E402
+    from run_command import MetalCommandExecutionError, MetalCommandTimeoutError, run_command  # noqa: E402
 
 logger = logging.getLogger(__name__)
 
@@ -28,6 +28,7 @@ class MetalCoordParametersError(Exception):
     :param errors: Dictionary of parameter errors.
     :type errors: dict
     """
+
     def __init__(self, errors: dict):
         self.errors = errors
         super().__init__(str(errors))
@@ -61,6 +62,7 @@ class RunMetalCoord:
         rMC = RunMetalCoord(d_args)
         rMC.run()
     """
+
     def __init__(self, d_args):
         """
         Initialize RunMetalCoord with arguments and validate them.
@@ -105,29 +107,29 @@ class RunMetalCoord:
             else:
                 errors["pdb"] = f"invalid PDB reference: {self.d_args['pdb']}, must be a valid PDB ID or an existing PDB/mmCIF file"
 
-        if "ligand" in self.d_args and self.d_args["ligand"]:
+        if self.d_args.get("ligand"):
             if self.d_args["ligand"] and self.d_args["ligand"].isalnum() and len(self.d_args["ligand"]) in (1, 2, 3, 5):
                 logger.info("ligand code provided: %s", self.d_args["ligand"])
             else:
                 errors["ligand"] = f"invalid ligand code: {self.d_args['ligand']}, must be alphanumeric and 1, 2, 3, or 5 characters long"
 
-        if "max_size" in self.d_args and self.d_args["max_size"]:
+        if self.d_args.get("max_size"):
             if not isinstance(self.d_args["max_size"], int) or self.d_args["max_size"] <= 10:
                 errors["max_size"] = f"invalid max_size: {self.d_args['max_size']}, must be a positive integer greater than 10"
 
-        if "input" in self.d_args and self.d_args["input"]:
+        if self.d_args.get("input"):
             if os.path.exists(self.d_args["input"]):
                 logger.info("run on input cif file found at %s", self.d_args["input"])
             else:
                 errors["input"] = f"failed to find input cif file at: {self.d_args['input']}"
 
-        if "threshold" in self.d_args and self.d_args["threshold"]:
+        if self.d_args.get("threshold"):
             if not isinstance(self.d_args["threshold"], (int, float)) or self.d_args["threshold"] < 0:
                 errors["threshold"] = f"invalid threshold: {self.d_args['threshold']}, must be a non-negative number"
 
         try:
-            os.makedirs(self.d_args['workdir'], exist_ok=True)
-        except Exception as e:  # pylint: disable=broad-exception-caught
+            os.makedirs(self.d_args["workdir"], exist_ok=True)
+        except Exception as e:  # noqa: BLE001 pylint: disable=broad-exception-caught
             errors["workdir"] = f"cannot create workdir: {self.d_args['workdir']} with error {e}"
 
         if errors:
@@ -176,16 +178,19 @@ class RunMetalCoord:
         fp_out = os.path.join(self.d_args["workdir"], f"{self.d_args['ligand']}.json")
         l_command.extend(["--output", fp_out])
 
-        logger.info("to run MetalCoord stats mode full command:\n %s", ' '.join(l_command))
+        logger.info("to run MetalCoord stats mode full command:\n %s", " ".join(l_command))
         try:
             cmd_stdout = run_command(l_command, self.d_args["timeout"])
             return cmd_stdout
         except MetalCommandTimeoutError as e:
-            raise MetalCoordCommandTimeoutError(f"MetalCoord stats command timed out after {self.d_args['timeout']} seconds: {e}") from e
+            msg = f"MetalCoord stats command timed out after {self.d_args['timeout']} seconds: {e}"
+            raise MetalCoordCommandTimeoutError(msg) from e
         except MetalCommandExecutionError as e:
-            raise MetalCoordCommandExecutionError(f"MetalCoord stats command execution error: {e}") from e
+            msg = f"MetalCoord stats command execution error: {e}"
+            raise MetalCoordCommandExecutionError(msg) from e
         except Exception as e:
-            raise MetalCoordCommandExecutionError(f"Unexpected error while running MetalCoord stats command: {e}") from e
+            msg = f"Unexpected error while running MetalCoord stats command: {e}"
+            raise MetalCoordCommandExecutionError(msg) from e
 
     def runUpdate(self):
         """
@@ -217,16 +222,19 @@ class RunMetalCoord:
             logger.info("to run MetalCoord update mode by most_common option without model")
             l_command.extend(["--cif", "--cl", "most_common"])
 
-        logger.info("to run MetalCoord update mode full command:\n %s", ' '.join(l_command))
+        logger.info("to run MetalCoord update mode full command:\n %s", " ".join(l_command))
         try:
             cmd_stdout = run_command(l_command, self.d_args["timeout"])
             return cmd_stdout
         except MetalCommandTimeoutError as e:
-            raise MetalCoordCommandTimeoutError(f"MetalCoord update command timed out after {self.d_args['timeout']} seconds: {e}") from e
+            msg = f"MetalCoord update command timed out after {self.d_args['timeout']} seconds: {e}"
+            raise MetalCoordCommandTimeoutError(msg) from e
         except MetalCommandExecutionError as e:
-            raise MetalCoordCommandExecutionError(f"MetalCoord update command execution error: {e}") from e
+            msg = f"MetalCoord update command execution error: {e}"
+            raise MetalCoordCommandExecutionError(msg) from e
         except Exception as e:
-            raise MetalCoordCommandExecutionError(f"Unexpected error while running MetalCoord update command: {e}") from e
+            msg = f"Unexpected error while running MetalCoord update command: {e}"
+            raise MetalCoordCommandExecutionError(msg) from e
 
 
 # def main():

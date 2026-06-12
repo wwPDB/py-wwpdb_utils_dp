@@ -8,17 +8,17 @@ Wrapper to parse MetalCoord output json file
 # pylint: disable=duplicate-code
 
 import json
+import logging
 import os
 import sys
-import logging
 from collections import OrderedDict
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from wwpdb.utils.dp.metal.metal_util.readRef import readRefCoordNum, readRefCoordMap, readRefRedOx, readRefMetalCarbon, readRefCoordException
+    from wwpdb.utils.dp.metal.metal_util.readRef import readRefCoordException, readRefCoordMap, readRefCoordNum, readRefMetalCarbon, readRefRedOx
 else:
     sys.path.append(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "metal_util"))
-    from readRef import readRefCoordNum, readRefCoordMap, readRefRedOx, readRefMetalCarbon, readRefCoordException  # noqa: E402
+    from readRef import readRefCoordException, readRefCoordMap, readRefCoordNum, readRefMetalCarbon, readRefRedOx  # noqa: E402
 
 logger = logging.getLogger(__name__)
 
@@ -34,6 +34,7 @@ class ParseMetalCoord:  # pylint: disable=too-many-instance-attributes
     Wrapper to parse MetalCoord output files.
     Provides methods to read, parse, filter, amend, sort, and report MetalCoord results.
     """
+
     def __init__(self):
         """
         Initialize ParseMetalCoord and load reference data for annotation.
@@ -57,7 +58,7 @@ class ParseMetalCoord:  # pylint: disable=too-many-instance-attributes
         :raises MetalCoordParseError: If file is not found, permission denied, or JSON decode fails.
         """
         try:
-            with open(fp_metalcoord, "r", encoding="utf-8") as f:
+            with open(fp_metalcoord, encoding="utf-8") as f:
                 self.data = json.load(f)
                 logger.debug("JSON loaded successfully from %s", fp_metalcoord)
                 if self.data:
@@ -65,13 +66,17 @@ class ParseMetalCoord:  # pylint: disable=too-many-instance-attributes
                 else:
                     logger.warning("json file %s is empty, no output for the ligand, continue next process", fp_metalcoord)
         except FileNotFoundError as e:
-            raise MetalCoordParseError(f"File not found: {fp_metalcoord}") from e
+            msg = f"File not found: {fp_metalcoord}"
+            raise MetalCoordParseError(msg) from e
         except PermissionError as e:
-            raise MetalCoordParseError(f"Permission denied when trying to open: {fp_metalcoord}") from e
+            msg = f"Permission denied when trying to open: {fp_metalcoord}"
+            raise MetalCoordParseError(msg) from e
         except json.JSONDecodeError as e:
-            raise MetalCoordParseError(f"Failed to decode JSON for {fp_metalcoord} — {e}") from e
+            msg = f"Failed to decode JSON for {fp_metalcoord} — {e}"
+            raise MetalCoordParseError(msg) from e
         except Exception as e:  # pylint: disable=broad-exception-caught
-            raise MetalCoordParseError(f"An unexpected error occurred while reading {fp_metalcoord} — {e}") from e
+            msg = f"An unexpected error occurred while reading {fp_metalcoord} — {e}"
+            raise MetalCoordParseError(msg) from e
 
     def parse(self):
         """
@@ -93,7 +98,8 @@ class ParseMetalCoord:  # pylint: disable=too-many-instance-attributes
             else:
                 logger.warning("no metal sites parsed, continue next process")
         except Exception as e:  # pylint: disable=broad-exception-caught
-            raise MetalCoordParseError(f"An unexpected error occurred during parsing: {e}") from e
+            msg = f"An unexpected error occurred during parsing: {e}"
+            raise MetalCoordParseError(msg) from e
 
     def filter(self):
         """
@@ -122,7 +128,12 @@ class ParseMetalCoord:  # pylint: disable=too-many-instance-attributes
 
             # record only coordination ligands in the new "sphere" record
             d_site_filtered["sphere"] = d_tophit["order"]
-            logger.debug("for site %s, best coordination geometry is %s with procrustes score %s", d_site_filtered["metal"], d_site_filtered["class"], d_site_filtered["procrustes"])
+            logger.debug(
+                "for site %s, best coordination geometry is %s with procrustes score %s",
+                d_site_filtered["metal"],
+                d_site_filtered["class"],
+                d_site_filtered["procrustes"],
+            )
             self.l_sites.append(d_site_filtered)
 
     def amend(self):  # pylint: disable=too-many-branches
@@ -186,9 +197,29 @@ class ParseMetalCoord:  # pylint: disable=too-many-instance-attributes
         """
         Sort self.l_sites by a predefined key order for output consistency.
         """
-        key_order = ["metal", "metalElement", "chain", "residue", "sequence", "icode", "altloc", "coordination", "class",
-                     "class_abbr", "class_generic", "tag", "procrustes", "count", "descriptor", "coordination_number_allowed",
-                     "redox_active", "oxidation_state", "carbon_metal", "class_in_exception", "sphere"]
+        key_order = [
+            "metal",
+            "metalElement",
+            "chain",
+            "residue",
+            "sequence",
+            "icode",
+            "altloc",
+            "coordination",
+            "class",
+            "class_abbr",
+            "class_generic",
+            "tag",
+            "procrustes",
+            "count",
+            "descriptor",
+            "coordination_number_allowed",
+            "redox_active",
+            "oxidation_state",
+            "carbon_metal",
+            "class_in_exception",
+            "sphere",
+        ]
         l_sorted = []
         for d_row in self.l_sites:
             d_row_sorted = OrderedDict((key, d_row[key]) for key in key_order if key in d_row)
