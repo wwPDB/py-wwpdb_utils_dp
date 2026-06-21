@@ -5021,9 +5021,14 @@ class RcsbDpUtility:
 
         if self.__dep_id is None:
             # try to extract dep_id from command
-            m = re.search(r"(D_\d+)", command)
-            if m:
-                self.__dep_id = m.group(1)
+            # Might fail if command is not a simple string - like MagicMock
+            #   present during testing
+            try:
+                m = re.search(r"(D_\d+)", command)
+                if m:
+                    self.__dep_id = m.group(1)
+            except TypeError:
+                pass
 
         if self.__run_remote:
             random_suffix = random.randrange(9999999)  # noqa: S311
