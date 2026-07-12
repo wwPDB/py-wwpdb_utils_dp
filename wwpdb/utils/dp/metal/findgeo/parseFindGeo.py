@@ -93,6 +93,9 @@ class ParseFindGeo:  # pylint: disable=too-many-instance-attributes
         else:
             d_tophit["coordination_number_allowed"] = ""
 
+        if d_tophit["coordination_number_allowed"] == "NO":
+            d_tophit["tag"] = "Coordination number exception"
+
         if metal in self.d_redox:
             d_tophit["redox_active"] = self.d_redox.get(metal)
         else:
@@ -113,6 +116,11 @@ class ParseFindGeo:  # pylint: disable=too-many-instance-attributes
                 d_tophit["class_in_exception"] = "YES"
             else:
                 d_tophit["class_in_exception"] = "NO"
+        else:
+            d_tophit["class_in_exception"] = "NO"
+
+        if d_tophit["class_in_exception"] == "YES":
+            d_tophit["tag"] = "Coordination class exception"
 
         return d_tophit
 

@@ -162,7 +162,8 @@ class ParseMetalCoord:  # pylint: disable=too-many-instance-attributes
                     d_tophit["coordination_number_allowed"] = "NO"
             else:
                 d_tophit["coordination_number_allowed"] = ""
-            # add redox marker
+            if d_tophit["coordination_number_allowed"] == "NO":
+                d_tophit["tag"] = "Coordination number exception"
             if metal in self.d_redox:
                 d_tophit["redox_active"] = self.d_redox.get(metal)
             else:
@@ -183,15 +184,28 @@ class ParseMetalCoord:  # pylint: disable=too-many-instance-attributes
                     d_tophit["class_in_exception"] = "YES"
                 else:
                     d_tophit["class_in_exception"] = "NO"
+            else:
+                d_tophit["class_in_exception"] = "NO"
+
+            if d_tophit["class_in_exception"] == "YES":
+                d_tophit["tag"] = "Coordination class exception"
             # mark positive procrustes < 0.2 as regular, and rest as irregular
             try:
                 procrustes = float(d_tophit["procrustes"])
                 if 0 <= procrustes <= 0.2:
-                    d_tophit["tag"] = "Regular"
+                    if d_tophit["class_in_exception"] == "YES" or d_tophit["coordination_number_allowed"] == "NO":
+                        pass
+                    else:
+                        d_tophit["tag"] = "Regular"
+                elif procrustes > 0.2:
+                    if d_tophit["class_in_exception"] == "YES" or d_tophit["coordination_number_allowed"] == "NO":
+                        pass
+                    else:
+                        d_tophit["tag"] = "Distorted"  # >0.2 marked as distorted
                 else:
-                    d_tophit["tag"] = "Irregular"  # >0.2 or -1 marked as irregular
+                    d_tophit["tag"] = ""  # negative procrustes
             except ValueError:
-                d_tophit["tag"] = "Irregular"  # non-value output marked as irregular
+                d_tophit["tag"] = ""  # non-value output
 
     def sort(self):
         """

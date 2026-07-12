@@ -117,6 +117,7 @@ class RunAcedrg:
         l_command = [self.d_args["acedrg_exe"]]
         l_command.extend(["--mmcif", self.d_args["mmcif"]])
         l_command.extend(["--out", self.d_args["out"]])
+        l_command.append("--noProt")
 
         logger.info("to run Acedrg full command:\n %s", " ".join(l_command))
         try:
