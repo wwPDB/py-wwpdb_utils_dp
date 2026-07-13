@@ -3,6 +3,7 @@ import argparse
 import json
 import logging
 import os
+import re
 import shutil
 import subprocess
 import tempfile
@@ -99,21 +100,9 @@ class RunRemote:
         self._stdout_file = os.path.join(self.log_dir, self.job_name + ".out")
         self._stderr_file = os.path.join(self.log_dir, self.job_name + ".err")
 
-    def get_job_status_by_id(self, job_id) -> JobStatus:
-        """Get the status of a single job by ID."""
-        cmd = [
-            "squeue",
-            "--noheader",
-            "-t",
-            "all",
-            "--Format",
-            "State",
-            "--jobs",
-            str(job_id),
-        ]
-        squeue_output = subprocess.run(cmd, check=True, capture_output=True)
-        status_text = squeue_output.stdout.decode("utf-8").strip()
-
+    @staticmethod
+    def _map_status_text(status_text) -> JobStatus:
+        """Map a Slurm state string (from squeue or sacct) to a JobStatus."""
         if status_text in ["FAILED", "TIMEOUT"]:
             return JobStatus.FAILED
         if status_text == "OUT_OF_MEMORY":
@@ -125,6 +114,69 @@ class RunRemote:
         if status_text == "CANCELLED":
             return JobStatus.CANCELLED
         return JobStatus.OTHER
+
+    def get_job_status_by_id(self, job_id) -> JobStatus:
+        """Get the status of a single job by ID.
+
+        squeue is the fast path, but squeue stops reporting a job shortly after it finishes --
+        returning a non-zero return code or blank output -- even though the job actually
+        completed (e.g. hit OUT_OF_MEMORY). sacct retains the accounting record after squeue
+        has forgotten it, so fall back to sacct only when squeue itself fails to produce a
+        usable answer; when squeue does answer, that answer is preserved unchanged.
+        """
+        cmd = [
+            "squeue",
+            "--noheader",
+            "-t",
+            "all",
+            "--Format",
+            "State",
+            "--jobs",
+            str(job_id),
+        ]
+        squeue_output = subprocess.run(cmd, check=False, capture_output=True)
+        status_text = squeue_output.stdout.decode("utf-8").strip()
+
+        if squeue_output.returncode == 0 and status_text:
+            return self._map_status_text(status_text)
+
+        logger.debug(f"squeue could not classify job {job_id} (rc={squeue_output.returncode}, output={status_text!r}); falling back to sacct")
+        sacct_status = self._get_job_status_from_sacct(job_id)
+        return sacct_status if sacct_status is not None else JobStatus.OTHER
+
+    def _get_job_status_from_sacct(self, job_id, max_attempts=3, backoff=2):
+        """Classify a job's terminal status via sacct, tolerating brief accounting lag.
+
+        Right after a job finishes, sacct can briefly have no record yet -- retry a few times
+        with backoff before giving up rather than treating a momentary gap as classification
+        failure.
+        """
+        for attempt in range(1, max_attempts + 1):
+            try:
+                cmd = ["sacct", "--json", "--jobs", str(job_id)]
+                output = subprocess.run(cmd, check=True, capture_output=True, text=True)
+                data = json.loads(output.stdout)
+            except (subprocess.CalledProcessError, json.JSONDecodeError) as e:
+                logger.warning(f"Error querying sacct for job {job_id} status (attempt {attempt}/{max_attempts}): {e}")
+                time.sleep(backoff)
+                continue
+
+            jobs = data.get("jobs")
+            if not jobs:
+                logger.debug(f"sacct has no record yet for job {job_id} (attempt {attempt}/{max_attempts})")
+                time.sleep(backoff)
+                continue
+
+            state_list = jobs[0].get("state", {}).get("current", [])
+            if not state_list:
+                logger.warning(f"sacct record for job {job_id} has no state.current: {jobs[0]}")
+                time.sleep(backoff)
+                continue
+
+            return self._map_status_text(state_list[0])
+
+        logger.warning(f"sacct did not classify job {job_id} after {max_attempts} attempts")
+        return None
 
     def requeue_job(self, job_id):
         """Requeue a single job."""
@@ -222,16 +274,13 @@ class RunRemote:
 
             if status in (JobStatus.CANCELLED, JobStatus.FAILED, JobStatus.OOM):
                 logger.warning(f"Job {job_id} failed with status {status}")
-                break
+                return status
             if status == JobStatus.COMPLETED:
                 logger.info(f"Job {job_id} completed successfully")
-                break
-            else:
-                logger.debug(f"Job {job_id} status: {status}")
+                return status
 
+            logger.debug(f"Job {job_id} status: {status}")
             time.sleep(frequency)
-
-        return self.get_job_status_by_id(job_id)
 
     def _build_sbatch_command(self, command):
         sbatch_args = [
@@ -275,6 +324,27 @@ class RunRemote:
 
         return "{}; {}".format(site_config_command, self.command)
 
+    _RUNDIR_PATTERN = re.compile(r"--rundir (\S+)")
+
+    def _redirect_rundir_for_retry(self, command, attempt):
+        """Point a retried command's --rundir at a fresh, never-used sibling directory.
+
+        Some commands (the wwPDB validator's run_multithread(), see py-wwpdb_apps_validation
+        wwpdb/apps/validation/src/run_validator/runvalidation.py) are not safe to rerun
+        against a --rundir a previous attempt already used: they create per-run working
+        subdirectories with a bare os.mkdir() (no exist_ok), which raises FileExistsError if
+        a prior attempt already created them -- even if that prior attempt did real, useful
+        work before being killed (e.g. by OOM). Redirecting each retry to an unused sibling
+        directory avoids the collision entirely without needing to fix the callee. Commands
+        with no --rundir (the majority of RunRemote-dispatched jobs) are returned unchanged.
+        """
+        match = self._RUNDIR_PATTERN.search(command)
+        if not match:
+            return command
+        original_rundir = match.group(1)
+        retry_rundir = f"{original_rundir}_retry{attempt}"
+        return command[: match.start()] + f"--rundir {retry_rundir}" + command[match.end() :]
+
     def run(self, retries=3) -> JobResult:
         status = JobStatus.OTHER
         job_id = None
@@ -305,6 +375,7 @@ class RunRemote:
                 logger.info(f"Retrying job {job_id} with memory limit {self.memory_limit}")
                 retries -= 1
                 retries_used += 1
+                wf_command = self._redirect_rundir_for_retry(wf_command, retries_used)
             except subprocess.CalledProcessError as e:
                 logger.error(f"Error submitting job: {e}")
                 break
