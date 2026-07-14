@@ -136,6 +136,8 @@
 # 19-Jan-2025 zf  Add "annot-get-em-exp-info"
 # 10-Nov-2025 cs  Add op of "metal-findgeo", "metal-metalcoord-stats", "metal-metalcoord-update", calling dp.metal submodules
 # 04-Mar-2026 cs  Add op of "metal-findgeo-filter-regular" and "metal-metalcoord-filter-regular" to filter only regular geometry in for CCD annotation
+# 07-Jul-2026 zf  Add "annot-link-ssbond-with-ptm-mcc", "annot-merge-metal-coordination", "annot-update-metal-coordination",
+#                     "annot-update-metal-coordination-to-ccd"
 ##
 """
 Wrapper class for data processing and chemical component utilities.
@@ -282,6 +284,10 @@ class RcsbDpUtility:
             "annot-secondary-structure",
             "annot-link-ssbond",
             "annot-link-ssbond-with-ptm",
+            "annot-link-ssbond-with-ptm-mcc",
+            "annot-merge-metal-coordination",
+            "annot-update-metal-coordination",
+            "annot-update-metal-coordination-to-ccd",
             "annot-cis-peptide",
             "annot-distant-solvent",
             "annot-merge-struct-site",
@@ -958,6 +964,54 @@ class RcsbDpUtility:
             #
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
             cmd += " ; cat annot-step.log " + " >> " + lPath
+
+        elif op == "annot-link-ssbond-with-ptm-mcc":
+            cmdPath = os.path.join(self.__annotAppsPath, "bin", "GetLinkAndSSBond")
+            thisCmd = " ; " + cmdPath
+            cmd += thisCmd + " -input " + iPath + " -output " + oPath + " -ptm_pcm_output pcm.csv -log annot-step.log  -link -ssbond "
+            cmd += " -metal_containing_residue mcr.txt "
+            #
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
+            cmd += " ; cat annot-step.log " + " >> " + lPath
+
+        elif op == "annot-merge-metal-coordination":
+            cmdPath = os.path.join(self.__annotAppsPath, "bin", "MergeMetalCoordinationAnnotation")
+            thisCmd = " ; " + cmdPath
+            cmd += thisCmd + " -input " + iPath + " -output " + oPath + " -missing_metal_coordination mmc.csv -log annot-step.log "
+            #
+            if "metal_coordination_file_path" in self.__inputParamDict:
+                annotationFilePath = self.__inputParamDict["metal_coordination_file_path"]
+                cmd += " -metal_coordination " + annotationFilePath
+            #
+            if "additional_comp_path" in self.__inputParamDict:
+                AdditionalCompPath = self.__inputParamDict["additional_comp_path"]
+                cmd += " -additional_comp_path " + AdditionalCompPath
+            #
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
+            cmd += " ; cat annot-step.log " + " >> " + lPath
+
+        elif op == "annot-update-metal-coordination":
+            cmdPath = os.path.join(self.__annotAppsPath, "bin", "UpdateMetalCoordinationAnnotation")
+            thisCmd = " ; " + cmdPath
+            cmd += thisCmd + " -input " + iPath + " -output " + oPath + " -missing_metal_coordination mmc.csv -log annot-step.log "
+            #
+            if "additional_comp_path" in self.__inputParamDict:
+                AdditionalCompPath = self.__inputParamDict["additional_comp_path"]
+                cmd += " -additional_comp_path " + AdditionalCompPath
+            #
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
+            cmd += " ; cat annot-step.log " + " >> " + lPath
+
+        elif op == "annot-update-metal-coordination-to-ccd":
+            cmdPath = os.path.join(self.__annotAppsPath, "bin", "UpdateCcdWithMetalCoordination")
+            thisCmd = " ; " + cmdPath
+            cmd += thisCmd + " -input " + iPath + " -output " + oPath
+            #
+            if "additional_comp_path" in self.__inputParamDict:
+                AdditionalCompPath = self.__inputParamDict["additional_comp_path"]
+                cmd += " -additional_comp_path " + AdditionalCompPath
+            #
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
 
         elif op == "annot-cis-peptide":
             cmdPath = os.path.join(self.__annotAppsPath, "bin", "GetCisPeptide")
@@ -2860,6 +2914,40 @@ class RcsbDpUtility:
                 self.__resultPathList.append("missing")
             #
 
+        elif op == "annot-link-ssbond-with-ptm-mcc":
+            outFile = os.path.join(self.__wrkPath, oPath)
+            if os.access(outFile, os.F_OK):
+                self.__resultPathList.append(outFile)
+            else:
+                self.__resultPathList.append("missing")
+            #
+            pcmFile = os.path.join(self.__wrkPath, "pcm.csv")
+            if os.access(pcmFile, os.F_OK):
+                self.__resultPathList.append(pcmFile)
+            else:
+                self.__resultPathList.append("missing")
+            #
+            mcrFile = os.path.join(self.__wrkPath, "mcr.txt")
+            if os.access(mcrFile, os.F_OK):
+                self.__resultPathList.append(mcrFile)
+            else:
+                self.__resultPathList.append("missing")
+            #
+
+        elif (op == "annot-merge-metal-coordination") or (op == "annot-update-metal-coordination"):
+            outFile = os.path.join(self.__wrkPath, oPath)
+            if os.access(outFile, os.F_OK):
+                self.__resultPathList.append(outFile)
+            else:
+                self.__resultPathList.append("missing")
+            #
+            pcmFile = os.path.join(self.__wrkPath, "mmc.csv")
+            if os.access(pcmFile, os.F_OK):
+                self.__resultPathList.append(pcmFile)
+            else:
+                self.__resultPathList.append("missing")
+            #
+
         elif op == "annot-chem-shifts-update-with-check":
             outFile = os.path.join(self.__wrkPath, oPath)
             if os.access(outFile, os.F_OK):
@@ -3037,6 +3125,8 @@ class RcsbDpUtility:
             or (op == "annot-get-pdb-file")
             or (op == "annot-add-version-info")
             or (op == "annot-get-em-exp-info")
+            or (op == "annot-consolidated-tasks")
+            or (op == "chem-comp-instance-update")
         ):
             for fileName in (oPath, tPath, lPath):
                 outFile = os.path.join(self.__wrkPath, fileName)
