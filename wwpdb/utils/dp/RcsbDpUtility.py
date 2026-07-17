@@ -4037,7 +4037,7 @@ class RcsbDpUtility:
             logger.info("metalcoord caller-set options: %s", self.__inputParamDict)
             workdir = "metalcoord"  # default metalcoord output subfolder within the session folder
             for key, value in self.__inputParamDict.items():
-                if key in ["input", "pdb", "threshold", "workdir", "metalcoord_exe", "acedrg_exe", "servalcat_exe"]:
+                if key in ["input", "pdb", "threshold", "workdir", "metalcoord_exe", "acedrg_exe", "servalcat_exe", "timeout"]:
                     d_metalcoord_args[key] = value  # add or override defaults with caller-specified options
                 if key == "workdir":
                     workdir = value
@@ -5212,7 +5212,7 @@ class RcsbDpUtility:
         logger.info("findgeo caller-set options: %s", self.__inputParamDict)
         workdir = "findgeo"  # default FindGeo output subfolder within the session folder
         for key, value in self.__inputParamDict.items():
-            if key in ["excluded-donors", "metal", "excluded-metals", "threshold", "workdir", "pdb", "java-exe", "findgeo-jar", "input"]:
+            if key in ["excluded-donors", "metal", "excluded-metals", "threshold", "workdir", "pdb", "java-exe", "findgeo-jar", "input", "timeout"]:
                 d_findgeo_args[key] = value  # add or override defaults with caller-specified options
             if key == "workdir":
                 workdir = value  # update workdir if specified by caller
@@ -5270,7 +5270,7 @@ class RcsbDpUtility:
                     d_metalcoord_args["ligands"] = s_value
                 else:
                     d_metalcoord_args["ligands"] = value
-            if key in ["max_size", "threshold", "workdir", "pdb", "metalcoord_exe"]:
+            if key in ["max_size", "threshold", "workdir", "pdb", "metalcoord_exe", "timeout"]:
                 d_metalcoord_args[key] = value  # add or override defaults with caller-specified options
             if key == "workdir":
                 workdir = value  # update workdir if specified by caller
