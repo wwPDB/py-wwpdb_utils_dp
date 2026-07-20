@@ -116,7 +116,9 @@ ignore = [
 # -------------------- default environment scripts ------------------
 [tool.hatch.envs.default]
 skip-install = true
-dependencies = ["mypy", "ruff >=0.6.9", "wwpdb.utils.testing", "matplotlib", "pygal"]
+dependencies = ["mypy", "ruff >=0.6.9", "wwpdb.utils.testing", "matplotlib", "pygal",
+  "wwpdb.utils.config",
+  "wwpdb.io"]
 
 
 [tool.hatch.envs.default.scripts]
@@ -152,7 +154,7 @@ run = ["tox"]
 
 # -------------------------  Mypy disable ---------
 [[tool.mypy.overrides]]
-module = ["mmcif.*", "wwpdb.*", "tests.*", "commonsetup", "gemmi.*", "pygal.*"]
+module = ["mmcif.*", "wwpdb.io.*", "tests.*", "commonsetup", "gemmi.*", "pygal.*"]
 ignore_missing_imports = true
 
 [tool.mypy]

@@ -8,16 +8,18 @@
 Wrapper class for running FindGeo/MetalCoord APIs
 """
 
-import json,os,sys
+import json
+import os
+import sys
 
 from wwpdb.utils.dp.RcsbDpUtility import RcsbDpUtility
 
+
 class MetalCoordinationUtility:
-    """ Wrapper class for running FindGeo/MetalCoord APIs
-    """
+    """Wrapper class for running FindGeo/MetalCoord APIs"""
+
     def __init__(self, wrkPath="/scratch", siteId="DEV", verbose=False, log=sys.stderr):
-        """
-        """
+        """ """
         self.__wrkPath = wrkPath
         self.__siteId = siteId
         self.__verbose = verbose
@@ -27,24 +29,21 @@ class MetalCoordinationUtility:
         self.__modelCoordinatesFilePath = None
         self.__ccIdList = []
         self.__atomList = []
-        self.__ligandNumber = 0
+        # self.__ligandNumber = 0
         self.__FindGeoOutputFilePath = None
         self.__MetalCoordOutputFilePath = None
         self.__annotationFilePath = None
 
     def setModelCoordinatesFilePath(self, inputFilePath):
-        """ Set input model coordinates file path
-        """
+        """Set input model coordinates file path"""
         self.__modelCoordinatesFilePath = inputFilePath
 
     def setPolyAtomicMetalLigandIdList(self, ccIdList):
-        """ Set polyatomic metal ligand Ids list
-        """
+        """Set polyatomic metal ligand Ids list"""
         self.__ccIdList = ccIdList
 
     def setPolyAtomicMetalLigandInfoWithFilePath(self, inputFilePath):
-        """ Set polyatomic metal ligand residue information file path
-        """
+        """Set polyatomic metal ligand residue information file path"""
         if (not inputFilePath) or (not os.access(inputFilePath, os.F_OK)):
             self.__lfh.write("+MetalCoordinationUtility %r file does not exist\n" % inputFilePath)
             return
@@ -66,29 +65,25 @@ class MetalCoordinationUtility:
                 residueList.append(res)
             #
         #
-        self.__ligandNumber = len(residueList)
+        # self.__ligandNumber = len(residueList)
 
     def setFindGeoOutputFilePath(self, outputFilePath):
-        """ Set FindGeo software output json file path
-        """
+        """Set FindGeo software output json file path"""
         self.__FindGeoOutputFilePath = outputFilePath
         self.__lfh.write("+MetalCoordinationUtility FindGeoOutputFilePath=%s\n" % self.__FindGeoOutputFilePath)
 
     def setMetalCoordOutputFilePath(self, outputFilePath):
-        """ Set MetalCoord software output json file path
-        """
+        """Set MetalCoord software output json file path"""
         self.__MetalCoordOutputFilePath = outputFilePath
         self.__lfh.write("+MetalCoordinationUtility MetalCoordOutputFilePath=%s\n" % self.__MetalCoordOutputFilePath)
 
     def setMetalAnnotationOutputFilePath(self, outputFilePath):
-        """ Set FindGeo/MetalCoord annotation output file path
-        """
+        """Set FindGeo/MetalCoord annotation output file path"""
         self.__annotationFilePath = outputFilePath
         self.__lfh.write("+MetalCoordinationUtility MetalAnnotationOutputFilePath=%s\n" % self.__annotationFilePath)
 
     def runUpdate(self, pdbxPath=None, csvPath=None, noTimeOut=False):
-        """ Run FindGeo/MetalCoord APIs and merging API
-        """
+        """Run FindGeo/MetalCoord APIs and merging API"""
         if (pdbxPath is None) or (csvPath is None):
             return
         #
@@ -112,8 +107,7 @@ class MetalCoordinationUtility:
         dp.cleanup()
 
     def run(self, noTimeOutFlag=False, regularFilter=""):
-        """ Run FindGeo/MetalCoord APIs
-        """
+        """Run FindGeo/MetalCoord APIs"""
         missingInfoFlag = False
         #
         if self.__modelCoordinatesFilePath is None:
@@ -135,13 +129,15 @@ class MetalCoordinationUtility:
         if missingInfoFlag:
             return False
         #
-        for filePath in ( self.__FindGeoOutputFilePath, self.__MetalCoordOutputFilePath ):
+        for filePath in (self.__FindGeoOutputFilePath, self.__MetalCoordOutputFilePath):
             if os.access(filePath, os.F_OK):
                 os.remove(filePath)
             #
         #
-        for programTuple in ( ( "FindGeo", "metal-findgeo", self.__FindGeoOutputFilePath ), \
-                              ( "MetalCoord", "metal-metalcoord-stats", self.__MetalCoordOutputFilePath ) ):
+        for programTuple in (
+            ("FindGeo", "metal-findgeo", self.__FindGeoOutputFilePath),
+            ("MetalCoord", "metal-metalcoord-stats", self.__MetalCoordOutputFilePath),
+        ):
             dp = RcsbDpUtility(tmpPath=self.__wrkPath, siteId=self.__siteId, verbose=self.__verbose, log=self.__lfh)
             dp.imp(self.__modelCoordinatesFilePath)
             if programTuple[0] == "MetalCoord":
@@ -152,7 +148,7 @@ class MetalCoordinationUtility:
                 #
             #
             if noTimeOutFlag:
-                dp.addInput(name="timeout",  value=36000)
+                dp.addInput(name="timeout", value=36000)
             #
             ret = dp.op(programTuple[1] + regularFilter)
             if ret == 0:
@@ -172,21 +168,37 @@ class MetalCoordinationUtility:
         return True
 
     def readJsonOutputFiles(self):
-        """ Read the output json files from FindGeo/MetalCoord programs and write out the results to text file for merging into
-            the model coordinate file.
+        """Read the output json files from FindGeo/MetalCoord programs and write out the results to text file for merging into
+        the model coordinate file.
         """
         if self.__annotationFilePath and os.access(self.__annotationFilePath, os.F_OK):
             os.remove(self.__annotationFilePath)
         #
-        coordinationItem = ( "chain", "residue", "sequence", "icode", "metal", "altloc", "metalElement", "coordination", "class", "tag", \
-                             "class_generic", "class_abbr", "provenance", "coordination_number_allowed", "descriptor", "sphere" )
+        coordinationItem = (
+            "chain",
+            "residue",
+            "sequence",
+            "icode",
+            "metal",
+            "altloc",
+            "metalElement",
+            "coordination",
+            "class",
+            "tag",
+            "class_generic",
+            "class_abbr",
+            "provenance",
+            "coordination_number_allowed",
+            "descriptor",
+            "sphere",
+        )
         #
-        sphereItem = ( "chain", "residue", "sequence", "icode", "name", "altloc", "element", "operator", "atom_place" )
+        sphereItem = ("chain", "residue", "sequence", "icode", "name", "altloc", "element", "operator", "atom_place")
         #
         resultListMap = {}
         #
         try:
-            for programTuple in ( ( "FindGeo", self.__FindGeoOutputFilePath ), ( "MetalCoord", self.__MetalCoordOutputFilePath ) ):
+            for programTuple in (("FindGeo", self.__FindGeoOutputFilePath), ("MetalCoord", self.__MetalCoordOutputFilePath)):
                 josnFilePath = programTuple[1]
                 if not os.access(josnFilePath, os.F_OK):
                     continue
@@ -264,12 +276,12 @@ class MetalCoordinationUtility:
                         if key in resultListMap:
                             resultListMap[key].append(dataList)
                         else:
-                            resultListMap[key] = [ dataList ]
+                            resultListMap[key] = [dataList]
                         #
                     #
                 #
             #
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             self.__lfh.write("+MetalCoordinationUtility.readJsonOutputFiles() - %s\n" % str(e))
         #
         if len(resultListMap) == 0:
@@ -296,7 +308,7 @@ class MetalCoordinationUtility:
                     if len(resultList[-1]) > 0:
                         sphere = 0
                         for sphereList in resultList[-1]:
-                            sphere += 1
+                            sphere += 1  # noqa: SIM113
                             fth.write("sphere_%d_%d|%s\n" % (coord, sphere, "|".join(sphereList)))
                         #
                     #
@@ -306,20 +318,19 @@ class MetalCoordinationUtility:
         fth.close()
 
     def __readFileAsLineList(self, inputFilePath):
-        """ Read input file and return a list
-        """
+        """Read input file and return a list"""
         returnList = []
         if os.access(inputFilePath, os.F_OK):
-            fin = open(inputFilePath, "r")
+            fin = open(inputFilePath)
             data = fin.read()
             fin.close()
             #
             for line in data.split("\n"):
-                line = line.strip()
-                if not line:
+                sline = line.strip()
+                if not sline:
                     continue
                 #
-                returnList.append(line)
+                returnList.append(sline)
             #
         #
         return returnList
