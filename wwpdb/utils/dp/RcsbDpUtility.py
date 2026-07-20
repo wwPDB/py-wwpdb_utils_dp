@@ -971,6 +971,9 @@ class RcsbDpUtility:
             cmd += thisCmd + " -input " + iPath + " -output " + oPath + " -ptm_pcm_output pcm.csv -log annot-step.log  -link -ssbond "
             cmd += " -metal_containing_residue mcr.txt "
             #
+            if "check_skip_option" in self.__inputParamDict:
+                cmd += " -skip_metal_ligand_output "
+            #
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
             cmd += " ; cat annot-step.log " + " >> " + lPath
 
@@ -986,6 +989,9 @@ class RcsbDpUtility:
             if "additional_comp_path" in self.__inputParamDict:
                 AdditionalCompPath = self.__inputParamDict["additional_comp_path"]
                 cmd += " -additional_comp_path " + AdditionalCompPath
+            #
+            if "add_timeout_skip" in self.__inputParamDict:
+                cmd += " -add_timeout_skip "
             #
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
             cmd += " ; cat annot-step.log " + " >> " + lPath

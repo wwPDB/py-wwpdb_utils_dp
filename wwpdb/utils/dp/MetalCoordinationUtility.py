@@ -23,6 +23,7 @@ class MetalCoordinationUtility:
         self.__verbose = verbose
         self.__lfh = log
         #
+        self.__hasTimeoutErrorFlag = False
         self.__modelCoordinatesFilePath = None
         self.__ccIdList = []
         self.__atomList = []
@@ -85,10 +86,13 @@ class MetalCoordinationUtility:
         self.__annotationFilePath = outputFilePath
         self.__lfh.write("+MetalCoordinationUtility MetalAnnotationOutputFilePath=%s\n" % self.__annotationFilePath)
 
-    def runUpdate(self, outputModelCoordinatesFilePath, outputMissingModelCoordinatesFilePath):
+    def runUpdate(self, pdbxPath=None, csvPath=None, noTimeOut=False):
         """ Run FindGeo/MetalCoord APIs and merging API
         """
-        ret = self.run()
+        if (pdbxPath is None) or (csvPath is None):
+            return
+        #
+        ret = self.run(noTimeOutFlag=noTimeOut)
         if not ret:
             return
         #
@@ -100,11 +104,14 @@ class MetalCoordinationUtility:
         dp = RcsbDpUtility(tmpPath=self.__wrkPath, siteId=self.__siteId, verbose=self.__verbose, log=self.__lfh)
         dp.imp(self.__modelCoordinatesFilePath)
         dp.addInput(name="metal_coordination_file_path", value=self.__annotationFilePath, type="file")
+        if self.__hasTimeoutErrorFlag:
+            dp.addInput(name="add_timeout_skip", value="add")
+        #
         dp.op("annot-merge-metal-coordination")
-        dp.expList(dstPathList=[outputModelCoordinatesFilePath, outputMissingModelCoordinatesFilePath])
+        dp.expList(dstPathList=[pdbxPath, csvPath])
         dp.cleanup()
 
-    def run(self):
+    def run(self, noTimeOutFlag=False, regularFilter=""):
         """ Run FindGeo/MetalCoord APIs
         """
         missingInfoFlag = False
@@ -144,7 +151,10 @@ class MetalCoordinationUtility:
                     dp.addInput(name="ligands", value=self.__ccIdList[0])
                 #
             #
-            ret = dp.op(programTuple[1])
+            if noTimeOutFlag:
+                dp.addInput(name="timeout",  value=36000)
+            #
+            ret = dp.op(programTuple[1] + regularFilter)
             if ret == 0:
                 dp.exp(programTuple[2])
                 # Check if the output file exists
@@ -188,6 +198,9 @@ class MetalCoordinationUtility:
                     #
                     if "error" in jsonObj:
                         self.__lfh.write("+MetalCoordinationUtility.readJsonOutputFiles() - Run %s failed: %s\n" % (programTuple[0], jsonObj["error"]))
+                        if jsonObj["error"] == "timeout":
+                            self.__hasTimeoutErrorFlag = True
+                        #
                     #
                     for coordObj in jsonObj:
                         dataList = []
@@ -235,7 +248,6 @@ class MetalCoordinationUtility:
                                         elif item == "coordination_number_allowed":
                                             if (tag_val == "regular") and (val.upper() == "YES"):
                                                 val = "Expected"
-                                            #elif val.upper() == "NO":
                                             else:
                                                 val = "Unexpected"
                                             #
