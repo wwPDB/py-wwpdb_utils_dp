@@ -132,7 +132,7 @@ class GetJobStatusFromSacctTests(unittest.TestCase):
         with mock.patch("wwpdb.utils.dp.RunRemote.subprocess.run", side_effect=fake_run) as mock_run, mock.patch(
             "wwpdb.utils.dp.RunRemote.time.sleep"
         ) as mock_sleep:
-            status = self.run_remote._get_job_status_from_sacct(12345)  # noqa: SLF001
+            status = self.run_remote._get_job_status_from_sacct(12345)  # pylint: disable=protected-access
         self.assertEqual(status, JobStatus.COMPLETED)
         self.assertEqual(mock_run.call_count, 2)
         self.assertEqual(mock_sleep.call_count, 1)
@@ -142,7 +142,7 @@ class GetJobStatusFromSacctTests(unittest.TestCase):
         with mock.patch("wwpdb.utils.dp.RunRemote.subprocess.run", side_effect=fake_run), mock.patch(
             "wwpdb.utils.dp.RunRemote.time.sleep"
         ):
-            status = self.run_remote._get_job_status_from_sacct(12345, max_attempts=3, backoff=0)  # noqa: SLF001
+            status = self.run_remote._get_job_status_from_sacct(12345, max_attempts=3, backoff=0)  # pylint: disable=protected-access
         self.assertIsNone(status)
 
 
@@ -173,24 +173,24 @@ class RedirectRundirForRetryTests(unittest.TestCase):
 
     def test_redirects_rundir_with_attempt_suffix(self):
         command = "python -m wwpdb.apps.validation.src.validator --mode annotate --rundir /nfs/data/sessions/validation_123 --kind foo"
-        redirected = self.run_remote._redirect_rundir_for_retry(command, 1)  # noqa: SLF001
+        redirected = self.run_remote._redirect_rundir_for_retry(command, 1)  # pylint: disable=protected-access
         self.assertIn("--rundir /nfs/data/sessions/validation_123_retry1", redirected)
         self.assertNotIn("--rundir /nfs/data/sessions/validation_123 ", redirected)
 
     def test_different_attempt_numbers_produce_different_suffixes(self):
         command = "cmd --rundir /nfs/data/sessions/validation_123"
-        self.assertIn("_retry1", self.run_remote._redirect_rundir_for_retry(command, 1))  # noqa: SLF001
-        self.assertIn("_retry2", self.run_remote._redirect_rundir_for_retry(command, 2))  # noqa: SLF001
+        self.assertIn("_retry1", self.run_remote._redirect_rundir_for_retry(command, 1))  # pylint: disable=protected-access
+        self.assertIn("_retry2", self.run_remote._redirect_rundir_for_retry(command, 2))  # pylint: disable=protected-access
 
     def test_only_the_rundir_token_changes(self):
         command = "cmd --before flag --rundir /nfs/data/sessions/validation_123 --after flag"
-        redirected = self.run_remote._redirect_rundir_for_retry(command, 3)  # noqa: SLF001
+        redirected = self.run_remote._redirect_rundir_for_retry(command, 3)  # pylint: disable=protected-access
         self.assertEqual(redirected, "cmd --before flag --rundir /nfs/data/sessions/validation_123_retry3 --after flag")
 
     def test_command_without_rundir_is_unchanged(self):
         """The majority of RunRemote-dispatched jobs (e.g. chem-comp-link, sf-convert) have no --rundir."""
         command = "python -m some.other.tool --input foo.cif --output bar.cif"
-        self.assertEqual(self.run_remote._redirect_rundir_for_retry(command, 1), command)  # noqa: SLF001
+        self.assertEqual(self.run_remote._redirect_rundir_for_retry(command, 1), command)  # pylint: disable=protected-access
 
 
 class RunRetryRedirectsRundirTests(unittest.TestCase):
@@ -206,11 +206,11 @@ class RunRetryRedirectsRundirTests(unittest.TestCase):
     def test_second_attempt_uses_redirected_rundir(self):
         submitted_job_ids = iter([111, 222])
 
-        def fake_sbatch_run(cmd, **_kwargs):
+        def fake_sbatch_run(_cmd, **_kwargs):
             return mock.Mock(returncode=0, stdout=f"Submitted batch job {next(submitted_job_ids)}\n".encode("utf-8"))
 
         with mock.patch("wwpdb.utils.dp.RunRemote.subprocess.run", side_effect=fake_sbatch_run), mock.patch.object(
-            self.run_remote, "_build_sbatch_command", wraps=self.run_remote._build_sbatch_command
+            self.run_remote, "_build_sbatch_command", wraps=self.run_remote._build_sbatch_command  # pylint: disable=protected-access
         ) as mock_build, mock.patch.object(
             self.run_remote, "monitor", side_effect=[JobStatus.OOM, JobStatus.COMPLETED]
         ), mock.patch.object(
