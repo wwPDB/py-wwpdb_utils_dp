@@ -34,7 +34,7 @@ if TYPE_CHECKING:
         ServalcatCommandTimeoutError,
         ServalcatParametersError,
     )
-    from wwpdb.utils.dp.metal.metal_util.readRef import readRefCoordException, readRefCoordMap, readRefCoordNum, readRefMetalCarbon, readRefRedOx  # noqa: E402
+    from wwpdb.utils.dp.metal.metal_util.readRef import readRefRedOx  # noqa: E402
 else:
     sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     from metal_util.run_command import setup_logger  # noqa: E402
@@ -42,7 +42,7 @@ else:
     from metalcoord.runAcedrg import AcedrgCommandExecutionError, AcedrgCommandTimeoutError, AcedrgParametersError, RunAcedrg  # noqa: E402
     from metalcoord.runMetalCoord import MetalCoordCommandExecutionError, MetalCoordCommandTimeoutError, MetalCoordParametersError, RunMetalCoord  # noqa: E402
     from metalcoord.runServalcat import RunServalcat, ServalcatCommandExecutionError, ServalcatCommandTimeoutError, ServalcatParametersError  # noqa: E402
-    from metal_util.readRef import readRefCoordException, readRefCoordMap, readRefCoordNum, readRefMetalCarbon, readRefRedOx  # noqa: E402
+    from metal_util.readRef import readRefRedOx  # noqa: E402
 
 setup_logger(name="metalcoord", log_dir=".", b_debug=False)
 logger = logging.getLogger("metalcoord.processMetalCoordUpdate")
@@ -243,7 +243,7 @@ def callClean(fp_servalcat_cif):
         cat_obj.setValue(charge, attributeName="charge", rowIndex=index)
 
     io.writeFile(fp_clean, l_dc)
-    
+
     return fp_clean
 
 
