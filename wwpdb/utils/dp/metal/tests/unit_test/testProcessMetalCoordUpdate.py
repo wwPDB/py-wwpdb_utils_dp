@@ -41,7 +41,7 @@ class TestRunMetalCoord(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def test(self):
+    def run_test(self, ccd_id, pdb_id):
         l_command = []
         ccp4_dir = os.getenv("CCP4", None)
         if ccp4_dir:
@@ -57,29 +57,38 @@ class TestRunMetalCoord(unittest.TestCase):
                 ccp4_dir = "/Applications/ccp4-9"
             l_command.append(f"source {ccp4_dir}/bin/ccp4.setup-sh;")
         l_command.extend([sys.executable, os.path.join(METAL_DIR, "metalcoord", "processMetalCoordUpdate.py")])
-        l_command.extend(["--input", os.path.join(TEST_DATA_DIR, "0KA.cif")])
-        l_command.extend(["--pdb", os.path.join(TEST_DATA_DIR, "4DHV-internal.cif")])
+        l_command.extend(["--input", os.path.join(TEST_DATA_DIR, f"{ccd_id}.cif")])
+        if pdb_id:
+            l_command.extend(["--pdb", os.path.join(TEST_DATA_DIR, f"{pdb_id}-internal.cif")])
         if self.b_standalone_metalcoord:
             metalcoord_exe = "/Users/chenghua/Projects/RunMetalCoord/py-run_metalCoord/venv/bin/metalCoord"
             l_command.extend(["--metalcoord_exe", metalcoord_exe])
         command = " ".join(l_command)
         print(command)
 
+        folder = os.path.join(TEST_TEMP_DIR, f"{ccd_id}-MetalCoord-update")
         try:
-            os.makedirs(TEST_TEMP_DIR, exist_ok=True)
+            os.makedirs(folder, exist_ok=True)
         except Exception as e:  # noqa: BLE001
-            print("cannot create workdir: %s with error %s", TEST_TEMP_DIR, e)
+            print("cannot create workdir: %s with error %s", folder, e)
 
-        os.chdir(TEST_TEMP_DIR)
+        os.chdir(folder)
         os.system(command)
 
-        fp_metalcoord_json = os.path.join(TEST_TEMP_DIR, "metalcoord/metalcoord_report.json")
+        fp_metalcoord_json = os.path.join(folder, "metalcoord/metalcoord_report.json")
         self.assertTrue(os.path.exists(fp_metalcoord_json))  # test file exist
 
         self.assertTrue(os.path.isfile(fp_metalcoord_json), f"Expected {fp_metalcoord_json} to be a file")  # test is a file
 
-        fp_metalcoord_json = os.path.join(TEST_TEMP_DIR, "metalcoord/servalcat_updated.cif")
-        self.assertTrue(os.path.exists(fp_metalcoord_json))  # test file exist
+        fp_final = os.path.join(folder, "metalcoord/clean.cif")
+        self.assertTrue(os.path.exists(fp_final))  # test file exist
+        self.assertTrue(os.path.isfile(fp_final), f"Expected {fp_final} to be a file")  # test is a file
+
+    def test1(self):
+        self.run_test("0KA", "4DHV")
+
+    def test2(self):
+        self.run_test("HEM", None)
 
 
 if __name__ == "__main__":

@@ -58,3 +58,5 @@ tests/test-output
 *~
 venv
 docs
+
+.DS_Store

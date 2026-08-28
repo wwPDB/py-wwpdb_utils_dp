@@ -3985,37 +3985,74 @@ class RcsbDpUtility:
 
         elif op == "metal-findgeo":
             # run FindGeo for AnnMod, output all geometry output regardless of regular or not
+            #
+            # usage example:
+            # dp = RcsbDpUtility()
+            # dp.imp("4DHV.cif")  # Mandatory: Import the PDB/mmCIF model file input
+            # dp.addInput(name="timeout", value="36000")  # Optional: Set the timeout for the operation in seconds, default to 3600
+            # dp.addInput(name="workdir", value="/tmp")  # Optional: Set the working directory for the operation, default to metalcoord subfolder in the current folder
+            # dp.op("metal-findgeo")  # Execute the operation
+            # dp.exp("4DHV-all-geometry.json")  # Export the FindGeo JSON report with all geometry output regardless of regular or not
+            #
             cmd = self.__constructFindGeoCommand(cmd, iPath, oPath, tPath, lPath, b_filter=False)
             logger.info("to run metal-findgeo full commands: %s", cmd)
 
         elif op == "metal-findgeo-filter-regular":
             # run FindGeo for LigMod, output regular geometry only
+            #
+            # usage example:
+            # dp = RcsbDpUtility()
+            # dp.imp("4DHV.cif")  # Mandatory: Import the PDB/mmCIF model file input
+            # dp.addInput(name="timeout", value="36000")  # Optional: Set the timeout for the operation in seconds, default to 3600
+            # dp.addInput(name="workdir", value="/tmp")  # Optional: Set the working directory for the operation, default to metalcoord subfolder in the current folder
+            # dp.op("metal-findgeo-filter-regular")  # Execute the operation
+            # dp.exp("4DHV-regular-geometry.json")  # Export the FindGeo JSON report with regular geometry only
+            #
             cmd = self.__constructFindGeoCommand(cmd, iPath, oPath, tPath, lPath, b_filter=True)
             logger.info("to run metal-findgeo-filter-regular full commands: %s", cmd)
 
         elif op == "metal-metalcoord-stats":
             # run MetalCoord stats for AnnMod, output all geometry output regardless of regular or not
+            #
+            # usage example:
+            # dp = RcsbDpUtility()
+            # dp.imp("4DHV.cif")  # Mandatory: Import the PDB/mmCIF model file input
+            # dp.addInput(name="ligands", value="0KA,NCO")  # Mandatory: CCD ID(s) of the metal ligands
+            # dp.addInput(name="timeout", value="36000")  # Optional: Set the timeout for the operation in seconds, default to 3600
+            # dp.addInput(name="workdir", value="/tmp")  # Optional: Set the working directory for the operation, default to metalcoord subfolder in the current folder
+            # dp.op("metal-metalcoord-stats")  # Execute the operation
+            # dp.exp("4DHV-all-geometry.json")  # Export the MetalCoord JSON report with all geometry output regardless of regular or not
+            #
             cmd = self.__constructMetalCoordCommand(cmd, iPath, oPath, tPath, lPath, cpu_split=2, b_filter=False)
             logger.info("to run metal-metalcoord-stats full commands: %s", cmd)
 
         elif op == "metal-metalcoord-stats-filter-regular":
             # run MetalCoord stats for LigMod, output regular geometry only
+            #
+            # usage example:
+            # dp = RcsbDpUtility()
+            # dp.imp("4DHV.cif")  # Mandatory: Import the PDB/mmCIF model file input
+            # dp.addInput(name="ligands", value="0KA,NCO")  # Mandatory: CCD ID(s) of the metal ligands
+            # dp.addInput(name="timeout", value="36000")  # Optional: Set the timeout for the operation in seconds, default to 3600
+            # dp.addInput(name="workdir", value="/tmp")  # Optional: Set the working directory for the operation, default to metalcoord subfolder in the current folder
+            # dp.op("metal-metalcoord-stats-filter-regular")  # Execute the operation
+            # dp.exp("4DHV-regular-geometry.json")  # Export the MetalCoord JSON report with regular geometry only
+            #
             cmd = self.__constructMetalCoordCommand(cmd, iPath, oPath, tPath, lPath, cpu_split=2, b_filter=True)
             logger.info("to run metal-metalcoord-stats-filter-regular full commands: %s", cmd)
 
         elif op == "metal-metalcoord-update":
             # run MetalCoord update for LigMod, output updated cif with charge and ideal coordinates, and a json report with coordination info;
-            # use most_common option to find COD reference if no pdb input provided;
-            # default Procrustes distance threshold is 0.2 for finding COD reference;
-            # default metalcoord options can be overridden before setting self.op("metal-metalcoord-update"), e.g.
-            # self.addInput(name="acedrg_exe", value="")  # Acedrg executable file, only use for testing new versions
-            # self.addInput(name="metalcoord_exe", value="")  # MetalCoord executable file, only use for testing new versions
-            # self.addInput(name="servalcat_exe", value="")   # Servalcat executable file, only use for testing new versions
-            # self.addInput(name="workdir", value="/tmp")  # Directory to write outputs. Default is metalcoord subfolder in the current folder
-            # self.addInput(name="input", value="0KA.cif")  # Ligand cif file
-            # self.addInput(name="pdb", value="4DHV")  # PDB code or pdb file for coodination reference, if missing then use most_commond option
-            # self.addInput(name="threshold", value="0.2")  # Procrustes distance threshold for finding COD reference.
-            # self.setTimeout(1800)  # set timeout to 30 minutes for metalcoord processing if needed
+            #
+            # usage example:
+            # dp = RcsbDpUtility()
+            # dp.imp("0KA-in.cif")  # Mandatory: Import the CCD file input
+            # dp.addInput(name="pdb", value="4DHV")  # Optional: PDB code or pdb file for coordination reference, if missing then use most_common option
+            # dp.addInput(name="timeout", value="36000")  # Optional: Set the timeout for the operation in seconds, default to 3600
+            # dp.addInput(name="workdir", value="/tmp")  # Optional: Set the working directory for the operation, default to metalcoord subfolder in the current folder
+            # dp.op("metal-metalcoord-update")  # Execute the operation
+            # dp.expList(["0KA-out.cif", "0KA-out.json"])  # Export the list of output files generated by the operation
+            #
             # setup CCP4 environment first because Acedrg and Servalcat are CCP4 programs and will run for update mode
             ccp4_setup = os.path.join(self.__packagePath, "ccp4", "bin", "ccp4.setup-sh")
             cmd += f" ; source {ccp4_setup} "  # setup CCP4 environment first for Acedrg and Servalcat, which are used for update mode
@@ -4059,7 +4096,7 @@ class RcsbDpUtility:
             # into <workdir>/metalcoord_report.json;
             # use self.expList() to output both files in list of [servalcat_updated.cif, metalcoord_report.json]
             cmd += f" ; python -m wwpdb.utils.dp.metal.metalcoord.processMetalCoordUpdate {' '.join(l_metalcoord_args)}"
-            cmd += f" ; cp {os.path.join(workdir, 'servalcat_updated.cif')} {oPath}"
+            cmd += f" ; cp {os.path.join(workdir, 'clean.cif')} {oPath}"
             cmd += f" > {tPath} 2>&1 ; cat {tPath} > {lPath}"
             logger.info("to run metal-metalcoord-update full commands: %s", cmd)
 
@@ -5193,7 +5230,8 @@ class RcsbDpUtility:
         # self.addInput(name="excluded-metals", value="Mg,Ca")  # exlcuding a list of metal elements
         # self.addInput(name="threshold", value="2.9")  # extend the default 2.8 range search
         # self.addInput(name="workdir", value="/tmp")  # output to a folder other than the default "./findgeo"
-        # self.setTimeout(1800)  # set timeout to 30 minutes for FindGeo processing if needed
+        # self.addInput(name="timeout", value="36000")  # set timeout for FindGeo processing in seconds, default to 3600
+        # self.setTimeout(1800)  # set timeout to 30 minutes for DP processing if needed, alternate way to control execution time
         # retrieve java binary and FindGeo jar file from package path
         java_exe = os.path.join(self.__packagePath, "java", "jre", "bin", "java")
         logger.info("To use java executable at %s", java_exe)
@@ -5243,7 +5281,8 @@ class RcsbDpUtility:
         # self.addInput(name="workdir", value="/tmp")  # output to a folder other than the default "./metalcoord"
         # self.addInput(name="pdb", value="4DHV")  # PDB code or pdb file as input
         # self.addInput(name="metalcoord_exe", value="")  # MetalCoord executable file, only use for testing new versions
-        # self.setTimeout(1800)  # set timeout to 30 minutes for metalcoord processing if needed
+        # self.addInput(name="timeout", value="36000")  # set timeout for MetalCoord processing in seconds, default to 3600
+        # self.setTimeout(1800)  # set timeout to 30 minutes for metalcoord processing if needed, alternate way to control execution time
         # retrieve metalcoord executable from package path, first check standalone, then CCP4 package
         metalcoord_exe_standalone = os.path.join(self.__packagePath, "metalcoord", "bin", "metalCoord")
         if os.path.exists(metalcoord_exe_standalone):
