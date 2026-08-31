@@ -4091,10 +4091,10 @@ class RcsbDpUtility:
             cpu_split = 2
             n_cpu = math.ceil(os.cpu_count() / cpu_split)  # use 1/cpu_split CPUs, e.g. 1/4, but minimally 1 CPU
             cmd += f" ; OMP_NUM_THREADS={n_cpu}; export OMP_NUM_THREADS"
-            # run metalcoord and generate updated ligand cif at <workdir>/servalcat_updated.cif, which will be
+            # run metalcoord and generate updated ligand cif at <workdir>/clean.cif, which will be
             # copied as result file with charge and ideal coordinates; coordination info will be parsed and copied
             # into <workdir>/metalcoord_report.json;
-            # use self.expList() to output both files in list of [servalcat_updated.cif, metalcoord_report.json]
+            # use self.expList() to output both files in list of [clean.cif, metalcoord_report.json]
             cmd += f" ; python -m wwpdb.utils.dp.metal.metalcoord.processMetalCoordUpdate {' '.join(l_metalcoord_args)}"
             cmd += f" ; cp {os.path.join(workdir, 'clean.cif')} {oPath}"
             cmd += f" > {tPath} 2>&1 ; cat {tPath} > {lPath}"
@@ -4590,7 +4590,7 @@ class RcsbDpUtility:
 
         if op == "metal-metalcoord-update":
             self.__resultPathList = []
-            ligand_cif_out = os.path.join(self.__wrkPath, "metalcoord", "servalcat_updated.cif")
+            ligand_cif_out = os.path.join(self.__wrkPath, "metalcoord", "clean.cif")
             if os.access(ligand_cif_out, os.F_OK):
                 self.__resultPathList.append(ligand_cif_out)
             else:
