@@ -138,6 +138,8 @@
 # 04-Mar-2026 cs  Add op of "metal-findgeo-filter-regular" and "metal-metalcoord-filter-regular" to filter only regular geometry in for CCD annotation
 # 07-Jul-2026 zf  Add "annot-link-ssbond-with-ptm-mcc", "annot-merge-metal-coordination", "annot-update-metal-coordination",
 #                     "annot-update-metal-coordination-to-ccd"
+# 10-Sep-2026 ep  Add "firstblockdiags" parameter to annot-sf-convert
+#
 ##
 """
 Wrapper class for data processing and chemical component utilities.
@@ -1783,8 +1785,8 @@ class RcsbDpUtility:
             cmd += " ; PACKAGE_DIR=" + self.__packagePath + " ; export PACKAGE_DIR "
             cmd += " ; DCCPY_DIR=" + self.__sfvalidPath + " ; export DCCPY_DIR "
             cmd += " ; DCCPY=" + self.__sfvalidPath + " ; export DCCPY "
-            cmd += " ; CCP4=" + ccp4_path + " ; export CCP4 "
-            cmd += " ; source {}/bin/ccp4.setup-sh ".format(ccp4_path)
+            # cmd += " ; CCP4=" + ccp4_path + " ; export CCP4 "
+            # cmd += " ; source {}/bin/ccp4.setup-sh ".format(ccp4_path)
             #
             cmdPath = os.path.join(self.__sfvalidPath, "bin", "sf_convert")
             thisCmd = " ; " + cmdPath
@@ -1799,6 +1801,9 @@ class RcsbDpUtility:
                 xyzWrkPath = os.path.join(self.__wrkPath, xyzFileName)
                 shutil.copyfile(xyzPathFull, xyzWrkPath)
                 cmd += " -pdb " + xyzFileName
+
+            if "firstblockdiags" in self.__inputParamDict:
+                cmd += " -firstblocklogs " 
 
             cmd += " > " + tPath + " 2>&1 ; "
             #
