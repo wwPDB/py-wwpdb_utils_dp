@@ -1803,7 +1803,7 @@ class RcsbDpUtility:
                 cmd += " -pdb " + xyzFileName
 
             if "firstblockdiags" in self.__inputParamDict:
-                cmd += " -firstblocklogs " 
+                cmd += " -firstblocklogs "
 
             cmd += " > " + tPath + " 2>&1 ; "
             #
