@@ -74,6 +74,7 @@ class TestRunFindGeo(unittest.TestCase):
             self.assertTrue(data)  # test file is not empty
 
     def testPdbId(self):
+        pdb_id = "2ZZB"
         onedep_package_dir = os.getenv("PACKAGE_DIR", None)
         if onedep_package_dir:
             print("Test in OneDep environment")
@@ -86,9 +87,9 @@ class TestRunFindGeo(unittest.TestCase):
         l_command = [sys.executable, os.path.join(METAL_DIR, "findgeo", "processFindGeo.py")]
         l_command.extend(["--java-exe", java_exe])
         l_command.extend(["--findgeo-jar", findgeo_jar])
-        l_command.extend(["--pdb", "4DHV"])
+        l_command.extend(["--pdb", pdb_id])
         l_command.append("--compare")
-        folder = "findgeo_4DHV_public_compare_all_geometry"
+        folder = f"findgeo_{pdb_id}_public_compare_all_geometry"
         l_command.extend(["--workdir", folder])
         command = " ".join(l_command)
         print(command)
@@ -331,5 +332,5 @@ if __name__ == "__main__":
     test_suite.addTest(TestRunFindGeo("testTimeout"))
     test_suite.addTest(TestRunFindGeo("testParameterError"))
     test_suite.addTest(TestRunFindGeo("testExecutionError"))
-    # test_suite.addTest(TestRunFindGeo("testPermissionError"))
+    test_suite.addTest(TestRunFindGeo("testPermissionError"))
     unittest.TextTestRunner().run(test_suite)

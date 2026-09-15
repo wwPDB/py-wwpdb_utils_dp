@@ -240,7 +240,7 @@ def compareResults(l_exclude_carbon, l_include_carbon):  # pylint: disable=too-m
                 continue
         # 5. If both results are Irregular, check if both coordination numbers are allowed.
         # If only one is allowed, select the allowed coordination.
-        if tag_exc == "Irregular" and tag_inc == "Irregular":
+        if (tag_exc not in ("Regular", "Distorted")) and (tag_inc not in ("Regular", "Distorted")):
             coord_allowed_exc = d_site_exc.get("coordination_number_allowed")
             coord_allowed_inc = d_site_inc.get("coordination_number_allowed")
             if coord_allowed_exc == "YES" and coord_allowed_inc != "YES":
