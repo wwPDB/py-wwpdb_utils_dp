@@ -454,6 +454,10 @@ class RcsbDpUtility:
             log_file_path = os.path.join(log_dir_path, f"wfe_metrics_{self.__siteId}.log")
             self.__job_logger = JobLogger(log_file_path).start()
 
+    def __del__(self):
+        if self.__job_logger:
+            self.__job_logger.stop()
+
     def __getConfigPath(self, ky):
         try:
             pth = os.path.abspath(self.__cI.get(ky))
@@ -781,7 +785,9 @@ class RcsbDpUtility:
         try:
             logger.info("+RcsbDpUtility.cleanup() removing working path %s\n", self.__wrkPath)
             shutil.rmtree(self.__wrkPath, ignore_errors=True)
-            self.__job_logger.stop()
+            if self.__job_logger:
+                self.__job_logger.stop()
+                self.__job_logger = None
             return True
         except Exception:  # noqa: BLE001
             logger.info("+RcsbDpUtility.cleanup() removal failed for working path %s\n", self.__wrkPath)
@@ -5217,13 +5223,8 @@ class RcsbDpUtility:
             if self.__job_logger and op:
                 local_result = JobResult(
                     status=retcode,
-                    retries_used=1,
                     total_time_seconds=exec_time,
                     execution_time_seconds=exec_time,
-                    queue_time_seconds=0.0,
-                    requested_memory_mb=self.__startingMemory,
-                    used_memory_mb=self.__startingMemory,
-                    cpu_count=int(self.__numThreads),
                 )
                 self.__job_logger.job_result(dep_id=self.__dep_id, op=op, runenv=RunEnvironment.LOCAL, wfhost=socket.gethostname(), job_result=local_result)
         return retcode
