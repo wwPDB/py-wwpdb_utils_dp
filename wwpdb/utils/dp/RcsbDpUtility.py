@@ -1457,7 +1457,7 @@ class RcsbDpUtility:
             cmd += ' ; export PATH="$PATH:{path1}:{path2}"'.format(path1=chimerax_bin, path2=chimera_bin)
             # unset the DISPLAY variable for VA pack to use nogui in ChimeraX
             # CCP4 monomer library should not be inherited from run environment as affects molprobity in phenix 2.0
-            cmd += " ; unset DISPLAY ; unset CLIBD_MON "  
+            cmd += " ; unset DISPLAY ; unset CLIBD_MON "
             cmd += " ; %s --validation " % self.__site_config_command
             cmd += " ; OE_DIR=" + self.__oeDirPath + " ; export OE_DIR "
             cmd += " ; OE_LICENSE=" + self.__oeLicensePath + " ; export OE_LICENSE "
