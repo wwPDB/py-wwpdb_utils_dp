@@ -40,7 +40,7 @@ class JobLogger:
         log_file_path: str,
         logger_name: str = "job_execution",
         log_format: Optional[str] = None,
-    ):
+    ) -> None:
         """
         Initialize the job logger.
 
@@ -54,11 +54,20 @@ class JobLogger:
         self._queue: Queue = Queue(-1)
         self._listener: Optional[logging.handlers.QueueListener] = None
         self._logger: Optional[logging.Logger] = None
+        self.__enabled = False  # If enabled due to permissions
 
         # Ensure log directory exists
         log_dir = os.path.dirname(os.path.abspath(log_file_path))
         if log_dir and not os.path.exists(log_dir):
-            os.makedirs(log_dir, exist_ok=True)
+            try:
+                os.makedirs(log_dir, exist_ok=True)
+            except PermissionError:
+                return
+
+        if not os.path.exists(log_dir) or not os.access(log_dir, os.W_OK):
+            return
+
+        self.__enabled = True
 
         # Default format includes timestamp, level, and message
         if log_format is None:
@@ -66,8 +75,15 @@ class JobLogger:
         self._log_format = log_format
         self._formatter = logging.Formatter(log_format)
 
+    def __del__(self) -> None:
+        """Cleanup any created resources"""
+        self.stop()
+
     def _setup_listener(self) -> None:
         """Set up the queue-based logger with time-based rotation."""
+
+        if not self.__enabled:
+            return
 
         # Create handler with 30-day time-based rotation
         # when='midnight' rotates at midnight, interval=30 means every 30 days
@@ -83,8 +99,12 @@ class JobLogger:
         self._listener = logging.handlers.QueueListener(self._queue, handler, respect_handler_level=True)
         self._listener.start()
 
-    def _setup_logger(self) -> logging.Logger:
+    def _setup_logger(self) -> Optional[logging.Logger]:
         """Set up the logger with queue handler."""
+
+        if not self.__enabled:
+            return None
+
         logger = logging.getLogger(self.logger_name)
         logger.setLevel(logging.DEBUG)
 

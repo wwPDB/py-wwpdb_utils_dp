@@ -110,9 +110,7 @@ class GetJobStatusByIdTests(unittest.TestCase):
             fake_squeue=(1, "slurm_load_jobs error: Invalid job id specified"),
             fake_sacct_sequence=[(0, _sacct_json(state=None))] * 3,  # empty jobs list every attempt
         )
-        with mock.patch("wwpdb.utils.dp.RunRemote.subprocess.run", side_effect=fake_run), mock.patch(
-            "wwpdb.utils.dp.RunRemote.time.sleep"
-        ):
+        with mock.patch("wwpdb.utils.dp.RunRemote.subprocess.run", side_effect=fake_run), mock.patch("wwpdb.utils.dp.RunRemote.time.sleep"):
             status = self.run_remote.get_job_status_by_id(12345)
         self.assertEqual(status, JobStatus.OTHER)
 
@@ -139,9 +137,7 @@ class GetJobStatusFromSacctTests(unittest.TestCase):
 
     def test_never_classifies_after_max_attempts_returns_none(self):
         fake_run = _fake_subprocess_run(fake_sacct_sequence=[(0, _sacct_json(state=None))] * 3)
-        with mock.patch("wwpdb.utils.dp.RunRemote.subprocess.run", side_effect=fake_run), mock.patch(
-            "wwpdb.utils.dp.RunRemote.time.sleep"
-        ):
+        with mock.patch("wwpdb.utils.dp.RunRemote.subprocess.run", side_effect=fake_run), mock.patch("wwpdb.utils.dp.RunRemote.time.sleep"):
             status = self.run_remote._get_job_status_from_sacct(12345, max_attempts=3, backoff=0)  # pylint: disable=protected-access
         self.assertIsNone(status)
 
@@ -207,13 +203,13 @@ class RunRetryRedirectsRundirTests(unittest.TestCase):
         submitted_job_ids = iter([111, 222])
 
         def fake_sbatch_run(_cmd, **_kwargs):
-            return mock.Mock(returncode=0, stdout=f"Submitted batch job {next(submitted_job_ids)}\n".encode("utf-8"))
+            return mock.Mock(returncode=0, stdout=f"Submitted batch job {next(submitted_job_ids)}\n".encode())
 
         with mock.patch("wwpdb.utils.dp.RunRemote.subprocess.run", side_effect=fake_sbatch_run), mock.patch.object(
-            self.run_remote, "_build_sbatch_command", wraps=self.run_remote._build_sbatch_command  # pylint: disable=protected-access
-        ) as mock_build, mock.patch.object(
-            self.run_remote, "monitor", side_effect=[JobStatus.OOM, JobStatus.COMPLETED]
-        ), mock.patch.object(
+            self.run_remote,
+            "_build_sbatch_command",
+            wraps=self.run_remote._build_sbatch_command,  # pylint: disable=protected-access
+        ) as mock_build, mock.patch.object(self.run_remote, "monitor", side_effect=[JobStatus.OOM, JobStatus.COMPLETED]), mock.patch.object(
             self.run_remote, "_get_job_metrics", return_value={}
         ):
             result = self.run_remote.run(retries=3)
