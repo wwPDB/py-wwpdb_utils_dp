@@ -65,6 +65,9 @@ class PdbxModelCompletity:
                 num_mol = cObj.getValueOrDefault("pdbx_number_of_molecules", row, "1")
                 fw = cObj.getValueOrDefault("formula_weight", row, "unknown")
 
+                # Sensible defaults if values are not convertable to int/float
+                num_mol_int = 1
+                fw_val = 0.0
                 try:
                     num_mol_int = int(num_mol)
                     fw_val = float(fw)
@@ -141,7 +144,7 @@ def main():
         "--threshold",
         type=float,
         default=1e8,
-        help="threshold value to use as cutoff (1.0E+6 default)",
+        help="threshold value to use as cutoff (1.0E+8 default)",
     )
     args = parser.parse_args()
 
