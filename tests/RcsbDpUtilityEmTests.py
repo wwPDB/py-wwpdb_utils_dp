@@ -55,7 +55,7 @@ logger.setLevel(logging.INFO)
 
 
 class RcsbDpUtilityEmTests(unittest.TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         self.__siteId = getSiteId(defaultSiteId=None)
         logger.info("\nTesting with site environment for:  %s\n", self.__siteId)
         #
@@ -70,11 +70,11 @@ class RcsbDpUtilityEmTests(unittest.TestCase):
         # XML header
         self.__testXMLHeader = "emd_8137_v2.xml"
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         pass
 
     @unittest.skipIf(toolsmissing, "Tools not available for testing")
-    def testMapFix(self):
+    def testMapFix(self) -> None:
         """Test mapfix utility"""
         logger.info("\nStarting")
         try:
@@ -94,7 +94,7 @@ class RcsbDpUtilityEmTests(unittest.TestCase):
     @unittest.skipIf(skiptest, "Matplotlib")
     @unittest.skipIf(toolsmissing, "Tools not available for testing")
     @unittest.skipIf(skipnodisplay, "DISPLAY environment not set")
-    def testReadMapHeader(self):
+    def testReadMapHeader(self) -> None:
         """Test read map header -- export JSON packet and plot density distribution -"""
         logger.info("\nStarting")
         try:
@@ -146,7 +146,7 @@ class RcsbDpUtilityEmTests(unittest.TestCase):
 
     @unittest.skipIf(skiptest, "Matplotlib")
     @unittest.skipIf(toolsmissing, "Tools not available for testing")
-    def testReadMapHeaderPygal(self):
+    def testReadMapHeaderPygal(self) -> None:
         """Test read map header -- export JSON packet and plot density distribution -"""
         logger.info("\nStarting")
         try:
@@ -197,11 +197,11 @@ class RcsbDpUtilityEmTests(unittest.TestCase):
             logger.exception("Failing with %s", str(e))
             self.fail()
 
-    def myround(self, x, base=5):
+    def myround(self, x: float, base: int = 5) -> int:
         return int(base * round(float(x) / base))
 
     @unittest.skipIf(toolsmissing, "Tools not available for testing")
-    def testEm2EmSpider(self):
+    def testEm2EmSpider(self) -> None:
         """Test mapfix utility"""
         logger.info("\nStarting")
         try:
@@ -223,7 +223,7 @@ class RcsbDpUtilityEmTests(unittest.TestCase):
             self.fail()
 
     @unittest.skipIf(toolsmissing, "Tools not available for testing")
-    def testXmlHeaderCheck(self):
+    def testXmlHeaderCheck(self) -> None:
         """Test xmllint"""
         logger.info("\nStarting")
         try:
@@ -241,7 +241,7 @@ class RcsbDpUtilityEmTests(unittest.TestCase):
             self.fail()
 
 
-def suiteAnnotEmTests():
+def suiteAnnotEmTests() -> unittest.TestSuite:
     suiteSelect = unittest.TestSuite()
     # suiteSelect.addTest(RcsbDpUtilityEmTests("testReadMapHeader"))
     suiteSelect.addTest(RcsbDpUtilityEmTests("testXmlHeaderCheck"))

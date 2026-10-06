@@ -38,7 +38,7 @@ logger.setLevel(logging.INFO)
 
 @unittest.skipIf(toolsmissing, "Tools not available for testing")
 class RcsbDpUtilityMapTests(unittest.TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         self.__siteId = getSiteId(defaultSiteId=None)
         logger.info("\nTesting with site environment for:  %s\n", self.__siteId)
         #
@@ -56,10 +56,10 @@ class RcsbDpUtilityMapTests(unittest.TestCase):
         self.__testFileMtzRunaway = "bad-runaway.mtz"
         # self.__testFileXyzRunaway = "bad-runaway.cif"
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         pass
 
-    def testAnnotMapCalc(self):
+    def testAnnotMapCalc(self) -> None:
         """Test create density maps --"""
         logger.info("\nStarting")
         try:
@@ -84,7 +84,7 @@ class RcsbDpUtilityMapTests(unittest.TestCase):
             logger.exception("Failing with %s", str(e))
             self.fail()
 
-    def testAnnotOmitMapCalc(self):
+    def testAnnotOmitMapCalc(self) -> None:
         """Test create density maps --"""
         logger.info("\nStarting")
         try:
@@ -109,7 +109,7 @@ class RcsbDpUtilityMapTests(unittest.TestCase):
             logger.exception("Failing with %s", str(e))
             self.fail()
 
-    def testAnnotLigandMapCalc(self):
+    def testAnnotLigandMapCalc(self) -> None:
         """Test create non-polymer local density maps --"""
         logger.info("\nStarting")
         try:
@@ -157,7 +157,7 @@ class RcsbDpUtilityMapTests(unittest.TestCase):
             logger.exception("Failing with %s", str(e))
             self.fail()
 
-    def testAnnotDccReport(self):
+    def testAnnotDccReport(self) -> None:
         """Test create DCC report -"""
         logger.info("\nStarting")
         try:
@@ -177,7 +177,7 @@ class RcsbDpUtilityMapTests(unittest.TestCase):
             logger.exception("Failing with %s", str(e))
             self.fail()
 
-    def testAnnotMtz2PdbxGood(self):
+    def testAnnotMtz2PdbxGood(self) -> None:
         """Test mtz to pdbx conversion  (good mtz)"""
         logger.info("\nStarting")
         try:
@@ -198,7 +198,7 @@ class RcsbDpUtilityMapTests(unittest.TestCase):
             logger.exception("Failing with %s", str(e))
             self.fail()
 
-    def testAnnotMtz2PdbxBad(self):
+    def testAnnotMtz2PdbxBad(self) -> None:
         """Test mtz to pdbx conversion"""
         logger.info("\nStarting")
         try:
@@ -223,7 +223,7 @@ class RcsbDpUtilityMapTests(unittest.TestCase):
             logger.exception("Failing with %s", str(e))
             self.fail()
 
-    def testAnnotMtz2PdbxBadTimeout(self):
+    def testAnnotMtz2PdbxBadTimeout(self) -> None:
         """Test mtz to pdbx conversion"""
         logger.info("\nStarting")
         try:
@@ -245,7 +245,7 @@ class RcsbDpUtilityMapTests(unittest.TestCase):
             self.fail()
 
 
-def suiteMapCalcTests():
+def suiteMapCalcTests() -> unittest.TestSuite:
     suiteSelect = unittest.TestSuite()
     suiteSelect.addTest(RcsbDpUtilityMapTests("testAnnotMapCalc"))
     suiteSelect.addTest(RcsbDpUtilityMapTests("testAnnotOmitMapCalc"))
@@ -253,13 +253,13 @@ def suiteMapCalcTests():
     return suiteSelect
 
 
-def suiteLigandMapCalcTests():
+def suiteLigandMapCalcTests() -> unittest.TestSuite:
     suiteSelect = unittest.TestSuite()
     suiteSelect.addTest(RcsbDpUtilityMapTests("testAnnotLigandMapCalc"))
     return suiteSelect
 
 
-def suiteAnnotDccTests():
+def suiteAnnotDccTests() -> unittest.TestSuite:
     suiteSelect = unittest.TestSuite()
     suiteSelect.addTest(RcsbDpUtilityMapTests("testAnnotDccReport"))
     suiteSelect.addTest(RcsbDpUtilityMapTests("testAnnotMtz2PdbxGood"))

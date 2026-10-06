@@ -77,6 +77,7 @@ ignore = [
   "C402",     # Unnecessary generator (rewrite as a `dict` comprehension)
   "D419",     # Docstring is empty
   "EXE001",   # Shebang is present but file is not executabl
+  "FA100",    #  Add `from __future__ import annotations` to simplify `typing.Optional`
   "FBT002",   # Boolean default positional argument in function definition
   "FBT001",   # Boolean-typed positional argument in function definition
   "FURB113",  # Use `stPL.extend(...)` instead of repeatedly calling `stPL.append()`
@@ -116,7 +117,7 @@ ignore = [
 
 # -------------------- default environment scripts ------------------
 [tool.hatch.envs.default]
-skip-install = true
+# skip-install = true
 dependencies = ["mypy", "ruff >=0.6.9", "wwpdb.utils.testing", "matplotlib", "pygal",
   "wwpdb.utils.config",
   "wwpdb.io"]
@@ -155,7 +156,8 @@ run = ["tox"]
 
 # -------------------------  Mypy disable ---------
 [[tool.mypy.overrides]]
-module = ["mmcif.*", "wwpdb.io.*", "tests.*", "commonsetup", "gemmi.*", "pygal.*"]
+# module = ["mmcif.*", "wwpdb.io.*", "tests.*", "commonsetup", "gemmi.*", "pygal.*"]
+module = ["mmcif.*", "pygal.*", "commonsetup"]
 ignore_missing_imports = true
 
 [tool.mypy]
@@ -170,7 +172,7 @@ exclude = [
 
 "fix_gemmi_typing.py" = ["T201"]
 
-"tests/*" = ["TID252", "PLC1901", "S311", "T201", "S101"]
+"tests/*" = ["TID252", "PLC1901", "S311", "T201", "S101", "PT027", "N813", "SIM117"]
 "tests/RunRemoteTests.py" = ["TRY003", "EM101", "EM102", "SLF001"]
 
 "wwpdb/utils/dp/metal/tests/*" = ["T201", "S605"]

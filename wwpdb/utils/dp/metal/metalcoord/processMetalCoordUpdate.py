@@ -15,10 +15,12 @@ import json
 import logging
 import os
 import sys
-from mmcif.io.IoAdapterCore import IoAdapterCore
 from typing import TYPE_CHECKING
 
+from mmcif.io.IoAdapterCore import IoAdapterCore
+
 if TYPE_CHECKING:
+    from wwpdb.utils.dp.metal.metal_util.readRef import readRefRedOx  # noqa: E402
     from wwpdb.utils.dp.metal.metal_util.run_command import setup_logger  # noqa: E402
     from wwpdb.utils.dp.metal.metalcoord.parseMetalCoord import MetalCoordParseError, ParseMetalCoord  # noqa: E402
     from wwpdb.utils.dp.metal.metalcoord.runAcedrg import AcedrgCommandExecutionError, AcedrgCommandTimeoutError, AcedrgParametersError, RunAcedrg  # noqa: E402
@@ -34,15 +36,14 @@ if TYPE_CHECKING:
         ServalcatCommandTimeoutError,
         ServalcatParametersError,
     )
-    from wwpdb.utils.dp.metal.metal_util.readRef import readRefRedOx  # noqa: E402
 else:
     sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    from metal_util.readRef import readRefRedOx  # noqa: E402
     from metal_util.run_command import setup_logger  # noqa: E402
     from metalcoord.parseMetalCoord import MetalCoordParseError, ParseMetalCoord  # noqa: E402
     from metalcoord.runAcedrg import AcedrgCommandExecutionError, AcedrgCommandTimeoutError, AcedrgParametersError, RunAcedrg  # noqa: E402
     from metalcoord.runMetalCoord import MetalCoordCommandExecutionError, MetalCoordCommandTimeoutError, MetalCoordParametersError, RunMetalCoord  # noqa: E402
     from metalcoord.runServalcat import RunServalcat, ServalcatCommandExecutionError, ServalcatCommandTimeoutError, ServalcatParametersError  # noqa: E402
-    from metal_util.readRef import readRefRedOx  # noqa: E402
 
 setup_logger(name="metalcoord", log_dir=".", b_debug=False)
 logger = logging.getLogger("metalcoord.processMetalCoordUpdate")
@@ -226,9 +227,9 @@ def callClean(fp_servalcat_cif):
         return None
     cat_obj = dc0.getObj("chem_comp_atom")
     if "pdbx_model_Cartn_x_ideal" in cat_obj.getAttributeList():
-        cat_obj.renameAttributes({"pdbx_model_Cartn_x_ideal": "model_Cartn_x",
-                                  "pdbx_model_Cartn_y_ideal": "model_Cartn_y",
-                                  "pdbx_model_Cartn_z_ideal": "model_Cartn_z"})
+        cat_obj.renameAttributes(
+            {"pdbx_model_Cartn_x_ideal": "model_Cartn_x", "pdbx_model_Cartn_y_ideal": "model_Cartn_y", "pdbx_model_Cartn_z_ideal": "model_Cartn_z"}
+        )
     (d_redox, d_oxi) = readRefRedOx()
     d_metal_charge_by_index = {}
     for i in range(cat_obj.getRowCount()):

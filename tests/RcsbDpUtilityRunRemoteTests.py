@@ -26,7 +26,7 @@ logger.setLevel(logging.DEBUG)
 
 @unittest.skipIf(toolsmissing, "Tools not available for testing")
 class RcsbDpUtilityAnnotTests(unittest.TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         self.__lfh = sys.stderr
         # Pick up site information from the environment or failover to the development site id.
         self.__siteId = getSiteId(defaultSiteId="WWPDB_DEPLOY_TEST")
@@ -97,12 +97,12 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
         # self.__testSpecialPosition = 'D_1000225739_model_P1.cif.V4'
         # self.__testDepAssembly = "testassem.cif"
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         pass
         # if os.path.exists(self.__tmpPath):
         #     shutil.rmtree(self.__tmpPath)
 
-    def test_AnnotValidateGeometryCheck(self):
+    def test_AnnotValidateGeometryCheck(self) -> None:
         """Test of updating geometrical validation diagnostics -"""
         logger.debug("\nStarting")
         of = os.path.join(self.__tmpPath, "annot-validate-geometry-check.cif")
@@ -117,7 +117,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
         self.assertTrue(ret == 0)
         self.assertTrue(os.path.exists(of))
 
-    def test_AnnotValidateGeometryCheckRemote(self):
+    def test_AnnotValidateGeometryCheckRemote(self) -> None:
         """Test of updating geometrical validation diagnostics -"""
         logger.debug("\nStarting")
 
@@ -134,7 +134,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
         self.assertTrue(ret == 0)
         self.assertTrue(os.path.exists(of))
 
-    def testAnnotRcsb2PdbxRemote(self):
+    def testAnnotRcsb2PdbxRemote(self) -> None:
         """RCSB CIF -> PDBx conversion  (Using the smaller application in the annotation package)
 
         Converting to RCSB to PDB id in _entry.id and related items.
@@ -153,7 +153,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
         self.assertTrue(ret == 0)
         self.assertTrue(os.path.exists(of))
 
-    def testAnnotValidateListXrayTestRemote(self):
+    def testAnnotValidateListXrayTestRemote(self) -> None:
         """Test create validation report for the test list of example PDB ids (x-ray examples)"""
         logger.debug("\nStarting")
         for pdbId in self.__testValidateXrayIdList:
@@ -195,7 +195,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             self.assertTrue(os.path.exists(ofpng))
             self.assertTrue(os.path.exists(ofsvg))
 
-    def testAnnotValidateXrayNeutronRemote(self):
+    def testAnnotValidateXrayNeutronRemote(self) -> None:
         """Test create validation report for the test list of example PDB ids (x-ray examples)"""
         logger.debug("\nStarting")
 
@@ -234,7 +234,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
         self.assertTrue(os.path.exists(ofpng))
         self.assertTrue(os.path.exists(ofsvg))
 
-    def testAnnotValidateListNmrTestRemote(self):
+    def testAnnotValidateListNmrTestRemote(self) -> None:
         """Test create validation report for the test list of example PDB ids (NMR examples)"""
         logger.debug("\nStarting")
         for pdbId in self.__testValidateNmrIdList:
@@ -276,7 +276,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             self.assertTrue(os.path.exists(ofpng))
             self.assertTrue(os.path.exists(ofsvg))
 
-    def testMapFixRemote(self):
+    def testMapFixRemote(self) -> None:
         """Test mapfix utility"""
         logger.debug("\nStarting")
 
@@ -327,7 +327,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
     #     self.assertTrue(ret == 0)
     #     self.assertTrue(os.path.exists(of))
 
-    def testAnnotSiteRemote(self):
+    def testAnnotSiteRemote(self) -> None:
         """Calculate site environment"""
         logger.debug("\nStarting")
         of = os.path.join(self.__tmpPath, "annot-site-" + self.__testFileAnnotSite)
@@ -344,7 +344,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
         self.assertTrue(ret == 0)
         self.assertTrue(os.path.exists(of))
 
-    def test_AnnotMergeRemote(self):
+    def test_AnnotMergeRemote(self) -> None:
         """Test of updating geometrical validation diagnostics -"""
         logger.debug("\nStarting")
         for pdbId in self.__testValidateXrayIdList:
@@ -366,7 +366,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             self.assertTrue(ret == 0)
             self.assertTrue(os.path.exists(of))
 
-    def testAnnotMtz2PdbxGood(self):
+    def testAnnotMtz2PdbxGood(self) -> None:
         """Test mtz to pdbx conversion  (good mtz)"""
         logger.debug("\nStarting")
         diagfn = os.path.join(self.__tmpPath, "sf-convert-diags.cif")
@@ -387,7 +387,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
         self.assertTrue(diagfn)
         self.assertTrue(dmpfn)
 
-    def testCif2pdbx_public(self):
+    def testCif2pdbx_public(self) -> None:
         """Test cif to pdbx conversion  (good cif)"""
         logger.debug("\nStarting")
         cifout = os.path.join(self.__tmpPath, self.__testFileAnnotSiteAlt)
@@ -405,7 +405,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
         self.assertTrue(cifout)
 
 
-def suiteAnnotDccTests():
+def suiteAnnotDccTests() -> unittest.TestSuite:
     suiteSelect = unittest.TestSuite()
     # suiteSelect.addTest(RcsbDpUtilityAnnotTests("testMapFixLargeMapRemote"))
     # suiteSelect.addTest(RcsbDpUtilityAnnotTests("test_AnnotValidateGeometryCheck"))

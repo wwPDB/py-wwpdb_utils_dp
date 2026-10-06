@@ -35,7 +35,7 @@ logger.setLevel(logging.INFO)
 
 
 class ModelComplexityTests(unittest.TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         self.__tmpPath = TESTOUTPUT
         #
         self.__siteId = getSiteId(defaultSiteId=None)
@@ -44,10 +44,10 @@ class ModelComplexityTests(unittest.TestCase):
         self.__testFilePath = os.path.join(TOPDIR, "wwpdb", "mock-data", "MODELS")
         self.__testFileCif = "1kip.cif"
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         pass
 
-    def testModelComplexity(self):
+    def testModelComplexity(self) -> None:
         """ """
 
         outfile = os.path.join(TESTOUTPUT, "complexity.cif")
@@ -65,7 +65,7 @@ class ModelComplexityTests(unittest.TestCase):
         self.assertTrue(os.path.exists(outfile))
         self.assertFalse(self.getcomplex(outfile))
 
-    def testModelComplexityThreshold(self):
+    def testModelComplexityThreshold(self) -> None:
         """Retrieve complexity with lower threshold"""
 
         outfile = os.path.join(TESTOUTPUT, "complexity2.cif")
@@ -83,7 +83,7 @@ class ModelComplexityTests(unittest.TestCase):
         self.assertTrue(os.path.exists(outfile))
         self.assertTrue(self.getcomplex(outfile))
 
-    def getcomplex(self, fpath):
+    def getcomplex(self, fpath: str) -> bool:
         """Retrieve complexity"""
         io = IoAdapterCore()
         cL = io.readFile(fpath)
@@ -91,7 +91,7 @@ class ModelComplexityTests(unittest.TestCase):
         b0 = cL[0]
         cObj = b0.getObj("pdbx_complexity")
         comp = cObj.getValue("is_complex")
-        ret = comp == "True"
+        ret: bool = comp == "True"
         return ret
 
 

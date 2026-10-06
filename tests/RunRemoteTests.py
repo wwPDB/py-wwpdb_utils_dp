@@ -11,6 +11,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from typing import Any, Callable, List, Optional, Tuple
 from unittest import mock
 
 if __package__ is None or __package__ == "":
@@ -21,7 +22,7 @@ if __package__ is None or __package__ == "":
 from wwpdb.utils.dp.RunRemote import JobStatus, RunRemote
 
 
-def _make_run_remote(command="echo hi", run_dir=None):
+def _make_run_remote(command: str = "echo hi", run_dir: Optional[str] = None) -> RunRemote:
     """Construct a real RunRemote instance without needing a live site-config environment.
 
     run_dir defaults to None (RunRemote auto-generates a /tmp/run_remote_* tempdir, matching
@@ -37,12 +38,14 @@ def _make_run_remote(command="echo hi", run_dir=None):
         return RunRemote(command=command, job_name="test_job", log_dir=tempfile.mkdtemp(), run_dir=run_dir)
 
 
-def _sacct_json(job_id=12345, state=None):
+def _sacct_json(job_id: int = 12345, state: Optional[List[str]] = None) -> str:
     jobs = [{"job_id": job_id, "state": {"current": state}}] if state is not None else []
     return json.dumps({"jobs": jobs})
 
 
-def _fake_subprocess_run(fake_squeue=None, fake_sacct_sequence=None):
+def _fake_subprocess_run(
+    fake_squeue: Optional[Tuple[int, str]] = None, fake_sacct_sequence: Optional[List[Tuple[int, str]]] = None
+) -> Callable[..., mock.Mock]:
     """Build a subprocess.run side_effect that dispatches on the command name.
 
     fake_squeue: (returncode, stdout_text) for the squeue call.
@@ -50,8 +53,9 @@ def _fake_subprocess_run(fake_squeue=None, fake_sacct_sequence=None):
     """
     sacct_iter = iter(fake_sacct_sequence or [])
 
-    def _run(cmd, **_kwargs):
+    def _run(cmd: List[str], **_kwargs: Any) -> mock.Mock:
         if cmd[0] == "squeue":
+            assert fake_squeue is not None
             rc, stdout_text = fake_squeue
             return mock.Mock(returncode=rc, stdout=stdout_text.encode("utf-8"))
         if cmd[0] == "sacct":
@@ -68,10 +72,10 @@ def _fake_subprocess_run(fake_squeue=None, fake_sacct_sequence=None):
 
 
 class GetJobStatusByIdTests(unittest.TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         self.run_remote = _make_run_remote()
 
-    def test_squeue_classifies_directly_unchanged_behavior(self):
+    def test_squeue_classifies_directly_unchanged_behavior(self) -> None:
         """Regression guard: when squeue succeeds, its answer is used as-is, no sacct call."""
         fake_run = _fake_subprocess_run(fake_squeue=(0, "COMPLETED"))
         with mock.patch("wwpdb.utils.dp.RunRemote.subprocess.run", side_effect=fake_run) as mock_run:
@@ -79,13 +83,13 @@ class GetJobStatusByIdTests(unittest.TestCase):
         self.assertEqual(status, JobStatus.COMPLETED)
         self.assertEqual(mock_run.call_count, 1)  # only squeue, no sacct fallback
 
-    def test_squeue_reports_oom_directly(self):
+    def test_squeue_reports_oom_directly(self) -> None:
         fake_run = _fake_subprocess_run(fake_squeue=(0, "OUT_OF_MEMORY"))
         with mock.patch("wwpdb.utils.dp.RunRemote.subprocess.run", side_effect=fake_run):
             status = self.run_remote.get_job_status_by_id(12345)
         self.assertEqual(status, JobStatus.OOM)
 
-    def test_squeue_forgets_job_falls_back_to_sacct_oom(self):
+    def test_squeue_forgets_job_falls_back_to_sacct_oom(self) -> None:
         """The diagnosed bug: squeue rc=1 for a reaped job; sacct still has OUT_OF_MEMORY."""
         fake_run = _fake_subprocess_run(
             fake_squeue=(1, "slurm_load_jobs error: Invalid job id specified"),
@@ -95,7 +99,7 @@ class GetJobStatusByIdTests(unittest.TestCase):
             status = self.run_remote.get_job_status_by_id(12345)
         self.assertEqual(status, JobStatus.OOM)
 
-    def test_squeue_blank_output_falls_back_to_sacct(self):
+    def test_squeue_blank_output_falls_back_to_sacct(self) -> None:
         fake_run = _fake_subprocess_run(
             fake_squeue=(0, ""),
             fake_sacct_sequence=[(0, _sacct_json(state=["COMPLETED"]))],
@@ -104,7 +108,7 @@ class GetJobStatusByIdTests(unittest.TestCase):
             status = self.run_remote.get_job_status_by_id(12345)
         self.assertEqual(status, JobStatus.COMPLETED)
 
-    def test_squeue_and_sacct_both_fail_to_classify_returns_other(self):
+    def test_squeue_and_sacct_both_fail_to_classify_returns_other(self) -> None:
         """Never fabricate a terminal state -- fall back to OTHER, not a false positive."""
         fake_run = _fake_subprocess_run(
             fake_squeue=(1, "slurm_load_jobs error: Invalid job id specified"),
@@ -116,10 +120,10 @@ class GetJobStatusByIdTests(unittest.TestCase):
 
 
 class GetJobStatusFromSacctTests(unittest.TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         self.run_remote = _make_run_remote()
 
-    def test_backoff_on_empty_then_populated(self):
+    def test_backoff_on_empty_then_populated(self) -> None:
         """sacct accounting lag: empty jobs list on first attempt, populated on the second."""
         fake_run = _fake_subprocess_run(
             fake_sacct_sequence=[
@@ -135,7 +139,7 @@ class GetJobStatusFromSacctTests(unittest.TestCase):
         self.assertEqual(mock_run.call_count, 2)
         self.assertEqual(mock_sleep.call_count, 1)
 
-    def test_never_classifies_after_max_attempts_returns_none(self):
+    def test_never_classifies_after_max_attempts_returns_none(self) -> None:
         fake_run = _fake_subprocess_run(fake_sacct_sequence=[(0, _sacct_json(state=None))] * 3)
         with mock.patch("wwpdb.utils.dp.RunRemote.subprocess.run", side_effect=fake_run), mock.patch("wwpdb.utils.dp.RunRemote.time.sleep"):
             status = self.run_remote._get_job_status_from_sacct(12345, max_attempts=3, backoff=0)  # pylint: disable=protected-access
@@ -143,10 +147,10 @@ class GetJobStatusFromSacctTests(unittest.TestCase):
 
 
 class MonitorTests(unittest.TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         self.run_remote = _make_run_remote()
 
-    def test_returns_terminal_status_without_extra_query_after_break(self):
+    def test_returns_terminal_status_without_extra_query_after_break(self) -> None:
         """Regression guard for the redundant re-query bug: monitor() must not call
         get_job_status_by_id() again after it already has a terminal status."""
         with mock.patch.object(
@@ -156,7 +160,7 @@ class MonitorTests(unittest.TestCase):
         self.assertEqual(status, JobStatus.COMPLETED)
         self.assertEqual(mock_status.call_count, 3)  # exactly the 3 polls, no extra call after break
 
-    def test_returns_oom_status_without_extra_query_after_break(self):
+    def test_returns_oom_status_without_extra_query_after_break(self) -> None:
         with mock.patch.object(self.run_remote, "get_job_status_by_id", side_effect=[JobStatus.RUNNING, JobStatus.OOM]) as mock_status:
             status = self.run_remote.monitor(12345, frequency=0)
         self.assertEqual(status, JobStatus.OOM)
@@ -164,33 +168,33 @@ class MonitorTests(unittest.TestCase):
 
 
 class RedirectRundirForRetryTests(unittest.TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         self.run_remote = _make_run_remote()
 
-    def test_redirects_rundir_with_attempt_suffix(self):
+    def test_redirects_rundir_with_attempt_suffix(self) -> None:
         command = "python -m wwpdb.apps.validation.src.validator --mode annotate --rundir /nfs/data/sessions/validation_123 --kind foo"
         redirected = self.run_remote._redirect_rundir_for_retry(command, 1)  # pylint: disable=protected-access
         self.assertIn("--rundir /nfs/data/sessions/validation_123_retry1", redirected)
         self.assertNotIn("--rundir /nfs/data/sessions/validation_123 ", redirected)
 
-    def test_different_attempt_numbers_produce_different_suffixes(self):
+    def test_different_attempt_numbers_produce_different_suffixes(self) -> None:
         command = "cmd --rundir /nfs/data/sessions/validation_123"
         self.assertIn("_retry1", self.run_remote._redirect_rundir_for_retry(command, 1))  # pylint: disable=protected-access
         self.assertIn("_retry2", self.run_remote._redirect_rundir_for_retry(command, 2))  # pylint: disable=protected-access
 
-    def test_only_the_rundir_token_changes(self):
+    def test_only_the_rundir_token_changes(self) -> None:
         command = "cmd --before flag --rundir /nfs/data/sessions/validation_123 --after flag"
         redirected = self.run_remote._redirect_rundir_for_retry(command, 3)  # pylint: disable=protected-access
         self.assertEqual(redirected, "cmd --before flag --rundir /nfs/data/sessions/validation_123_retry3 --after flag")
 
-    def test_command_without_rundir_is_unchanged(self):
+    def test_command_without_rundir_is_unchanged(self) -> None:
         """The majority of RunRemote-dispatched jobs (e.g. chem-comp-link, sf-convert) have no --rundir."""
         command = "python -m some.other.tool --input foo.cif --output bar.cif"
         self.assertEqual(self.run_remote._redirect_rundir_for_retry(command, 1), command)  # pylint: disable=protected-access
 
 
 class RunRetryRedirectsRundirTests(unittest.TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         # A non-"/tmp/run_remote_"-prefixed run_dir, matching production's ValMod path, so
         # _cleanup() (called once per attempt) is a safe no-op across multiple retries.
         self.run_dir = tempfile.mkdtemp(prefix="workflow_instance_")
@@ -199,10 +203,10 @@ class RunRetryRedirectsRundirTests(unittest.TestCase):
             run_dir=self.run_dir,
         )
 
-    def test_second_attempt_uses_redirected_rundir(self):
+    def test_second_attempt_uses_redirected_rundir(self) -> None:
         submitted_job_ids = iter([111, 222])
 
-        def fake_sbatch_run(_cmd, **_kwargs):
+        def fake_sbatch_run(_cmd: List[str], **_kwargs: Any) -> mock.Mock:
             return mock.Mock(returncode=0, stdout=f"Submitted batch job {next(submitted_job_ids)}\n".encode())
 
         with mock.patch("wwpdb.utils.dp.RunRemote.subprocess.run", side_effect=fake_sbatch_run), mock.patch.object(

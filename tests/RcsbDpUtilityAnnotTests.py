@@ -53,7 +53,7 @@ logger.setLevel(logging.INFO)
 
 
 class RcsbDpUtilityAnnotTests(unittest.TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         self.__siteId = getSiteId(defaultSiteId=None)
         logger.info("\nTesting with site environment for:  %s\n", self.__siteId)
         #
@@ -110,11 +110,11 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
         self.__testSpecialPosition = "5uee.cif"
         self.__testDepAssembly = "1cbs.cif"
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         pass
 
     @unittest.skipIf(toolsmissing, "Tools not available for testing")
-    def testValidateGeometryCheck(self):
+    def testValidateGeometryCheck(self) -> None:
         """Test format sanity check for pdbx"""
         logger.info("\nStarting")
         try:
@@ -132,7 +132,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             self.fail()
 
     @unittest.skipIf(toolsmissing, "Tools not available for testing")
-    def testAnnotValidateGeometryCheck(self):
+    def testAnnotValidateGeometryCheck(self) -> None:
         """Test of updating geometrical validation diagnostics -"""
         logger.info("\nStarting")
         try:
@@ -150,7 +150,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             self.fail()
 
     @unittest.skipIf(toolsmissing, "Tools not available for testing")
-    def testAnnotGetCorresInfo(self):
+    def testAnnotGetCorresInfo(self) -> None:
         """Test running GetCorresInfo to get correspondance info -"""
         logger.info("\nStarting")
         try:
@@ -169,7 +169,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             self.fail()
 
     @unittest.skipIf(toolsmissing, "Tools not available for testing")
-    def testAnnotFormatCheck(self):
+    def testAnnotFormatCheck(self) -> None:
         """Test format sanity check for pdbx"""
         logger.info("\nStarting")
         try:
@@ -188,7 +188,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             self.fail()
 
     @unittest.skipIf(toolsmissing, "Tools not available for testing")
-    def testAnnotSite(self):
+    def testAnnotSite(self) -> None:
         """Calculate site environment"""
         logger.info("\nStarting")
         try:
@@ -207,7 +207,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             self.fail()
 
     @unittest.skipIf(toolsmissing, "Tools not available for testing")
-    def testAnnotSiteAlt(self):
+    def testAnnotSiteAlt(self) -> None:
         """Calculate site environment"""
         logger.info("\nStarting")
         try:
@@ -226,7 +226,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             self.fail()
 
     @unittest.skipIf(toolsmissing, "Tools not available for testing")
-    def testAnnotSiteAndMerge(self):
+    def testAnnotSiteAndMerge(self) -> None:
         """Calculate site environment"""
         logger.info("\nStarting")
         try:
@@ -253,7 +253,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             self.fail()
 
     @unittest.skipIf(toolsmissing, "Tools not available for testing")
-    def testAnnotSecondaryStructureWithTopology(self):
+    def testAnnotSecondaryStructureWithTopology(self) -> None:
         """Calculate secondary structure with a supporting topology file."""
         logger.info("\nStarting")
         try:
@@ -272,7 +272,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             self.fail()
 
     @unittest.skipIf(toolsmissing, "Tools not available for testing")
-    def testAnnotSecondaryStructure(self):
+    def testAnnotSecondaryStructure(self) -> None:
         """Calculate secondary structure for a complicated case where pro-motif will fail."""
         logger.info("\nStarting")
         try:
@@ -289,7 +289,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             self.fail()
 
     @unittest.skipIf(toolsmissing, "Tools not available for testing")
-    def testAnnotLinkSSBond(self):
+    def testAnnotLinkSSBond(self) -> None:
         """Calculate link and ss-bond features -"""
         logger.info("\nStarting")
         try:
@@ -306,7 +306,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             self.fail()
 
     @unittest.skipIf(toolsmissing, "Tools not available for testing")
-    def testAnnotCisPeptide(self):
+    def testAnnotCisPeptide(self) -> None:
         """Calculate cis-peptide linkages -"""
         logger.info("\nStarting")
         try:
@@ -323,7 +323,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             self.fail()
 
     @unittest.skipIf(toolsmissing, "Tools not available for testing")
-    def testAnnotDistantSolvent(self):
+    def testAnnotDistantSolvent(self) -> None:
         """Calculate distant solvent"""
         logger.info("\nStarting")
         try:
@@ -340,7 +340,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             self.fail()
 
     @unittest.skipIf(toolsmissing, "Tools not available for testing")
-    def testAnnotRepositionSolvent(self):
+    def testAnnotRepositionSolvent(self) -> None:
         """Calculate distant solvent"""
         logger.info("\nStarting")
         try:
@@ -357,7 +357,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             self.fail()
 
     @unittest.skipIf(toolsmissing, "Tools not available for testing")
-    def testAnnotBasePair(self):
+    def testAnnotBasePair(self) -> None:
         """Calculate base pairing"""
         logger.info("\nStarting")
         try:
@@ -374,7 +374,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             self.fail()
 
     @unittest.skipIf(toolsmissing, "Tools not available for testing")
-    def testAnnotValidation(self):
+    def testAnnotValidation(self) -> None:
         """Calculate geometrical validation -"""
         logger.info("\nStarting")
         try:
@@ -391,7 +391,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             self.fail()
 
     @unittest.skipIf(toolsmissing, "Tools not available for testing")
-    def testAnnotRcsb2Pdbx(self):
+    def testAnnotRcsb2Pdbx(self) -> None:
         """RCSB CIF -> PDBx conversion  (Using the smaller application in the annotation package)
 
         Converting to RCSB to PDB id in _entry.id and related items.
@@ -411,7 +411,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             self.fail()
 
     @unittest.skipIf(toolsmissing, "Tools not available for testing")
-    def testAnnotRcsb2PdbxSQ(self):
+    def testAnnotRcsb2PdbxSQ(self) -> None:
         """RCSB CIF -> PDBx conversion  (Using the smaller application in the annotation package)
 
         Converting to RCSB to PDB id in _entry.id and related items.
@@ -431,7 +431,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             self.fail()
 
     @unittest.skipIf(toolsmissing, "Tools not available for testing")
-    def testAnnotRcsb2PdbxSQAlt(self):
+    def testAnnotRcsb2PdbxSQAlt(self) -> None:
         """RCSB CIF -> PDBx conversion  (Using the smaller application in the annotation package)
         using maxit
         """
@@ -450,7 +450,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             self.fail()
 
     @unittest.skipIf(toolsmissing, "Tools not available for testing")
-    def testAnnotRcsb2PdbxStrip(self):
+    def testAnnotRcsb2PdbxStrip(self) -> None:
         """RCSB CIF -> PDBx conversion  (Using the smaller application in the annotation package)"""
         logger.info("\nStarting")
         try:
@@ -467,7 +467,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             self.fail()
 
     @unittest.skipIf(toolsmissing, "Tools not available for testing")
-    def testAnnotValidateListNmrTest(self):
+    def testAnnotValidateListNmrTest(self) -> None:
         """Test create validation report for the test list of example PDB ids (NMR examples)"""
         logger.info("\nStarting")
         try:
@@ -502,7 +502,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             self.fail()
 
     @unittest.skipIf(toolsmissing, "Tools not available for testing")
-    def testAnnotValidateListXrayTest(self):
+    def testAnnotValidateListXrayTest(self) -> None:
         """Test create validation report for the test list of example PDB ids (NMR examples)"""
         logger.info("\nStarting")
         try:
@@ -534,7 +534,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             self.fail()
 
     @unittest.skipIf(toolsmissing, "Tools not available for testing")
-    def testAnnotConsolidatedTasksWithTopology(self):
+    def testAnnotConsolidatedTasksWithTopology(self) -> None:
         """Calculate annotation tasks in a single step including supporting topology data."""
         logger.info("\nStarting")
         try:
@@ -553,7 +553,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             self.fail()
 
     @unittest.skipIf(toolsmissing, "Tools not available for testing")
-    def testAnnotRepositionSolventPlusDerived(self):
+    def testAnnotRepositionSolventPlusDerived(self) -> None:
         """Calculate distant solvent followed by computing key derived categories --"""
         logger.info("\nStarting")
         try:
@@ -570,7 +570,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             self.fail()
 
     @unittest.skipIf(toolsmissing, "Tools not available for testing")
-    def testAnnotMapCalc(self):
+    def testAnnotMapCalc(self) -> None:
         """Test create density maps --"""
         logger.info("\nStarting")
         try:
@@ -595,7 +595,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             self.fail()
 
     @unittest.skipIf(toolsmissing, "Tools not available for testing")
-    def testAnnotLigandMapCalc(self):
+    def testAnnotLigandMapCalc(self) -> None:
         """Test create density maps --"""
         logger.info("\nStarting")
         try:
@@ -624,7 +624,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             self.fail()
 
     @unittest.skipIf(toolsmissing, "Tools not available for testing")
-    def testAnnotDccRsrReport(self):
+    def testAnnotDccRsrReport(self) -> None:
         """Test create DCC report -"""
         logger.info("\nStarting")
         try:
@@ -645,7 +645,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             self.fail()
 
     @unittest.skipIf(toolsmissing, "Tools not available for testing")
-    def testAnnotDccReport(self):
+    def testAnnotDccReport(self) -> None:
         """Test create DCC report -"""
         logger.info("\nStarting")
         try:
@@ -665,7 +665,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             self.fail()
 
     @unittest.skipIf(toolsmissing, "Tools not available for testing")
-    def testAnnotMtz2PdbxGood(self):
+    def testAnnotMtz2PdbxGood(self) -> None:
         """Test mtz to pdbx conversion  (good mtz)"""
         logger.info("\nStarting")
         try:
@@ -686,7 +686,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             self.fail()
 
     @unittest.skipIf(toolsmissing, "Tools not available for testing")
-    def testAnnotMtz2PdbxBad(self):
+    def testAnnotMtz2PdbxBad(self) -> None:
         """Test mtz to pdbx conversion"""
         logger.info("\nStarting")
         try:
@@ -712,7 +712,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             self.fail()
 
     @unittest.skipIf(toolsmissing, "Tools not available for testing")
-    def testAnnotMtz2PdbxBadTimeout(self):
+    def testAnnotMtz2PdbxBadTimeout(self) -> None:
         """Test mtz to pdbx conversion"""
         logger.info("\nStarting")
         try:
@@ -733,7 +733,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             self.fail()
 
     @unittest.skipIf(toolsmissing, "Tools not available for testing")
-    def testMapFix(self):
+    def testMapFix(self) -> None:
         """Test mapfix utility"""
         logger.info("\nStarting")
         try:
@@ -751,7 +751,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             self.fail()
 
     @unittest.skipIf(toolsmissing, "Tools not available for testing")
-    def testSpecialPosition(self):
+    def testSpecialPosition(self) -> None:
         """Test for atom on special position"""
         logger.info("\nStarting")
         try:
@@ -794,7 +794,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             self.fail()
 
     @unittest.skipIf(toolsmissing, "Tools not available for testing")
-    def testFixSpecialPosition(self):
+    def testFixSpecialPosition(self) -> None:
         """Test for fixing atoms on special position"""
         logger.info("\nStarting")
         try:
@@ -848,7 +848,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             self.fail()
 
     @unittest.skipIf(toolsmissing, "Tools not available for testing")
-    def testEm2EmSpider(self):
+    def testEm2EmSpider(self) -> None:
         """Test mapfix utility"""
         logger.info("\nStarting")
         try:
@@ -870,7 +870,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             self.fail()
 
     @unittest.skipIf(toolsmissing, "Tools not available for testing")
-    def testAnnotPrdSearch(self):
+    def testAnnotPrdSearch(self) -> None:
         """Test case for PRD Search --"""
         logger.info("\nStarting")
         try:
@@ -891,7 +891,7 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             self.fail()
 
     @unittest.skipIf(toolsmissing, "Tools not available for testing")
-    def testAnnotUpdateDepositorAssembly(self):
+    def testAnnotUpdateDepositorAssembly(self) -> None:
         """Update deposition provided assembly info into model (need better test example)"""
         logger.info("\nStarting")
         try:
@@ -909,51 +909,51 @@ class RcsbDpUtilityAnnotTests(unittest.TestCase):
             self.fail()
 
 
-def suiteAnnotPrdSearchTests():
+def suiteAnnotPrdSearchTests() -> unittest.TestSuite:
     suiteSelect = unittest.TestSuite()
     suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotPrdSearch"))
     return suiteSelect
 
 
-def suiteAnnotEmTests():
+def suiteAnnotEmTests() -> unittest.TestSuite:
     suiteSelect = unittest.TestSuite()
     suiteSelect.addTest(RcsbDpUtilityAnnotTests("testMapFix"))
     suiteSelect.addTest(RcsbDpUtilityAnnotTests("testEm2EmSpider"))
     return suiteSelect
 
 
-def suiteAnnotSiteTests():
+def suiteAnnotSiteTests() -> unittest.TestSuite:
     suiteSelect = unittest.TestSuite()
     suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotSite"))
     suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotSiteAndMerge"))
     return suiteSelect
 
 
-def suiteAnnotSiteAltTests():
+def suiteAnnotSiteAltTests() -> unittest.TestSuite:
     suiteSelect = unittest.TestSuite()
     suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotSiteAlt"))
     return suiteSelect
 
 
-def suiteArchiveValidationXrayTests():
+def suiteArchiveValidationXrayTests() -> unittest.TestSuite:
     suiteSelect = unittest.TestSuite()
     suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotValidateListXrayTest"))
     return suiteSelect
 
 
-def suiteArchiveSiteTests():
+def suiteArchiveSiteTests() -> unittest.TestSuite:
     suiteSelect = unittest.TestSuite()
     suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotSiteArchive"))
     return suiteSelect
 
 
-def suiteAnnotConsolidatedTests():
+def suiteAnnotConsolidatedTests() -> unittest.TestSuite:
     suiteSelect = unittest.TestSuite()
     suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotConsolidatedTasksWithTopology"))
     return suiteSelect
 
 
-def suiteAnnotTests():
+def suiteAnnotTests() -> unittest.TestSuite:
     suiteSelect = unittest.TestSuite()
     suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotSecondaryStructure"))
     suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotSecondaryStructureWithTopology"))
@@ -967,59 +967,59 @@ def suiteAnnotTests():
     return suiteSelect
 
 
-def suiteSolventPlusDerivedTests():
+def suiteSolventPlusDerivedTests() -> unittest.TestSuite:
     suiteSelect = unittest.TestSuite()
     suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotRepositionSolvent"))
     suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotRepositionSolventPlusDerived"))
     return suiteSelect
 
 
-def suiteMergeSeqAssignTests():
+def suiteMergeSeqAssignTests() -> unittest.TestSuite:
     suiteSelect = unittest.TestSuite()
     return suiteSelect
 
 
-def suiteMapCalcTests():
+def suiteMapCalcTests() -> unittest.TestSuite:
     suiteSelect = unittest.TestSuite()
     suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotMapCalc"))
     # suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotLigandMapCalc"))
     return suiteSelect
 
 
-def suiteSpecialPositionTests():
+def suiteSpecialPositionTests() -> unittest.TestSuite:
     suiteSelect = unittest.TestSuite()
     suiteSelect.addTest(RcsbDpUtilityAnnotTests("testSpecialPosition"))
     suiteSelect.addTest(RcsbDpUtilityAnnotTests("testFixSpecialPosition"))
     return suiteSelect
 
 
-def suiteRsrCalcTests():
+def suiteRsrCalcTests() -> unittest.TestSuite:
     suiteSelect = unittest.TestSuite()
     suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotDccRsrReport"))
     return suiteSelect
 
 
-def suiteFormatCheckTests():
+def suiteFormatCheckTests() -> unittest.TestSuite:
     suiteSelect = unittest.TestSuite()
     suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotFormatCheck"))
     return suiteSelect
 
 
-def suiteValidateGeometryCheckTests():
+def suiteValidateGeometryCheckTests() -> unittest.TestSuite:
     suiteSelect = unittest.TestSuite()
     # suiteSelect.addTest(RcsbDpUtilityAnnotTests("testValidateGeometryCheck"))
     suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotValidateGeometryCheck"))
     return suiteSelect
 
 
-def suiteGetCorresInfoTests():
+def suiteGetCorresInfoTests() -> unittest.TestSuite:
     suiteSelect = unittest.TestSuite()
     # suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotGetCorresInfo"))
     suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotGetCorresInfo"))
     return suiteSelect
 
 
-def suiteAnnotDccTests():
+def suiteAnnotDccTests() -> unittest.TestSuite:
     suiteSelect = unittest.TestSuite()
     suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotDccReport"))
     suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotMtz2PdbxGood"))
@@ -1027,7 +1027,7 @@ def suiteAnnotDccTests():
     return suiteSelect
 
 
-def suiteAnnotFormatConvertTests():
+def suiteAnnotFormatConvertTests() -> unittest.TestSuite:
     suiteSelect = unittest.TestSuite()
     suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotRcsb2Pdbx"))
     suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotRcsb2PdbxSQ"))
@@ -1036,7 +1036,7 @@ def suiteAnnotFormatConvertTests():
     return suiteSelect
 
 
-def suiteArchiveValidationNmrTests():
+def suiteArchiveValidationNmrTests() -> unittest.TestSuite:
     suiteSelect = unittest.TestSuite()
     suiteSelect.addTest(RcsbDpUtilityAnnotTests("testAnnotValidateListNmrTest"))
     return suiteSelect
