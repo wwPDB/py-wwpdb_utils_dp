@@ -4,6 +4,7 @@ import os
 import shutil
 import sys
 import tempfile
+from typing import Optional
 
 from wwpdb.utils.config.ConfigInfo import getSiteId
 
@@ -13,10 +14,10 @@ logger = logging.getLogger()
 
 
 class DensityWrapper:
-    def __init__(self, site_id=None):
+    def __init__(self, site_id: Optional[str] = None) -> None:
         self.__site_id = site_id or getSiteId()
 
-    def convert_xray_density_map(self, coord_file, in_2fofc_cif, in_fofc_cif, out_binary_volume, working_dir):
+    def convert_xray_density_map(self, coord_file: str, in_2fofc_cif: str, in_fofc_cif: str, out_binary_volume: Optional[str], working_dir: str) -> bool:
         logging.info("Converting X-ray maps to binary cif")  # noqa: LOG015
         logging.debug(working_dir)  # noqa: LOG015
         rdb = RcsbDpUtility(tmpPath=working_dir, siteId=self.__site_id, verbose=True)
@@ -32,7 +33,7 @@ class DensityWrapper:
                 return True
         return False
 
-    def convert_em_volume(self, in_em_volume, out_binary_volume, working_dir):
+    def convert_em_volume(self, in_em_volume: str, out_binary_volume: Optional[str], working_dir: str) -> bool:
         logging.info("Converting EM maps to binary cif")  # noqa: LOG015
         logging.debug(working_dir)  # noqa: LOG015
         rdb = RcsbDpUtility(tmpPath=working_dir, siteId=self.__site_id, verbose=True)
@@ -47,7 +48,7 @@ class DensityWrapper:
         return False
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--em_map", help="EM map", type=str)
     parser.add_argument("--binary_map_out", help="Output filename of binary map", type=str, required=True)
@@ -58,7 +59,7 @@ def main():
     logger.setLevel(args.loglevel)
 
     if not sys.argv[1:]:
-        parser.print_help()
+        parser.print_help()  # Will never be executed as --binary_map_out is required
         sys.exit()
 
     dw = DensityWrapper()

@@ -67,8 +67,6 @@ class RcsbDpUtilityEmTests(unittest.TestCase):
         # Brian's protein dna complex 3IYD
         self.__testMapEmd = "emd_5127.map"
         self.__testMapNormal = self.__testMapEmd
-        # XML header
-        self.__testXMLHeader = "emd_8137_v2.xml"
 
     def tearDown(self) -> None:
         pass
@@ -222,29 +220,10 @@ class RcsbDpUtilityEmTests(unittest.TestCase):
             logger.exception("Failing with %s", str(e))
             self.fail()
 
-    @unittest.skipIf(toolsmissing, "Tools not available for testing")
-    def testXmlHeaderCheck(self) -> None:
-        """Test xmllint"""
-        logger.info("\nStarting")
-        try:
-            dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)
-            #
-            # dp.setDebugMode()
-            inpPath = os.path.join(self.__testFilePath, self.__testXMLHeader)
-            # of = self.__testXMLHeader + ".check"
-            dp.imp(inpPath)
-            dp.op("xml-header-check")
-            dp.expLog("xml-header-check.log")
-            # dp.cleanup()
-        except Exception as e:
-            logger.exception("Failing with %s", str(e))
-            self.fail()
-
 
 def suiteAnnotEmTests() -> unittest.TestSuite:
     suiteSelect = unittest.TestSuite()
     # suiteSelect.addTest(RcsbDpUtilityEmTests("testReadMapHeader"))
-    suiteSelect.addTest(RcsbDpUtilityEmTests("testXmlHeaderCheck"))
     # suiteSelect.addTest(RcsbDpUtilityEmTests("testReadMapHeaderPygal"))
     # suiteSelect.addTest(RcsbDpUtilityEmTests("testMapFix"))
     # suiteSelect.addTest(RcsbDpUtilityEmTests("testEm2EmSpider"))

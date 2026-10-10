@@ -18,7 +18,7 @@ import json
 import logging
 import os
 import sys
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Dict, Iterable, List, Tuple
 
 if TYPE_CHECKING:
     from wwpdb.utils.dp.metal.findgeo.parseFindGeo import ParseFindGeo  # noqa: E402
@@ -43,7 +43,7 @@ class jsonValidationError(Exception):
     """Raised when a JSON file cannot be read or parsed."""
 
 
-def readJson(fp):
+def readJson(fp: str) -> Any:
     """
     Read a JSON file containing a list of site entries and return the parsed content.
     Attempt to open and parse the JSON file at the given path. Any exception returns a empty list,
@@ -71,7 +71,7 @@ def readJson(fp):
         raise jsonValidationError(msg) from e
 
 
-def readSites(l_sites):
+def readSites(l_sites: Iterable[Dict[str, Any]]) -> Dict[Tuple[Any, ...], Dict[str, Any]]:
     """
     Create a mapping from a site-identifying tuple to the original site dictionary.
     The key tuple is used for identifying a unique metal site, and for comparision of results from different runs.
@@ -84,7 +84,7 @@ def readSites(l_sites):
               to the corresponding site dictionary.
     :rtype: dict
     """
-    d_sites = {}
+    d_sites: Dict[Tuple[Any, ...], Dict[str, Any]] = {}
     for d_one in l_sites:
         ccd_id = d_one.get("residue", "")
         atom_label = d_one.get("metal", "")
@@ -97,7 +97,7 @@ def readSites(l_sites):
     return d_sites
 
 
-def compareRmsd(d_site_exc, d_site_inc):
+def compareRmsd(d_site_exc: Dict[str, Any], d_site_inc: Dict[str, Any]) -> str:
     """
     Compare RMSD values from two site dictionaries and decide carbon handling.
     :param d_site_exc: Dictionary expected to contain key 'rmsd' for the exclude candidate.
@@ -109,8 +109,9 @@ def compareRmsd(d_site_exc, d_site_inc):
     :notes: RMSD values are converted to float; missing or non-numeric values are treated as 99.0.
     """
 
-    rmsd_exc = d_site_exc.get("rmsd")
-    rmsd_inc = d_site_inc.get("rmsd")
+    # values may be missing (None); float(None) raises TypeError, which is not caught (known issue)
+    rmsd_exc: Any = d_site_exc.get("rmsd")
+    rmsd_inc: Any = d_site_inc.get("rmsd")
     try:
         rmsd_exc = float(rmsd_exc)
     except ValueError:
@@ -124,7 +125,7 @@ def compareRmsd(d_site_exc, d_site_inc):
     return "include_carbon"
 
 
-def compareResults(l_exclude_carbon, l_include_carbon):  # pylint: disable=too-many-branches,too-many-statements
+def compareResults(l_exclude_carbon: List[Dict[str, Any]], l_include_carbon: List[Dict[str, Any]]) -> List[Dict[str, Any]]:  # pylint: disable=too-many-branches,too-many-statements
     """
     Compare results of two runs (excluding vs including carbon donors)s, and select based on the following chemical rules:
     If the metal-C bond type is allowed, then choose between the two results based on the following:
@@ -156,7 +157,7 @@ def compareResults(l_exclude_carbon, l_include_carbon):  # pylint: disable=too-m
     # combine all metal sites tuple keys from both runs to make sure all sites are included in the comparision, even if a site only has results in one run but not the other
     l_atom = list(set(d_site_exclude_carbon.keys()) | set(d_site_include_carbon.keys()))
     # initialize list of sites
-    l_sites = []
+    l_sites: List[Dict[str, Any]] = []
     # enumerate through each metal site identified by the tuple key
     for t_atom in l_atom:
         logger.debug("compare results for metal site %s", t_atom)
@@ -216,8 +217,8 @@ def compareResults(l_exclude_carbon, l_include_carbon):  # pylint: disable=too-m
                 continue
             # if both coordination numbers are allowed
             if coord_allowed_exc == "YES" and coord_allowed_inc == "YES":
-                coord_num_exc = d_site_exc.get("coordination")
-                coord_num_inc = d_site_inc.get("coordination")
+                coord_num_exc: Any = d_site_exc.get("coordination")
+                coord_num_inc: Any = d_site_inc.get("coordination")
                 try:
                     coord_num_exc = int(coord_num_exc)
                 except ValueError:
@@ -258,7 +259,7 @@ def compareResults(l_exclude_carbon, l_include_carbon):  # pylint: disable=too-m
     return l_sites
 
 
-def runCompare(d_args):  # pylint: disable=too-many-statements
+def runCompare(d_args: Dict[str, Any]) -> bool:  # pylint: disable=too-many-statements
     """
     Run FindGeo twice (with and without Carbon donors) and compare results.
 
@@ -339,7 +340,7 @@ def runCompare(d_args):  # pylint: disable=too-many-statements
     return True
 
 
-def runOne(d_args):
+def runOne(d_args: Dict[str, Any]) -> bool:
     """
     Run FindGeo once with the given arguments and write results to a JSON file.
 
@@ -383,7 +384,7 @@ def runOne(d_args):
     # no need to handle other exceptions because RunFindGeo.run() already handled them.
 
 
-def main():  # pylint: disable=too-many-statements
+def main() -> None:  # pylint: disable=too-many-statements
     """
     run FindGeo and take arguments exactly like the command line for findgeo,
     then parse the output and generate a report json file.
@@ -428,7 +429,7 @@ def main():  # pylint: disable=too-many-statements
         "findgeo-jar",
         "timeout",
     ]
-    d_args = {}
+    d_args: Dict[str, Any] = {}
     for arg in l_args:
         key = arg.replace("-", "_")  # CLI arguments with - are converted to _ in argparse, e.g. --a-b args.a_b
         d_args[arg] = getattr(args, key)
@@ -453,7 +454,7 @@ def main():  # pylint: disable=too-many-statements
         logger.info("to filter FindGeo results to keep regular geometry only for CCD annotation")
         with open(fp_json, encoding="utf-8") as f:
             l_sites = json.load(f)
-        l_sites_filtered = []
+        l_sites_filtered: List[Dict[str, Any]] = []
         for d_site in l_sites:
             # filter to keep only regular geometry for CCD annotation
             # filter out empty class

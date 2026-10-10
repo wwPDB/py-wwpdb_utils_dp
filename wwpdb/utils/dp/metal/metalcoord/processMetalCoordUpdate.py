@@ -15,7 +15,7 @@ import json
 import logging
 import os
 import sys
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple
 
 from mmcif.io.IoAdapterCore import IoAdapterCore
 
@@ -49,7 +49,7 @@ setup_logger(name="metalcoord", log_dir=".", b_debug=False)
 logger = logging.getLogger("metalcoord.processMetalCoordUpdate")
 
 
-def callAcedrg(d_args_acedrg):
+def callAcedrg(d_args_acedrg: Dict[str, Any]) -> Optional[str]:
     """
     Call Acedrg with the provided arguments and return the output CIF file path.
 
@@ -75,7 +75,7 @@ def callAcedrg(d_args_acedrg):
         logger.error("Acedrg command execution error: %s", e)
         return None
 
-    fp_acedrg_cif = os.path.join(d_args_acedrg["out"] + ".cif")
+    fp_acedrg_cif: str = os.path.join(d_args_acedrg["out"] + ".cif")
     if not os.path.exists(fp_acedrg_cif):
         logger.error("Acedrg output CIF file not found: %s, STOP process", fp_acedrg_cif)
         return None
@@ -83,7 +83,7 @@ def callAcedrg(d_args_acedrg):
     return fp_acedrg_cif
 
 
-def callMetalCoord(d_args_metalcoord):  # pylint: disable=too-many-return-statements
+def callMetalCoord(d_args_metalcoord: Dict[str, Any]) -> Tuple[Optional[str], Optional[str]]:  # pylint: disable=too-many-return-statements
     """
     Run MetalCoord in "update" mode and return output file paths.
 
@@ -149,7 +149,7 @@ def callMetalCoord(d_args_metalcoord):  # pylint: disable=too-many-return-statem
     return (fp_metalcoord_cif, fp_metalcoord_json)
 
 
-def callServalcat(d_args_servalcat):
+def callServalcat(d_args_servalcat: Dict[str, Any]) -> Optional[str]:
     """
     Call Servalcat to process and update a CIF file.
 
@@ -184,7 +184,7 @@ def callServalcat(d_args_servalcat):
         logger.error("Servalcat command execution error: %s", e)
         return None
 
-    fp_servalcat_cif = d_args_servalcat["output_prefix"] + "_updated.cif"
+    fp_servalcat_cif: str = d_args_servalcat["output_prefix"] + "_updated.cif"
     if not os.path.exists(fp_servalcat_cif):
         logger.error("Servalcat failed to produce output at %s, STOP process", fp_servalcat_cif)
         return None
@@ -192,7 +192,7 @@ def callServalcat(d_args_servalcat):
     return fp_servalcat_cif
 
 
-def callClean(fp_servalcat_cif):
+def callClean(fp_servalcat_cif: str) -> Optional[str]:
     """
     Clean and post-process Servalcat CIF output for downstream use.
 
@@ -231,7 +231,7 @@ def callClean(fp_servalcat_cif):
             {"pdbx_model_Cartn_x_ideal": "model_Cartn_x", "pdbx_model_Cartn_y_ideal": "model_Cartn_y", "pdbx_model_Cartn_z_ideal": "model_Cartn_z"}
         )
     (d_redox, d_oxi) = readRefRedOx()
-    d_metal_charge_by_index = {}
+    d_metal_charge_by_index: Dict[int, str] = {}
     for i in range(cat_obj.getRowCount()):
         metal = cat_obj.getValue("type_symbol", i).capitalize()
         if metal not in d_redox:
@@ -248,7 +248,7 @@ def callClean(fp_servalcat_cif):
     return fp_clean
 
 
-def main():  # pylint: disable=too-many-statements
+def main() -> None:  # pylint: disable=too-many-statements
     """
     Run the Acedrg-MetalCoord-Servalcat pipeline and generate output artifacts.
 
@@ -283,7 +283,7 @@ def main():  # pylint: disable=too-many-statements
 
     # run Acedrg
     logger.info("to run Acedrg with input cif file %s to generate ideal coordinates and charges for the ligand", args.input)
-    d_args_acedrg = {}
+    d_args_acedrg: Dict[str, Any] = {}
     d_args_acedrg["acedrg_exe"] = args.acedrg_exe
     d_args_acedrg["mmcif"] = args.input
     d_args_acedrg["out"] = os.path.join(args.workdir, "acedrg")
@@ -299,7 +299,7 @@ def main():  # pylint: disable=too-many-statements
         "to run MetalCoord update mode with Acedrg output %s as input to update distance and angle restraints for ServalCat, and generate metal coordination report",
         fp_acedrg_cif,
     )
-    d_args_metalcoord = {}
+    d_args_metalcoord: Dict[str, Any] = {}
     d_args_metalcoord["metalcoord_exe"] = args.metalcoord_exe
     d_args_metalcoord["workdir"] = args.workdir
     d_args_metalcoord["input"] = fp_acedrg_cif  # use Acedrg output as input
@@ -307,7 +307,7 @@ def main():  # pylint: disable=too-many-statements
     d_args_metalcoord["threshold"] = args.threshold
     d_args_metalcoord["timeout"] = args.timeout
     (fp_metalcoord_cif, fp_metalcoord_json) = callMetalCoord(d_args_metalcoord)
-    if not fp_metalcoord_cif:
+    if not fp_metalcoord_cif or not fp_metalcoord_json:
         logger.error("MetalCoord update mode failed, STOP without output")
         with open(output_json, "w", encoding="utf-8") as file:
             json.dump({"error": "metalcoord-failed", "details": "Acedrg succeeded; MetalCoord failed to produce output CIF"}, file)
@@ -315,7 +315,7 @@ def main():  # pylint: disable=too-many-statements
 
     # run Servalcat
     logger.info("to run Servalcat with the MetalCoord output %s to further optimize ideal coordinates for the ligand", fp_metalcoord_cif)
-    d_args_servalcat = {}
+    d_args_servalcat: Dict[str, Any] = {}
     d_args_servalcat["servalcat_exe"] = None
     d_args_servalcat["update_dictionary"] = fp_metalcoord_cif  # use MetalCoord output as input
     d_args_servalcat["output_prefix"] = os.path.join(args.workdir, "servalcat")
@@ -348,11 +348,12 @@ def main():  # pylint: disable=too-many-statements
         sys.exit(0)
 
     logger.info("to filter MetalCoord results to keep regular geometry only for CCD annotation")
-    l_sites_filtered = []
+    l_sites_filtered: List[Dict[str, Any]] = []
     for d_site in pMC.l_sites:
         # filter to keep only regular geometry for CCD annotation
         # filter out empty class
-        if not d_site.get("class").strip():
+        site_class: Any = d_site.get("class")
+        if not site_class.strip():
             continue
         # filter out non-Regular sites
         if d_site.get("tag") != "Regular":

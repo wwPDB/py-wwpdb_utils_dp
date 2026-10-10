@@ -15,7 +15,7 @@ import shutil
 import sys
 import tempfile
 import unittest
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 from unittest import mock
 
 import gemmi
@@ -197,6 +197,12 @@ class XrayDensityMapUnitTests(unittest.TestCase):
             detail=4,
         )
 
+    def testConvertMdbMapToBinaryCifMissingPaths(self) -> None:
+        with mock.patch("%s.convert_mdb_to_binary_cif" % MODULE, return_value=True) as mockConv:
+            self.assertFalse(self.__xrm(nodePath=None).convert_mdb_map_to_binary_cif())
+            self.assertFalse(self.__xrm(queryPath="").convert_mdb_map_to_binary_cif())
+        mockConv.assert_not_called()
+
     def testRunProcessWithGemmi(self) -> None:
         with mock.patch("%s.tempfile.mkdtemp" % MODULE, return_value=self.__workDir):
             ok = run_process_with_gemmi(
@@ -234,7 +240,7 @@ class XrayDensityMapUnitTests(unittest.TestCase):
         ]
         with mock.patch("%s.XrayVolumeServerMap" % MODULE) as mockXrm:
             for override in overrides:
-                kwargs = dict(base)
+                kwargs: Dict[str, Any] = dict(base)
                 kwargs.update(override)
                 self.assertFalse(run_process_with_gemmi(**kwargs), "override %r" % override)
         mockXrm.assert_not_called()

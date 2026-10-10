@@ -13,6 +13,7 @@ import logging
 import os
 import subprocess
 from datetime import datetime
+from typing import List, Optional, Sequence, Union
 
 
 class MetalCommandExecutionError(Exception):
@@ -29,7 +30,7 @@ class MetalCommandExecutionError(Exception):
     :type stdout: str or None
     """
 
-    def __init__(self, cmd, code=None, stderr=None, stdout=None):
+    def __init__(self, cmd: Union[str, Sequence[str]], code: Optional[int] = None, stderr: Optional[str] = None, stdout: Optional[str] = None) -> None:
         self.cmd = cmd
         self.code = code
         self.stderr = stderr
@@ -46,7 +47,7 @@ class MetalCommandTimeoutError(MetalCommandExecutionError):
     """
 
 
-def setup_logger(name="cmd", log_dir="metal_command_logs", b_debug=True):
+def setup_logger(name: str = "cmd", log_dir: str = "metal_command_logs", b_debug: bool = True) -> logging.Logger:
     """
     Create or retrieve a configured logger for command execution.
 
@@ -96,7 +97,7 @@ def setup_logger(name="cmd", log_dir="metal_command_logs", b_debug=True):
     return logger
 
 
-def run_command(cmd, timeout_sec, logger=None):
+def run_command(cmd: List[str], timeout_sec: Optional[float], logger: Optional[logging.Logger] = None) -> str:
     """
     Run a local command and raise MetalCommandExecutionError on failure.
 

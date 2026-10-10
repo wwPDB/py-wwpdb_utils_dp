@@ -9,11 +9,12 @@ including oxidation states, coordination numbers, and coordinate class mappings 
 
 import csv
 import os
+from typing import Dict, List, Tuple
 
 REF_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "metal_ref")
 
 
-def readRefRedOx():
+def readRefRedOx() -> Tuple[Dict[str, str], Dict[str, str]]:
     """
     Read the metal oxidation state and redox activity reference data from a CSV file.
 
@@ -29,8 +30,8 @@ def readRefRedOx():
     """
 
     filepath = os.path.join(REF_PATH, "metal_oxidation_state.csv")
-    d_redox = {}
-    d_oxi = {}
+    d_redox: Dict[str, str] = {}
+    d_oxi: Dict[str, str] = {}
     with open(filepath, encoding="utf-8") as f:
         reader = csv.DictReader(f, delimiter="\t")
         for d_row in reader:
@@ -40,7 +41,7 @@ def readRefRedOx():
     return (d_redox, d_oxi)
 
 
-def readRefCoordNum():
+def readRefCoordNum() -> Dict[str, List[str]]:
     """
     Read the metal coordination number reference data from a CSV file.
 
@@ -54,7 +55,7 @@ def readRefCoordNum():
     """
 
     filepath = os.path.join(REF_PATH, "metal_coordination_number.csv")
-    d_coord_num = {}
+    d_coord_num: Dict[str, List[str]] = {}
     with open(filepath, encoding="utf-8") as f:
         reader = csv.DictReader(f, delimiter="\t")
         for d_row in reader:
@@ -64,7 +65,7 @@ def readRefCoordNum():
     return d_coord_num
 
 
-def readRefCoordMap(program):
+def readRefCoordMap(program: str) -> Dict[str, Dict[str, str]]:
     """
     Read a CSV file containing coordinate class mappings and return a dictionary mapping geometry names to their abbreviations and PDB geometry names for a specified program.
 
@@ -79,7 +80,7 @@ def readRefCoordMap(program):
     """
 
     filepath = os.path.join(REF_PATH, "coord_classes_mapping_abbr.csv")
-    d_coord_map = {}
+    d_coord_map: Dict[str, Dict[str, str]] = {}
     geom_header = f"Name {program}"
     abbr_header = f"Abbreviation {program}"
     pdb_header = "Name PDB"
@@ -100,7 +101,7 @@ def readRefCoordMap(program):
     return d_coord_map
 
 
-def readRefMetalCarbon():
+def readRefMetalCarbon() -> List[str]:
     """
     Read a CSV file containing elements that are candidates for metal-carbon bonds and return a list of elements.
 
@@ -112,7 +113,7 @@ def readRefMetalCarbon():
     """
 
     filepath = os.path.join(REF_PATH, "carbon_metal_bond.csv")
-    l_metal_carbon = []
+    l_metal_carbon: List[str] = []
     with open(filepath, encoding="utf-8") as f:
         reader = csv.DictReader(f, delimiter="\t")
         for d_row in reader:
@@ -121,7 +122,7 @@ def readRefMetalCarbon():
     return l_metal_carbon
 
 
-def readRefCoordException():
+def readRefCoordException() -> Dict[str, Dict[str, str]]:
     """
     Read a CSV file containing threshold and exceptions for coordination classes annotation on CCD and return a dictionary mapping metal elements.
 
@@ -133,12 +134,12 @@ def readRefCoordException():
     """
 
     filepath = os.path.join(REF_PATH, "threshold_exception_ccd_annotation.csv")
-    d_coord_exception = {}
+    d_coord_exception: Dict[str, Dict[str, str]] = {}
     with open(filepath, encoding="utf-8") as f:
         reader = csv.DictReader(f, delimiter="\t")
         for d_row in reader:
             metal = d_row["Element"].strip()
-            d_one = {}
+            d_one: Dict[str, str] = {}
             for item in ["Percent-threshold", "Geometry-exclusion-FindGeo", "Geometry-exclusion-MetalCoord"]:
                 d_one[item] = d_row[item].strip()
             d_coord_exception[metal] = d_one

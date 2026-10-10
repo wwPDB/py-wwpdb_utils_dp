@@ -89,6 +89,12 @@ class EmDensityMapTests(unittest.TestCase):
         em = EmVolumes(em_map="x.map", node_path="n", volume_server_pack_path="p", volume_server_query_path="q", binary_map_out="o", working_dir=None)
         self.assertEqual(em.workdir, os.getcwd())
 
+    def testConvertMapNoMdbPath(self) -> None:
+        em = EmVolumes(em_map="x.map", node_path="n", volume_server_pack_path="p", volume_server_query_path="q", binary_map_out="o", working_dir=self.__workDir)
+        with mock.patch("wwpdb.utils.dp.electron_density.em_density_map.convert_mdb_to_binary_cif", return_value=True) as mockConv:
+            self.assertFalse(em.convert_map_to_binary_cif())
+        mockConv.assert_not_called()
+
     def testRunConversion(self) -> None:
         outPath = os.path.join(self.__outDir, "sub", "dir", "out.bcif")
         em = EmVolumes(

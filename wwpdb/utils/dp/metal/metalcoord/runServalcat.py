@@ -9,7 +9,7 @@ Wrapper to run Servalcat with arguments
 import logging
 import os
 import sys
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Dict, List
 
 if TYPE_CHECKING:
     from wwpdb.utils.dp.metal.metal_util.run_command import MetalCommandExecutionError, MetalCommandTimeoutError, run_command  # noqa: E402
@@ -28,7 +28,7 @@ class ServalcatParametersError(Exception):
     :type errors: dict
     """
 
-    def __init__(self, errors: dict):
+    def __init__(self, errors: Dict[str, str]) -> None:
         self.errors = errors
         super().__init__(str(errors))
 
@@ -50,23 +50,23 @@ class RunServalcat:
     Wrapper to run Servalcat with arguments.
     """
 
-    def __init__(self, d_args):
+    def __init__(self, d_args: Dict[str, Any]) -> None:
         """
         Initialize RunServalcat with arguments and validate them.
 
         :param d_args: Dictionary of arguments for running Servalcat.
         :type d_args: dict
         """
-        self.d_args = d_args
+        self.d_args: Dict[str, Any] = d_args
         self.validateArgs()
 
-    def validateArgs(self):
+    def validateArgs(self) -> None:
         """
         Validate arguments in d_args.
 
         :raises ServalcatParametersError: If any validation fails, with a dictionary of errors.
         """
-        errors = {}
+        errors: Dict[str, str] = {}
         if self.d_args["servalcat_exe"]:
             if os.path.exists(self.d_args["servalcat_exe"]):
                 logger.info("use explicit Servalcat executable at %s", self.d_args["servalcat_exe"])
@@ -91,7 +91,7 @@ class RunServalcat:
         if errors:
             raise ServalcatParametersError(errors)
 
-    def run(self):
+    def run(self) -> str:
         """
         Run Servalcat with arguments in d_args.
 
@@ -104,7 +104,7 @@ class RunServalcat:
         :raises ServalcatCommandTimeoutError: If the command times out.
         :raises ServalcatCommandExecutionError: If the command fails.
         """
-        l_command = [self.d_args["servalcat_exe"], "refine_geom"]
+        l_command: List[str] = [self.d_args["servalcat_exe"], "refine_geom"]
         l_command.extend(["--update_dictionary", self.d_args["update_dictionary"]])
         l_command.extend(["--output_prefix", self.d_args["output_prefix"]])
 

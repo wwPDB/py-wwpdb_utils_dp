@@ -19,6 +19,7 @@ __license__ = "Apache 2.0"
 
 import logging
 import sys
+from typing import List, Optional, TextIO
 
 from mmcif.api.PdbxContainers import DataContainer
 from mmcif.io.PdbxReader import PdbxReader
@@ -28,16 +29,16 @@ logger = logging.getLogger(__name__)
 
 
 class PdbxStripCategory:
-    def __init__(self, verbose=False, log=sys.stderr):  # pylint: disable=unused-argument
+    def __init__(self, verbose: bool = False, log: TextIO = sys.stderr) -> None:  # pylint: disable=unused-argument
         pass
 
-    def strip(self, inpPath, outPath, stripList=None):
+    def strip(self, inpPath: str, outPath: str, stripList: Optional[List[str]] = None) -> bool:
         """Strip categories from inpPath and write to outPath"""
         if stripList is None:
             stripList = []
 
         try:
-            myDataList = []
+            myDataList: List[DataContainer] = []
             with open(inpPath) as ifh:
                 pRd = PdbxReader(ifh)
                 pRd.read(myDataList)
@@ -60,7 +61,7 @@ class PdbxStripCategory:
             return False
 
 
-def _maintest():
+def _maintest() -> None:
     stripList = [
         "pdbx_coord",
         # 'pdbx_entity_nonpoly',

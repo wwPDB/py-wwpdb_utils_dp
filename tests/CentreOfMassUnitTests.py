@@ -75,8 +75,10 @@ class CentreOfMassUnitTests(unittest.TestCase):
     def __expectedCom(self) -> gemmi.Position:  # pylint: disable=no-member
         block = gemmi.cif.read(self.__modelPath)[0]  # pylint: disable=no-member
         com = CentreOfMass.get_center_of_mass(block)
+        if com is False:
+            self.fail("Centre of mass calculation failed")
         self.assertIsInstance(com, gemmi.Position)  # pylint: disable=no-member
-        return com  # type: ignore[no-any-return]
+        return com
 
     def testGetCenterOfMass(self) -> None:
         com = self.__expectedCom()
@@ -220,6 +222,19 @@ class CentreOfMassUnitTests(unittest.TestCase):
         self.assertEqual(mockGmf.call_count, 4)
         mockGmf.assert_any_call("D_GOOD", "latest", siteId="SITE1")
         mockGmf.assert_any_call("D_BAD", "next", siteId="SITE1")
+
+    def testCalculateForListNoPath(self) -> None:
+        args = self.__makeListArgs(["D_GOOD", "D_NOPATH"])
+
+        def fakeModelFile(depid: str, version_id: str, mileStone: Optional[str] = None, siteId: Optional[str] = None) -> Optional[str]:
+            if depid == "D_NOPATH":
+                return None
+            return self.__fakeModelFile(depid, version_id, mileStone=mileStone, siteId=siteId)
+
+        with mock.patch("wwpdb.utils.dp.CentreOfMass.get_model_file", side_effect=fakeModelFile):
+            failed = CentreOfMass.calculate_for_list(args)
+        self.assertEqual(failed, ["D_NOPATH"])
+        self.assertTrue(os.path.exists(os.path.join(self.__workDir, "D_GOOD_next.cif")))
 
     def testMainListFailure(self) -> None:
         args = self.__makeListArgs(["D_GOOD", "D_BAD"])

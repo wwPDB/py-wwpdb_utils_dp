@@ -18,7 +18,7 @@ from mmcif.api.DataCategory import DataCategory
 from mmcif.api.PdbxContainers import DataContainer
 from mmcif.io.IoAdapterCore import IoAdapterCore
 
-from wwpdb.utils.dp.PdbxModelComplexity import PdbxModelCompletity, main
+from wwpdb.utils.dp.PdbxModelComplexity import PdbxModelComplexity, main
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s]-%(module)s.%(funcName)s: %(message)s")
 logger = logging.getLogger()
@@ -66,7 +66,7 @@ class PdbxModelComplexityUnitTests(unittest.TestCase):
             ["3", "water", "10", "18.0"],
         ]
         fpath = self.__writeModel(ents, oligo="4")
-        pmc = PdbxModelCompletity(threshold=1000.0)
+        pmc = PdbxModelComplexity(threshold=1000.0)
         self.assertTrue(pmc.calculate(fpath))
         pmc.write_output(self.__out)
         out = self.__readOutput()
@@ -79,7 +79,7 @@ class PdbxModelComplexityUnitTests(unittest.TestCase):
 
     def testNotComplexDefaultOligo(self) -> None:
         fpath = self.__writeModel([["1", "polymer", "1", "500.0"]])
-        pmc = PdbxModelCompletity()
+        pmc = PdbxModelComplexity()
         self.assertTrue(pmc.calculate(fpath))
         pmc.write_output(self.__out)
         out = self.__readOutput()
@@ -89,7 +89,7 @@ class PdbxModelComplexityUnitTests(unittest.TestCase):
 
     def testBadOligoCount(self) -> None:
         fpath = self.__writeModel([["1", "polymer", "2", "10.0"]], oligo="abc")
-        pmc = PdbxModelCompletity(threshold=1.0)
+        pmc = PdbxModelComplexity(threshold=1.0)
         self.assertTrue(pmc.calculate(fpath))
         pmc.write_output(self.__out)
         # Non-integer oligomeric_count falls back to 1
@@ -97,13 +97,13 @@ class PdbxModelComplexityUnitTests(unittest.TestCase):
 
     def testMissingEntityAttribute(self) -> None:
         fpath = self.__writeModel([["1", "polymer", "2"]], entattr=["id", "type", "pdbx_number_of_molecules"])
-        pmc = PdbxModelCompletity()
+        pmc = PdbxModelComplexity()
         self.assertFalse(pmc.calculate(fpath))
 
     def testNoEntity(self) -> None:
         """No entity category - succeeds with default output values"""
         fpath = self.__writeModel(None)
-        pmc = PdbxModelCompletity(threshold=5.0)
+        pmc = PdbxModelComplexity(threshold=5.0)
         self.assertTrue(pmc.calculate(fpath))
         pmc.write_output(self.__out)
         out = self.__readOutput()
@@ -114,14 +114,14 @@ class PdbxModelComplexityUnitTests(unittest.TestCase):
         self.assertEqual(out["complex_threshold"], "5.00e+00")
 
     def testMissingFile(self) -> None:
-        pmc = PdbxModelCompletity()
+        pmc = PdbxModelComplexity()
         self.assertFalse(pmc.calculate(os.path.join(self.__tmpdir, "missing.cif")))
 
     def testEmptyFile(self) -> None:
         emp = os.path.join(self.__tmpdir, "empty.cif")
         with open(emp, "w"):
             pass
-        pmc = PdbxModelCompletity()
+        pmc = PdbxModelComplexity()
         self.assertFalse(pmc.calculate(emp))
 
     def testMainSuccess(self) -> None:

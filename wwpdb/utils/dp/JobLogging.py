@@ -18,7 +18,10 @@ import os
 from contextlib import contextmanager
 from enum import Enum
 from queue import Queue
-from typing import Optional
+from typing import TYPE_CHECKING, Any, Dict, Iterator, Optional
+
+if TYPE_CHECKING:
+    from wwpdb.utils.dp.RunRemote import JobResult
 
 
 class RunEnvironment(Enum):
@@ -51,7 +54,7 @@ class JobLogger:
         """
         self.log_file_path = log_file_path
         self.logger_name = logger_name
-        self._queue: Queue = Queue(-1)
+        self._queue: Queue[logging.LogRecord] = Queue(-1)
         self._listener: Optional[logging.handlers.QueueListener] = None
         self._logger: Optional[logging.Logger] = None
         self.__enabled = False  # If enabled due to permissions
@@ -145,27 +148,27 @@ class JobLogger:
                 handler.close()
             self._logger = None
 
-    def info(self, dep_id: str, op: str, **kwargs) -> None:
+    def info(self, dep_id: Optional[str], op: str, **kwargs: Any) -> None:
         """Log an info level message."""
         if self._logger:
             self._logger.info(json.dumps({"dep_id": dep_id, "op": op, **kwargs}))
 
-    def warning(self, dep_id: str, op: str, **kwargs) -> None:
+    def warning(self, dep_id: Optional[str], op: str, **kwargs: Any) -> None:
         """Log a warning level message."""
         if self._logger:
             self._logger.warning(json.dumps({"dep_id": dep_id, "op": op, **kwargs}))
 
-    def error(self, dep_id: str, op: str, **kwargs) -> None:
+    def error(self, dep_id: Optional[str], op: str, **kwargs: Any) -> None:
         """Log an error level message."""
         if self._logger:
             self._logger.error(json.dumps({"dep_id": dep_id, "op": op, **kwargs}))
 
-    def debug(self, dep_id: str, op: str, **kwargs) -> None:
+    def debug(self, dep_id: Optional[str], op: str, **kwargs: Any) -> None:
         """Log a debug level message."""
         if self._logger:
             self._logger.debug(json.dumps({"dep_id": dep_id, "op": op, **kwargs}))
 
-    def job_result(self, dep_id, op, runenv: RunEnvironment, wfhost, job_result) -> None:
+    def job_result(self, dep_id: Optional[str], op: str, runenv: RunEnvironment, wfhost: Optional[str], job_result: "JobResult") -> None:
         """
         Log a JobResult as a single JSON record for Loki ingestion.
 
@@ -181,7 +184,7 @@ class JobLogger:
         status = job_result.status.value if isinstance(job_result.status, Enum) else str(job_result.status)
 
         # Build metrics dict, only including non-None values
-        metrics = {
+        metrics: Dict[str, Any] = {
             "dep_id": dep_id,
             "op": op,
             "runenv": runenv.value,
@@ -213,7 +216,7 @@ class JobLogger:
         self._logger.info(json.dumps(metrics))
 
     @contextmanager
-    def context(self):
+    def context(self) -> Iterator["JobLogger"]:
         """
         Context manager for automatic start/stop of logger.
 

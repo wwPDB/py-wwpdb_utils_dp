@@ -8,6 +8,7 @@ import json
 import os
 import sys
 import unittest
+from typing import List
 
 DIR = os.path.dirname(os.path.abspath(__file__))
 TEST_DIR = os.path.dirname(DIR)
@@ -31,14 +32,14 @@ class TestRunMetalCoord(unittest.TestCase):
         test(): Runs the metal coordination statistics process, verifies output file existence and content.
     """
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.b_standalone_metalcoord = True
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         pass
 
-    def testOneLig(self):
-        l_command = []
+    def testOneLig(self) -> None:
+        l_command: List[str] = []
         if not self.b_standalone_metalcoord:
             ccp4_dir = os.getenv("CCP4", None)
             if ccp4_dir:
@@ -80,8 +81,8 @@ class TestRunMetalCoord(unittest.TestCase):
             data = json.load(f)
             self.assertTrue(data)  # test file is not empty
 
-    def testOneLigFilterRegular(self):
-        l_command = []
+    def testOneLigFilterRegular(self) -> None:
+        l_command: List[str] = []
         if not self.b_standalone_metalcoord:
             ccp4_dir = os.getenv("CCP4", None)
             if ccp4_dir:
@@ -124,8 +125,8 @@ class TestRunMetalCoord(unittest.TestCase):
             data = json.load(f)
             self.assertTrue(data)  # test file is not empty
 
-    def testTwoLig(self):
-        l_command = []
+    def testTwoLig(self) -> None:
+        l_command: List[str] = []
         if not self.b_standalone_metalcoord:
             ccp4_dir = os.getenv("CCP4", None)
             if ccp4_dir:
@@ -168,8 +169,8 @@ class TestRunMetalCoord(unittest.TestCase):
             data = json.load(f)
             self.assertTrue(data)  # test file is not empty
 
-    def testTimeout(self):
-        l_command = []
+    def testTimeout(self) -> None:
+        l_command: List[str] = []
         if not self.b_standalone_metalcoord:
             ccp4_dir = os.getenv("CCP4", None)
             if ccp4_dir:
@@ -212,8 +213,8 @@ class TestRunMetalCoord(unittest.TestCase):
             data = json.load(f)
             self.assertTrue(data["error"] == "timeout")
 
-    def testParameterError(self):
-        l_command = []
+    def testParameterError(self) -> None:
+        l_command: List[str] = []
         if not self.b_standalone_metalcoord:
             ccp4_dir = os.getenv("CCP4", None)
             if ccp4_dir:
@@ -255,8 +256,8 @@ class TestRunMetalCoord(unittest.TestCase):
             data = json.load(f)
             self.assertTrue(data["error"] == "parameters-error")
 
-    def testPermissionError(self):
-        l_command = []
+    def testPermissionError(self) -> None:
+        l_command: List[str] = []
         if not self.b_standalone_metalcoord:
             ccp4_dir = os.getenv("CCP4", None)
             if ccp4_dir:

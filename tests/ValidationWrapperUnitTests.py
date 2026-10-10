@@ -29,7 +29,7 @@ else:
 from wwpdb.utils.config.ConfigInfo import getSiteId
 
 from wwpdb.utils.dp.RcsbDpUtility import RcsbDpUtility
-from wwpdb.utils.dp.ValidationWrapper import ValidationWrapper
+from wwpdb.utils.dp.ValidationWrapper import ValidationWrapper, ValidationWrapperOp
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s]-%(module)s.%(funcName)s: %(message)s")
 logger = logging.getLogger()
@@ -82,7 +82,8 @@ class ValidationWrapperUnitTests(unittest.TestCase):
         mockOp.assert_not_called()
 
     def testOpPassThrough(self) -> None:
-        for opName in ["annot-wwpdb-validate-all", "annot-wwpdb-validate-all-v2"]:
+        opNames: List[ValidationWrapperOp] = ["annot-wwpdb-validate-all", "annot-wwpdb-validate-all-v2"]
+        for opName in opNames:
             vw = self.__wrapper()
             with mock.patch.object(RcsbDpUtility, "op", return_value=0) as mockOp:
                 self.assertEqual(vw.op(opName), 0)
@@ -106,7 +107,8 @@ class ValidationWrapperUnitTests(unittest.TestCase):
         vw = self.__wrapper()
         vw.imp(self.__modelPath)
         wrkDir = vw.getWorkingDir()
-        self.assertIsNotNone(wrkDir)
+        if wrkDir is None:
+            self.fail("working directory not set")
         self.assertTrue(wrkDir.startswith(self.__tmpPath))
         self.assertTrue(len(os.listdir(wrkDir)) > 0)
 
@@ -126,7 +128,10 @@ class ValidationWrapperUnitTests(unittest.TestCase):
         mockExp.assert_called_once()
         baseList = mockExp.call_args[0][0]
         self.assertEqual(baseList[0:7], self.__dstList[0:7])
-        self.assertEqual(baseList[7], os.path.join(vw.getWorkingDir(), "mapcoef.mtz"))
+        wrkDir = vw.getWorkingDir()
+        if wrkDir is None:
+            self.fail("working directory not set")
+        self.assertEqual(baseList[7], os.path.join(wrkDir, "mapcoef.mtz"))
         return ret, mockPsm, psm
 
     def __outputs(self) -> Iterator[Optional[str]]:

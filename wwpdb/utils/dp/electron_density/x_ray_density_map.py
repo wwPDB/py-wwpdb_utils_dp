@@ -4,6 +4,7 @@ import os
 import shutil
 import sys
 import tempfile
+from typing import Optional
 
 import gemmi
 
@@ -15,15 +16,15 @@ logger = logging.getLogger(__name__)
 class XrayVolumeServerMap:
     def __init__(
         self,
-        coord_path,
-        binary_map_out,
-        node_path,
-        volume_server_pack_path,
-        volume_server_query_path,
-        working_dir,
-        two_fofc_mmcif_map_coeff_in,
-        fofc_mmcif_map_coeff_in,
-    ):
+        coord_path: str,
+        binary_map_out: str,
+        node_path: Optional[str],
+        volume_server_pack_path: Optional[str],
+        volume_server_query_path: Optional[str],
+        working_dir: str,
+        two_fofc_mmcif_map_coeff_in: Optional[str],
+        fofc_mmcif_map_coeff_in: Optional[str],
+    ) -> None:
         self.coord_path = coord_path
         self.binary_map_out = binary_map_out
         self.node_path = node_path
@@ -38,7 +39,7 @@ class XrayVolumeServerMap:
         self.two_fo_fc_map = os.path.join(self.working_dir, "2fofc.map")
         self.fo_fc_map = os.path.join(self.working_dir, "fofc.map")
 
-    def run_process(self):
+    def run_process(self) -> bool:
         ok = False
         ok1 = self.gemmi_sf2map(
             sf_mmcif_in=self.two_fofc_mmcif_map_coeff_in,
@@ -66,7 +67,7 @@ class XrayVolumeServerMap:
 
         return ok
 
-    def gemmi_sf2map(self, sf_mmcif_in, map_out, f_column, phi_column):
+    def gemmi_sf2map(self, sf_mmcif_in: Optional[str], map_out: str, f_column: str, phi_column: str) -> bool:
         """
         converts input mmCIF file map coefficients to map
         :param sf_mmcif_in: mmCIF structure factor input file
@@ -103,9 +104,9 @@ class XrayVolumeServerMap:
 
     def make_maps_to_serve_with_volume_server(
         self,
-        two_fofc_map_in,
-        fofc_map_in,
-    ):
+        two_fofc_map_in: str,
+        fofc_map_in: str,
+    ) -> bool:
         if not self.node_path:
             logger.error("node path not set")
             return False
@@ -116,7 +117,7 @@ class XrayVolumeServerMap:
             )
         return False
 
-    def make_volume_server_map(self, two_fofc_map_in, fofc_map_in):
+    def make_volume_server_map(self, two_fofc_map_in: str, fofc_map_in: str) -> bool:
         """
         make map for Volume server to serve
         :param: map_in: input map file
@@ -137,7 +138,10 @@ class XrayVolumeServerMap:
             return run_command_and_check_output_file(command=command, workdir=None, process_name="make mdb_map", output_file=self.mdb_map_path)
         return False
 
-    def convert_mdb_map_to_binary_cif(self):
+    def convert_mdb_map_to_binary_cif(self) -> bool:
+        if not self.node_path or not self.volume_server_query_path:
+            logger.error("node path or volume server query path not set")
+            return False
         return convert_mdb_to_binary_cif(
             map_id="x_ray_volume",
             source_id="x-ray",
@@ -151,14 +155,14 @@ class XrayVolumeServerMap:
 
 
 def run_process_with_gemmi(
-    node_path,
-    coord_file,
-    two_fofc_mmcif_map_coeff_in,
-    fofc_mmcif_map_coeff_in,
-    binary_map_out,
-    volume_server_pack_path=None,
-    volume_server_query_path=None,
-):
+    node_path: Optional[str],
+    coord_file: Optional[str],
+    two_fofc_mmcif_map_coeff_in: str,
+    fofc_mmcif_map_coeff_in: str,
+    binary_map_out: str,
+    volume_server_pack_path: Optional[str] = None,
+    volume_server_query_path: Optional[str] = None,
+) -> bool:
     """
     Process 2fo-fc and fo-fc mmCIF files and convert to maps for volume server
     :param node_path: path to node executable
@@ -213,7 +217,7 @@ def run_process_with_gemmi(
     return ret
 
 
-def main():  # pragma: no cover
+def main() -> None:  # pragma: no cover
     FORMAT = "[%(levelname)s]-%(module)s.%(funcName)s: %(message)s"
     logging.basicConfig(format=FORMAT)
 

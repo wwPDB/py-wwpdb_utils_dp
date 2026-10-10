@@ -69,15 +69,15 @@ class TestXrayMolStarMaps(unittest.TestCase):
 
     def test_volume_server_incorrect_exe(self) -> None:
         ok = self.xrm.make_volume_server_map(
-            two_fofc_map_in=None,
-            fofc_map_in=None,
+            two_fofc_map_in="missing_2fofc.map",
+            fofc_map_in="missing_fofc.map",
         )
         self.assertFalse(ok)
 
     def test_volume_server_missing(self) -> None:
         ok = self.xrm.make_volume_server_map(
-            two_fofc_map_in=None,
-            fofc_map_in=None,
+            two_fofc_map_in="missing_2fofc.map",
+            fofc_map_in="missing_fofc.map",
         )
         self.assertFalse(ok)
 

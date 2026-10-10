@@ -18,8 +18,7 @@ classifiers = [
     "Natural Language :: English",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.6",
-    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
 ]
 dependencies = [
     "gemmi >= 0.4",
@@ -28,7 +27,7 @@ dependencies = [
     "wwpdb.utils.config >= 0.34",
 ]
 
-requires-python = ">=3.6"
+requires-python = ">=3.8"
 
 [project.optional-dependencies]
 
@@ -54,7 +53,7 @@ exclude = ["/wwpdb/mock-data"]
 
 #=================================== Ruff basics =============================#
 [tool.ruff]
-target-version = "py37"
+target-version = "py38"
 output-format = "concise"
 
 line-length = 160 # 120 is hatch's default via 'hatch init'
@@ -135,13 +134,13 @@ format = [
 format-python = ["ruff format", "ruff check --fix-only"]
 
 # 'check' only checks but never fixes
-check = ["ruff check --no-fix .", "mypy --non-interactive --install-types -p wwpdb -p tests"]
+check = ["ruff check --no-fix .", "mypy --non-interactive --install-types --strict -p wwpdb -p tests"]
 
 # only checks with ruff (mypy has a lot of false positives)
 check-ruff = "ruff check --no-fix . {args}"
 
 # to complement 'check-ruff'
-check-mypy = "mypy --non-interactive --install-types -p wwpdb -p tests {args}"
+check-mypy = "mypy --non-interactive --install-types --strict -p wwpdb -p tests {args}"
 
 # only check security via Bandit; we require these rules to pass
 check-security = "ruff check --select S --no-fix ."
@@ -156,7 +155,6 @@ run = ["tox"]
 
 # -------------------------  Mypy disable ---------
 [[tool.mypy.overrides]]
-# module = ["mmcif.*", "wwpdb.io.*", "tests.*", "commonsetup", "gemmi.*", "pygal.*"]
 module = ["mmcif.*", "pygal.*", "commonsetup"]
 ignore_missing_imports = true
 

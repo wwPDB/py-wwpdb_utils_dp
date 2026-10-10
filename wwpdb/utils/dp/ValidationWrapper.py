@@ -17,26 +17,30 @@ __license__ = "Apache 2.0"
 import logging
 import os
 import sys
+from typing import List, Literal, Optional, TextIO, Union
 
 from mmcif.io.IoAdapterCore import IoAdapterCore
 from wwpdb.io.file.DataFile import DataFile
 
 from wwpdb.utils.dp.PdbxSFMapCoefficients import PdbxSFMapCoefficients
-from wwpdb.utils.dp.RcsbDpUtility import RcsbDpUtility
+from wwpdb.utils.dp.RcsbDpUtility import RcsbDpOp, RcsbDpUtility
 
 logger = logging.getLogger(__name__)
 
+ValidationWrapperOp = Union[RcsbDpOp, Literal["annot-wwpdb-validate-all-sf"]]
+"""Operations accepted by ValidationWrapper.op(); only the validation ops are run."""
+
 
 class ValidationWrapper(RcsbDpUtility):
-    def __init__(self, tmpPath="/scratch", siteId="DEV", verbose=False, log=sys.stderr):
+    def __init__(self, tmpPath: Optional[str] = "/scratch", siteId: str = "DEV", verbose: bool = False, log: TextIO = sys.stderr) -> None:
         logger.debug("Starting")
         super(ValidationWrapper, self).__init__(tmpPath=tmpPath, siteId=siteId, verbose=verbose, log=log)
-        self.__op = None
+        self.__op: Optional[str] = None
         self._tmppath = tmpPath
         self.__siteId = siteId
-        self.__modelfile = None
+        self.__modelfile: Optional[str] = None
 
-    def __getPDBId(self):
+    def __getPDBId(self) -> Optional[str]:
         """Returns the PDB accession code in model file or None"""
         if not self.__modelfile:
             return None
@@ -47,27 +51,27 @@ class ValidationWrapper(RcsbDpUtility):
             catObj = block.getObj("database_2")
             if catObj:
                 vals = catObj.selectValuesWhere("database_code", "PDB", "database_id")
-                if len(vals) > 0 and vals[0] and vals[0] and len(vals[0]) > 0 and vals[0] not in [".", "?"]:
-                    return vals[0]
+                if len(vals) > 0 and vals[0] and len(vals[0]) > 0 and vals[0] not in [".", "?"]:
+                    pdbId: str = vals[0]
+                    return pdbId
 
         return None
 
-    def imp(self, srcPath=None):
+    def imp(self, srcPath: Optional[str] = None) -> bool:
         self.__modelfile = srcPath
-        super(ValidationWrapper, self).imp(srcPath)
+        return super(ValidationWrapper, self).imp(srcPath)
 
-    def op(self, op):
+    def op(self, op: ValidationWrapperOp) -> Optional[int]:
         logger.info("Starting op %s", op)
         if op not in ["annot-wwpdb-validate-all", "annot-wwpdb-validate-all-v2", "annot-wwpdb-validate-all-sf"]:
             logger.error("Operation not known %s", op)
             return False
         self.__op = op
 
-        if op == "annot-wwpdb-validate-all-sf":
-            op = "annot-wwpdb-validate-all-v2"
-        return super(ValidationWrapper, self).op(op)
+        runOp: RcsbDpOp = "annot-wwpdb-validate-all-v2" if op == "annot-wwpdb-validate-all-sf" else op
+        return super(ValidationWrapper, self).op(runOp)
 
-    def expList(self, dstPathList=None):
+    def expList(self, dstPathList: Optional[List[str]] = None) -> Optional[bool]:
         if dstPathList is None:
             dstPathList = []
 
@@ -83,7 +87,11 @@ class ValidationWrapper(RcsbDpUtility):
         basedst = dstPathList[0:7]
         outfosf = dstPathList[7]
         out2fosf = dstPathList[8]
-        mtzfile = os.path.join(self.getWorkingDir(), "mapcoef.mtz")
+        wrkDir = self.getWorkingDir()
+        if wrkDir is None:
+            logger.error("No working directory - op() must be run before expList()")
+            return False
+        mtzfile = os.path.join(wrkDir, "mapcoef.mtz")
         basedst.append(mtzfile)
         ret = super(ValidationWrapper, self).expList(basedst)
 
@@ -106,9 +114,8 @@ class ValidationWrapper(RcsbDpUtility):
             # Ensure map coefficients produced in conversion - returns True if present
             ret = psm.has_map_coeff()
             logger.debug("Check for map coeffcients returns %s", ret)
-            scrpath = self.getWorkingDir()
-            fotemp = os.path.join(scrpath, "fotemp.cif")
-            twofotemp = os.path.join(scrpath, "twofotemp.cif")
+            fotemp = os.path.join(wrkDir, "fotemp.cif")
+            twofotemp = os.path.join(wrkDir, "twofotemp.cif")
 
             if ret:
                 ret = psm.write_mmcif_coef(fopathout=fotemp, twofopathout=twofotemp, entry_id=pdbid.lower())

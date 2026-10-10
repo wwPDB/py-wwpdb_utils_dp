@@ -12,7 +12,7 @@ import logging
 import os
 import sys
 from collections import OrderedDict
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 if TYPE_CHECKING:
     from wwpdb.utils.dp.metal.metal_util.readRef import readRefCoordException, readRefCoordMap, readRefCoordNum, readRefMetalCarbon, readRefRedOx
@@ -35,7 +35,7 @@ class ParseMetalCoord:  # pylint: disable=too-many-instance-attributes
     Provides methods to read, parse, filter, amend, sort, and report MetalCoord results.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """
         Initialize ParseMetalCoord and load reference data for annotation.
         """
@@ -44,10 +44,10 @@ class ParseMetalCoord:  # pylint: disable=too-many-instance-attributes
         (self.d_redox, self.d_oxi) = readRefRedOx()
         self.l_carbon_metal = readRefMetalCarbon()
         self.d_coord_exception = readRefCoordException()
-        self.data = None
-        self.l_sites = []
+        self.data: Optional[List[Dict[str, Any]]] = None
+        self.l_sites: List[Dict[str, Any]] = []
 
-    def read(self, fp_metalcoord):
+    def read(self, fp_metalcoord: str) -> None:
         """
         Load JSON data from the MetalCoord output JSON file.
 
@@ -78,7 +78,7 @@ class ParseMetalCoord:  # pylint: disable=too-many-instance-attributes
             msg = f"An unexpected error occurred while reading {fp_metalcoord} — {e}"
             raise MetalCoordParseError(msg) from e
 
-    def parse(self):
+    def parse(self) -> None:
         """
         Parse MetalCoord output data to extract top hit coordination geometry for each site.
 
@@ -101,20 +101,23 @@ class ParseMetalCoord:  # pylint: disable=too-many-instance-attributes
             msg = f"An unexpected error occurred during parsing: {e}"
             raise MetalCoordParseError(msg) from e
 
-    def filter(self):
+    def filter(self) -> None:
         """
         Extract a compact, top-hit summary for each metal site from self.data.
 
         This filter method is not the one to filter Regular geometry site only.
         """
+        if self.data is None:
+            msg = "No MetalCoord data to filter, read() must be called first"
+            raise MetalCoordParseError(msg)
         for d_site in self.data:
-            d_site_filtered = {}
+            d_site_filtered: Dict[str, Any] = {}
             for key1 in ["metal", "metalElement", "chain", "residue", "sequence", "icode", "altloc"]:
                 d_site_filtered[key1] = d_site[key1]
 
             # find the best coordination with lowest procruste value
-            threshold = 10
-            d_tophit = {}
+            threshold: float = 10
+            d_tophit: Dict[str, Any] = {}
             for d_coord in d_site["ligands"]:
                 score = d_coord["procrustes"]
                 if score < threshold:
@@ -136,7 +139,7 @@ class ParseMetalCoord:  # pylint: disable=too-many-instance-attributes
             )
             self.l_sites.append(d_site_filtered)
 
-    def amend(self):  # pylint: disable=too-many-branches
+    def amend(self) -> None:  # pylint: disable=too-many-branches
         """
         Amend each top-hit site dictionary in self.l_sites with additional information from reference data.
 
@@ -155,7 +158,7 @@ class ParseMetalCoord:  # pylint: disable=too-many-instance-attributes
             metal = d_tophit["metalElement"]
             # check against allowed coordination number
             if metal in self.d_coord_num:
-                allowed_coord_num = self.d_coord_num.get(metal)
+                allowed_coord_num = self.d_coord_num[metal]
                 if str(d_tophit["coordination"]) in allowed_coord_num:
                     d_tophit["coordination_number_allowed"] = "YES"
                 else:
@@ -207,7 +210,7 @@ class ParseMetalCoord:  # pylint: disable=too-many-instance-attributes
             except ValueError:
                 d_tophit["tag"] = ""  # non-value output
 
-    def sort(self):
+    def sort(self) -> None:
         """
         Sort self.l_sites by a predefined key order for output consistency.
         """
@@ -234,13 +237,13 @@ class ParseMetalCoord:  # pylint: disable=too-many-instance-attributes
             "class_in_exception",
             "sphere",
         ]
-        l_sorted = []
+        l_sorted: List[Dict[str, Any]] = []
         for d_row in self.l_sites:
             d_row_sorted = OrderedDict((key, d_row[key]) for key in key_order if key in d_row)
             l_sorted.append(d_row_sorted)
         self.l_sites = l_sorted
 
-    def report(self, filepath_json):
+    def report(self, filepath_json: str) -> None:
         """
         Write self.l_sites to a JSON file.
 

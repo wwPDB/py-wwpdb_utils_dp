@@ -12,6 +12,7 @@ __license__ = "Apache 2.0"
 
 
 import logging
+from typing import List, Optional
 
 from mmcif.io.IoAdapterCore import IoAdapterCore
 
@@ -19,11 +20,11 @@ logger = logging.getLogger(__name__)
 
 
 class PdbxMergeCategory:
-    def __init__(self):
+    def __init__(self) -> None:
         pass
 
     @staticmethod
-    def merge(srcpath, newcontentpath, outpath, mergelist=None, replacelist=None):
+    def merge(srcpath: str, newcontentpath: str, outpath: str, mergelist: Optional[List[str]] = None, replacelist: Optional[List[str]] = None) -> bool:
         """Merges selected categories from newcontentpath (first block) into srcpath and outputs to outpath in
                    first data block.
         Categories in replacelist will replace category, if present in newcontentpath, otherwise leaves alone.
@@ -67,7 +68,7 @@ class PdbxMergeCategory:
                             # New category
                             srcblock.append(obj)
 
-            ret = io.writeFile(outpath, srcin)
+            ret: bool = io.writeFile(outpath, srcin)
             return ret
 
         except Exception as e:
