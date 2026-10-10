@@ -18,8 +18,7 @@ classifiers = [
     "Natural Language :: English",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.6",
-    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
 ]
 dependencies = [
     "gemmi >= 0.4",
@@ -28,7 +27,7 @@ dependencies = [
     "wwpdb.utils.config >= 0.34",
 ]
 
-requires-python = ">=3.6"
+requires-python = ">=3.8"
 
 [project.optional-dependencies]
 
@@ -54,7 +53,7 @@ exclude = ["/wwpdb/mock-data"]
 
 #=================================== Ruff basics =============================#
 [tool.ruff]
-target-version = "py37"
+target-version = "py38"
 output-format = "concise"
 
 line-length = 160 # 120 is hatch's default via 'hatch init'
@@ -77,6 +76,7 @@ ignore = [
   "C402",     # Unnecessary generator (rewrite as a `dict` comprehension)
   "D419",     # Docstring is empty
   "EXE001",   # Shebang is present but file is not executabl
+  "FA100",    #  Add `from __future__ import annotations` to simplify `typing.Optional`
   "FBT002",   # Boolean default positional argument in function definition
   "FBT001",   # Boolean-typed positional argument in function definition
   "FURB113",  # Use `stPL.extend(...)` instead of repeatedly calling `stPL.append()`
@@ -116,7 +116,7 @@ ignore = [
 
 # -------------------- default environment scripts ------------------
 [tool.hatch.envs.default]
-skip-install = true
+# skip-install = true
 dependencies = ["mypy", "ruff >=0.6.9", "wwpdb.utils.testing", "matplotlib", "pygal",
   "wwpdb.utils.config",
   "wwpdb.io"]
@@ -134,13 +134,13 @@ format = [
 format-python = ["ruff format", "ruff check --fix-only"]
 
 # 'check' only checks but never fixes
-check = ["ruff check --no-fix .", "mypy --non-interactive --install-types -p wwpdb -p tests"]
+check = ["ruff check --no-fix .", "mypy --non-interactive --install-types --strict -p wwpdb -p tests"]
 
 # only checks with ruff (mypy has a lot of false positives)
 check-ruff = "ruff check --no-fix . {args}"
 
 # to complement 'check-ruff'
-check-mypy = "mypy --non-interactive --install-types -p wwpdb -p tests {args}"
+check-mypy = "mypy --non-interactive --install-types --strict -p wwpdb -p tests {args}"
 
 # only check security via Bandit; we require these rules to pass
 check-security = "ruff check --select S --no-fix ."
@@ -155,7 +155,7 @@ run = ["tox"]
 
 # -------------------------  Mypy disable ---------
 [[tool.mypy.overrides]]
-module = ["mmcif.*", "wwpdb.io.*", "tests.*", "commonsetup", "gemmi.*", "pygal.*"]
+module = ["mmcif.*", "pygal.*", "commonsetup"]
 ignore_missing_imports = true
 
 [tool.mypy]
@@ -170,7 +170,7 @@ exclude = [
 
 "fix_gemmi_typing.py" = ["T201"]
 
-"tests/*" = ["TID252", "PLC1901", "S311", "T201", "S101"]
+"tests/*" = ["TID252", "PLC1901", "S311", "T201", "S101", "PT027", "N813", "SIM117"]
 "tests/RunRemoteTests.py" = ["TRY003", "EM101", "EM102", "SLF001"]
 
 "wwpdb/utils/dp/metal/tests/*" = ["T201", "S605"]

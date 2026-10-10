@@ -10,15 +10,15 @@ import tempfile
 import time
 from enum import Enum
 from textwrap import dedent
+from typing import Any, Dict, List, Optional, Union
 
 from wwpdb.utils.config.ConfigInfo import ConfigInfo, getSiteId
 
-logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 
-def remove_file(file_path):
+def remove_file(file_path: str) -> None:
     if os.path.exists(file_path):
         try:
             os.remove(file_path)
@@ -42,18 +42,19 @@ class JobResult:
 
     def __init__(
         self,
-        status: JobStatus,
-        job_id=None,
-        retries_used=0,
-        total_time_seconds=None,
-        execution_time_seconds=None,
-        queue_time_seconds=None,
-        requested_memory_mb=None,
-        used_memory_mb=None,
-        cpu_count=None,
-        cpu_time_seconds=None,
-    ):
-        self.status: JobStatus = status
+        status: Union[JobStatus, int],
+        job_id: Optional[int] = None,
+        retries_used: int = 0,
+        total_time_seconds: Optional[float] = None,
+        execution_time_seconds: Optional[float] = None,
+        queue_time_seconds: Optional[float] = None,
+        requested_memory_mb: Optional[int] = None,
+        used_memory_mb: Optional[int] = None,
+        cpu_count: Optional[int] = None,
+        cpu_time_seconds: Optional[float] = None,
+    ) -> None:
+        # Remote jobs report a JobStatus; local runs record the integer return code
+        self.status: Union[JobStatus, int] = status
         self.job_id = job_id
         self.retries_used = retries_used
         # Timing metrics
@@ -70,28 +71,27 @@ class JobResult:
 class RunRemote:
     def __init__(
         self,
-        command,
-        job_name,
-        log_dir,
-        run_dir=None,
-        timeout=90,
-        memory_limit=16000,
-        number_of_processors=1,
-        add_site_config=False,
-        add_site_config_database=False,
-    ):
+        command: str,
+        job_name: str,
+        log_dir: str,
+        run_dir: Optional[str] = None,
+        timeout: int = 90,
+        memory_limit: int = 16000,
+        number_of_processors: int = 1,
+        add_site_config: bool = False,
+        add_site_config_database: bool = False,
+    ) -> None:
         self.command = command
         self.job_name = job_name
         self.log_dir = log_dir
-        self.run_dir = run_dir
-        self.timeout = 90 if timeout == 0 else str(timeout)
+        self.timeout = "90" if timeout == 0 else str(timeout)
         self.memory_limit = str(memory_limit)
         self.number_of_processors = str(number_of_processors)
         self.add_site_config = add_site_config
         self.add_site_config_database = add_site_config_database
 
-        if not self.run_dir:
-            self.run_dir = tempfile.mkdtemp(prefix="run_remote_")  # this won't work as cluster nodes have different temp dirs
+        # A generated temp dir won't work as cluster nodes have different temp dirs
+        self.run_dir: str = run_dir or tempfile.mkdtemp(prefix="run_remote_")
         self._shell_script = os.path.join(self.run_dir, "run_{}.sh".format(self.job_name))
 
         self.siteId = getSiteId()
@@ -101,7 +101,7 @@ class RunRemote:
         self._stderr_file = os.path.join(self.log_dir, self.job_name + ".err")
 
     @staticmethod
-    def _map_status_text(status_text) -> JobStatus:
+    def _map_status_text(status_text: str) -> JobStatus:
         """Map a Slurm state string (from squeue or sacct) to a JobStatus."""
         if status_text in ["FAILED", "TIMEOUT"]:
             return JobStatus.FAILED
@@ -115,7 +115,7 @@ class RunRemote:
             return JobStatus.CANCELLED
         return JobStatus.OTHER
 
-    def get_job_status_by_id(self, job_id) -> JobStatus:
+    def get_job_status_by_id(self, job_id: int) -> JobStatus:
         """Get the status of a single job by ID.
 
         squeue is the fast path, but squeue stops reporting a job shortly after it finishes --
@@ -144,7 +144,7 @@ class RunRemote:
         sacct_status = self._get_job_status_from_sacct(job_id)
         return sacct_status if sacct_status is not None else JobStatus.OTHER
 
-    def _get_job_status_from_sacct(self, job_id, max_attempts=3, backoff=2):
+    def _get_job_status_from_sacct(self, job_id: int, max_attempts: int = 3, backoff: float = 2) -> Optional[JobStatus]:
         """Classify a job's terminal status via sacct, tolerating brief accounting lag.
 
         Right after a job finishes, sacct can briefly have no record yet -- retry a few times
@@ -178,13 +178,13 @@ class RunRemote:
         logger.warning(f"sacct did not classify job {job_id} after {max_attempts} attempts")
         return None
 
-    def requeue_job(self, job_id):
+    def requeue_job(self, job_id: int) -> None:
         """Requeue a single job."""
         cmd = ["scontrol", "requeue", str(job_id)]
         subprocess.run(cmd, check=True)
         logger.info(f"Requeued failed job {job_id}")
 
-    def _get_job_metrics(self, job_id):
+    def _get_job_metrics(self, job_id: int) -> Dict[str, Any]:
         """Extract job metrics from SLURM using sacct."""
         try:
             cmd = ["sacct", "--json", "--jobs", str(job_id)]
@@ -201,7 +201,7 @@ class RunRemote:
             if job_data.get("job_id") != job_id:
                 logger.warning(f"Job ID mismatch: expected {job_id}, got {job_data.get('job_id')}")
 
-            metrics = {}
+            metrics: Dict[str, Any] = {}
             time_data = job_data.get("time", {})
 
             # Extract timing metrics (Unix timestamps in seconds)
@@ -265,7 +265,7 @@ class RunRemote:
             logger.warning(f"Error parsing sacct output for job {job_id}: {e}")
             return {}
 
-    def monitor(self, job_id, frequency=10):
+    def monitor(self, job_id: int, frequency: float = 10) -> JobStatus:
         """Monitor a job by ID, requeueing if it fails."""
         logging.info(f"Monitoring job {job_id}")  # noqa: LOG015
 
@@ -282,7 +282,7 @@ class RunRemote:
             logger.debug(f"Job {job_id} status: {status}")
             time.sleep(frequency)
 
-    def _build_sbatch_command(self, command):
+    def _build_sbatch_command(self, command: str) -> List[str]:
         sbatch_args = [
             "sbatch",
             "--job-name=%s" % self.job_name,
@@ -309,11 +309,11 @@ class RunRemote:
         sbatch_args += [self._shell_script]
         return sbatch_args
 
-    def _cleanup(self):
+    def _cleanup(self) -> None:
         if self.run_dir.startswith("/tmp/run_remote_"):  # noqa: S108
             shutil.rmtree(self.run_dir)
 
-    def _source_site_config(self, database=False):
+    def _source_site_config(self, database: bool = False) -> str:
         suffix = ""
         if database:
             suffix = "--database"
@@ -326,7 +326,7 @@ class RunRemote:
 
     _RUNDIR_PATTERN = re.compile(r"--rundir (\S+)")
 
-    def _redirect_rundir_for_retry(self, command, attempt):
+    def _redirect_rundir_for_retry(self, command: str, attempt: int) -> str:
         """Point a retried command's --rundir at a fresh, never-used sibling directory.
 
         Some commands (the wwPDB validator's run_multithread(), see py-wwpdb_apps_validation
@@ -345,9 +345,9 @@ class RunRemote:
         retry_rundir = f"{original_rundir}_retry{attempt}"
         return command[: match.start()] + f"--rundir {retry_rundir}" + command[match.end() :]
 
-    def run(self, retries=3) -> JobResult:
+    def run(self, retries: int = 3) -> JobResult:
         status = JobStatus.OTHER
-        job_id = None
+        job_id: Optional[int] = None
         wf_command = self.command
 
         if self.add_site_config_database or self.add_site_config:
@@ -400,7 +400,9 @@ class RunRemote:
         return result
 
 
-def main():
+def main() -> None:
+    logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers(dest="comm")
 

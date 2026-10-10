@@ -7,6 +7,7 @@ For OneDep testing, please use the unit test in py-wwpdb_utils_dp/tests/RcsbDpUt
 import os
 import sys
 import unittest
+from typing import List, Optional
 
 DIR = os.path.dirname(os.path.abspath(__file__))
 TEST_DIR = os.path.dirname(DIR)
@@ -35,14 +36,14 @@ class TestRunMetalCoord(unittest.TestCase):
             - `servalcat_updated.cif`
     """
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.b_standalone_metalcoord = True
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         pass
 
-    def run_test(self, ccd_id, pdb_id):
-        l_command = []
+    def run_test(self, ccd_id: str, pdb_id: Optional[str]) -> None:
+        l_command: List[str] = []
         ccp4_dir = os.getenv("CCP4", None)
         if ccp4_dir:
             print("Found CCP4 env at %s" % ccp4_dir)
@@ -84,10 +85,10 @@ class TestRunMetalCoord(unittest.TestCase):
         self.assertTrue(os.path.exists(fp_final))  # test file exist
         self.assertTrue(os.path.isfile(fp_final), f"Expected {fp_final} to be a file")  # test is a file
 
-    def test1(self):
+    def test1(self) -> None:
         self.run_test("0KA", "4DHV")
 
-    def test2(self):
+    def test2(self) -> None:
         self.run_test("HEM", None)
 
 

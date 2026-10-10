@@ -38,7 +38,7 @@ logger.setLevel(logging.INFO)
 
 @unittest.skipIf(toolsmissing, "Tools not available for testing")
 class RcsbDpUtilityNMRTests(unittest.TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         self.__lfh = sys.stderr
         self.__verbose = True
         # Pick up site information from the environment or failover to the development site id.
@@ -55,10 +55,10 @@ class RcsbDpUtilityNMRTests(unittest.TestCase):
 
         #
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         pass
 
-    def testUploadShiftOneCheck(self):
+    def testUploadShiftOneCheck(self) -> None:
         """Test upload check of one CS file  ---   upload single file"""
         logger.info("\nStarting")
         try:
@@ -79,7 +79,7 @@ class RcsbDpUtilityNMRTests(unittest.TestCase):
             logger.exception("Failing with %s", str(e))
             self.fail()
 
-    def testUploadShiftListCheck(self):
+    def testUploadShiftListCheck(self) -> None:
         """Test upload check of one CS file  ---  Upload multiple files"""
         logger.info("\nStarting")
         try:
@@ -100,7 +100,7 @@ class RcsbDpUtilityNMRTests(unittest.TestCase):
             logger.exception("Failing with %s", str(e))
             self.fail()
 
-    def testChemicalShiftCoordinateCheck(self):
+    def testChemicalShiftCoordinateCheck(self) -> None:
         """Test upload check of one CS file  ---   Using a PDB Archive STAR file -- (Does not work)"""
         logger.info("\nStarting")
         try:
@@ -122,7 +122,7 @@ class RcsbDpUtilityNMRTests(unittest.TestCase):
             logger.exception("Failing with %s", str(e))
             self.fail()
 
-    def testChemicalShiftCoordinateCheck2(self):
+    def testChemicalShiftCoordinateCheck2(self) -> None:
         """Test upload check of one CS file  ---  Using a processed chemical shift file"""
         logger.info("\nStarting")
         try:
@@ -144,7 +144,7 @@ class RcsbDpUtilityNMRTests(unittest.TestCase):
             logger.exception("Failing with %s", str(e))
             self.fail()
 
-    def testChemicalShiftCoordinateCheck2Alt(self):
+    def testChemicalShiftCoordinateCheck2Alt(self) -> None:
         """Test upload check of one CS file  --- Using the wrong model to generate errors"""
         logger.info("\nStarting")
         try:
@@ -178,7 +178,7 @@ class RcsbDpUtilityNMRTests(unittest.TestCase):
             self.fail()
 
 
-def suiteAnnotNmrTests():
+def suiteAnnotNmrTests() -> unittest.TestSuite:
     suiteSelect = unittest.TestSuite()
     suiteSelect.addTest(RcsbDpUtilityNMRTests("testUploadShiftOneCheck"))
     suiteSelect.addTest(RcsbDpUtilityNMRTests("testUploadShiftListCheck"))

@@ -75,7 +75,7 @@ class TestFindGeo(unittest.TestCase):
         correctness of the findgeo output content.
     """
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.__siteId = getSiteId()
         self.__sessionPath = TEST_OUTPUT_DIR
         self.__verbose = False
@@ -86,11 +86,11 @@ class TestFindGeo(unittest.TestCase):
         self.fp_in = os.path.join(TEST_DATA_DIR, "4DHV-internal.cif")
         self.fp_out = os.path.join(TEST_OUTPUT_DIR, "4DHV-metal-findgeo.json")
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         # shutil.rmtree(TEST_OUTPUT_DIR, ignore_errors=True)  # enable cleanup after debugging
         pass
 
-    def test(self):
+    def test(self) -> None:
         self.dp.setDebugMode(flag=True)
         assert os.path.exists(self.fp_in), "Input file missing!"
         self.dp.imp(self.fp_in)
@@ -164,7 +164,7 @@ class TestFindGeoFilterRegular(unittest.TestCase):
         correctness of the findgeo output content.
     """
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.__siteId = getSiteId()
         self.__sessionPath = TEST_OUTPUT_DIR
         self.__verbose = False
@@ -175,11 +175,11 @@ class TestFindGeoFilterRegular(unittest.TestCase):
         self.fp_in = os.path.join(TEST_DATA_DIR, "4DHV-internal.cif")
         self.fp_out = os.path.join(TEST_OUTPUT_DIR, "4DHV-metal-findgeo-filter-regular.json")
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         # shutil.rmtree(TEST_OUTPUT_DIR, ignore_errors=True)  # enable cleanup after debugging
         pass
 
-    def test(self):
+    def test(self) -> None:
         self.dp.setDebugMode(flag=True)
         assert os.path.exists(self.fp_in), "Input file missing!"
         self.dp.imp(self.fp_in)
@@ -254,7 +254,7 @@ class TestMetalCoordStats(unittest.TestCase):
         correctness of the metalcoord output content.
     """
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.__siteId = getSiteId()
         self.__sessionPath = TEST_OUTPUT_DIR
         self.__verbose = False
@@ -265,11 +265,11 @@ class TestMetalCoordStats(unittest.TestCase):
         self.fp_in = os.path.join(TEST_DATA_DIR, "4DHV-internal.cif")
         self.fp_out = os.path.join(TEST_OUTPUT_DIR, "4DHV-metal-metalcoord-stats.json")
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         # shutil.rmtree(TEST_OUTPUT_DIR, ignore_errors=True)
         pass
 
-    def test(self):
+    def test(self) -> None:
         self.dp.setDebugMode(flag=True)
         self.dp.imp(self.fp_in)
         logger.info("test input filepath: %s", self.fp_in)
@@ -344,7 +344,7 @@ class TestMetalCoordStatsFilterRegular(unittest.TestCase):
         correctness of the metalcoord output content.
     """
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.__siteId = getSiteId()
         self.__sessionPath = TEST_OUTPUT_DIR
         self.__verbose = False
@@ -355,11 +355,11 @@ class TestMetalCoordStatsFilterRegular(unittest.TestCase):
         self.fp_in = os.path.join(TEST_DATA_DIR, "4DHV-internal.cif")
         self.fp_out = os.path.join(TEST_OUTPUT_DIR, "4DHV-metal-metalcoord-stats-filter-regular.json")
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         # shutil.rmtree(TEST_OUTPUT_DIR, ignore_errors=True)
         pass
 
-    def test(self):
+    def test(self) -> None:
         self.dp.setDebugMode(flag=True)
         self.dp.imp(self.fp_in)
         logger.info("test input filepath: %s", self.fp_in)
@@ -436,7 +436,7 @@ class TestMetalCoordUpdate(unittest.TestCase):
       correctness of the metalcoord update contents.
     """
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.__siteId = getSiteId()
         self.__sessionPath = TEST_OUTPUT_DIR
         self.__verbose = False
@@ -448,11 +448,11 @@ class TestMetalCoordUpdate(unittest.TestCase):
         self.fp_in_pdb = os.path.join(TEST_DATA_DIR, "4DHV-internal.cif")
         self.fp_out_list = [os.path.join(TEST_OUTPUT_DIR, "0KA-updated.cif"), os.path.join(TEST_OUTPUT_DIR, "4DHV-metal-metalcoord-update.json")]
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         # shutil.rmtree(TEST_OUTPUT_DIR, ignore_errors=True)
         pass
 
-    def test(self):
+    def test(self) -> None:
         self.dp.setDebugMode(flag=True)
         self.dp.imp(self.fp_in_ccd)
         logger.info("test input filepath: %s", self.fp_in_ccd)
@@ -485,7 +485,7 @@ class TestMetalCoordUpdate(unittest.TestCase):
             raise
 
 
-def suite():
+def suite() -> unittest.TestSuite:
     loader = unittest.TestLoader()
     test_suite = unittest.TestSuite()
 

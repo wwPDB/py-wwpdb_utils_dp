@@ -9,7 +9,7 @@ Wrapper to run Acedrg with arguments
 import logging
 import os
 import sys
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Dict, List
 
 if TYPE_CHECKING:
     from wwpdb.utils.dp.metal.metal_util.run_command import MetalCommandExecutionError, MetalCommandTimeoutError, run_command  # noqa: E402
@@ -28,7 +28,7 @@ class AcedrgParametersError(Exception):
     :type errors: dict
     """
 
-    def __init__(self, errors: dict):
+    def __init__(self, errors: Dict[str, str]) -> None:
         self.errors = errors
         super().__init__(str(errors))
 
@@ -60,23 +60,23 @@ class RunAcedrg:
         rAG.run()
     """
 
-    def __init__(self, d_args):
+    def __init__(self, d_args: Dict[str, Any]) -> None:
         """
         Initialize RunAcedrg with arguments and validate them.
 
         :param d_args: Dictionary of arguments for running Acedrg.
         :type d_args: dict
         """
-        self.d_args = d_args
+        self.d_args: Dict[str, Any] = d_args
         self.validateArgs()
 
-    def validateArgs(self):
+    def validateArgs(self) -> None:
         """
         Validate arguments in d_args.
 
         :raises AcedrgParametersError: If any validation fails, with a dictionary of errors.
         """
-        errors = {}
+        errors: Dict[str, str] = {}
         if self.d_args["acedrg_exe"]:
             if os.path.exists(self.d_args["acedrg_exe"]):
                 logger.info("use explicit Acedrg executable at %s", self.d_args["acedrg_exe"])
@@ -101,7 +101,7 @@ class RunAcedrg:
         if errors:
             raise AcedrgParametersError(errors)
 
-    def run(self):
+    def run(self) -> str:
         """
         Run Acedrg with arguments in d_args.
 
@@ -114,7 +114,7 @@ class RunAcedrg:
         :raises AcedrgCommandTimeoutError: If the command times out.
         :raises AcedrgCommandExecutionError: If the command fails.
         """
-        l_command = [self.d_args["acedrg_exe"]]
+        l_command: List[str] = [self.d_args["acedrg_exe"]]
         l_command.extend(["--mmcif", self.d_args["mmcif"]])
         l_command.extend(["--out", self.d_args["out"]])
         l_command.append("--noProt")

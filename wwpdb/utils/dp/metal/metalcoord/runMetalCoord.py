@@ -10,7 +10,7 @@ Two modes are supported: stats and update
 import logging
 import os
 import sys
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 if TYPE_CHECKING:
     from wwpdb.utils.dp.metal.metal_util.run_command import MetalCommandExecutionError, MetalCommandTimeoutError, run_command  # noqa: E402
@@ -29,7 +29,7 @@ class MetalCoordParametersError(Exception):
     :type errors: dict
     """
 
-    def __init__(self, errors: dict):
+    def __init__(self, errors: Dict[str, str]) -> None:
         self.errors = errors
         super().__init__(str(errors))
 
@@ -63,24 +63,24 @@ class RunMetalCoord:
         rMC.run()
     """
 
-    def __init__(self, d_args):
+    def __init__(self, d_args: Dict[str, Any]) -> None:
         """
         Initialize RunMetalCoord with arguments and validate them.
 
         :param d_args: Dictionary of arguments for running MetalCoord.
         :type d_args: dict
         """
-        self.d_args = d_args
-        self.mode = None
+        self.d_args: Dict[str, Any] = d_args
+        self.mode: Optional[str] = None
         self.validateArgs()
 
-    def validateArgs(self):  # pylint: disable=too-many-branches
+    def validateArgs(self) -> None:  # pylint: disable=too-many-branches
         """
         Validate arguments in d_args.
 
         :raises MetalCoordParametersError: If any validation fails, with a dictionary of errors.
         """
-        errors = {}
+        errors: Dict[str, str] = {}
         if self.d_args["metalcoord_exe"]:
             if os.path.exists(self.d_args["metalcoord_exe"]):
                 logger.info("use explicit MetalCoord executable at %s", self.d_args["metalcoord_exe"])
@@ -135,7 +135,7 @@ class RunMetalCoord:
         if errors:
             raise MetalCoordParametersError(errors)
 
-    def setInputMode(self, mode):
+    def setInputMode(self, mode: str) -> None:
         """
         Set the input mode for MetalCoord ("stats" or "update").
 
@@ -144,7 +144,7 @@ class RunMetalCoord:
         """
         self.mode = mode  # stats or update
 
-    def run(self):
+    def run(self) -> Optional[str]:
         """
         Run MetalCoord in the selected mode ("stats" or "update").
 
@@ -157,7 +157,7 @@ class RunMetalCoord:
             return self.runUpdate()
         return None
 
-    def runStats(self):
+    def runStats(self) -> str:
         """
         Run MetalCoord in stats mode with arguments in d_args.
 
@@ -170,7 +170,7 @@ class RunMetalCoord:
         :raises MetalCoordCommandTimeoutError: If the command times out.
         :raises MetalCoordCommandExecutionError: If the command fails.
         """
-        l_command = [self.d_args["metalcoord_exe"], "stats"]
+        l_command: List[str] = [self.d_args["metalcoord_exe"], "stats"]
         l_command.extend(["--ligand", self.d_args["ligand"].upper()])  # ensure ligand code is uppercase
         l_command.extend(["--pdb", self.d_args["pdb"]])
         l_command.extend(["--max_size", str(self.d_args["max_size"])])
@@ -192,7 +192,7 @@ class RunMetalCoord:
             msg = f"Unexpected error while running MetalCoord stats command: {e}"
             raise MetalCoordCommandExecutionError(msg) from e
 
-    def runUpdate(self):
+    def runUpdate(self) -> str:
         """
         Run MetalCoord in update mode with arguments in d_args.
 
@@ -210,7 +210,7 @@ class RunMetalCoord:
         :raises MetalCoordCommandTimeoutError: If the command times out.
         :raises MetalCoordCommandExecutionError: If the command fails.
         """
-        l_command = [self.d_args["metalcoord_exe"], "update"]
+        l_command: List[str] = [self.d_args["metalcoord_exe"], "update"]
         l_command.extend(["--input", self.d_args["input"]])
         fp_out = os.path.join(self.d_args["workdir"], "metalcoord.cif")
         l_command.extend(["--output", fp_out])

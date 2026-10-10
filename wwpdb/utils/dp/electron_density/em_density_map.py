@@ -4,6 +4,7 @@ import argparse
 import logging
 import os
 import sys
+from typing import Optional
 
 from wwpdb.utils.dp.electron_density.common_functions import convert_mdb_to_binary_cif, run_command_and_check_output_file
 
@@ -13,24 +14,24 @@ logger = logging.getLogger()
 class EmVolumes:
     def __init__(
         self,
-        em_map,
-        node_path,
-        volume_server_pack_path,
-        volume_server_query_path,
-        binary_map_out,
-        working_dir,
-    ):
+        em_map: str,
+        node_path: str,
+        volume_server_pack_path: str,
+        volume_server_query_path: str,
+        binary_map_out: str,
+        working_dir: Optional[str],
+    ) -> None:
         self.em_map = em_map
         self.em_map_name = os.path.basename(em_map)
         self.mdb_map = "em_map.mdb"
         self.node_path = node_path
         self.volume_server_pack_path = volume_server_pack_path
         self.volume_server_query_path = volume_server_query_path
-        self.mdb_map_path = None
+        self.mdb_map_path: Optional[str] = None
         self.bcif_map_path = binary_map_out
         self.workdir = working_dir or os.getcwd()
 
-    def run_conversion(self):
+    def run_conversion(self) -> bool:
         bcif_dir_out = os.path.dirname(self.bcif_map_path)
         if bcif_dir_out:
             if not os.path.exists(bcif_dir_out):
@@ -45,7 +46,7 @@ class EmVolumes:
 
         return worked
 
-    def make_volume_server_map(self):
+    def make_volume_server_map(self) -> bool:
         if os.path.exists(self.em_map):
             command = "%s %s em %s %s" % (self.node_path, self.volume_server_pack_path, self.em_map, self.mdb_map_path)
             logging.debug(command)  # noqa: LOG015
@@ -55,7 +56,10 @@ class EmVolumes:
         logging.error("input map file missing: %s", self.em_map)  # noqa: LOG015
         return False
 
-    def convert_map_to_binary_cif(self):
+    def convert_map_to_binary_cif(self) -> bool:
+        if self.mdb_map_path is None:
+            logging.error("mdb map path not set")  # noqa: LOG015
+            return False
         return convert_mdb_to_binary_cif(
             node_path=self.node_path,
             volume_server_query_path=self.volume_server_query_path,
@@ -68,7 +72,7 @@ class EmVolumes:
         )
 
 
-def main():  # pragma: no cover
+def main() -> None:  # pragma: no cover
     parser = argparse.ArgumentParser()
     parser.add_argument("--em_map", help="EM map", type=str, required=True)
     parser.add_argument("--working_dir", help="working dir", type=str, required=True)

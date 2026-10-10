@@ -32,13 +32,13 @@ class TestRunFindGeo(unittest.TestCase):
         - tearDown: Placeholder for cleanup operations after each test.
     """
 
-    def setUp(self):
+    def setUp(self) -> None:
         pass
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         pass
 
-    def testInternalFile(self):
+    def testInternalFile(self) -> None:
         onedep_package_dir = os.getenv("PACKAGE_DIR", None)
         if onedep_package_dir:
             print("Test in OneDep environment")
@@ -73,7 +73,7 @@ class TestRunFindGeo(unittest.TestCase):
             data = json.load(f)
             self.assertTrue(data)  # test file is not empty
 
-    def testPdbId(self):
+    def testPdbId(self) -> None:
         pdb_id = "2ZZB"
         onedep_package_dir = os.getenv("PACKAGE_DIR", None)
         if onedep_package_dir:
@@ -109,7 +109,7 @@ class TestRunFindGeo(unittest.TestCase):
             data = json.load(f)
             self.assertTrue(data)  # test file is not empty
 
-    def testInternalFileFiltered(self):
+    def testInternalFileFiltered(self) -> None:
         onedep_package_dir = os.getenv("PACKAGE_DIR", None)
         if onedep_package_dir:
             print("Test in OneDep environment")
@@ -145,7 +145,7 @@ class TestRunFindGeo(unittest.TestCase):
             data = json.load(f)
             self.assertFalse(data)  # test file is not empty
 
-    def testPdbIdFiltered(self):
+    def testPdbIdFiltered(self) -> None:
         onedep_package_dir = os.getenv("PACKAGE_DIR", None)
         if onedep_package_dir:
             print("Test in OneDep environment")
@@ -181,7 +181,7 @@ class TestRunFindGeo(unittest.TestCase):
             data = json.load(f)
             self.assertTrue(data)  # test file is not empty
 
-    def testTimeout(self):
+    def testTimeout(self) -> None:
         onedep_package_dir = os.getenv("PACKAGE_DIR", None)
         if onedep_package_dir:
             print("Test in OneDep environment")
@@ -217,7 +217,7 @@ class TestRunFindGeo(unittest.TestCase):
             data = json.load(f)
             self.assertTrue(data["error"] == "timeout")
 
-    def testParameterError(self):
+    def testParameterError(self) -> None:
         onedep_package_dir = os.getenv("PACKAGE_DIR", None)
         if onedep_package_dir:
             print("Test in OneDep environment")
@@ -253,7 +253,7 @@ class TestRunFindGeo(unittest.TestCase):
             data = json.load(f)
             self.assertTrue(data["error"] == "parameters-error")
 
-    def testExecutionError(self):
+    def testExecutionError(self) -> None:
         onedep_package_dir = os.getenv("PACKAGE_DIR", None)
         if onedep_package_dir:
             print("Test in OneDep environment")
@@ -289,7 +289,7 @@ class TestRunFindGeo(unittest.TestCase):
             data = json.load(f)
             self.assertTrue(data["error"] == "execution-error")
 
-    def testPermissionError(self):
+    def testPermissionError(self) -> None:
         onedep_package_dir = os.getenv("PACKAGE_DIR", None)
         if onedep_package_dir:
             print("Test in OneDep environment")

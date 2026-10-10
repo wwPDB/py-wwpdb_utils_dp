@@ -9,7 +9,7 @@ Wrapper to run FindGeo with arguments similar to command line
 import logging
 import os
 import sys
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Dict, List
 
 if TYPE_CHECKING:
     from wwpdb.utils.dp.metal.metal_util.run_command import MetalCommandExecutionError, MetalCommandTimeoutError, run_command  # noqa: E402
@@ -28,7 +28,7 @@ class ValidateParametersError(Exception):
     :type errors: dict
     """
 
-    def __init__(self, errors: dict):
+    def __init__(self, errors: Dict[str, str]) -> None:
         self.errors = errors
         super().__init__(str(errors))
 
@@ -69,7 +69,7 @@ class RunFindGeo:
         rFG.run()
     """
 
-    def __init__(self, d_args):
+    def __init__(self, d_args: Dict[str, Any]) -> None:
         """
         Initialize the RunFindGeo object and validate arguments.
 
@@ -79,7 +79,7 @@ class RunFindGeo:
         self.d_args = d_args
         self.validateArgs()
 
-    def validateArgs(self):  # pylint: disable=too-many-branches
+    def validateArgs(self) -> None:  # pylint: disable=too-many-branches
         """
         Validate arguments in d_args.
 
@@ -96,7 +96,7 @@ class RunFindGeo:
             8. if pdb is specified, it must be a valid PDB code (4 alphanumeric characters)
         Raises ValidateParametersError with a dictionary of errors if any validation fails.
         """
-        errors = {}
+        errors: Dict[str, str] = {}
         if not os.path.exists(self.d_args["java-exe"]):
             errors["java-exe"] = f"java executable not found: {self.d_args['java-exe']}"
         if not os.path.exists(self.d_args["findgeo-jar"]):
@@ -119,7 +119,7 @@ class RunFindGeo:
             errors["workdir"] = f"cannot create workdir: {self.d_args['workdir']} with error {e}"
 
         # validate input and pdb arguments and pick the non-empty one to use as input
-        self.input = []
+        self.input: List[str] = []
         if self.d_args["input"] and os.path.exists(self.d_args["input"]):
             self.input = ["--input", self.d_args["input"]]
         # try to check pdb id if input file is not valid
@@ -132,7 +132,7 @@ class RunFindGeo:
         if errors:
             raise ValidateParametersError(errors)
 
-    def run(self):
+    def run(self) -> str:
         """
         Run FindGeo with arguments in d_args and self.input as input file or pdb id.
 
@@ -165,7 +165,7 @@ class RunFindGeo:
         :return: stdout from FindGeo if successful, otherwise None
         :rtype: str or None
         """
-        l_command = [self.d_args["java-exe"], "-jar", self.d_args["findgeo-jar"]]
+        l_command: List[str] = [self.d_args["java-exe"], "-jar", self.d_args["findgeo-jar"]]
         l_command.extend(self.input)  # get input from either --input or --pdb
         for arg in ["format", "threshold", "workdir"]:
             if self.d_args[arg]:

@@ -4,6 +4,7 @@ import argparse
 import logging
 import os
 import sys
+from typing import Dict, Union
 
 from mmcif.api.DataCategory import DataCategory
 from mmcif.api.PdbxContainers import DataContainer
@@ -12,12 +13,12 @@ from mmcif.io.IoAdapterCore import IoAdapterCore as IoAdapter
 logger = logging.getLogger(__name__)
 
 
-class PdbxModelCompletity:
-    def __init__(self, threshold=1e6):
-        self.__data = {}
+class PdbxModelComplexity:
+    def __init__(self, threshold: float = 1e6) -> None:
+        self.__data: Dict[str, Union[bool, float]] = {}
         self.__threshold = threshold
 
-    def calculate(self, fpath):
+    def calculate(self, fpath: str) -> bool:
         """Calculates complexity of coordinate file in fpath.  Returns True on success.  Returns False if file does not exist"""
 
         if not os.path.exists(fpath):
@@ -47,9 +48,9 @@ class PdbxModelCompletity:
                     pass
 
         # Calculate complexity
-        entry_complexity = 0
-        non_poly_complexity = 0
-        polymer_complexity = 0
+        entry_complexity: float = 0
+        non_poly_complexity: float = 0
+        polymer_complexity: float = 0
 
         if b0.exists("entity"):
             cObj = b0.getObj("entity")
@@ -95,7 +96,7 @@ class PdbxModelCompletity:
 
         return True
 
-    def write_output(self, fpath):
+    def write_output(self, fpath: str) -> None:
         """Writes out the"""
 
         c0 = DataContainer("complexity")
@@ -132,7 +133,10 @@ class PdbxModelCompletity:
         io.writeFile(fpath, clist)
 
 
-def main():
+PdbxModelCompletity = PdbxModelComplexity  # Backwards compatible alias for misspelled original class name
+
+
+def main() -> None:
     logging.basicConfig(level=logging.INFO)
     parser = argparse.ArgumentParser(
         prog="PdbxModelComplexity.py",
@@ -152,7 +156,7 @@ def main():
     modelpath = args.model
     output = args.output
 
-    pmc = PdbxModelCompletity(threshold=threshold)
+    pmc = PdbxModelComplexity(threshold=threshold)
     ok = pmc.calculate(modelpath)
     if ok:
         pmc.write_output(output)

@@ -4,11 +4,12 @@ import os
 import shlex
 import shutil
 import subprocess
+from typing import Optional
 
 logger = logging.getLogger(__name__)
 
 
-def run_command(command, process_name, workdir=None):
+def run_command(command: str, process_name: str, workdir: Optional[str] = None) -> bool:
     """
     run a command and check the output
     :param str command: the command to be run
@@ -39,7 +40,7 @@ def run_command(command, process_name, workdir=None):
     return False
 
 
-def run_command_and_check_output_file(command, process_name, output_file, workdir=None):
+def run_command_and_check_output_file(command: Optional[str], process_name: str, output_file: Optional[str], workdir: Optional[str] = None) -> bool:
     """
     run a command and check the output file exists
     :param str command: the command to be run
@@ -64,7 +65,16 @@ def run_command_and_check_output_file(command, process_name, output_file, workdi
     return False
 
 
-def convert_mdb_to_binary_cif(node_path, volume_server_query_path, map_id, source_id, mdb_map_path, output_file, working_dir, detail=4):
+def convert_mdb_to_binary_cif(
+    node_path: str,
+    volume_server_query_path: str,
+    map_id: str,
+    source_id: str,
+    mdb_map_path: str,
+    output_file: str,
+    working_dir: Optional[str],
+    detail: int = 4,
+) -> bool:
     query_kind = "cell"
     map_file_name = "{}_{}-{}_d{}.bcif".format(map_id, source_id, query_kind, detail)
     if not working_dir:

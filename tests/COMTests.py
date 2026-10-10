@@ -35,7 +35,7 @@ logger.setLevel(logging.INFO)
 
 @unittest.skipIf(toolsmissing, "Cannot test COM without tools")
 class COMTests(unittest.TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         self.__tmpPath = TESTOUTPUT
         #
         self.__siteId = getSiteId(defaultSiteId=None)
@@ -44,10 +44,10 @@ class COMTests(unittest.TestCase):
         self.__testFilePath = os.path.join(TOPDIR, "wwpdb", "mock-data", "MODELS")
         self.__testFileCif = "1kip.cif"
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         pass
 
-    def testCifToPdb(self):
+    def testCifToPdb(self) -> None:
         """ """
         logger.info("\nStarting")
         dp = RcsbDpUtility(tmpPath=self.__tmpPath, siteId=self.__siteId, verbose=True)

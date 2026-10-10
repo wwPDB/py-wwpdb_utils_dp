@@ -30,6 +30,7 @@ import os.path
 import shutil
 import sys
 import traceback
+from typing import Any, Optional, TextIO
 
 from wwpdb.utils.dp.RcsbDpUtility import RcsbDpUtility
 
@@ -37,17 +38,18 @@ from wwpdb.utils.dp.RcsbDpUtility import RcsbDpUtility
 class DataFileAdapter:
     """Convenience methods to manage data model and structure factor format conversions."""
 
-    def __init__(self, reqObj, verbose=False, log=sys.stderr):
+    # reqObj is a wwpdb.utils.session request object; that package is not a dependency here
+    def __init__(self, reqObj: Any, verbose: bool = False, log: TextIO = sys.stderr) -> None:
         self.__reqObj = reqObj
         self.__verbose = verbose
         self.__lfh = log
         self.__debug = True
-        self.__siteId = self.__reqObj.getValue("WWPDB_SITE_ID")
-        self.__sObj = self.__reqObj.getSessionObj()
+        self.__siteId: str = self.__reqObj.getValue("WWPDB_SITE_ID")
+        self.__sObj: Any = self.__reqObj.getSessionObj()
         # self.__sessionId = self.__sObj.getId()
-        self.__sessionPath = self.__sObj.getPath()
+        self.__sessionPath: str = self.__sObj.getPath()
 
-    def pdbx2nmrstar(self, inpPath, outPath, pdbId=None):
+    def pdbx2nmrstar(self, inpPath: str, outPath: str, pdbId: Optional[str] = None) -> bool:
         """PDBx to NMRSTAR"""
         try:
             dp = RcsbDpUtility(tmpPath=self.__sessionPath, siteId=self.__siteId, verbose=self.__verbose, log=self.__lfh)
@@ -65,7 +67,7 @@ class DataFileAdapter:
             return False
         return True
 
-    def rcsb2Pdbx(self, inpPath, outPath, stripFlag=False, stripEntityFlag=False):
+    def rcsb2Pdbx(self, inpPath: str, outPath: str, stripFlag: bool = False, stripEntityFlag: bool = False) -> bool:
         """RCSB CIF -> PDBx conversion  (Using the smaller application in the annotation package)"""
         try:
             dp = RcsbDpUtility(tmpPath=self.__sessionPath, siteId=self.__siteId, verbose=self.__verbose, log=self.__lfh)
@@ -89,7 +91,7 @@ class DataFileAdapter:
             return False
         return True
 
-    def rcsb2PdbxWithPdbId(self, inpPath, outPath):
+    def rcsb2PdbxWithPdbId(self, inpPath: str, outPath: str) -> bool:
         """RCSB CIF -> PDBx conversion  (converting to PDB ID entry/datablock id.)"""
         try:
             dp = RcsbDpUtility(tmpPath=self.__sessionPath, siteId=self.__siteId, verbose=self.__verbose, log=self.__lfh)
@@ -105,7 +107,7 @@ class DataFileAdapter:
             return False
         return True
 
-    def rcsb2PdbxWithPdbIdAlt(self, inpPath, outPath):
+    def rcsb2PdbxWithPdbIdAlt(self, inpPath: str, outPath: str) -> bool:
         """RCSB CIF -> PDBx conversion  (converting to PDB ID entry/datablock id.)"""
         try:
             dp = RcsbDpUtility(tmpPath=self.__sessionPath, siteId=self.__siteId, verbose=self.__verbose, log=self.__lfh)
@@ -121,7 +123,7 @@ class DataFileAdapter:
             return False
         return True
 
-    def rcsbEps2Pdbx(self, inpPath, outPath, stripFlag=False, stripEntityFlag=False):
+    def rcsbEps2Pdbx(self, inpPath: str, outPath: str, stripFlag: bool = False, stripEntityFlag: bool = False) -> bool:
         """RCSB CIFEPS -> PDBx conversion (This still requires using the full maxit application)"""
         try:
             dp = RcsbDpUtility(tmpPath=self.__sessionPath, siteId=self.__siteId, verbose=self.__verbose, log=self.__lfh)
@@ -144,7 +146,7 @@ class DataFileAdapter:
             return False
         return True
 
-    def cif2Pdb(self, inpPath, outPath):
+    def cif2Pdb(self, inpPath: str, outPath: str) -> bool:
         """CIF -> PDB conversion  (Using the smaller application in the annotation package)"""
         try:
             dp = RcsbDpUtility(tmpPath=self.__sessionPath, siteId=self.__siteId, verbose=self.__verbose, log=self.__lfh)
@@ -160,7 +162,7 @@ class DataFileAdapter:
             return False
         return True
 
-    def cif2Pdbx(self, inpPath, outPath):
+    def cif2Pdbx(self, inpPath: str, outPath: str) -> bool:
         """CIF -> PDBx conversion  (public subset with PDBid conversion)"""
         try:
             dp = RcsbDpUtility(tmpPath=self.__sessionPath, siteId=self.__siteId, verbose=self.__verbose, log=self.__lfh)
@@ -176,7 +178,7 @@ class DataFileAdapter:
             return False
         return True
 
-    def modelConvertToPdbx(self, filePath=None, fileType="pdbx", pdbxFilePath=None):
+    def modelConvertToPdbx(self, filePath: Optional[str] = None, fileType: str = "pdbx", pdbxFilePath: Optional[str] = None) -> bool:
         """Convert input model file format to PDBx.   Converted file is stored in the session
         directory using standard file naming.
 
@@ -207,7 +209,7 @@ class DataFileAdapter:
             traceback.print_exc(file=self.__lfh)
             return False
 
-    def pdbx2Assemblies(self, idCode, inpFilePath, outPath=".", indexFilePath=None):
+    def pdbx2Assemblies(self, idCode: Optional[str], inpFilePath: str, outPath: str = ".", indexFilePath: Optional[str] = None) -> bool:
         """Create model assemby files from input PDBx model file."""
         try:
             pdbxPath = inpFilePath
@@ -245,14 +247,14 @@ class DataFileAdapter:
 
     def mtz2Pdbx(
         self,
-        mtzFilePath,
-        outSfFilePath,
-        pdbxFilePath=None,
-        logFilePath=None,
-        diagsFilePath=None,  # noqa: ARG002
-        dumpFilePath=None,
-        timeout=120,
-    ):  # noqa: ARG002 pylint: disable=unused-argument
+        mtzFilePath: str,
+        outSfFilePath: str,
+        pdbxFilePath: Optional[str] = None,
+        logFilePath: Optional[str] = None,
+        diagsFilePath: Optional[str] = None,  # noqa: ARG002 pylint: disable=unused-argument
+        dumpFilePath: Optional[str] = None,
+        timeout: int = 120,
+    ) -> bool:  # noqa: ARG002
         """Convert input MTZ format to PDBx sf file."""
         try:
             diagfn = logFilePath if logFilePath is not None else "sf-convert-diags.cif"
