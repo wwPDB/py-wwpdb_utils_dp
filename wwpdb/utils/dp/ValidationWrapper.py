@@ -17,7 +17,7 @@ __license__ = "Apache 2.0"
 import logging
 import os
 import sys
-from typing import List, Literal, Optional, TextIO, Union
+from typing import List, Literal, Optional, Sequence, TextIO, Union
 
 from mmcif.io.IoAdapterCore import IoAdapterCore
 from wwpdb.io.file.DataFile import DataFile
@@ -71,7 +71,7 @@ class ValidationWrapper(RcsbDpUtility):
         runOp: RcsbDpOp = "annot-wwpdb-validate-all-v2" if op == "annot-wwpdb-validate-all-sf" else op
         return super(ValidationWrapper, self).op(runOp)
 
-    def expList(self, dstPathList: Optional[List[str]] = None) -> Optional[bool]:
+    def expList(self, dstPathList: Optional[Sequence[str]] = None) -> Optional[bool]:
         if dstPathList is None:
             dstPathList = []
 
@@ -84,7 +84,7 @@ class ValidationWrapper(RcsbDpUtility):
         # Handle the first arguments
         # ofpdf,ofxml,offullpdf,ofpng,ofsvg,ofmtz
 
-        basedst = dstPathList[0:7]
+        basedst: List[str] = list(dstPathList[0:7])
         outfosf = dstPathList[7]
         out2fosf = dstPathList[8]
         wrkDir = self.getWorkingDir()

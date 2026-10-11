@@ -166,7 +166,7 @@ import sys
 import tempfile
 import time
 from subprocess import call
-from typing import Any, Dict, List, Literal, Optional, TextIO, Union, get_args
+from typing import Any, Dict, List, Literal, Optional, Sequence, TextIO, Union, get_args
 
 from wwpdb.utils.dp.JobLogging import JobLogger, RunEnvironment
 
@@ -709,7 +709,7 @@ class RcsbDpUtility:
     def getResultPathList(self) -> List[str]:
         return self.__resultPathList
 
-    def expList(self, dstPathList: Optional[List[str]] = None) -> Optional[bool]:
+    def expList(self, dstPathList: Optional[Sequence[str]] = None) -> Optional[bool]:
         """Export  copies of the list of last results to the corresponding paths
         in the destination file path list.
         """
