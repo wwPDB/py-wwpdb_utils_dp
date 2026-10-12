@@ -71,7 +71,7 @@ class ValidationWrapper(RcsbDpUtility):
         runOp: RcsbDpOp = "annot-wwpdb-validate-all-v2" if op == "annot-wwpdb-validate-all-sf" else op
         return super(ValidationWrapper, self).op(runOp)
 
-    def expList(self, dstPathList: Optional[Sequence[str]] = None) -> Optional[bool]:
+    def expList(self, dstPathList: Optional[Sequence[Optional[str]]] = None) -> Optional[bool]:
         if dstPathList is None:
             dstPathList = []
 
@@ -84,7 +84,7 @@ class ValidationWrapper(RcsbDpUtility):
         # Handle the first arguments
         # ofpdf,ofxml,offullpdf,ofpng,ofsvg,ofmtz
 
-        basedst: List[str] = list(dstPathList[0:7])
+        basedst: List[Optional[str]] = list(dstPathList[0:7])
         outfosf = dstPathList[7]
         out2fosf = dstPathList[8]
         wrkDir = self.getWorkingDir()

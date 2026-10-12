@@ -709,7 +709,7 @@ class RcsbDpUtility:
     def getResultPathList(self) -> List[str]:
         return self.__resultPathList
 
-    def expList(self, dstPathList: Optional[Sequence[str]] = None) -> Optional[bool]:
+    def expList(self, dstPathList: Optional[Sequence[Optional[str]]] = None) -> Optional[bool]:
         """Export  copies of the list of last results to the corresponding paths
         in the destination file path list.
         """
@@ -724,11 +724,12 @@ class RcsbDpUtility:
         for f, fc in zip_longest(self.__resultPathList, dstPathList):
             logger.debug("+RcsbUtility.expList exporting %s to %s\n", f, fc)
             if (f != "missing") and os.path.exists(f):
-                f1 = DataFile(f)
-                if f1.srcFileExists():
-                    f1.copy(fc)
-                else:
-                    ok = False
+                if fc:  # while DataFile copy() supports None -- it will use the previous file...
+                    f1 = DataFile(f)
+                    if f1.srcFileExists():
+                        f1.copy(fc)
+                    else:
+                        ok = False
             else:
                 logger.error("+RcsbUtility.failed to copy %s to %s\n", f, fc)
                 ok = False
