@@ -3114,7 +3114,7 @@ class RcsbDpUtility:
                 # index file --
                 ipT = os.path.join(self.__getWrkPath(), "LIG_PEPTIDE.cif")
                 if os.access(ipT, os.R_OK):
-                    shutil.copyfile(ipT, outIndexPathFull)  # This is defined for this op  # pylint: disable=used-before-assignment
+                    shutil.copyfile(ipT, outIndexPathFull)  # This is defined for this op  # pylint: disable=used-before-assignment,possibly-used-before-assignment
                 elif self.__verbose:
                     logger.info("+RcsbDpUtility._annotationStep()  - missing map index file %s\n", ipT)
 
@@ -3142,7 +3142,7 @@ class RcsbDpUtility:
 
         elif op in ["annot-chem-shifts-atom-name-check", "annot-chem-shifts-upload-check"]:
             if os.access(lCheckPath, os.R_OK):
-                shutil.copyfile(lCheckPath, chkPath)  # This is defined for this op  # pylint: disable=used-before-assignment
+                shutil.copyfile(lCheckPath, chkPath)  # This is defined for this op  # pylint: disable=used-before-assignment,possibly-used-before-assignment
             #
 
         elif op == "annot-depict-molecule-json":
@@ -3646,7 +3646,7 @@ class RcsbDpUtility:
             jarPath = os.path.join(self.__packagePath, "mapFix", "mapFixAnot.jar")
             cmd += self.__javaPath + " -Xms256m -Xmx256m -jar " + jarPath
             # -out is a temporary file place holder --
-            cmd += " -in " + inpMapFilePath + " -out  dummy-out.map "  # pylint: disable=used-before-assignment
+            cmd += " -in " + inpMapFilePath + " -out  dummy-out.map "  # pylint: disable=used-before-assignment,possibly-used-before-assignment
             # these dummy arguments required to run this code --
             cmd += " -voxel 1.0 1.0 1.0 -label test "
             # oPath here will be the JSON  output containing may header details --
