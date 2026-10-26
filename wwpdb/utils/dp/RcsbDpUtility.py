@@ -4258,7 +4258,8 @@ class RcsbDpUtility:
 
             cmdPath = os.path.join(self.__packagePath, "dict", "bin", "cifexch2")
             thisCmd = (
-                " ; " + cmdPath + " -dicSdb " + sDictSdb + " -pdbxDicSdb " + dDictSdb + " -reorder  -strip -op in  -pdbids "  # pylint: disable=possibly-used-before-assignment,used-before-assignment
+                " ; " + cmdPath + " -dicSdb " + sDictSdb + " -pdbxDicSdb "  # pylint: disable=possibly-used-before-assignment,used-before-assignment
+                + dDictSdb + " -reorder  -strip -op in  -pdbids "  # pylint: disable=possibly-used-before-assignment,used-before-assignment
             )  # If not set, crash is ok  # noqa: E501 pylint: disable=possibly-used-before-assignment,used-before-assignment
             cmd += thisCmd + " -input " + iPath + " -output " + oPath
 
