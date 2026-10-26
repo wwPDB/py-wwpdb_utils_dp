@@ -2831,7 +2831,7 @@ class RcsbDpUtility:
             ]
 
             strpCt = PdbxStripCategory(verbose=self.__verbose, log=self.__lfh)
-            strpCt.strip(oPath2Full, oPathFull, stripList)  # This is defined for this op  # pylint: disable=used-before-assignment
+            strpCt.strip(oPath2Full, oPathFull, stripList)  # This is defined for this op  # pylint: disable=possibly-used-before-assignment,used-before-assignment
 
         if (op == "annot-rcsb2pdbx-strip") or (op == "annot-rcsbeps2pdbx-strip"):
             # remove these derived categories for now --
@@ -2946,7 +2946,7 @@ class RcsbDpUtility:
                     self.__resultPathList.append("missing")
 
             # Cleanup workdir
-            if deleteRunDir and runDir is not None:  # This is defined for this op  # pylint: disable=used-before-assignment
+            if deleteRunDir and runDir is not None:  # This is defined for this op  # pylint: disable=possibly-used-before-assignment,used-before-assignment
                 try:
                     logger.info("+RcsbDpUtility.__annotationStep() removing working path %s\n", runDir)
                     shutil.rmtree(runDir, ignore_errors=True)
@@ -3026,17 +3026,17 @@ class RcsbDpUtility:
             #
             # Push the output converted and diagnostic files onto the resultPathList.
             #
-            if os.access(sfCifPath, os.F_OK):  # This is defined for this op  # pylint: disable=used-before-assignment
+            if os.access(sfCifPath, os.F_OK):  # This is defined for this op  # pylint: disable=possibly-used-before-assignment,used-before-assignment
                 self.__resultPathList.append(sfCifPath)
             else:
                 self.__resultPathList.append("missing")
 
-            if os.access(sfDiagPath, os.F_OK):  # This is defined for this op  # pylint: disable=used-before-assignment
+            if os.access(sfDiagPath, os.F_OK):  # This is defined for this op  # pylint: disable=possibly-used-before-assignment,used-before-assignment
                 self.__resultPathList.append(sfDiagPath)
             else:
                 self.__resultPathList.append("missing")
 
-            if os.access(mtzDmpPath, os.F_OK):  # This is defined for this op  # pylint: disable=used-before-assignment
+            if os.access(mtzDmpPath, os.F_OK):  # This is defined for this op  # pylint: disable=possibly-used-before-assignment,used-before-assignment
                 self.__resultPathList.append(mtzDmpPath)
             else:
                 self.__resultPathList.append("missing")
@@ -3096,8 +3096,8 @@ class RcsbDpUtility:
                 logger.info(
                     "+RcsbDpUtility._annotationStep()  - for operation %s return path %s\n",
                     op,
-                    outDataPathFull,  # pylint: disable=used-before-assignment
-                )  # Is defined for op  # pylint: disable=used-before-assignment
+                    outDataPathFull,  # pylint: disable=possibly-used-before-assignment,used-before-assignment
+                )  # Is defined for op  # pylint: disable=possibly-used-before-assignment,used-before-assignment
             pat = os.path.join(self.__getWrkPath(), "*.map")
             self.__resultMapPathList = glob.glob(pat)
             if self.__debug:
@@ -4258,8 +4258,8 @@ class RcsbDpUtility:
 
             cmdPath = os.path.join(self.__packagePath, "dict", "bin", "cifexch2")
             thisCmd = (
-                " ; " + cmdPath + " -dicSdb " + sDictSdb + " -pdbxDicSdb " + dDictSdb + " -reorder  -strip -op in  -pdbids "  # pylint: disable=possibly-used-before-assignment
-            )  # If not set, crash is ok  # noqa: E501 pylint: disable=possibly-used-before-assignment
+                " ; " + cmdPath + " -dicSdb " + sDictSdb + " -pdbxDicSdb " + dDictSdb + " -reorder  -strip -op in  -pdbids "  # pylint: disable=possibly-used-before-assignment,used-before-assignment
+            )  # If not set, crash is ok  # noqa: E501 pylint: disable=possibly-used-before-assignment,used-before-assignment
             cmd += thisCmd + " -input " + iPath + " -output " + oPath
 
             if "option" in self.__inputParamDict:
