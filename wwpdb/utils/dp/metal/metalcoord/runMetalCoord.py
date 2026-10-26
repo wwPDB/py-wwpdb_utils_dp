@@ -102,16 +102,16 @@ class RunMetalCoord:
         if self.d_args["pdb"]:
             if os.path.exists(self.d_args["pdb"]):
                 logger.info("run on PDB file found at %s", self.d_args["pdb"])
-            elif len(self.d_args["pdb"]) in (4, 12) and self.d_args["pdb"].isalnum():
+            elif len(self.d_args["pdb"]) in (4, 12) and self.d_args["pdb"].replace("_", "").isalnum():
                 logger.info("run on PDB ID provided: %s", self.d_args["pdb"])
             else:
                 errors["pdb"] = f"invalid PDB reference: {self.d_args['pdb']}, must be a valid PDB ID or an existing PDB/mmCIF file"
 
         if self.d_args.get("ligand"):
-            if self.d_args["ligand"] and self.d_args["ligand"].isalnum() and len(self.d_args["ligand"]) in (1, 2, 3, 5):
+            if self.d_args["ligand"] and self.d_args["ligand"].isalnum() and len(self.d_args["ligand"]) in (1, 2, 3, 4, 5):
                 logger.info("ligand code provided: %s", self.d_args["ligand"])
             else:
-                errors["ligand"] = f"invalid ligand code: {self.d_args['ligand']}, must be alphanumeric and 1, 2, 3, or 5 characters long"
+                errors["ligand"] = f"invalid ligand code: {self.d_args['ligand']}, must be alphanumeric and 1, 2, 3, 4, or 5 characters long"
 
         if self.d_args.get("max_size"):
             if not isinstance(self.d_args["max_size"], int) or self.d_args["max_size"] <= 10:
