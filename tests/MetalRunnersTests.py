@@ -243,11 +243,24 @@ class RunMetalCoordTests(_TempDirMixin):
         d_args = self.__args()
         d_args["pdb"] = "pdb00004dhvx"
         RunMetalCoord(d_args)
-        # Current behavior: an extended PDB ID containing "_" fails the isalnum() check
+        # Extended PDB IDs with "_" are accepted
         d_args["pdb"] = "pdb_00004dhv"
+        RunMetalCoord(d_args)
+        # Other punctuation is still rejected
+        d_args["pdb"] = "pdb-00004dhv"
         with self.assertRaises(MetalCoordParametersError) as ctx:
             RunMetalCoord(d_args)
         self.assertEqual(set(ctx.exception.errors.keys()), {"pdb"})
+
+    def testLigandCodeLengths(self) -> None:
+        d_args = self.__args()
+        for ligand in ("Z", "ZN", "HEM", "AB12C"):
+            d_args["ligand"] = ligand
+            RunMetalCoord(d_args)
+        d_args["ligand"] = "ABCDEF"
+        with self.assertRaises(MetalCoordParametersError) as ctx:
+            RunMetalCoord(d_args)
+        self.assertEqual(set(ctx.exception.errors.keys()), {"ligand"})
 
     def testCcp4Exe(self) -> None:
         d_args = self.__args()
