@@ -8,11 +8,10 @@ replaced, and one test runs the real RunRemote against a mocked sbatch/squeue/sa
 import json
 import os
 import shutil
-import subprocess
 import sys
 import tempfile
 import unittest
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any, Dict, List, Optional
 from unittest import mock
 
 import yaml
