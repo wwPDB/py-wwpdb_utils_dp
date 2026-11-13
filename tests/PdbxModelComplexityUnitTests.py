@@ -85,7 +85,7 @@ class PdbxModelComplexityUnitTests(unittest.TestCase):
         out = self.__readOutput()
         self.assertEqual(out["is_complex"], "False")
         self.assertAlmostEqual(float(out["entry_complexity"]), 500.0)
-        self.assertEqual(out["complex_threshold"], "1.00e+06")
+        self.assertEqual(out["complex_threshold"], "1.00e+08")
 
     def testBadOligoCount(self) -> None:
         fpath = self.__writeModel([["1", "polymer", "2", "10.0"]], oligo="abc")
@@ -95,16 +95,94 @@ class PdbxModelComplexityUnitTests(unittest.TestCase):
         # Non-integer oligomeric_count falls back to 1
         self.assertAlmostEqual(float(self.__readOutput()["polymer_complexity"]), 20.0)
 
+    def testBadNumMol(self) -> None:
+        """Unconvertable or out of range molecule count fails the calculation"""
+        for nmol in ["2.0", "abc", "0", "-1"]:
+            fpath = self.__writeModel([["1", "polymer", nmol, "10.0"]])
+            pmc = PdbxModelComplexity()
+            self.assertFalse(pmc.calculate(fpath), nmol)
+
+    def testBadFormulaWeight(self) -> None:
+        """Unconvertable or negative formula weight fails the calculation"""
+        for fw in ["abc", "-7.0"]:
+            fpath = self.__writeModel([["1", "polymer", "1", "7.0"], ["2", "non-polymer", "1", fw]])
+            pmc = PdbxModelComplexity()
+            self.assertFalse(pmc.calculate(fpath), fw)
+
+    def testZeroFormulaWeight(self) -> None:
+        """Zero formula weight is accepted"""
+        fpath = self.__writeModel([["1", "polymer", "1", "7.0"], ["2", "non-polymer", "1", "0"]])
+        pmc = PdbxModelComplexity(threshold=1.0)
+        self.assertTrue(pmc.calculate(fpath))
+        pmc.write_output(self.__out)
+        self.assertAlmostEqual(float(self.__readOutput()["entry_complexity"]), 7.0)
+
+    def testMissingType(self) -> None:
+        """Missing (? or .) entity type fails the calculation"""
+        for missing in ["?", "."]:
+            fpath = self.__writeModel([["1", missing, "1", "10.0"]])
+            pmc = PdbxModelComplexity()
+            self.assertFalse(pmc.calculate(fpath))
+
+    def testReuseClearsPreviousResult(self) -> None:
+        """A failed second calculate() must not leave the first file's results behind"""
+        pmc = PdbxModelComplexity(threshold=1.0)
+        self.assertTrue(pmc.calculate(self.__writeModel([["1", "polymer", "1", "50.0"]])))
+        self.assertFalse(pmc.calculate(self.__writeModel([["1", "polymer", "?", "50.0"]])))
+        pmc.write_output(self.__out)
+        out = self.__readOutput()
+        self.assertEqual(out["is_complex"], "False")
+        self.assertEqual(out["entry_complexity"], "0")
+
+    def testDefaultThresholdMatchesCli(self) -> None:
+        """Class default threshold matches command line default"""
+        fpath = self.__writeModel([["1", "polymer", "1", "50.0"]])
+        argv = ["PdbxModelComplexity.py", "--model", fpath, "--output", self.__out]
+        with mock.patch("sys.argv", argv), self.assertRaises(SystemExit):
+            main()
+        cli = self.__readOutput()["complex_threshold"]
+        pmc = PdbxModelComplexity()
+        self.assertTrue(pmc.calculate(fpath))
+        pmc.write_output(self.__out)
+        self.assertEqual(self.__readOutput()["complex_threshold"], cli)
+
+    def testMissingNumMolValue(self) -> None:
+        """Missing (? or .) number of molecules fails the calculation"""
+        for missing in ["?", "."]:
+            fpath = self.__writeModel([["1", "polymer", missing, "10.0"]])
+            pmc = PdbxModelComplexity()
+            self.assertFalse(pmc.calculate(fpath))
+
+    def testMissingFormulaWeightValue(self) -> None:
+        """Missing (? or .) formula weight fails the calculation"""
+        for missing in ["?", "."]:
+            fpath = self.__writeModel([["1", "polymer", "1", "10.0"], ["2", "water", "5", missing]])
+            pmc = PdbxModelComplexity()
+            self.assertFalse(pmc.calculate(fpath))
+
+    def testNonPositiveOligoCount(self) -> None:
+        """Zero or negative oligomeric_count is treated as 1"""
+        for oligo in ["0", "-3"]:
+            fpath = self.__writeModel([["1", "polymer", "2", "10.0"]], oligo=oligo)
+            pmc = PdbxModelComplexity(threshold=1.0)
+            self.assertTrue(pmc.calculate(fpath))
+            pmc.write_output(self.__out)
+            self.assertAlmostEqual(float(self.__readOutput()["polymer_complexity"]), 20.0)
+
     def testMissingEntityAttribute(self) -> None:
         fpath = self.__writeModel([["1", "polymer", "2"]], entattr=["id", "type", "pdbx_number_of_molecules"])
         pmc = PdbxModelComplexity()
         self.assertFalse(pmc.calculate(fpath))
 
     def testNoEntity(self) -> None:
-        """No entity category - succeeds with default output values"""
+        """No entity category fails the calculation"""
         fpath = self.__writeModel(None)
         pmc = PdbxModelComplexity(threshold=5.0)
-        self.assertTrue(pmc.calculate(fpath))
+        self.assertFalse(pmc.calculate(fpath))
+
+    def testWriteWithoutCalculate(self) -> None:
+        """write_output() with no successful calculation writes default values"""
+        pmc = PdbxModelComplexity(threshold=5.0)
         pmc.write_output(self.__out)
         out = self.__readOutput()
         self.assertEqual(out["is_complex"], "False")

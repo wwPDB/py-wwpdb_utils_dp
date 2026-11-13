@@ -1,4 +1,4 @@
-"""Functionailty to calculate the complexit of coordinate model"""
+"""Functionality to calculate the complexity of a coordinate model"""
 
 import argparse
 import logging
@@ -14,12 +14,20 @@ logger = logging.getLogger(__name__)
 
 
 class PdbxModelComplexity:
-    def __init__(self, threshold: float = 1e6) -> None:
+    def __init__(self, threshold: float = 1e8) -> None:
         self.__data: Dict[str, Union[bool, float]] = {}
         self.__threshold = threshold
 
     def calculate(self, fpath: str) -> bool:
-        """Calculates complexity of coordinate file in fpath.  Returns True on success.  Returns False if file does not exist"""
+        """Calculates complexity of coordinate file in fpath.  Returns True on success.
+
+        Returns False if the file does not exist or cannot be read, if the entity category or any of
+        its type, pdbx_number_of_molecules or formula_weight attributes are absent, or if any entity row has a
+        missing (? or .), unconvertable or out of range (pdbx_number_of_molecules < 1, formula_weight < 0) value.
+        """
+
+        # Clear results from any previous invocation
+        self.__data = {}
 
         if not os.path.exists(fpath):
             logger.error("Filename %s does not exist", fpath)
@@ -28,7 +36,7 @@ class PdbxModelComplexity:
         io = IoAdapter()
         cL = io.readFile(fpath, selectList=["entity", "pdbx_struct_assembly"])
 
-        if not cL or len(cL) < 1:
+        if not cL:
             logger.error("Error processing complexity %s", fpath)
             return False
 
@@ -43,7 +51,8 @@ class PdbxModelComplexity:
                 val = cObj.getValueOrDefault("oligomeric_count", rowIndex=0, defaultValue="1")
                 try:
                     valI = int(val)
-                    oligo_count = valI
+                    # Zero or negative counts are nonsensical - treat as 1
+                    oligo_count = valI if valI > 0 else 1
                 except ValueError:
                     pass
 
@@ -52,52 +61,75 @@ class PdbxModelComplexity:
         non_poly_complexity: float = 0
         polymer_complexity: float = 0
 
-        if b0.exists("entity"):
-            cObj = b0.getObj("entity")
+        if not b0.exists("entity"):
+            logger.error("No entity category in %s", fpath)
+            return False
 
-            # Ensure real data
-            for attr in ["type", "pdbx_number_of_molecules", "formula_weight"]:
-                if attr not in cObj.getAttributeList():
-                    logger.error("Entity category missing attribute %s", attr)
+        cObj = b0.getObj("entity")
+
+        # Ensure real data
+        for attr in ["type", "pdbx_number_of_molecules", "formula_weight"]:
+            if attr not in cObj.getAttributeList():
+                logger.error("Entity category missing attribute %s", attr)
+                return False
+
+        for row in range(cObj.getRowCount()):
+            etype = cObj.getValueOrDefault("type", row, None)
+            num_mol = cObj.getValueOrDefault("pdbx_number_of_molecules", row, None)
+            fw = cObj.getValueOrDefault("formula_weight", row, None)
+
+            # Missing values (? or .) mean the complexity cannot be determined
+            for attr, value in [("type", etype), ("pdbx_number_of_molecules", num_mol), ("formula_weight", fw)]:
+                if value is None:
+                    logger.error("Entity row %d missing %s", row, attr)
                     return False
 
-            for row in range(cObj.getRowCount()):
-                etype = cObj.getValueOrDefault("type", row, "unknown")
-                num_mol = cObj.getValueOrDefault("pdbx_number_of_molecules", row, "1")
-                fw = cObj.getValueOrDefault("formula_weight", row, "unknown")
+            try:
+                num_mol_int = int(num_mol)
+            except ValueError:
+                logger.error("Entity row %d invalid pdbx_number_of_molecules %s", row, num_mol)
+                return False
+            try:
+                fw_val = float(fw)
+            except ValueError:
+                logger.error("Entity row %d invalid formula_weight %s", row, fw)
+                return False
 
-                # Sensible defaults if values are not convertable to int/float
-                num_mol_int = 1
-                fw_val = 0.0
-                try:
-                    num_mol_int = int(num_mol)
-                    fw_val = float(fw)
-                except ValueError:
-                    logger.error("Error converting values %s %s", num_mol, fw)
+            if num_mol_int < 1:
+                logger.error("Entity row %d pdbx_number_of_molecules %d must be at least 1", row, num_mol_int)
+                return False
+            if fw_val < 0.0:
+                logger.error("Entity row %d formula_weight %s must not be negative", row, fw)
+                return False
 
-                if etype == "polymer":
-                    entity_complexity = num_mol_int * fw_val * oligo_count
-                    entry_complexity += entity_complexity
-                    polymer_complexity += entity_complexity
-                else:
-                    # water, ligands, branched chain carbo, etc
-                    entity_complexity = num_mol_int * fw_val
-                    entry_complexity += entity_complexity
-                    non_poly_complexity += entity_complexity
+            if etype == "polymer":
+                # NOTE: polymers may be counted twice.  pdbx_number_of_molecules already
+                # counts copies in the asymmetric unit, and oligomeric_count (first
+                # assembly only) counts chains in the assembly - so e.g. a homodimer with
+                # two chains in the asymmetric unit contributes 4x its formula weight.
+                # Non-polymers are not scaled by oligomeric_count.
+                entity_complexity = num_mol_int * fw_val * oligo_count
+                entry_complexity += entity_complexity
+                polymer_complexity += entity_complexity
+            else:
+                # water, ligands, branched chain carbo, etc
+                entity_complexity = num_mol_int * fw_val
+                entry_complexity += entity_complexity
+                non_poly_complexity += entity_complexity
 
-            is_complex = True if entry_complexity > self.__threshold else False  # noqa: SIM210
+        is_complex = True if entry_complexity > self.__threshold else False  # noqa: SIM210
 
-            self.__data = {
-                "is_complex": is_complex,
-                "entry_complexity": entry_complexity,
-                "polymer_complexity": polymer_complexity,
-                "non_poly_complexity": non_poly_complexity,
-            }
+        self.__data = {
+            "is_complex": is_complex,
+            "entry_complexity": entry_complexity,
+            "polymer_complexity": polymer_complexity,
+            "non_poly_complexity": non_poly_complexity,
+        }
 
         return True
 
     def write_output(self, fpath: str) -> None:
-        """Writes out the"""
+        """Writes the results of the last calculate() as a pdbx_complexity category to fpath"""
 
         c0 = DataContainer("complexity")
 
