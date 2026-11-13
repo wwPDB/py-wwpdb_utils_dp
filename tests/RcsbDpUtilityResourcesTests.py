@@ -7,6 +7,7 @@ replaced, and one test runs the real RunRemote against a mocked sbatch/squeue/sa
 
 import json
 import os
+import re
 import shutil
 import sys
 import tempfile
@@ -64,10 +65,7 @@ class ResourceTestBase(unittest.TestCase):
         return path_
 
     def make(self) -> RcsbDpUtility:
-        dp = RcsbDpUtility(tmpPath=self.tmp, siteId="TEST")
-        for name in ("__oeDirPath", "__oeLicensePath", "__packagePath", "__site_config_command"):
-            setattr(dp, "_RcsbDpUtility" + name, "/x")
-        return dp
+        return RcsbDpUtility(tmpPath=self.tmp, siteId="TEST")
 
     def run_op(self, dp: RcsbDpUtility, op: str) -> Dict[str, Any]:
         """Run ``op`` and return the memory and CPUs given to RunRemote."""
@@ -164,37 +162,52 @@ class NoLeakBetweenOperationsTests(ResourceTestBase):
 class MetalThreadsTests(ResourceTestBase):
     """OMP threads inside the metal-coordination jobs follow the CPUs available to the process."""
 
-    def threads(self, dp: RcsbDpUtility, op: str, cpu_split: int = 2) -> int:
-        return int(dp._RcsbDpUtility__metalThreads(op, cpu_split))  # type: ignore[attr-defined]  # pylint: disable=protected-access
+    STATS = "metal-metalcoord-stats"
+
+    def threads(self, op: str = STATS) -> int:
+        """Run ``op`` through the public interface and return the OMP_NUM_THREADS the job command exports."""
+        dp = self.make()
+        model = os.path.join(self.tmp, "model.cif")
+        with open(model, "w", encoding="utf-8") as fh:
+            fh.write("data_x\n")
+        dp.imp(model)
+        dp.addInput(name="ligands", value="0KA")
+        with mock.patch.object(dpmod, "RunRemote") as run_remote:
+            run_remote.return_value.run.return_value = mock.Mock(status=JobStatus.COMPLETED)
+            dp.op(op)  # type: ignore[arg-type]
+        found = re.findall(r"OMP_NUM_THREADS=(\d+)", run_remote.call_args.kwargs["command"])
+        self.assertEqual(len(found), 1)
+        return int(found[0])
 
     def with_cpus(self, count: int) -> "mock._patch[Any]":
         return mock.patch.object(os, "sched_getaffinity", lambda _pid: set(range(count)), create=True)
 
     def test_unconfigured_uses_the_legacy_fraction_of_available_cpus(self) -> None:
         with self.with_cpus(8):
-            self.assertEqual(self.threads(self.make(), "metal-metalcoord-stats"), 4)
+            self.assertEqual(self.threads(), 4)
+
+    def test_odd_cpu_counts_round_up_as_before(self) -> None:
+        with self.with_cpus(5):
+            self.assertEqual(self.threads(), 3)
 
     def test_one_available_cpu_gives_one_thread(self) -> None:
         with self.with_cpus(1):
-            self.assertEqual(self.threads(self.make(), "metal-metalcoord-stats"), 1)
+            self.assertEqual(self.threads(), 1)
 
     def test_configured_value_is_used(self) -> None:
-        self.write_config({"jobs": {"metal-metalcoord-stats": {"cpus": 3}}})
+        self.write_config({"jobs": {self.STATS: {"cpus": 3}}})
         with self.with_cpus(8):
-            self.assertEqual(self.threads(self.make(), "metal-metalcoord-stats"), 3)
+            self.assertEqual(self.threads(), 3)
 
     def test_configured_value_above_available_is_clamped_with_a_warning(self) -> None:
-        self.write_config({"jobs": {"metal-metalcoord-stats": {"cpus": 20}}})
+        self.write_config({"jobs": {self.STATS: {"cpus": 20}}})
         with self.with_cpus(4), self.assertLogs(dpmod.logger, level="WARNING"):
-            self.assertEqual(self.threads(self.make(), "metal-metalcoord-stats"), 4)
+            self.assertEqual(self.threads(), 4)
 
-    def test_the_stats_command_exports_the_thread_count(self) -> None:
-        self.write_config({"jobs": {"metal-metalcoord-stats": {"cpus": 3}}})
+    def test_the_regular_geometry_variant_follows_the_same_rule(self) -> None:
+        self.write_config({"jobs": {"metal-metalcoord-stats-filter-regular": {"cpus": 2}}})
         with self.with_cpus(8):
-            cmd = self.make()._RcsbDpUtility__constructMetalCoordCommand(  # type: ignore[attr-defined]  # pylint: disable=protected-access
-                "(true", "i", "o", "t", "l", cpu_split=2, b_filter=False, op="metal-metalcoord-stats"
-            )
-        self.assertIn("OMP_NUM_THREADS=3", cmd)
+            self.assertEqual(self.threads("metal-metalcoord-stats-filter-regular"), 2)
 
 
 class RetryRegressionTests(ResourceTestBase):
