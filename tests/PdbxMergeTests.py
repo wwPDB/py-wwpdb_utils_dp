@@ -15,6 +15,7 @@ Test cases for EM map annotation tools --
 import logging
 import os
 import unittest
+from typing import List
 
 from mmcif.api.DataCategory import DataCategory
 from mmcif.api.PdbxContainers import DataContainer
@@ -38,11 +39,11 @@ logger.setLevel(logging.INFO)
 
 
 class PdbxMergeTests(unittest.TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         pass
 
     @staticmethod
-    def _createfile1(pathout):
+    def _createfile1(pathout: str) -> None:
         my_data_list = []
 
         cur_container = DataContainer("myblock")
@@ -92,7 +93,7 @@ class PdbxMergeTests(unittest.TestCase):
             pdbxw.write(my_data_list)
 
     @staticmethod
-    def _createfile2(pathout):
+    def _createfile2(pathout: str) -> None:
         my_data_list = []
 
         cur_container = DataContainer("test")
@@ -140,10 +141,10 @@ class PdbxMergeTests(unittest.TestCase):
             pdbxw.setAlignmentFlag(flag=True)
             pdbxw.write(my_data_list)
 
-    def _testmerge(self, pathin):
+    def _testmerge(self, pathin: str) -> None:
         with open(pathin) as ifh:
             pdbxr = PdbxReader(ifh)
-            dlist = []
+            dlist: List[DataContainer] = []
             pdbxr.read(dlist)
             # Two blocks
             self.assertEqual(len(dlist), 2, "Two blocks in merge")
@@ -192,7 +193,7 @@ class PdbxMergeTests(unittest.TestCase):
             rd = cat.getRowItemDict(1)
             self.assertEqual(rd, {"_third.id": "2", "_third.val": "b"}, "third category mismatch")
 
-    def testMerge(self):
+    def testMerge(self) -> None:
         f1name = os.path.join(TESTOUTPUT, "test_merge1.cif")
         self._createfile1(f1name)
 

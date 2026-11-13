@@ -13,6 +13,7 @@ import logging
 import os
 import shutil
 import tempfile
+from typing import List, Literal, Optional
 
 from mmcif.api.PdbxContainers import DataContainer
 from mmcif.io.IoAdapterCore import IoAdapterCore
@@ -24,13 +25,13 @@ logger = logging.getLogger(__name__)
 
 
 class PdbxSFMapCoefficients:
-    def __init__(self, siteid=None, tmppath="/tmp", cleanup=True):  # noqa: S108
-        self.__sf = None
+    def __init__(self, siteid: Optional[str] = None, tmppath: Optional[str] = "/tmp", cleanup: bool = True) -> None:  # noqa: S108
+        self.__sf: Optional[List[DataContainer]] = None
         self.__siteid = getSiteId(siteid)
         self.__cleanup = cleanup
         self.__tmppath = tmppath
 
-    def read_mmcif_sf(self, pathin):
+    def read_mmcif_sf(self, pathin: str) -> bool:
         """Reads PDBx/mmCIF structure factor file with map coefficients
 
         Return True on success, otherwise False
@@ -46,7 +47,7 @@ class PdbxSFMapCoefficients:
             self.__sf = None
             return False
 
-    def has_map_coeff(self):
+    def has_map_coeff(self) -> bool:
         """Returns True if read in SF file has map coefficients, else returns False"""
         if self.__sf is None:
             return False
@@ -69,7 +70,7 @@ class PdbxSFMapCoefficients:
 
         return True
 
-    def read_mtz_sf(self, pathin):
+    def read_mtz_sf(self, pathin: str) -> bool:
         """Reads MTZ structure factor file
 
         Return True on success, otherwise False
@@ -104,25 +105,28 @@ class PdbxSFMapCoefficients:
             shutil.rmtree(workpath, ignore_errors=True)
         return ret
 
-    def write_mmcif_coef(self, fopathout, twofopathout, entry_id="xxxx"):
+    def write_mmcif_coef(self, fopathout: str, twofopathout: str, entry_id: str = "xxxx") -> bool:
         """Writes out two structure factor files with only fo-fc or 2fo-fc coefficients
 
         Output files are dictionary compliant
 
         entry.id will be set to entry_id
         """
+        if self.__sf is None or len(self.__sf) == 0:
+            logger.error("No structure factor data to write")
+            return False
         ret1 = self.__write_mmcif(fopathout, "fo", entry_id)
         ret2 = self.__write_mmcif(twofopathout, "2fo", entry_id)
         return ret1 and ret2
 
-    def __write_mmcif(self, pathout, coef, entry_id):
+    def __write_mmcif(self, pathout: str, coef: Literal["fo", "2fo"], entry_id: str) -> bool:
         """Writes out the specific map coefficients"""
 
         # Categories that will not be copied
-        _striplist = ["audit", "diffrn_radiation_wavelength", "exptl_crystal", "reflns_scale"]
+        _striplist: List[str] = ["audit", "diffrn_radiation_wavelength", "exptl_crystal", "reflns_scale"]
 
         # refln attributes to keep
-        _keepattr = ["index_h", "index_k", "index_l", "fom"]
+        _keepattr: List[str] = ["index_h", "index_k", "index_l", "fom"]
         if coef == "fo":
             _keepattr.extend(["pdbx_DELFWT", "pdbx_DELPHWT"])
         else:
@@ -131,6 +135,10 @@ class PdbxSFMapCoefficients:
         # Datablockname
         blkname = f"{entry_id}{coef}"
         new_cont = DataContainer(blkname)
+
+        if not self.__sf:
+            logger.error("No structure factor data to write")
+            return False
 
         # Only care about first block
         blockin = self.__sf[0]
@@ -159,5 +167,5 @@ class PdbxSFMapCoefficients:
         # new_cont.printIt()
         io = IoAdapterCore()
         # Write out a single block
-        ret = io.writeFile(pathout, [new_cont])
+        ret: bool = io.writeFile(pathout, [new_cont])
         return ret

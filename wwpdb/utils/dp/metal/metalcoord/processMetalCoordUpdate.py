@@ -4,9 +4,9 @@
 
 """
 This module orchestrates the execution of Acedrg, MetalCoord update mode, and Servalcat to
-process the input ligand CCD file metal based on provided marcromolecular structure file,
-output a ligand CIF file with updated ideal coordinates and charges,
-tegether with a json report summarizing the metal coordination.
+process an input ligand CCD file, optionally guided by a provided macromolecular structure,
+to produce a ligand CIF file with updated ideal coordinates and charges,
+together with a JSON report summarizing metal coordination.
 """
 # pylint: disable=duplicate-code
 
@@ -15,27 +15,41 @@ import json
 import logging
 import os
 import sys
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple
+
+from mmcif.io.IoAdapterCore import IoAdapterCore
 
 if TYPE_CHECKING:
-    from wwpdb.utils.dp.metal.metalcoord.runAcedrg import RunAcedrg, AcedrgCommandExecutionError, AcedrgCommandTimeoutError, AcedrgParametersError  # noqa: E402
-    from wwpdb.utils.dp.metal.metalcoord.runMetalCoord import RunMetalCoord, MetalCoordCommandExecutionError, MetalCoordCommandTimeoutError, MetalCoordParametersError  # noqa: E402
-    from wwpdb.utils.dp.metal.metalcoord.runServalcat import RunServalcat, ServalcatCommandExecutionError, ServalcatCommandTimeoutError, ServalcatParametersError  # noqa: E402
-    from wwpdb.utils.dp.metal.metalcoord.parseMetalCoord import ParseMetalCoord, MetalCoordParseError  # noqa: E402
+    from wwpdb.utils.dp.metal.metal_util.readRef import readRefRedOx  # noqa: E402
     from wwpdb.utils.dp.metal.metal_util.run_command import setup_logger  # noqa: E402
+    from wwpdb.utils.dp.metal.metalcoord.parseMetalCoord import MetalCoordParseError, ParseMetalCoord  # noqa: E402
+    from wwpdb.utils.dp.metal.metalcoord.runAcedrg import AcedrgCommandExecutionError, AcedrgCommandTimeoutError, AcedrgParametersError, RunAcedrg  # noqa: E402
+    from wwpdb.utils.dp.metal.metalcoord.runMetalCoord import (  # noqa: E402
+        MetalCoordCommandExecutionError,
+        MetalCoordCommandTimeoutError,
+        MetalCoordParametersError,
+        RunMetalCoord,
+    )
+    from wwpdb.utils.dp.metal.metalcoord.runServalcat import (  # noqa: E402
+        RunServalcat,
+        ServalcatCommandExecutionError,
+        ServalcatCommandTimeoutError,
+        ServalcatParametersError,
+    )
 else:
     sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    from metalcoord.runAcedrg import RunAcedrg, AcedrgCommandExecutionError, AcedrgCommandTimeoutError, AcedrgParametersError  # noqa: E402
-    from metalcoord.runMetalCoord import RunMetalCoord, MetalCoordCommandExecutionError, MetalCoordCommandTimeoutError, MetalCoordParametersError  # noqa: E402
-    from metalcoord.runServalcat import RunServalcat, ServalcatCommandExecutionError, ServalcatCommandTimeoutError, ServalcatParametersError  # noqa: E402
-    from metalcoord.parseMetalCoord import ParseMetalCoord, MetalCoordParseError  # noqa: E402
+    from metal_util.readRef import readRefRedOx  # noqa: E402
     from metal_util.run_command import setup_logger  # noqa: E402
+    from metalcoord.parseMetalCoord import MetalCoordParseError, ParseMetalCoord  # noqa: E402
+    from metalcoord.runAcedrg import AcedrgCommandExecutionError, AcedrgCommandTimeoutError, AcedrgParametersError, RunAcedrg  # noqa: E402
+    from metalcoord.runMetalCoord import MetalCoordCommandExecutionError, MetalCoordCommandTimeoutError, MetalCoordParametersError, RunMetalCoord  # noqa: E402
+    from metalcoord.runServalcat import RunServalcat, ServalcatCommandExecutionError, ServalcatCommandTimeoutError, ServalcatParametersError  # noqa: E402
 
 setup_logger(name="metalcoord", log_dir=".", b_debug=False)
 logger = logging.getLogger("metalcoord.processMetalCoordUpdate")
 
 
-def callAcedrg(d_args_acedrg):
+def callAcedrg(d_args_acedrg: Dict[str, Any]) -> Optional[str]:
     """
     Call Acedrg with the provided arguments and return the output CIF file path.
 
@@ -61,7 +75,7 @@ def callAcedrg(d_args_acedrg):
         logger.error("Acedrg command execution error: %s", e)
         return None
 
-    fp_acedrg_cif = os.path.join(d_args_acedrg["out"] + ".cif")
+    fp_acedrg_cif: str = os.path.join(d_args_acedrg["out"] + ".cif")
     if not os.path.exists(fp_acedrg_cif):
         logger.error("Acedrg output CIF file not found: %s, STOP process", fp_acedrg_cif)
         return None
@@ -69,7 +83,7 @@ def callAcedrg(d_args_acedrg):
     return fp_acedrg_cif
 
 
-def callMetalCoord(d_args_metalcoord):  # pylint: disable=too-many-return-statements
+def callMetalCoord(d_args_metalcoord: Dict[str, Any]) -> Tuple[Optional[str], Optional[str]]:  # pylint: disable=too-many-return-statements
     """
     Run MetalCoord in "update" mode and return output file paths.
 
@@ -86,9 +100,8 @@ def callMetalCoord(d_args_metalcoord):  # pylint: disable=too-many-return-statem
     :type d_args_metalcoord: dict
     :returns: A tuple (fp_metalcoord_cif, fp_metalcoord_json) with full paths to
         the CIF and JSON output files if both exist; (None, None) if the expected
-        files are not both present; or None if initializing RunMetalCoord raises
-        an exception (the exception is logged).
-    :rtype: tuple(str, str) or (None, None) or None
+        files are not both present.
+    :rtype: tuple(str, str) or tuple(None, None)
     :side-effects: Invokes external MetalCoord runs, writes output files to the
         given workdir, and logs command output and any errors.
     """
@@ -136,7 +149,7 @@ def callMetalCoord(d_args_metalcoord):  # pylint: disable=too-many-return-statem
     return (fp_metalcoord_cif, fp_metalcoord_json)
 
 
-def callServalcat(d_args_servalcat):
+def callServalcat(d_args_servalcat: Dict[str, Any]) -> Optional[str]:
     """
     Call Servalcat to process and update a CIF file.
 
@@ -151,10 +164,8 @@ def callServalcat(d_args_servalcat):
     :returns: Path to the updated CIF file if it exists after running Servalcat,
         otherwise ``None``.
     :rtype: str or None
-    :raises: Exceptions raised during RunServalcat construction are logged and
-        suppressed; the function returns ``None`` in that case.
-    :notes: The function logs errors and info via the module logger and does not
-        raise exceptions for run failures.
+    :side-effects: Invokes an external Servalcat run and logs command output and
+        errors via the module logger.
     """
 
     try:
@@ -173,7 +184,7 @@ def callServalcat(d_args_servalcat):
         logger.error("Servalcat command execution error: %s", e)
         return None
 
-    fp_servalcat_cif = d_args_servalcat["output_prefix"] + "_updated.cif"
+    fp_servalcat_cif: str = d_args_servalcat["output_prefix"] + "_updated.cif"
     if not os.path.exists(fp_servalcat_cif):
         logger.error("Servalcat failed to produce output at %s, STOP process", fp_servalcat_cif)
         return None
@@ -181,13 +192,69 @@ def callServalcat(d_args_servalcat):
     return fp_servalcat_cif
 
 
-def main():  # pylint: disable=too-many-statements
+def callClean(fp_servalcat_cif: str) -> Optional[str]:
     """
-    Run Acedrg-MetalCoord-Servalcat, then parse the output and generate a report JSON file in stats mode.
+    Clean and post-process Servalcat CIF output for downstream use.
+
+    Reads the provided Servalcat-generated mmCIF file, validates the expected
+    data container and ``chem_comp_atom`` category, renames ideal-coordinate
+    attributes from ``pdbx_model_Cartn_*_ideal`` to ``model_Cartn_*`` when
+    present, and updates metal atom charges using reference oxidation state
+    tables. The processed content is then written to ``clean.cif`` in the same
+    directory as the input file.
+
+    :param fp_servalcat_cif: Path to the Servalcat output CIF file to clean.
+    :type fp_servalcat_cif: str
+    :returns: Path to the generated ``clean.cif`` file on success; otherwise
+        ``None`` if validation or parsing fails.
+    :rtype: str or None
+    :side-effects: Reads and writes mmCIF files and mutates atom charge values
+        in the ``chem_comp_atom`` category before writing output.
+    """
+    fp_clean = os.path.join(os.path.dirname(fp_servalcat_cif), "clean.cif")
+    io = IoAdapterCore()
+    l_dc = io.readFile(fp_servalcat_cif)
+    if not l_dc:
+        logger.error("failed to read mmcif file: %s", fp_servalcat_cif)
+        return None
+    if len(l_dc) < 2:
+        logger.error("unexpected mmcif file structure: %s", fp_servalcat_cif)
+        return None
+    dc0 = l_dc[1]
+
+    if "chem_comp_atom" not in dc0.getObjNameList():
+        logger.error("no chem_comp_atom category found in mmcif file: %s", fp_servalcat_cif)
+        return None
+    cat_obj = dc0.getObj("chem_comp_atom")
+    if "pdbx_model_Cartn_x_ideal" in cat_obj.getAttributeList():
+        cat_obj.renameAttributes(
+            {"pdbx_model_Cartn_x_ideal": "model_Cartn_x", "pdbx_model_Cartn_y_ideal": "model_Cartn_y", "pdbx_model_Cartn_z_ideal": "model_Cartn_z"}
+        )
+    (d_redox, d_oxi) = readRefRedOx()
+    d_metal_charge_by_index: Dict[int, str] = {}
+    for i in range(cat_obj.getRowCount()):
+        metal = cat_obj.getValue("type_symbol", i).capitalize()
+        if metal not in d_redox:
+            continue
+        if d_redox[metal] == "Y":
+            d_metal_charge_by_index[i] = "?"
+        else:
+            d_metal_charge_by_index[i] = d_oxi[metal]
+    for index, charge in d_metal_charge_by_index.items():
+        cat_obj.setValue(charge, attributeName="charge", rowIndex=index)
+
+    io.writeFile(fp_clean, l_dc)
+
+    return fp_clean
+
+
+def main() -> None:  # pylint: disable=too-many-statements
+    """
+    Run the Acedrg-MetalCoord-Servalcat pipeline and generate output artifacts.
 
     Example usages::
 
-        python runMetalCoordUpdate.py --input 0KA.cif --pdb 4DHV.cif
+        python processMetalCoordUpdate.py --input 0KA.cif --pdb 4DHV.cif
 
     Command-line arguments:
         -a, --acedrg_exe: Acedrg executable file
@@ -203,7 +270,9 @@ def main():  # pylint: disable=too-many-statements
     parser.add_argument("-a", "--acedrg_exe", help="Acedrg executable file", type=str, default=None)
     parser.add_argument("-b", "--metalcoord_exe", help="MetalCoord executable file", type=str, default=None)
     parser.add_argument("-c", "--servalcat_exe", help="Servalcat executable file", type=str, default=None)
-    parser.add_argument("-w", "--workdir", help="Directory to write outputs. Default is metalcoord subfolder in the current folder", type=str, default="metalcoord")
+    parser.add_argument(
+        "-w", "--workdir", help="Directory to write outputs. Default is metalcoord subfolder in the current folder", type=str, default="metalcoord"
+    )
     parser.add_argument("-i", "--input", help="Ligand cif file", type=str, required=True)
     parser.add_argument("-p", "--pdb", help="PDB code or pdb file", type=str, default=None)
     parser.add_argument("-t", "--threshold", help="Procrustes distance threshold.", type=float, default=0.3)
@@ -214,7 +283,7 @@ def main():  # pylint: disable=too-many-statements
 
     # run Acedrg
     logger.info("to run Acedrg with input cif file %s to generate ideal coordinates and charges for the ligand", args.input)
-    d_args_acedrg = {}
+    d_args_acedrg: Dict[str, Any] = {}
     d_args_acedrg["acedrg_exe"] = args.acedrg_exe
     d_args_acedrg["mmcif"] = args.input
     d_args_acedrg["out"] = os.path.join(args.workdir, "acedrg")
@@ -226,8 +295,11 @@ def main():  # pylint: disable=too-many-statements
         sys.exit(0)
 
     # run MetalCoord
-    logger.info("to run MetalCoord update mode with Acedrg output %s as input to update distance and angle restraints for ServalCat, and generate metal coordination report", fp_acedrg_cif)
-    d_args_metalcoord = {}
+    logger.info(
+        "to run MetalCoord update mode with Acedrg output %s as input to update distance and angle restraints for ServalCat, and generate metal coordination report",
+        fp_acedrg_cif,
+    )
+    d_args_metalcoord: Dict[str, Any] = {}
     d_args_metalcoord["metalcoord_exe"] = args.metalcoord_exe
     d_args_metalcoord["workdir"] = args.workdir
     d_args_metalcoord["input"] = fp_acedrg_cif  # use Acedrg output as input
@@ -235,7 +307,7 @@ def main():  # pylint: disable=too-many-statements
     d_args_metalcoord["threshold"] = args.threshold
     d_args_metalcoord["timeout"] = args.timeout
     (fp_metalcoord_cif, fp_metalcoord_json) = callMetalCoord(d_args_metalcoord)
-    if not fp_metalcoord_cif:
+    if not fp_metalcoord_cif or not fp_metalcoord_json:
         logger.error("MetalCoord update mode failed, STOP without output")
         with open(output_json, "w", encoding="utf-8") as file:
             json.dump({"error": "metalcoord-failed", "details": "Acedrg succeeded; MetalCoord failed to produce output CIF"}, file)
@@ -243,7 +315,7 @@ def main():  # pylint: disable=too-many-statements
 
     # run Servalcat
     logger.info("to run Servalcat with the MetalCoord output %s to further optimize ideal coordinates for the ligand", fp_metalcoord_cif)
-    d_args_servalcat = {}
+    d_args_servalcat: Dict[str, Any] = {}
     d_args_servalcat["servalcat_exe"] = None
     d_args_servalcat["update_dictionary"] = fp_metalcoord_cif  # use MetalCoord output as input
     d_args_servalcat["output_prefix"] = os.path.join(args.workdir, "servalcat")
@@ -255,7 +327,14 @@ def main():  # pylint: disable=too-many-statements
             json.dump({"error": "servalcat-failed", "details": "Acedrg and MetalCoord succeeded; Servalcat failed to produce output CIF"}, file)
         sys.exit(0)
 
-    logger.info("Final ligand CIF successfully produced at %s", fp_servalcat_cif)
+    fp_clean_cif = callClean(fp_servalcat_cif)
+    if not fp_clean_cif:
+        logger.error("Clean process failed, STOP without output")
+        with open(output_json, "w", encoding="utf-8") as file:
+            json.dump({"error": "clean-failed", "details": "Acedrg, MetalCoord and Servalcat succeeded; Clean process failed to produce output CIF"}, file)
+        sys.exit(0)
+
+    logger.info("Final ligand CIF successfully produced at %s", fp_clean_cif)
 
     logger.info("to parse MetalCoord results from %s", fp_metalcoord_json)
     pMC = ParseMetalCoord()
@@ -269,11 +348,12 @@ def main():  # pylint: disable=too-many-statements
         sys.exit(0)
 
     logger.info("to filter MetalCoord results to keep regular geometry only for CCD annotation")
-    l_sites_filtered = []
+    l_sites_filtered: List[Dict[str, Any]] = []
     for d_site in pMC.l_sites:
         # filter to keep only regular geometry for CCD annotation
         # filter out empty class
-        if not d_site.get("class").strip():
+        site_class: Any = d_site.get("class")
+        if not site_class.strip():
             continue
         # filter out non-Regular sites
         if d_site.get("tag") != "Regular":

@@ -17,19 +17,21 @@ __version__ = "V0.01"
 
 import logging
 import sys
+from typing import TYPE_CHECKING, List, TextIO
 
-# from mmcif.api.PdbxContainers import *
+if TYPE_CHECKING:
+    from mmcif.api.PdbxContainers import DataContainer
 from mmcif.io.PdbxReader import PdbxReader
 
 logger = logging.getLogger(__name__)
 
 
 class PdbxChemShiftReport:
-    def __init__(self, inputPath, verbose=False, log=sys.stderr):  # noqa: ARG002 pylint: disable=unused-argument
-        self.__myContainerList = []
+    def __init__(self, inputPath: str, verbose: bool = False, log: TextIO = sys.stderr) -> None:  # noqa: ARG002 pylint: disable=unused-argument
+        self.__myContainerList: List[DataContainer] = []
         self.__read(inputPath)
 
-    def __read(self, inputPath):
+    def __read(self, inputPath: str) -> bool:
         """Read status file"""
         try:
             self.__myContainerList = []
@@ -41,17 +43,17 @@ class PdbxChemShiftReport:
             logger.exception("Failing with %s", str(e))
         return False
 
-    def getStatus(self):
+    def getStatus(self) -> List[str]:
         return self.__get("pdbx_shift_check", "status")
 
-    def getWarnings(self):
+    def getWarnings(self) -> List[str]:
         return self.__get("pdbx_shift_check_warning_message", "text")
 
-    def getErrors(self):
+    def getErrors(self) -> List[str]:
         return self.__get("pdbx_shift_check_error_message", "text")
 
-    def __get(self, categoryName, attributeName):
-        retVal = []
+    def __get(self, categoryName: str, attributeName: str) -> List[str]:
+        retVal: List[str] = []
         try:
             c0 = self.__myContainerList[0]
             catObj = c0.getObj(categoryName)

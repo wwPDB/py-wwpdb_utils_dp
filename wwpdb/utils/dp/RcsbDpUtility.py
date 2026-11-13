@@ -136,6 +136,11 @@
 # 19-Jan-2025 zf  Add "annot-get-em-exp-info"
 # 10-Nov-2025 cs  Add op of "metal-findgeo", "metal-metalcoord-stats", "metal-metalcoord-update", calling dp.metal submodules
 # 04-Mar-2026 cs  Add op of "metal-findgeo-filter-regular" and "metal-metalcoord-filter-regular" to filter only regular geometry in for CCD annotation
+# 07-Jul-2026 zf  Add "annot-link-ssbond-with-ptm-mcc", "annot-merge-metal-coordination", "annot-update-metal-coordination",
+#                     "annot-update-metal-coordination-to-ccd"
+# 10-Sep-2026 ep  Add "firstblockdiags" parameter to annot-sf-convert
+# 07-Oct-2026 ep  Add Literal types for known operations (RcsbDpOp) used by op()
+#
 ##
 """
 Wrapper class for data processing and chemical component utilities.
@@ -151,6 +156,7 @@ import logging
 import math
 import os
 import random
+import re
 import shutil
 import signal
 import socket
@@ -160,6 +166,9 @@ import sys
 import tempfile
 import time
 from subprocess import call
+from typing import Any, Dict, List, Literal, Optional, Sequence, TextIO, Union, get_args
+
+from wwpdb.utils.dp.JobLogging import JobLogger, RunEnvironment
 
 try:
     from itertools import zip_longest
@@ -176,18 +185,234 @@ from wwpdb.utils.config.ConfigInfoApp import (
 )
 
 from wwpdb.utils.dp.PdbxStripCategory import PdbxStripCategory
-from wwpdb.utils.dp.RunRemote import RunRemote
+from wwpdb.utils.dp.RunRemote import JobResult, JobStatus, RunRemote
 
 logger = logging.getLogger(__name__)
 
-DEFAULT_STARTING_RAM_MB = 2000
-DEFAULT_STARTING_NUM_THREADS = 2
+# Known operations, grouped by the step method that handles each one
+
+MaxitOp = Literal[
+    "cif2cif",
+    "cif2cif-remove",
+    "cif2cif-ebi",
+    "cif2cif-pdbx",
+    "cif2cif-pdbx-skip-process",
+    "cif-rcsb2cif-pdbx",
+    "cif-seqed2cif-pdbx",
+    "cif2pdb",
+    "pdb2cif",
+    "pdb2cif-ebi",
+    "switch-dna",
+    "cif2pdb-assembly",
+    "pdbx2pdb-assembly",
+    "pdbx2deriv",
+]
+RcsbOp = Literal[
+    "rename-atoms",
+    "cif2pdbx",
+    "pdbx2xml",
+    "pdb2dssp",
+    "pdb2stride",
+    "initial-version",
+    "poly-link-dist",
+    "chem-comp-link",
+    "chem-comp-assign",
+    "chem-comp-assign-comp",
+    "chem-comp-assign-skip",
+    "chem-comp-assign-exact",
+    "chem-comp-assign-validation",
+    "check-cif",
+    "check-cif-v4",
+    "check-cif-ext",
+    "cif2pdbx-public",
+    "cif2pdbx-ext",
+    "chem-comp-dict-makeindex",
+    "chem-comp-dict-serialize",
+    "chem-comp-annotate-comp",
+    "chem-comp-do-report",
+    "chem-comp-align-img-gen",
+    "chem-comp-align-images",
+    "chem-comp-gen-images",
+    "chem-comp-update-support-files",
+    "citation-search-and-auto-release",
+    "update-depui-taxonomy",
+    "chem-ref-checkout",
+    "chem-ref-sync",
+    "chem-ref-load",
+    "chem-ref-run-setup",
+    "chem-ref-run-update",
+    "metal-findgeo",
+    "metal-findgeo-filter-regular",
+    "metal-metalcoord-update",
+    "metal-metalcoord-stats",
+    "metal-metalcoord-stats-filter-regular",
+]
+PisaOp = Literal[
+    "pisa-analysis",
+    "pisa-assembly-report-xml",
+    "pisa-assembly-report-text",
+    "pisa-interface-report-xml",
+    "pisa-assembly-coordinates-pdb",
+    "pisa-assembly-coordinates-cif",
+    "pisa-assembly-merge-cif",
+]
+AnnotationOp = Literal[
+    "annot-secondary-structure",
+    "annot-link-ssbond",
+    "annot-link-ssbond-with-ptm",
+    "annot-link-ssbond-with-ptm-mcc",
+    "annot-merge-metal-coordination",
+    "annot-update-metal-coordination",
+    "annot-update-metal-coordination-to-ccd",
+    "annot-cis-peptide",
+    "annot-distant-solvent",
+    "annot-merge-struct-site",
+    "annot-reposition-solvent",
+    "annot-base-pair-info",
+    "annot-validation",
+    "annot-site",
+    "annot-rcsb2pdbx",
+    "annot-consolidated-tasks",
+    "annot-wwpdb-validate-all",
+    "annot-wwpdb-validate-all-v2",
+    "prd-search",
+    "prd-process-summary",
+    "annot-nmrstar2pdbx",
+    "annot-pdbx2nmrstar",
+    "annot-reposition-solvent-add-derived",
+    "annot-rcsb2pdbx-strip",
+    "annot-rcsbeps2pdbx-strip",
+    "annot-rcsb2pdbx-strip-plus-entity",
+    "annot-rcsbeps2pdbx-strip-plus-entity",
+    "chem-comp-instance-update",
+    "annot-cif2cif",
+    "annot-cif2pdb",
+    "annot-pdb2cif",
+    "annot-poly-link-dist",
+    "annot-merge-sequence-data",
+    "annot-make-maps",
+    "annot-make-ligand-maps",
+    "annot-poly-link-dist-json",
+    "annot-make-omit-maps",
+    "annot-cif2cif-dep",
+    "annot-pdb2cif-dep",
+    "annot-format-check-pdbx",
+    "annot-format-check-pdb",
+    "annot-dcc-report",
+    "annot-sf-convert",
+    "annot-tls-range-correction",
+    "annot-dcc-refine-report",
+    "annot-dcc-biso-full",
+    "annot-dcc-special-position",
+    "annot-dcc-fix-special-position",
+    "annot-dcc-reassign-alt-ids",
+    "annot-rcsb2pdbx-withpdbid",
+    "annot-merge-tls-range-data",
+    "annot-rcsb2pdbx-withpdbid-singlequote",
+    "annot-rcsb2pdbx-alt",
+    "annot-move-xyz-by-matrix",
+    "annot-move-xyz-by-symop",
+    "annot-extra-checks",
+    "annot-update-terminal-atoms",
+    "annot-merge-xyz",
+    "annot-gen-assem-pdbx",
+    "annot-cif2pdbx-withpdbid",
+    "annot-validate-geometry",
+    "annot-update-dep-assembly-info",
+    "annot-add-default-assembly-info",
+    "annot-chem-shifts-update-with-check",
+    "annot-chem-shifts-atom-name-check",
+    "annot-chem-shifts-upload-check",
+    "annot-nef-update-with-check",
+    "annot-reorder-models",
+    "annot-chem-shifts-update",
+    "annot-generte-nmr-data-str-file",
+    "annot-get-corres-info",
+    "prd-summary-serialize",
+    "prd-family-mapping",
+    "annot-get-symmetry-operator",
+    "annot-depict-molecule-json",
+    "annot-check-select-number",
+    "annot-update-molecule",
+    "annot-depict-chemical-shift",
+    "annot-edit-chemical-shift",
+    "annot-misc-checking",
+    "annot-dcc-validation",
+    "annot-correct-freer-set",
+    "annot-cif-to-public-pdbx",
+    "annot-cif-to-pdbx-em-header",
+    "annot-public-pdbx-to-xml",
+    "annot-public-pdbx-to-xml-noatom",
+    "annot-release-update",
+    "annot-get-pdb-bundle",
+    "annot-get-biol-cif-file",
+    "annot-get-biol-pdb-file",
+    "annot-check-cif",
+    "annot-check-xml-xmllint",
+    "annot-check-xml-stdinparse",
+    "annot-get-pdb-file",
+    "annot-check-pdb-file",
+    "annot-check-sf-file",
+    "annot-check-mr-file",
+    "annot-check-cs-file",
+    "annot-add-version-info",
+    "carbohydrate-remediation",
+    "carbohydrate-remediation-test",
+    "get-branch-polymer-info",
+    "annot-get-close-contact",
+    "annot-convert-close-contact-to-link",
+    "annot-get-covalent-bond",
+    "annot-remove-covalent-bond",
+    "em-density-bcif",
+    "xray-density-bcif",
+    "centre-of-mass",
+    "annot-complexity",
+    "annot-pcm-check-ccd-ann",
+    "annot-merge-pointsuite-info",
+    "annot-check-ccd-definition",
+    "annot-get-em-exp-info",
+]
+SequenceOp = Literal[
+    "seq-blastp",
+    "seq-blastn",
+    "fetch-uniprot",
+    "fetch-gb",
+    "format-uniprot",
+    "format-gb",
+    "backup-seqdb",
+]
+ValidateOp = Literal["validate-geometry"]
+DbOp = Literal[
+    "db-loader",
+    "sync-depositors",
+]
+EmOp = Literal[
+    "mapfix-big",
+    "em2em-spider",
+    "fsc_check",
+    "img-convert",
+    "annot-read-map-header",
+    "annot-read-map-header-in-place",
+    "annot-update-map-header-in-place",
+    "deposit-update-map-header-in-place",
+    "em-map-model-upload-check",
+]
+PointsuiteOp = Literal[
+    "pointsuite-importmats",
+    "pointsuite-findframe",
+    "pointsuite-makeassembly",
+]
+
+RcsbDpOp = Union[MaxitOp, RcsbOp, PisaOp, AnnotationOp, SequenceOp, ValidateOp, DbOp, EmOp, PointsuiteOp]
+"""Any operation accepted by RcsbDpUtility.op()."""
 
 
 class RcsbDpUtility:
     """Wrapper class for data processing and chemical component utilities."""
 
-    def __init__(self, tmpPath="/scratch", siteId="DEV", verbose=False, log=sys.stderr, testMode=False):
+    def __init__(
+        self, tmpPath: Optional[str] = "/scratch", siteId: str = "DEV", verbose: bool = False, log: TextIO = sys.stderr, testMode: bool = False
+    ) -> None:
         self.__verbose = verbose
         self.__debug = False
         self.__lfh = log
@@ -205,231 +430,40 @@ class RcsbDpUtility:
         # This can be set explicity via the self.setWorkingDir() method or will be created
         # as a temporary path dynamically as a subdirectory of self.__tmpDir.
         #
-        self.__wrkPath = None
-        self.__sourceFileList = []
-        self.__resultPathList = []
-        self.__inputParamDict = {}
+        self.__dep_id: Optional[str] = None  # used for metrics only
+        self.__wrkPath: Optional[str] = None
+        self.__sourceFileList: List[str] = []
+        self.__resultPathList: List[str] = []
+        self.__inputParamDict: Dict[str, Any] = {}
         #
         # List of known operations ---
-        self.__maxitOps = [
-            "cif2cif",
-            "cif2cif-remove",
-            "cif2cif-ebi",
-            "cif2cif-pdbx",
-            "cif2cif-pdbx-skip-process",
-            "cif-rcsb2cif-pdbx",
-            "cif-seqed2cif-pdbx",
-            "cif2pdb",
-            "pdb2cif",
-            "pdb2cif-ebi",
-            "switch-dna",
-            "cif2pdb-assembly",
-            "pdbx2pdb-assembly",
-            "pdbx2deriv",
-        ]
-        self.__rcsbOps = [
-            "rename-atoms",
-            "cif2pdbx",
-            "pdbx2xml",
-            "pdb2dssp",
-            "pdb2stride",
-            "initial-version",
-            "poly-link-dist",
-            "chem-comp-link",
-            "chem-comp-assign",
-            "chem-comp-assign-comp",
-            "chem-comp-assign-skip",
-            "chem-comp-assign-exact",
-            "chem-comp-assign-validation",
-            "check-cif",
-            "check-cif-v4",
-            "check-cif-ext",
-            "cif2pdbx-public",
-            "cif2pdbx-ext",
-            "chem-comp-dict-makeindex",
-            "chem-comp-dict-serialize",
-            "chem-comp-annotate-comp",
-            "chem-comp-do-report",
-            "chem-comp-align-img-gen",
-            "chem-comp-align-images",
-            "chem-comp-gen-images",
-            "chem-comp-update-support-files",
-            "citation-search-and-auto-release",
-            "update-depui-taxonomy",
-            "chem-ref-checkout",
-            "chem-ref-sync",
-            "chem-ref-load",
-            "chem-ref-run-setup",
-            "chem-ref-run-update",
-            "metal-findgeo",
-            "metal-findgeo-filter-regular",
-            "metal-metalcoord-update",
-            "metal-metalcoord-stats",
-            "metal-metalcoord-stats-filter-regular",
-        ]
-        self.__pisaOps = [
-            "pisa-analysis",
-            "pisa-assembly-report-xml",
-            "pisa-assembly-report-text",
-            "pisa-interface-report-xml",
-            "pisa-assembly-coordinates-pdb",
-            "pisa-assembly-coordinates-cif",
-            "pisa-assembly-coordinates-cif",
-            "pisa-assembly-merge-cif",
-        ]
-        self.__annotationOps = [
-            "annot-secondary-structure",
-            "annot-link-ssbond",
-            "annot-link-ssbond-with-ptm",
-            "annot-cis-peptide",
-            "annot-distant-solvent",
-            "annot-merge-struct-site",
-            "annot-reposition-solvent",
-            "annot-base-pair-info",
-            "annot-validation",
-            "annot-site",
-            "annot-rcsb2pdbx",
-            "annot-consolidated-tasks",
-            "annot-wwpdb-validate-all",
-            "annot-wwpdb-validate-all-v2",
-            "prd-search",
-            "prd-process-summary",
-            "annot-nmrstar2pdbx",
-            "annot-pdbx2nmrstar",
-            "annot-reposition-solvent-add-derived",
-            "annot-rcsb2pdbx-strip",
-            "annot-rcsbeps2pdbx-strip",
-            "annot-rcsb2pdbx-strip-plus-entity",
-            "annot-rcsbeps2pdbx-strip-plus-entity",
-            "chem-comp-instance-update",
-            "annot-cif2cif",
-            "annot-cif2pdb",
-            "annot-pdb2cif",
-            "annot-poly-link-dist",
-            "annot-merge-sequence-data",
-            "annot-make-maps",
-            "annot-make-ligand-maps",
-            "annot-poly-link-dist-json",
-            "annot-make-omit-maps",
-            "annot-cif2cif-dep",
-            "annot-pdb2cif-dep",
-            "annot-format-check-pdbx",
-            "annot-format-check-pdb",
-            "annot-dcc-report",
-            "annot-sf-convert",
-            "annot-tls-range-correction",
-            "annot-dcc-refine-report",
-            "annot-dcc-biso-full",
-            "annot-dcc-special-position",
-            "annot-dcc-fix-special-position",
-            "annot-dcc-reassign-alt-ids",
-            "annot-rcsb2pdbx-withpdbid",
-            "annot-merge-tls-range-data",
-            "annot-rcsb2pdbx-withpdbid-singlequote",
-            "annot-rcsb2pdbx-alt",
-            "annot-move-xyz-by-matrix",
-            "annot-move-xyz-by-symop",
-            "annot-extra-checks",
-            "annot-update-terminal-atoms",
-            "annot-merge-xyz",
-            "annot-gen-assem-pdbx",
-            "annot-cif2pdbx-withpdbid",
-            "annot-validate-geometry",
-            "annot-update-dep-assembly-info",
-            "annot-add-default-assembly-info",
-            "annot-chem-shifts-update-with-check",
-            "annot-chem-shifts-atom-name-check",
-            "annot-chem-shifts-upload-check",
-            "annot-nef-update-with-check",
-            "annot-reorder-models",
-            "annot-chem-shifts-update",
-            "annot-generte-nmr-data-str-file",
-            "annot-get-corres-info",
-            "prd-summary-serialize",
-            "prd-family-mapping",
-            "annot-get-symmetry-operator",
-            "annot-depict-molecule-json",
-            "annot-check-select-number",
-            "annot-update-molecule",
-            "annot-depict-chemical-shift",
-            "annot-edit-chemical-shift",
-            "annot-misc-checking",
-            "annot-dcc-validation",
-            "annot-correct-freer-set",
-            "annot-cif-to-public-pdbx",
-            "annot-cif-to-pdbx-em-header",
-            "annot-public-pdbx-to-xml",
-            "annot-public-pdbx-to-xml-noatom",
-            "annot-release-update",
-            "annot-get-pdb-bundle",
-            "annot-get-biol-cif-file",
-            "annot-get-biol-pdb-file",
-            "annot-check-cif",
-            "annot-check-xml-xmllint",
-            "annot-check-xml-stdinparse",
-            "annot-get-pdb-file",
-            "annot-check-pdb-file",
-            "annot-check-sf-file",
-            "annot-check-mr-file",
-            "annot-check-cs-file",
-            "annot-add-version-info",
-            "carbohydrate-remediation",
-            "carbohydrate-remediation-test",
-            "get-branch-polymer-info",
-            "annot-get-close-contact",
-            "annot-convert-close-contact-to-link",
-            "annot-get-covalent-bond",
-            "annot-remove-covalent-bond",
-            "em-density-bcif",
-            "xray-density-bcif",
-            "centre-of-mass",
-            "annot-complexity",
-            "annot-pcm-check-ccd-ann",
-            "annot-merge-pointsuite-info",
-            "annot-check-ccd-definition",
-            "annot-get-em-exp-info",
-        ]
+        self.__maxitOps: List[str] = list(get_args(MaxitOp))
+        self.__rcsbOps: List[str] = list(get_args(RcsbOp))
+        self.__pisaOps: List[str] = list(get_args(PisaOp))
+        self.__annotationOps: List[str] = list(get_args(AnnotationOp))
 
-        self.__sequenceOps = [
-            "seq-blastp",
-            "seq-blastn",
-            "fetch-uniprot",
-            "fetch-gb",
-            "format-uniprot",
-            "format-gb",
-            "backup-seqdb",
-        ]
-        self.__validateOps = ["validate-geometry"]
-        self.__dbOps = ["db-loader", "sync-depositors"]
-        self.__emOps = [
-            "mapfix-big",
-            "em2em-spider",
-            "fsc_check",
-            "img-convert",
-            "annot-read-map-header",
-            "annot-read-map-header-in-place",
-            "annot-update-map-header-in-place",
-            "deposit-update-map-header-in-place",
-            "em-map-model-upload-check",
-        ]
+        self.__sequenceOps: List[str] = list(get_args(SequenceOp))
+        self.__validateOps: List[str] = list(get_args(ValidateOp))
+        self.__dbOps: List[str] = list(get_args(DbOp))
+        self.__emOps: List[str] = list(get_args(EmOp))
 
-        self.__pointsuiteOps = ["pointsuite-importmats", "pointsuite-findframe", "pointsuite-makeassembly"]
+        self.__pointsuiteOps: List[str] = list(get_args(PointsuiteOp))
 
         #
 
         # Source, destination and logfile path details
         #
-        self.__srcPath = None
-        self.__dstPath = None
-        self.__dstLogPath = None
-        self.__dstErrorPath = None  # pylint: disable=unused-private-member
+        self.__srcPath: Optional[str] = None
+        self.__dstPath: Optional[str] = None
+        self.__dstLogPath: Optional[str] = None
+        self.__dstErrorPath: Optional[str] = None  # pylint: disable=unused-private-member
         #
-        self.__stepOpList = []
+        self.__stepOpList: List[str] = []
         self.__stepNo = 0
-        self.__stepNoSaved = None
+        self.__stepNoSaved: Optional[int] = None
         self.__timeout = 0
-        self.__numThreads = DEFAULT_STARTING_NUM_THREADS  # this is used by RunRemote to set the number of cores requested
-        self.__startingMemory = DEFAULT_STARTING_RAM_MB  # this is used by RunRemote to set the starting RAM to be requested
+        self.__numThreads = 1  # this is used by RunRemote to set the number of cores requested
+        self.__startingMemory = 2000  # this is used by RunRemote to set the starting RAM to be requested
 
         self.__run_remote = False
 
@@ -439,10 +473,19 @@ class RcsbDpUtility:
         self.__cIVal = ConfigInfoAppValidation(self.__siteId)
         self.__initPath()
         self.__getRunRemote()
+        log_dir_path = self.__cI.get("JOB_METRICS_DIR_PATH")
+        self.__job_logger: Optional[JobLogger] = None
+        if log_dir_path:
+            log_file_path = os.path.join(log_dir_path, f"wfe_metrics_{self.__siteId}.log")
+            self.__job_logger = JobLogger(log_file_path).start()
 
-    def __getConfigPath(self, ky):
+    def __del__(self) -> None:
+        if self.__job_logger:
+            self.__job_logger.stop()
+
+    def __getConfigPath(self, ky: str) -> str:
         try:
-            pth = os.path.abspath(self.__cI.get(ky))
+            pth: str = os.path.abspath(self.__cI.get(ky))
             if self.__debug:
                 logger.info("+RcsbDpUtility.__getConfigPath()  - site %s configuration for %s is %s\n", self.__siteId, ky, pth)
         except Exception:  # noqa: BLE001
@@ -451,18 +494,32 @@ class RcsbDpUtility:
             pth = ""
         return pth
 
-    def __initPath(self):
+    def __getWrkPath(self) -> str:
+        """Return the working directory, which op() and imp() create before any step runs."""
+        if self.__wrkPath is None:
+            emsg = "RcsbDpUtility working directory is not set.  Use setWorkingDir() or op() to create a working directory."
+            raise ValueError(emsg)
+        return self.__wrkPath
+
+    def __getLocalAppsPath(self) -> str:
+        """Return the site local applications path read from the site configuration."""
+        if self.__localAppsPath is None:
+            emsg = "RcsbDpUtility site local applications path is not configured"
+            raise ValueError(emsg)
+        return self.__localAppsPath
+
+    def __initPath(self) -> None:
         """Provide placeholder values for application specific path details"""
         #
-        self.__rcsbAppsPath = None
-        self.__localAppsPath = None
-        self.__annotAppsPath = None
+        self.__rcsbAppsPath: Optional[str] = None
+        self.__localAppsPath: Optional[str] = None
+        self.__annotAppsPath: Optional[str] = None
         #
 
-    def setDebugMode(self, flag=True):
+    def setDebugMode(self, flag: bool = True) -> None:
         self.__debug = flag
 
-    def setTimeout(self, seconds):
+    def setTimeout(self, seconds: Optional[Union[int, str]]) -> bool:
         try:
             if seconds is None or int(seconds) < 1:
                 return False
@@ -472,25 +529,25 @@ class RcsbDpUtility:
         except Exception:  # noqa: BLE001
             return False
 
-    def setNumThreads(self, numThreads=1):
+    def setNumThreads(self, numThreads: int = 1) -> None:
         if isinstance(numThreads, int):
             self.__numThreads = numThreads
         else:
             logger.error('numThreads not set "%s" is not an integer', numThreads)
 
-    def setStartMemory(self, memory=0):
+    def setStartMemory(self, memory: int = 0) -> None:
         if isinstance(memory, int):
             self.__startingMemory = memory
         else:
             logger.error('memory not set "%s" is not a integer', memory)
 
-    def setRunRemote(self, run_remote=True):
+    def setRunRemote(self, run_remote: bool = True) -> None:
         if run_remote:
             self.__run_remote = True
         else:
             self.__run_remote = False
 
-    def __getRunRemote(self):
+    def __getRunRemote(self) -> None:
         try:
             if self.__cI.get("USE_COMPUTE_CLUSTER"):
                 if self.__cI.get("PDBE_CLUSTER_QUEUE"):
@@ -498,26 +555,26 @@ class RcsbDpUtility:
         except Exception as e:  # noqa: BLE001
             logger.info("unable to get cluster queue %s", str(e))
 
-    def setRcsbAppsPath(self, fPath):
+    def setRcsbAppsPath(self, fPath: Optional[str]) -> None:
         """Set or overwrite the configuration setting for __rcsbAppsPath."""
         if fPath is not None and os.path.isdir(fPath):
             self.__rcsbAppsPath = os.path.abspath(fPath)
 
-    def setAppsPath(self, fPath):
+    def setAppsPath(self, fPath: Optional[str]) -> None:
         """Set or overwrite the configuration setting for __localAppsPath."""
         if fPath is not None and os.path.isdir(fPath):
             self.__localAppsPath = os.path.abspath(fPath)
 
-    def saveResult(self):
+    def saveResult(self) -> int:
         return self.__stepNo
 
-    def useResult(self, stepNo):
+    def useResult(self, stepNo: int) -> None:
         if stepNo > 0 and stepNo <= self.__stepNo:
             self.__stepNoSaved = stepNo
             if self.__verbose:
                 logger.info("+RcsbDpUtility.useResult()  - Using result from step %s\n", self.__stepNoSaved)
 
-    def __makeTempWorkingDir(self):
+    def __makeTempWorkingDir(self) -> bool:
         try:
             hostName = str(socket.gethostname()).split(".")[0]  # pylint: disable=no-member
             if (hostName is not None) and (len(hostName) > 0):
@@ -537,16 +594,16 @@ class RcsbDpUtility:
             logger.exception("_makeTempWorkingDir()  - failed with %s", str(e))
         return False
 
-    def setWorkingDir(self, dPath):
+    def setWorkingDir(self, dPath: str) -> None:
         if not os.path.isdir(dPath):
             os.makedirs(dPath, 0o755)
         if os.access(dPath, os.F_OK):
             self.__wrkPath = os.path.abspath(dPath)
 
-    def getWorkingDir(self):
+    def getWorkingDir(self) -> Optional[str]:
         return self.__wrkPath
 
-    def setSource(self, fPath):
+    def setSource(self, fPath: str) -> None:
         if os.access(fPath, os.F_OK):
             self.__srcPath = os.path.abspath(fPath)
         else:
@@ -554,16 +611,16 @@ class RcsbDpUtility:
             self.__srcPath = None
         self.__stepNo = 0
 
-    def setDestination(self, fPath):
+    def setDestination(self, fPath: str) -> None:
         self.__dstPath = os.path.abspath(fPath)
 
-    def setErrorDestination(self, fPath):
+    def setErrorDestination(self, fPath: str) -> None:
         self.__dstErrorPath = os.path.abspath(fPath)  # pylint: disable=unused-private-member
 
-    def setLogDestination(self, fPath):
+    def setLogDestination(self, fPath: str) -> None:
         self.__dstLogPath = os.path.abspath(fPath)
 
-    def op(self, op):
+    def op(self, op: RcsbDpOp) -> Optional[int]:
         #
         if self.__srcPath is None and len(self.__inputParamDict) < 1:
             logger.info("++ Error  - no input provided for operation %s\n", op)
@@ -579,8 +636,6 @@ class RcsbDpUtility:
         if self.__testMode:
             logger.info("TestMode - bypass operation %s", op)
             return 0
-
-        self.__setOpResources(op)
         #
         if op in self.__maxitOps:
             self.__stepNo += 1
@@ -620,7 +675,7 @@ class RcsbDpUtility:
         logger.info("+RcsbDpUtility.op() ++ Error  - Unknown operation %s\n", op)
         return -1
 
-    def expSize(self):
+    def expSize(self) -> int:
         """Return the size of the last result file..."""
         rf = self.__getResultWrkFile(self.__stepNo)
         if self.__wrkPath is not None:
@@ -633,7 +688,7 @@ class RcsbDpUtility:
             return f1.srcFileSize()
         return 0
 
-    def exp(self, dstPath=None):
+    def exp(self, dstPath: Optional[str] = None) -> bool:
         """Export a copy of the last result file to destination file path."""
         if dstPath is not None:
             self.setDestination(dstPath)
@@ -651,15 +706,15 @@ class RcsbDpUtility:
             return False
         return False
 
-    def getResultPathList(self):
+    def getResultPathList(self) -> List[str]:
         return self.__resultPathList
 
-    def expList(self, dstPathList=None):
+    def expList(self, dstPathList: Optional[Sequence[Optional[str]]] = None) -> Optional[bool]:
         """Export  copies of the list of last results to the corresponding paths
         in the destination file path list.
         """
         if dstPathList is None or dstPathList == [] or self.__resultPathList == []:
-            return
+            return None
         #
         logger.debug("+RcsbUtility.expList dstPathList    %r\n", dstPathList)
         logger.debug("+RcsbUtility.expList resultPathList %r\n", self.__resultPathList)
@@ -669,17 +724,18 @@ class RcsbDpUtility:
         for f, fc in zip_longest(self.__resultPathList, dstPathList):
             logger.debug("+RcsbUtility.expList exporting %s to %s\n", f, fc)
             if (f != "missing") and os.path.exists(f):
-                f1 = DataFile(f)
-                if f1.srcFileExists():
-                    f1.copy(fc)
-                else:
-                    ok = False
+                if fc:  # while DataFile copy() supports None -- it will use the previous file...
+                    f1 = DataFile(f)
+                    if f1.srcFileExists():
+                        f1.copy(fc)
+                    else:
+                        ok = False
             else:
                 logger.error("+RcsbUtility.failed to copy %s to %s\n", f, fc)
                 ok = False
         return ok
 
-    def imp(self, srcPath=None):
+    def imp(self, srcPath: Optional[str] = None) -> bool:
         """Import a local copy of the target source file - Use the working
         directory area if this is defined.  The internal step count is reset by this operation -
         """
@@ -692,17 +748,24 @@ class RcsbDpUtility:
             return True
         #
         if self.__srcPath is not None:
+            # try to extract the deposition id with pattern D_\d+ from the source path
+            m = re.search(r"(D_\d+)", self.__srcPath)
+            if m:
+                self.__dep_id = m.group(1)
+
             if self.__wrkPath is None:
                 self.__makeTempWorkingDir()
             self.__stepNo = 0
             iPath = self.__getSourceWrkFile(self.__stepNo + 1)
             f1 = DataFile(self.__srcPath)
-            wrkPath = os.path.join(self.__wrkPath, iPath)
+            wrkPath = os.path.join(self.__getWrkPath(), iPath)
             f1.copy(wrkPath)
         return True
 
-    def addInput(self, name=None, value=None, type="param"):  # noqa: A002 # pylint: disable=redefined-builtin
+    def addInput(self, name: Optional[str] = None, value: Any = None, type: str = "param") -> bool:  # noqa: A002 # pylint: disable=redefined-builtin
         """Add a named input and value to the dictionary of input parameters."""
+        if name is None:
+            return False
         try:
             if type == "param":
                 self.__inputParamDict[name] = value
@@ -716,7 +779,7 @@ class RcsbDpUtility:
         except Exception:  # noqa: BLE001
             return False
 
-    def expLog(self, dstPath=None, appendMode=True):
+    def expLog(self, dstPath: Optional[str] = None, appendMode: bool = True) -> None:
         """Append or copy  the current log file to destination path."""
         if dstPath is not None:
             self.setLogDestination(dstPath)
@@ -731,7 +794,7 @@ class RcsbDpUtility:
         else:
             f1.copy(self.__dstLogPath)
 
-    def expErrLog(self, dstPath=None, appendMode=True):
+    def expErrLog(self, dstPath: Optional[str] = None, appendMode: bool = True) -> None:
         """Append a copy of the current error log file to destination error path."""
         if dstPath is not None:
             self.setLogDestination(dstPath)
@@ -746,7 +809,7 @@ class RcsbDpUtility:
         else:
             f1.copy(self.__dstLogPath)
 
-    def expLogAll(self, dstPath=None):
+    def expLogAll(self, dstPath: Optional[str] = None) -> None:
         """Append all session logs to destination logfile path."""
         if dstPath is not None:
             self.setLogDestination(dstPath)
@@ -759,11 +822,14 @@ class RcsbDpUtility:
             f1 = DataFile(logPath)
             f1.append(self.__dstLogPath)
 
-    def cleanup(self):
+    def cleanup(self) -> bool:
         """Cleanup temporary files and directories"""
         try:
             logger.info("+RcsbDpUtility.cleanup() removing working path %s\n", self.__wrkPath)
-            shutil.rmtree(self.__wrkPath, ignore_errors=True)
+            shutil.rmtree(self.__getWrkPath(), ignore_errors=True)
+            if self.__job_logger:
+                self.__job_logger.stop()
+                self.__job_logger = None
             return True
         except Exception:  # noqa: BLE001
             logger.info("+RcsbDpUtility.cleanup() removal failed for working path %s\n", self.__wrkPath)
@@ -771,21 +837,7 @@ class RcsbDpUtility:
         return False
 
     ##
-    def __setOpResources(self, op):
-        if self.__startingMemory == DEFAULT_STARTING_RAM_MB:
-            # this means that the caller hasn't set a specific memory requirement,
-            # so we can set some defaults based on the operation type
-            op_mem = self.__cI.get("OP_RESOURCE__" + op.replace("-", "_").upper() + "__MEMORY_MB")
-            if op_mem is not None:
-                self.__startingMemory = op_mem
-        
-        if self.__numThreads == DEFAULT_STARTING_NUM_THREADS:
-            # same here for number of threads
-            op_threads = self.__cI.get("OP_RESOURCE__" + op.replace("-", "_").upper() + "__NUM_THREADS")
-            if op_threads is not None:
-                self.__numThreads = op_threads
-
-    def __getSourceWrkFileList(self, stepNo):
+    def __getSourceWrkFileList(self, stepNo: int) -> str:
         """Build a file containing the current list of source files."""
         fn = "input_file_list_" + str(stepNo)
         if self.__wrkPath is not None:
@@ -797,28 +849,27 @@ class RcsbDpUtility:
         if self.__sourceFileList == []:
             ofh.write("%s\n" % self.__getSourceWrkFile(self.__stepNo))
         else:
-            for f in self.__sourceFileList:
-                ofh.write("%s\n", f)
+            ofh.writelines("%s\n" % f for f in self.__sourceFileList)
         ofh.close()
         #
         return iPathList
 
-    def __getSourceWrkFile(self, stepNo):
+    def __getSourceWrkFile(self, stepNo: int) -> str:
         return "input_file_" + str(stepNo)
 
-    def __getResultWrkFile(self, stepNo):
+    def __getResultWrkFile(self, stepNo: int) -> str:
         return "result_file_" + str(stepNo)
 
-    def __getLogWrkFile(self, stepNo):
+    def __getLogWrkFile(self, stepNo: int) -> str:
         return "log_file_" + str(stepNo)
 
-    def __getErrWrkFile(self, stepNo):
+    def __getErrWrkFile(self, stepNo: int) -> str:
         return "error_file_" + str(stepNo)
 
-    def __getTmpWrkFile(self, stepNo):
+    def __getTmpWrkFile(self, stepNo: int) -> str:
         return "temp_file_" + str(stepNo)
 
-    def __updateInputPath(self):
+    def __updateInputPath(self) -> str:
         """Shuffle the output from the previous step or a selected previous
         step as the input for the current operation.
         """
@@ -832,7 +883,7 @@ class RcsbDpUtility:
         # This function is only invoked if __stepNo > 1 - extra return
         return "unknown"
 
-    def __annotationStep(self, op):
+    def __annotationStep(self, op: str) -> Optional[int]:
         """Internal method that performs a single annotation application operation.
 
         Now using only 2013 annotation pack functions.
@@ -963,6 +1014,60 @@ class RcsbDpUtility:
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
             cmd += " ; cat annot-step.log " + " >> " + lPath
 
+        elif op == "annot-link-ssbond-with-ptm-mcc":
+            cmdPath = os.path.join(self.__annotAppsPath, "bin", "GetLinkAndSSBond")
+            thisCmd = " ; " + cmdPath
+            cmd += thisCmd + " -input " + iPath + " -output " + oPath + " -ptm_pcm_output pcm.csv -log annot-step.log  -link -ssbond "
+            cmd += " -metal_containing_residue mcr.txt "
+            #
+            if "check_skip_option" in self.__inputParamDict:
+                cmd += " -skip_metal_ligand_output "
+            #
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
+            cmd += " ; cat annot-step.log " + " >> " + lPath
+
+        elif op == "annot-merge-metal-coordination":
+            cmdPath = os.path.join(self.__annotAppsPath, "bin", "MergeMetalCoordinationAnnotation")
+            thisCmd = " ; " + cmdPath
+            cmd += thisCmd + " -input " + iPath + " -output " + oPath + " -missing_metal_coordination mmc.csv -log annot-step.log "
+            #
+            if "metal_coordination_file_path" in self.__inputParamDict:
+                annotationFilePath = self.__inputParamDict["metal_coordination_file_path"]
+                cmd += " -metal_coordination " + annotationFilePath
+            #
+            if "additional_comp_path" in self.__inputParamDict:
+                AdditionalCompPath = self.__inputParamDict["additional_comp_path"]
+                cmd += " -additional_comp_path " + AdditionalCompPath
+            #
+            if "add_timeout_skip" in self.__inputParamDict:
+                cmd += " -add_timeout_skip "
+            #
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
+            cmd += " ; cat annot-step.log " + " >> " + lPath
+
+        elif op == "annot-update-metal-coordination":
+            cmdPath = os.path.join(self.__annotAppsPath, "bin", "UpdateMetalCoordinationAnnotation")
+            thisCmd = " ; " + cmdPath
+            cmd += thisCmd + " -input " + iPath + " -output " + oPath + " -missing_metal_coordination mmc.csv -log annot-step.log "
+            #
+            if "additional_comp_path" in self.__inputParamDict:
+                AdditionalCompPath = self.__inputParamDict["additional_comp_path"]
+                cmd += " -additional_comp_path " + AdditionalCompPath
+            #
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
+            cmd += " ; cat annot-step.log " + " >> " + lPath
+
+        elif op == "annot-update-metal-coordination-to-ccd":
+            cmdPath = os.path.join(self.__annotAppsPath, "bin", "UpdateCcdWithMetalCoordination")
+            thisCmd = " ; " + cmdPath
+            cmd += thisCmd + " -input " + iPath + " -output " + oPath
+            #
+            if "additional_comp_path" in self.__inputParamDict:
+                AdditionalCompPath = self.__inputParamDict["additional_comp_path"]
+                cmd += " -additional_comp_path " + AdditionalCompPath
+            #
+            cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
+
         elif op == "annot-cis-peptide":
             cmdPath = os.path.join(self.__annotAppsPath, "bin", "GetCisPeptide")
             thisCmd = " ; " + cmdPath
@@ -1024,8 +1129,8 @@ class RcsbDpUtility:
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
             cmd += " ; cat annot-step.log " + " >> " + lPath
 
-            oPath2Full = os.path.join(self.__wrkPath, oPath2)
-            oPathFull = os.path.join(self.__wrkPath, oPath)
+            oPath2Full = os.path.join(self.__getWrkPath(), oPath2)
+            oPathFull = os.path.join(self.__getWrkPath(), oPath)
             #
             # see at the end for the post processing operations --
             #
@@ -1050,8 +1155,8 @@ class RcsbDpUtility:
             #
             # Paths for post processing --
             #
-            oPath2Full = os.path.join(self.__wrkPath, oPath2)
-            oPathFull = os.path.join(self.__wrkPath, oPath)
+            oPath2Full = os.path.join(self.__getWrkPath(), oPath2)
+            oPathFull = os.path.join(self.__getWrkPath(), oPath)
             #
             # see at the end for the post processing operations --
             #
@@ -1213,8 +1318,8 @@ class RcsbDpUtility:
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
             cmd += " ; cat annot-step.log " + " >> " + lPath
 
-            oPath2Full = os.path.join(self.__wrkPath, oPath2)
-            oPathFull = os.path.join(self.__wrkPath, oPath)
+            oPath2Full = os.path.join(self.__getWrkPath(), oPath2)
+            oPathFull = os.path.join(self.__getWrkPath(), oPath)
 
         elif op == "annot-rcsbeps2pdbx-strip":
             #
@@ -1229,8 +1334,8 @@ class RcsbDpUtility:
             #
             # Paths for post processing --
             #
-            oPath2Full = os.path.join(self.__wrkPath, oPath2)
-            oPathFull = os.path.join(self.__wrkPath, oPath)
+            oPath2Full = os.path.join(self.__getWrkPath(), oPath2)
+            oPathFull = os.path.join(self.__getWrkPath(), oPath)
             #
             # see at the end for the post processing operations --
 
@@ -1246,8 +1351,8 @@ class RcsbDpUtility:
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
             cmd += " ; cat annot-step.log " + " >> " + lPath
 
-            oPath2Full = os.path.join(self.__wrkPath, oPath2)
-            oPathFull = os.path.join(self.__wrkPath, oPath)
+            oPath2Full = os.path.join(self.__getWrkPath(), oPath2)
+            oPathFull = os.path.join(self.__getWrkPath(), oPath)
 
         elif op == "annot-rcsbeps2pdbx-strip-plus-entity":
             #
@@ -1262,8 +1367,8 @@ class RcsbDpUtility:
             #
             # Paths for post processing --
             #
-            oPath2Full = os.path.join(self.__wrkPath, oPath2)
-            oPathFull = os.path.join(self.__wrkPath, oPath)
+            oPath2Full = os.path.join(self.__getWrkPath(), oPath2)
+            oPathFull = os.path.join(self.__getWrkPath(), oPath)
             #
             # see at the end for the post processing operations --
 
@@ -1288,6 +1393,7 @@ class RcsbDpUtility:
             #
 
             # Set the initial memory for run remote use
+            self.__startingMemory = 2000
             validation_mode = "release"
             if "request_validation_mode" in self.__inputParamDict:
                 validation_mode = str(self.__inputParamDict["request_validation_mode"]).lower()
@@ -1372,18 +1478,18 @@ class RcsbDpUtility:
             else:
                 stepList = None
 
-            multithread = "--multithread"
+            multithread: Optional[str] = "--multithread"
             if "skip_multi" in self.__inputParamDict:
                 multithread = None
             #
-            xmlPath = os.path.abspath(os.path.join(self.__wrkPath, "out.xml"))
-            cifPath = os.path.abspath(os.path.join(self.__wrkPath, "out.cif"))
-            pdfPath = os.path.abspath(os.path.join(self.__wrkPath, "out.pdf"))
-            pdfFullPath = os.path.abspath(os.path.join(self.__wrkPath, "out_full.pdf"))
-            pngPath = os.path.abspath(os.path.join(self.__wrkPath, "out.png"))
-            svgPath = os.path.abspath(os.path.join(self.__wrkPath, "out.svg"))
-            edmapCoefPath = os.path.abspath(os.path.join(self.__wrkPath, "out.mtz"))
-            imageTarPath = os.path.abspath(os.path.join(self.__wrkPath, "out_image.tar"))
+            xmlPath = os.path.abspath(os.path.join(self.__getWrkPath(), "out.xml"))
+            cifPath = os.path.abspath(os.path.join(self.__getWrkPath(), "out.cif"))
+            pdfPath = os.path.abspath(os.path.join(self.__getWrkPath(), "out.pdf"))
+            pdfFullPath = os.path.abspath(os.path.join(self.__getWrkPath(), "out_full.pdf"))
+            pngPath = os.path.abspath(os.path.join(self.__getWrkPath(), "out.png"))
+            svgPath = os.path.abspath(os.path.join(self.__getWrkPath(), "out.svg"))
+            edmapCoefPath = os.path.abspath(os.path.join(self.__getWrkPath(), "out.mtz"))
+            imageTarPath = os.path.abspath(os.path.join(self.__getWrkPath(), "out_image.tar"))
 
             chimerax_bin = self.__cIVal.get_chimerax()
             chimera_bin = self.__cIVal.get_chimera()
@@ -1391,7 +1497,8 @@ class RcsbDpUtility:
             cmd += " ; %s " % self.__site_config_command
             cmd += ' ; export PATH="$PATH:{path1}:{path2}"'.format(path1=chimerax_bin, path2=chimera_bin)
             # unset the DISPLAY variable for VA pack to use nogui in ChimeraX
-            cmd += " ; unset DISPLAY "
+            # CCP4 monomer library should not be inherited from run environment as affects molprobity in phenix 2.0
+            cmd += " ; unset DISPLAY ; unset CLIBD_MON "
             cmd += " ; %s --validation " % self.__site_config_command
             cmd += " ; OE_DIR=" + self.__oeDirPath + " ; export OE_DIR "
             cmd += " ; OE_LICENSE=" + self.__oeLicensePath + " ; export OE_LICENSE "
@@ -1453,7 +1560,7 @@ class RcsbDpUtility:
             #
             cmd += " ; WWPDB_SITE_ID=" + self.__siteId + " ; export WWPDB_SITE_ID "
             cmd += " ; DEPLOY_DIR=" + self.__deployPath + " ; export DEPLOY_DIR "
-            cmd += " ; TOOLS_DIR=" + os.path.join(self.__localAppsPath, "bin") + " ; export TOOLS_DIR "
+            cmd += " ; TOOLS_DIR=" + os.path.join(self.__getLocalAppsPath(), "bin") + " ; export TOOLS_DIR "
             cmd += " ; PACKAGE_DIR=" + self.__packagePath + " ; export PACKAGE_DIR "
             cmd += " ; DCCPY_DIR=" + self.__sfvalidPath + " ; export DCCPY_DIR "
 
@@ -1474,7 +1581,7 @@ class RcsbDpUtility:
                 sfPath = self.__inputParamDict["sf_file_path"]
                 sfPathFull = os.path.abspath(sfPath)
                 (_h, sfFileName) = os.path.split(sfPath)
-                sfWrkPath = os.path.join(self.__wrkPath, sfFileName)
+                sfWrkPath = os.path.join(self.__getWrkPath(), sfFileName)
                 shutil.copyfile(sfPathFull, sfWrkPath)
             else:
                 sfPath = "none"
@@ -1562,7 +1669,7 @@ class RcsbDpUtility:
             #
             cmd += " ; WWPDB_SITE_ID=" + self.__siteId + " ; export WWPDB_SITE_ID "
             cmd += " ; DEPLOY_DIR=" + self.__deployPath + " ; export DEPLOY_DIR "
-            cmd += " ; TOOLS_DIR=" + os.path.join(self.__localAppsPath, "bin") + " ; export TOOLS_DIR "
+            cmd += " ; TOOLS_DIR=" + os.path.join(self.__getLocalAppsPath(), "bin") + " ; export TOOLS_DIR "
             cmd += " ; PACKAGE_DIR=" + self.__packagePath + " ; export PACKAGE_DIR "
             cmd += " ; DCCPY_DIR=" + self.__sfvalidPath + " ; export DCCPY_DIR "
 
@@ -1578,7 +1685,7 @@ class RcsbDpUtility:
                 sfPath = self.__inputParamDict["sf_file_path"]
                 sfPathFull = os.path.abspath(sfPath)
                 (_h, sfFileName) = os.path.split(sfPath)
-                sfWrkPath = os.path.join(self.__wrkPath, sfFileName)
+                sfWrkPath = os.path.join(self.__getWrkPath(), sfFileName)
                 shutil.copyfile(sfPathFull, sfWrkPath)
                 #
                 cmd += thisCmd + dccArgs + " -auto -cif ./" + iPath + " -sf  ./" + sfFileName + " -o " + oPath + " -diags " + lPath
@@ -1596,7 +1703,7 @@ class RcsbDpUtility:
             #
             cmd += " ; WWPDB_SITE_ID=" + self.__siteId + " ; export WWPDB_SITE_ID "
             cmd += " ; DEPLOY_DIR=" + self.__deployPath + " ; export DEPLOY_DIR "
-            cmd += " ; TOOLS_DIR=" + os.path.join(self.__localAppsPath, "bin") + " ; export TOOLS_DIR "
+            cmd += " ; TOOLS_DIR=" + os.path.join(self.__getLocalAppsPath(), "bin") + " ; export TOOLS_DIR "
             cmd += " ; PACKAGE_DIR=" + self.__packagePath + " ; export PACKAGE_DIR "
             cmd += " ; DCCPY_DIR=" + self.__sfvalidPath + " ; export DCCPY_DIR "
 
@@ -1612,7 +1719,7 @@ class RcsbDpUtility:
                 sfPath = self.__inputParamDict["sf_file_path"]
                 sfPathFull = os.path.abspath(sfPath)
                 (_h, sfFileName) = os.path.split(sfPath)
-                sfWrkPath = os.path.join(self.__wrkPath, sfFileName)
+                sfWrkPath = os.path.join(self.__getWrkPath(), sfFileName)
                 shutil.copyfile(sfPathFull, sfWrkPath)
                 cmd += thisCmd + dccArgs + " -refine -cif ./" + iPath + " -sf  ./" + sfFileName + " -o " + oPath
             else:
@@ -1629,7 +1736,7 @@ class RcsbDpUtility:
             #
             cmd += " ; WWPDB_SITE_ID=" + self.__siteId + " ; export WWPDB_SITE_ID "
             cmd += " ; DEPLOY_DIR=" + self.__deployPath + " ; export DEPLOY_DIR "
-            cmd += " ; TOOLS_DIR=" + os.path.join(self.__localAppsPath, "bin") + " ; export TOOLS_DIR "
+            cmd += " ; TOOLS_DIR=" + os.path.join(self.__getLocalAppsPath(), "bin") + " ; export TOOLS_DIR "
             cmd += " ; PACKAGE_DIR=" + self.__packagePath + " ; export PACKAGE_DIR "
             cmd += " ; DCCPY_DIR=" + self.__sfvalidPath + " ; export DCCPY_DIR "
 
@@ -1647,7 +1754,7 @@ class RcsbDpUtility:
             #
             cmd += " ; WWPDB_SITE_ID=" + self.__siteId + " ; export WWPDB_SITE_ID "
             cmd += " ; DEPLOY_DIR=" + self.__deployPath + " ; export DEPLOY_DIR "
-            cmd += " ; TOOLS_DIR=" + os.path.join(self.__localAppsPath, "bin") + " ; export TOOLS_DIR "
+            cmd += " ; TOOLS_DIR=" + os.path.join(self.__getLocalAppsPath(), "bin") + " ; export TOOLS_DIR "
             cmd += " ; PACKAGE_DIR=" + self.__packagePath + " ; export PACKAGE_DIR "
             cmd += " ; DCCPY_DIR=" + self.__sfvalidPath + " ; export DCCPY_DIR "
 
@@ -1669,7 +1776,7 @@ class RcsbDpUtility:
             #
             cmd += " ; WWPDB_SITE_ID=" + self.__siteId + " ; export WWPDB_SITE_ID "
             cmd += " ; DEPLOY_DIR=" + self.__deployPath + " ; export DEPLOY_DIR "
-            cmd += " ; TOOLS_DIR=" + os.path.join(self.__localAppsPath, "bin") + " ; export TOOLS_DIR "
+            cmd += " ; TOOLS_DIR=" + os.path.join(self.__getLocalAppsPath(), "bin") + " ; export TOOLS_DIR "
             cmd += " ; PACKAGE_DIR=" + self.__packagePath + " ; export PACKAGE_DIR "
             cmd += " ; DCCPY_DIR=" + self.__sfvalidPath + " ; export DCCPY_DIR "
 
@@ -1678,7 +1785,7 @@ class RcsbDpUtility:
             thisCmd = " ; " + cmdPath
             #
             # new model file will not be created if nothing to fix
-            newModelFile = os.path.abspath(os.path.join(self.__wrkPath, "special-fixed.cif"))
+            newModelFile = os.path.abspath(os.path.join(self.__getWrkPath(), "special-fixed.cif"))
 
             cmd += thisCmd + " -occ ./" + iPath + " -oxyz " + newModelFile + " -o " + oPath
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
@@ -1689,7 +1796,7 @@ class RcsbDpUtility:
             #
             cmd += " ; WWPDB_SITE_ID=" + self.__siteId + " ; export WWPDB_SITE_ID "
             cmd += " ; DEPLOY_DIR=" + self.__deployPath + " ; export DEPLOY_DIR "
-            cmd += " ; TOOLS_DIR=" + os.path.join(self.__localAppsPath, "bin") + " ; export TOOLS_DIR "
+            cmd += " ; TOOLS_DIR=" + os.path.join(self.__getLocalAppsPath(), "bin") + " ; export TOOLS_DIR "
             cmd += " ; PACKAGE_DIR=" + self.__packagePath + " ; export PACKAGE_DIR "
             cmd += " ; DCCPY_DIR=" + self.__sfvalidPath + " ; export DCCPY_DIR "
 
@@ -1709,25 +1816,25 @@ class RcsbDpUtility:
             #
             # input  is sf file in mtz format
             # output is sf in pdbx  format
-            sfCifPath = os.path.join(self.__wrkPath, oPath)
+            sfCifPath = os.path.join(self.__getWrkPath(), oPath)
             sfDiagFileName = "sf_information.cif"
-            sfDiagPath = os.path.join(self.__wrkPath, sfDiagFileName)
+            sfDiagPath = os.path.join(self.__getWrkPath(), sfDiagFileName)
             mtzDmpFileName = "mtzdmp.log"
-            mtzDmpPath = os.path.join(self.__wrkPath, mtzDmpFileName)
+            mtzDmpPath = os.path.join(self.__getWrkPath(), mtzDmpFileName)
             #
             mtzFile = iPath + ".mtz"
-            mtzPath = os.path.join(self.__wrkPath, mtzFile)
+            mtzPath = os.path.join(self.__getWrkPath(), mtzFile)
             shutil.copyfile(iPathFull, mtzPath)
             ccp4_path = os.path.join(self.__packagePath, "ccp4")
             #
             cmd += " ; WWPDB_SITE_ID=" + self.__siteId + " ; export WWPDB_SITE_ID "
             cmd += " ; DEPLOY_DIR=" + self.__deployPath + " ; export DEPLOY_DIR "
-            cmd += " ; TOOLS_DIR=" + os.path.join(self.__localAppsPath, "bin") + " ; export TOOLS_DIR "
+            cmd += " ; TOOLS_DIR=" + os.path.join(self.__getLocalAppsPath(), "bin") + " ; export TOOLS_DIR "
             cmd += " ; PACKAGE_DIR=" + self.__packagePath + " ; export PACKAGE_DIR "
             cmd += " ; DCCPY_DIR=" + self.__sfvalidPath + " ; export DCCPY_DIR "
             cmd += " ; DCCPY=" + self.__sfvalidPath + " ; export DCCPY "
-            cmd += " ; CCP4=" + ccp4_path + " ; export CCP4 "
-            cmd += " ; source {}/bin/ccp4.setup-sh ".format(ccp4_path)
+            # cmd += " ; CCP4=" + ccp4_path + " ; export CCP4 "
+            # cmd += " ; source {}/bin/ccp4.setup-sh ".format(ccp4_path)
             #
             cmdPath = os.path.join(self.__sfvalidPath, "bin", "sf_convert")
             thisCmd = " ; " + cmdPath
@@ -1739,9 +1846,12 @@ class RcsbDpUtility:
                 xyzPath = self.__inputParamDict["xyz_file_path"]
                 xyzPathFull = os.path.abspath(xyzPath)
                 (_h, xyzFileName) = os.path.split(xyzPath)
-                xyzWrkPath = os.path.join(self.__wrkPath, xyzFileName)
+                xyzWrkPath = os.path.join(self.__getWrkPath(), xyzFileName)
                 shutil.copyfile(xyzPathFull, xyzWrkPath)
                 cmd += " -pdb " + xyzFileName
+
+            if "firstblockdiags" in self.__inputParamDict:
+                cmd += " -firstblocklogs "
 
             cmd += " > " + tPath + " 2>&1 ; "
             #
@@ -1806,7 +1916,7 @@ class RcsbDpUtility:
             #
             cmd += " ; WWPDB_SITE_ID=" + self.__siteId + " ; export WWPDB_SITE_ID "
             cmd += " ; DEPLOY_DIR=" + self.__deployPath + " ; export DEPLOY_DIR "
-            cmd += " ; TOOLS_DIR=" + os.path.join(self.__localAppsPath, "bin") + " ; export TOOLS_DIR "
+            cmd += " ; TOOLS_DIR=" + os.path.join(self.__getLocalAppsPath(), "bin") + " ; export TOOLS_DIR "
             cmd += " ; PACKAGE_DIR=" + self.__packagePath + " ; export PACKAGE_DIR "
             cmd += " ; DCCPY_DIR=" + os.path.join(self.__packagePath, "sf-valid") + " ; export DCCPY_DIR "
 
@@ -1818,15 +1928,15 @@ class RcsbDpUtility:
                 sfPath = self.__inputParamDict["sf_file_path"]
                 sfPathFull = os.path.abspath(sfPath)
                 (_h, sfFileName) = os.path.split(sfPath)
-                sfWrkPath = os.path.join(self.__wrkPath, sfFileName)
+                sfWrkPath = os.path.join(self.__getWrkPath(), sfFileName)
                 shutil.copyfile(sfPathFull, sfWrkPath)
             else:
                 sfPath = "none"
                 sfPathFull = "none"
 
             #
-            map2fofcPath = os.path.abspath(os.path.join(self.__wrkPath, iPath + "_map-omit-2fofc_P1.map"))
-            mapfofcPath = os.path.abspath(os.path.join(self.__wrkPath, iPath + "_map-omit-fofc_P1.map"))
+            map2fofcPath = os.path.abspath(os.path.join(self.__getWrkPath(), iPath + "_map-omit-2fofc_P1.map"))
+            mapfofcPath = os.path.abspath(os.path.join(self.__getWrkPath(), iPath + "_map-omit-fofc_P1.map"))
 
             # cmd += thisCmd + " -cif ./" + iPath + " -sf  ./" + sfFileName + " -omitmap -map  -no_xtriage -o " + oPath
             # cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
@@ -1844,7 +1954,7 @@ class RcsbDpUtility:
             #
             cmd += " ; WWPDB_SITE_ID=" + self.__siteId + " ; export WWPDB_SITE_ID "
             cmd += " ; DEPLOY_DIR=" + self.__deployPath + " ; export DEPLOY_DIR "
-            cmd += " ; TOOLS_DIR=" + os.path.join(self.__localAppsPath, "bin") + " ; export TOOLS_DIR "
+            cmd += " ; TOOLS_DIR=" + os.path.join(self.__getLocalAppsPath(), "bin") + " ; export TOOLS_DIR "
             cmd += " ; PACKAGE_DIR=" + self.__packagePath + " ; export PACKAGE_DIR "
             cmd += " ; DCCPY_DIR=" + os.path.join(self.__packagePath, "sf-valid") + " ; export DCCPY_DIR "
 
@@ -1856,15 +1966,15 @@ class RcsbDpUtility:
                 sfPath = self.__inputParamDict["sf_file_path"]
                 sfPathFull = os.path.abspath(sfPath)
                 (_h, sfFileName) = os.path.split(sfPath)
-                sfWrkPath = os.path.join(self.__wrkPath, sfFileName)
+                sfWrkPath = os.path.join(self.__getWrkPath(), sfFileName)
                 shutil.copyfile(sfPathFull, sfWrkPath)
             else:
                 sfPath = "none"
                 sfPathFull = "none"
 
             #
-            map2fofcPath = os.path.abspath(os.path.join(self.__wrkPath, iPath + "_map-2fofc_P1.map"))
-            mapfofcPath = os.path.abspath(os.path.join(self.__wrkPath, iPath + "_map-fofc_P1.map"))
+            map2fofcPath = os.path.abspath(os.path.join(self.__getWrkPath(), iPath + "_map-2fofc_P1.map"))
+            mapfofcPath = os.path.abspath(os.path.join(self.__getWrkPath(), iPath + "_map-fofc_P1.map"))
 
             # cmd += thisCmd + " -cif ./" + iPath + " -sf  ./" + sfFileName + " -map  -no_xtriage -o " + oPath
             # cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
@@ -1877,7 +1987,7 @@ class RcsbDpUtility:
             #
             cmd += " ; WWPDB_SITE_ID=" + self.__siteId + " ; export WWPDB_SITE_ID "
             cmd += " ; DEPLOY_DIR=" + self.__deployPath + " ; export DEPLOY_DIR "
-            cmd += " ; TOOLS_DIR=" + os.path.join(self.__localAppsPath, "bin") + " ; export TOOLS_DIR "
+            cmd += " ; TOOLS_DIR=" + os.path.join(self.__getLocalAppsPath(), "bin") + " ; export TOOLS_DIR "
             cmd += " ; PACKAGE_DIR=" + self.__packagePath + " ; export PACKAGE_DIR "
             cmd += " ; DCCPY_DIR=" + os.path.join(self.__packagePath, "sf-valid") + " ; export DCCPY_DIR "
             #
@@ -2077,7 +2187,7 @@ class RcsbDpUtility:
             pList = []
             nList = []
             chkName = "cs-diags.cif"
-            lCheckPath = os.path.abspath(os.path.join(self.__wrkPath, chkName))
+            lCheckPath = os.path.abspath(os.path.join(self.__getWrkPath(), chkName))
             chkPath = ""
             if "chemical_shifts_file_path_list" in self.__inputParamDict:
                 pList = self.__inputParamDict["chemical_shifts_file_path_list"]
@@ -2106,7 +2216,7 @@ class RcsbDpUtility:
             cmdPath = os.path.join(self.__annotAppsPath, "bin", "shift_coord_check")
             thisCmd = " ; " + cmdPath
             chkName = "cs-coord-diags.cif"
-            lCheckPath = os.path.abspath(os.path.join(self.__wrkPath, chkName))
+            lCheckPath = os.path.abspath(os.path.join(self.__getWrkPath(), chkName))
             chkPath = ""
             #
             # auxiliary output file
@@ -2117,8 +2227,8 @@ class RcsbDpUtility:
                 xyzPath = self.__inputParamDict["coordinate_file_path"]
                 xyzPathFull = os.path.abspath(xyzPath)
                 (_h, xyzFileName) = os.path.split(xyzPath)
-                xyzWrkPath = os.path.join(self.__wrkPath, xyzFileName)
-                xyzCnvWrkPath = os.path.join(self.__wrkPath, "cnv-" + xyzFileName)
+                xyzWrkPath = os.path.join(self.__getWrkPath(), xyzFileName)
+                xyzCnvWrkPath = os.path.join(self.__getWrkPath(), "cnv-" + xyzFileName)
                 shutil.copyfile(xyzPathFull, xyzWrkPath)
             else:
                 xyzPath = "none"
@@ -2143,7 +2253,7 @@ class RcsbDpUtility:
                 xyzPath = self.__inputParamDict["coordinate_file_path"]
                 xyzPathFull = os.path.abspath(xyzPath)
                 (_h, xyzFileName) = os.path.split(xyzPath)
-                xyzWrkPath = os.path.join(self.__wrkPath, xyzFileName)
+                xyzWrkPath = os.path.join(self.__getWrkPath(), xyzFileName)
                 shutil.copyfile(xyzPathFull, xyzWrkPath)
             else:
                 xyzPath = "none"
@@ -2216,8 +2326,8 @@ class RcsbDpUtility:
 
         elif op == "annot-depict-molecule-json":
             #
-            txtPath = os.path.abspath(os.path.join(self.__wrkPath, "chainids.txt"))
-            cifPath = os.path.abspath(os.path.join(self.__wrkPath, "index.cif"))
+            txtPath = os.path.abspath(os.path.join(self.__getWrkPath(), "chainids.txt"))
+            cifPath = os.path.abspath(os.path.join(self.__getWrkPath(), "index.cif"))
             #
             cmdPath = os.path.join(self.__annotAppsPath, "bin", "DepictMolecule_Json")
             thisCmd = " ; " + cmdPath
@@ -2346,13 +2456,13 @@ class RcsbDpUtility:
 
         elif op == "annot-check-xml-xmllint":
             #
-            cmdPath = os.path.join(self.__localAppsPath, "bin", "xmllint")
+            cmdPath = os.path.join(self.__getLocalAppsPath(), "bin", "xmllint")
             thisCmd = " ; " + cmdPath + " --noout --schema " + os.path.join(self.__cICommon.get_mmcif_dict_path(), "pdbx-v50.xsd")
             cmd += thisCmd + " " + iPath + " > " + tPath + " 2>&1 ; "
 
         elif op == "annot-check-xml-stdinparse":
             #
-            cmdPath = os.path.join(self.__localAppsPath, "bin", "StdInParse")
+            cmdPath = os.path.join(self.__getLocalAppsPath(), "bin", "StdInParse")
             thisCmd = " ; cp -f " + os.path.join(self.__cICommon.get_mmcif_dict_path(), "pdbx-v50.xsd") + " . ; " + cmdPath
             cmd += thisCmd + " -s -f -n -v=always < " + iPath + " >> " + tPath + " 2>&1 ; "
 
@@ -2600,8 +2710,8 @@ class RcsbDpUtility:
             cmd += " -cif " + oPath + " -sdb " + oPath2
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " > " + lPath
 
-            oPath2Full = os.path.join(self.__wrkPath, oPath2)
-            oPathFull = os.path.join(self.__wrkPath, oPath)
+            oPath2Full = os.path.join(self.__getWrkPath(), oPath2)
+            oPathFull = os.path.join(self.__getWrkPath(), oPath)
 
         elif op == "prd-process-summary":
             resultFilePath = None
@@ -2721,7 +2831,7 @@ class RcsbDpUtility:
             ]
 
             strpCt = PdbxStripCategory(verbose=self.__verbose, log=self.__lfh)
-            strpCt.strip(oPath2Full, oPathFull, stripList)  # This is defined for this op  # pylint: disable=used-before-assignment
+            strpCt.strip(oPath2Full, oPathFull, stripList)  # This is defined for this op  # pylint: disable=possibly-used-before-assignment,used-before-assignment
 
         if (op == "annot-rcsb2pdbx-strip") or (op == "annot-rcsbeps2pdbx-strip"):
             # remove these derived categories for now --
@@ -2836,7 +2946,7 @@ class RcsbDpUtility:
                     self.__resultPathList.append("missing")
 
             # Cleanup workdir
-            if deleteRunDir:  # This is defined for this op  # pylint: disable=used-before-assignment
+            if deleteRunDir and runDir is not None:  # This is defined for this op  # pylint: disable=possibly-used-before-assignment,used-before-assignment
                 try:
                     logger.info("+RcsbDpUtility.__annotationStep() removing working path %s\n", runDir)
                     shutil.rmtree(runDir, ignore_errors=True)
@@ -2850,13 +2960,47 @@ class RcsbDpUtility:
             or (op == "annot-pcm-check-ccd-ann")
             or (op == "annot-remove-covalent-bond")
         ):
-            outFile = os.path.join(self.__wrkPath, oPath)
+            outFile = os.path.join(self.__getWrkPath(), oPath)
             if os.access(outFile, os.F_OK):
                 self.__resultPathList.append(outFile)
             else:
                 self.__resultPathList.append("missing")
             #
-            pcmFile = os.path.join(self.__wrkPath, "pcm.csv")
+            pcmFile = os.path.join(self.__getWrkPath(), "pcm.csv")
+            if os.access(pcmFile, os.F_OK):
+                self.__resultPathList.append(pcmFile)
+            else:
+                self.__resultPathList.append("missing")
+            #
+
+        elif op == "annot-link-ssbond-with-ptm-mcc":
+            outFile = os.path.join(self.__getWrkPath(), oPath)
+            if os.access(outFile, os.F_OK):
+                self.__resultPathList.append(outFile)
+            else:
+                self.__resultPathList.append("missing")
+            #
+            pcmFile = os.path.join(self.__getWrkPath(), "pcm.csv")
+            if os.access(pcmFile, os.F_OK):
+                self.__resultPathList.append(pcmFile)
+            else:
+                self.__resultPathList.append("missing")
+            #
+            mcrFile = os.path.join(self.__getWrkPath(), "mcr.txt")
+            if os.access(mcrFile, os.F_OK):
+                self.__resultPathList.append(mcrFile)
+            else:
+                self.__resultPathList.append("missing")
+            #
+
+        elif (op == "annot-merge-metal-coordination") or (op == "annot-update-metal-coordination"):
+            outFile = os.path.join(self.__getWrkPath(), oPath)
+            if os.access(outFile, os.F_OK):
+                self.__resultPathList.append(outFile)
+            else:
+                self.__resultPathList.append("missing")
+            #
+            pcmFile = os.path.join(self.__getWrkPath(), "mmc.csv")
             if os.access(pcmFile, os.F_OK):
                 self.__resultPathList.append(pcmFile)
             else:
@@ -2864,13 +3008,13 @@ class RcsbDpUtility:
             #
 
         elif op == "annot-chem-shifts-update-with-check":
-            outFile = os.path.join(self.__wrkPath, oPath)
+            outFile = os.path.join(self.__getWrkPath(), oPath)
             if os.access(outFile, os.F_OK):
                 self.__resultPathList.append(outFile)
             else:
                 self.__resultPathList.append("missing")
             #
-            reportFile = os.path.join(self.__wrkPath, "report.cif")
+            reportFile = os.path.join(self.__getWrkPath(), "report.cif")
             if os.access(reportFile, os.F_OK):
                 self.__resultPathList.append(reportFile)
             else:
@@ -2882,17 +3026,17 @@ class RcsbDpUtility:
             #
             # Push the output converted and diagnostic files onto the resultPathList.
             #
-            if os.access(sfCifPath, os.F_OK):  # This is defined for this op  # pylint: disable=used-before-assignment
+            if os.access(sfCifPath, os.F_OK):  # This is defined for this op  # pylint: disable=possibly-used-before-assignment,used-before-assignment
                 self.__resultPathList.append(sfCifPath)
             else:
                 self.__resultPathList.append("missing")
 
-            if os.access(sfDiagPath, os.F_OK):  # This is defined for this op  # pylint: disable=used-before-assignment
+            if os.access(sfDiagPath, os.F_OK):  # This is defined for this op  # pylint: disable=possibly-used-before-assignment,used-before-assignment
                 self.__resultPathList.append(sfDiagPath)
             else:
                 self.__resultPathList.append("missing")
 
-            if os.access(mtzDmpPath, os.F_OK):  # This is defined for this op  # pylint: disable=used-before-assignment
+            if os.access(mtzDmpPath, os.F_OK):  # This is defined for this op  # pylint: disable=possibly-used-before-assignment,used-before-assignment
                 self.__resultPathList.append(mtzDmpPath)
             else:
                 self.__resultPathList.append("missing")
@@ -2941,7 +3085,7 @@ class RcsbDpUtility:
             if os.access(idxFilePath, os.R_OK):
                 ifh = open(idxFilePath)
                 for line in ifh:
-                    fp = os.path.join(self.__wrkPath, line[:-1])
+                    fp = os.path.join(self.__getWrkPath(), line[:-1])
                     if os.access(fp, os.R_OK):
                         self.__resultPathList.append(fp)
 
@@ -2952,14 +3096,14 @@ class RcsbDpUtility:
                 logger.info(
                     "+RcsbDpUtility._annotationStep()  - for operation %s return path %s\n",
                     op,
-                    outDataPathFull,  # pylint: disable=used-before-assignment
-                )  # Is defined for op  # pylint: disable=used-before-assignment
-            pat = os.path.join(self.__wrkPath, "*.map")
+                    outDataPathFull,  # pylint: disable=possibly-used-before-assignment,used-before-assignment
+                )  # Is defined for op  # pylint: disable=possibly-used-before-assignment,used-before-assignment
+            pat = os.path.join(self.__getWrkPath(), "*.map")
             self.__resultMapPathList = glob.glob(pat)
             if self.__debug:
                 logger.info("+RcsbDpUtility._annotationStep()  - pat %s resultMapPathList %s\n", pat, self.__resultMapPathList)
             #
-            pat = os.path.join(self.__wrkPath, "[0-9]*.cif")
+            pat = os.path.join(self.__getWrkPath(), "[0-9]*.cif")
             self.__resultCifPathList = glob.glob(pat)
             if self.__debug:
                 logger.info("+RcsbDpUtility._annotationStep()  - pat %s resultCifPathList %s\n", pat, self.__resultCifPathList)
@@ -2968,9 +3112,9 @@ class RcsbDpUtility:
                 if not os.path.isdir(outDataPathFull):
                     os.makedirs(outDataPathFull, 0o755)
                 # index file --
-                ipT = os.path.join(self.__wrkPath, "LIG_PEPTIDE.cif")
+                ipT = os.path.join(self.__getWrkPath(), "LIG_PEPTIDE.cif")
                 if os.access(ipT, os.R_OK):
-                    shutil.copyfile(ipT, outIndexPathFull)  # This is defined for this op  # pylint: disable=used-before-assignment
+                    shutil.copyfile(ipT, outIndexPathFull)  # This is defined for this op  # pylint: disable=used-before-assignment,possibly-used-before-assignment
                 elif self.__verbose:
                     logger.info("+RcsbDpUtility._annotationStep()  - missing map index file %s\n", ipT)
 
@@ -2998,25 +3142,25 @@ class RcsbDpUtility:
 
         elif op in ["annot-chem-shifts-atom-name-check", "annot-chem-shifts-upload-check"]:
             if os.access(lCheckPath, os.R_OK):
-                shutil.copyfile(lCheckPath, chkPath)  # This is defined for this op  # pylint: disable=used-before-assignment
+                shutil.copyfile(lCheckPath, chkPath)  # This is defined for this op  # pylint: disable=used-before-assignment,possibly-used-before-assignment
             #
 
         elif op == "annot-depict-molecule-json":
             self.__resultPathList = []
             #
-            outFile = os.path.join(self.__wrkPath, oPath)
+            outFile = os.path.join(self.__getWrkPath(), oPath)
             if os.access(outFile, os.F_OK):
                 self.__resultPathList.append(outFile)
             else:
                 self.__resultPathList.append("missing")
             #
-            txtPath = os.path.join(self.__wrkPath, "chainids.txt")
+            txtPath = os.path.join(self.__getWrkPath(), "chainids.txt")
             if os.access(txtPath, os.F_OK):
                 self.__resultPathList.append(txtPath)
             else:
                 self.__resultPathList.append("missing")
             #
-            cifPath = os.path.join(self.__wrkPath, "index.cif")
+            cifPath = os.path.join(self.__getWrkPath(), "index.cif")
             if os.access(cifPath, os.F_OK):
                 self.__resultPathList.append(cifPath)
             else:
@@ -3025,7 +3169,7 @@ class RcsbDpUtility:
 
         elif (op == "annot-check-sf-file") or (op == "annot-check-mr-file") or (op == "annot-check-cs-file") or (op == "annot-pdbx2nmrstar"):
             for fileName in (oPath, tPath):
-                outFile = os.path.join(self.__wrkPath, fileName)
+                outFile = os.path.join(self.__getWrkPath(), fileName)
                 if os.access(outFile, os.F_OK):
                     self.__resultPathList.append(outFile)
                 else:
@@ -3040,9 +3184,11 @@ class RcsbDpUtility:
             or (op == "annot-get-pdb-file")
             or (op == "annot-add-version-info")
             or (op == "annot-get-em-exp-info")
+            or (op == "annot-consolidated-tasks")
+            or (op == "chem-comp-instance-update")
         ):
             for fileName in (oPath, tPath, lPath):
-                outFile = os.path.join(self.__wrkPath, fileName)
+                outFile = os.path.join(self.__getWrkPath(), fileName)
                 if os.access(outFile, os.F_OK):
                     self.__resultPathList.append(outFile)
                 else:
@@ -3052,7 +3198,7 @@ class RcsbDpUtility:
 
         elif op == "annot-public-pdbx-to-xml":
             for fileName in (iPath + ".xml", iPath + ".xml-noatom", iPath + ".xml-extatom", lPath, tPath):
-                outFile = os.path.join(self.__wrkPath, fileName)
+                outFile = os.path.join(self.__getWrkPath(), fileName)
                 if os.access(outFile, os.F_OK):
                     self.__resultPathList.append(outFile)
                 else:
@@ -3062,7 +3208,7 @@ class RcsbDpUtility:
 
         elif op == "annot-public-pdbx-to-xml-noatom":
             for fileName in (iPath + ".xml-noatom", lPath, tPath):
-                outFile = os.path.join(self.__wrkPath, fileName)
+                outFile = os.path.join(self.__getWrkPath(), fileName)
                 if os.access(outFile, os.F_OK):
                     self.__resultPathList.append(outFile)
                 else:
@@ -3072,7 +3218,7 @@ class RcsbDpUtility:
 
         elif op == "annot-check-cif":
             for fileName in (iPath + "-diag.log", lPath):
-                outFile = os.path.join(self.__wrkPath, fileName)
+                outFile = os.path.join(self.__getWrkPath(), fileName)
                 if os.access(outFile, os.F_OK):
                     self.__resultPathList.append(outFile)
                 else:
@@ -3081,7 +3227,7 @@ class RcsbDpUtility:
             #
 
         elif (op == "annot-check-xml-xmllint") or (op == "annot-check-xml-stdinparse"):
-            outFile = os.path.join(self.__wrkPath, tPath)
+            outFile = os.path.join(self.__getWrkPath(), tPath)
             if os.access(outFile, os.F_OK):
                 self.__resultPathList.append(outFile)
             else:
@@ -3096,7 +3242,7 @@ class RcsbDpUtility:
             or (op == "annot-check-pdb-file")
         ):
             for fileName in ("result.tar.gz", tPath, lPath):
-                outFile = os.path.join(self.__wrkPath, fileName)
+                outFile = os.path.join(self.__getWrkPath(), fileName)
                 if os.access(outFile, os.F_OK):
                     self.__resultPathList.append(outFile)
                 else:
@@ -3106,7 +3252,7 @@ class RcsbDpUtility:
 
         elif op == "carbohydrate-remediation":
             for fileName in (oPath, tPath, lPath):
-                outFile = os.path.join(self.__wrkPath, fileName)
+                outFile = os.path.join(self.__getWrkPath(), fileName)
                 if os.access(outFile, os.F_OK):
                     self.__resultPathList.append(outFile)
                 else:
@@ -3116,7 +3262,7 @@ class RcsbDpUtility:
 
         elif op == "carbohydrate-remediation-test":
             for fileName in (oPath, "carbohydrate_public.cif", tPath, lPath):
-                outFile = os.path.join(self.__wrkPath, fileName)
+                outFile = os.path.join(self.__getWrkPath(), fileName)
                 if os.access(outFile, os.F_OK):
                     self.__resultPathList.append(outFile)
                 else:
@@ -3125,11 +3271,11 @@ class RcsbDpUtility:
             #
 
         else:
-            self.__resultPathList = [os.path.join(self.__wrkPath, oPath)]
+            self.__resultPathList = [os.path.join(self.__getWrkPath(), oPath)]
 
         return iret
 
-    def __validateStep(self, op):
+    def __validateStep(self, op: str) -> Optional[int]:
         """Internal method that performs a single validation operation.
 
         Now using only validation pack functions.
@@ -3220,7 +3366,7 @@ class RcsbDpUtility:
 
         return iret
 
-    def __dbStep(self, op):
+    def __dbStep(self, op: str) -> Optional[int]:
         """Internal method that performs a trasformations needed for DB loading
 
         Now using only validation pack functions.
@@ -3296,8 +3442,8 @@ class RcsbDpUtility:
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
             cmd += " ; cp DB_LOADER.sql " + oPath
         elif op == "sync-depositors":
-            depId = self.__inputParamDict.get("depId", None)
-            modelFilePath = self.__inputParamDict.get("modelFilePath", None)
+            depId = self.__inputParamDict["depId"]
+            modelFilePath = self.__inputParamDict["modelFilePath"]
 
             cmd += "; {}".format(self.__site_config_command)
             cmd += " ; python -m wwpdb.apps.deposit.scripts.sync_depositors --dep-id " + depId + " --model-file " + modelFilePath
@@ -3331,7 +3477,7 @@ class RcsbDpUtility:
 
         return iret
 
-    def __emStep(self, op):
+    def __emStep(self, op: str) -> Optional[int]:
         """Internal method that performs a single em operation."""
         #
         # Set application specific path details here -
@@ -3375,7 +3521,7 @@ class RcsbDpUtility:
             # tPathFull = tPath
             cmd = "{ "
 
-        def mapfix_command(inputPath):
+        def mapfix_command(inputPath: str) -> str:
             jarPath = os.path.join(self.__packagePath, "mapFix", "mapFixDep.jar")
             out = self.__javaPath + " -Xms256m -Xmx256m -jar " + jarPath
             out += " -in " + inputPath + " -out " + oPath
@@ -3390,7 +3536,7 @@ class RcsbDpUtility:
             imagicPath = os.path.join(self.__packagePath, "em2em_c5")
             binPath = os.path.join(self.__packagePath, "em2em_c5", "em2em.e")
 
-            cFile = os.path.join(self.__wrkPath, "COMMANDS.sh")
+            cFile = os.path.join(self.__getWrkPath(), "COMMANDS.sh")
             ofh = open(cFile, "w")
             ofh.write("#!/bin/sh\n")
             ofh.write("unset DISPLAY\n")
@@ -3500,7 +3646,7 @@ class RcsbDpUtility:
             jarPath = os.path.join(self.__packagePath, "mapFix", "mapFixAnot.jar")
             cmd += self.__javaPath + " -Xms256m -Xmx256m -jar " + jarPath
             # -out is a temporary file place holder --
-            cmd += " -in " + inpMapFilePath + " -out  dummy-out.map "  # pylint: disable=used-before-assignment
+            cmd += " -in " + inpMapFilePath + " -out  dummy-out.map "  # pylint: disable=used-before-assignment,possibly-used-before-assignment
             # these dummy arguments required to run this code --
             cmd += " -voxel 1.0 1.0 1.0 -label test "
             # oPath here will be the JSON  output containing may header details --
@@ -3650,7 +3796,7 @@ class RcsbDpUtility:
 
         return iret
 
-    def __maxitStep(self, op, progName="maxit"):
+    def __maxitStep(self, op: str, progName: str = "maxit") -> Optional[int]:
         """Internal method that performs a single maxit operation."""
         # Set application specific path details --
         #
@@ -3767,15 +3913,15 @@ class RcsbDpUtility:
         # iret = os.system(cmd)
         #
         if (op == "cif2pdb-assembly") or (op == "pdbx2pdb-assembly"):
-            pat = self.__wrkPath + "/*.pdb[1-9]*"
+            pat = self.__getWrkPath() + "/*.pdb[1-9]*"
             self.__resultPathList = glob.glob(pat)
 
         else:
-            self.__resultPathList = [os.path.join(self.__wrkPath, oPath)]
+            self.__resultPathList = [os.path.join(self.__getWrkPath(), oPath)]
 
         return iret
 
-    def __rcsbStep(self, op):
+    def __rcsbStep(self, op: str) -> Optional[int]:
         """Internal method that performs a single rcsb application operation."""
         #
         # Set application specific path details here -
@@ -3880,7 +4026,7 @@ class RcsbDpUtility:
                 " ; LD_LIBRARY_PATH="
                 + self.__babelLibPath
                 + ":"
-                + os.path.join(self.__localAppsPath, "lib")
+                + os.path.join(self.__getLocalAppsPath(), "lib")
                 + ":"
                 + self.__acdDirPath
                 + " ; export LD_LIBRARY_PATH "
@@ -3892,46 +4038,83 @@ class RcsbDpUtility:
 
         elif op == "metal-findgeo":
             # run FindGeo for AnnMod, output all geometry output regardless of regular or not
+            #
+            # usage example:
+            # dp = RcsbDpUtility()
+            # dp.imp("4DHV.cif")  # Mandatory: Import the PDB/mmCIF model file input
+            # dp.addInput(name="timeout", value="36000")  # Optional: Set the timeout for the operation in seconds, default to 3600
+            # dp.addInput(name="workdir", value="/tmp")  # Optional: Set the working directory for the operation, default to metalcoord subfolder in the current folder
+            # dp.op("metal-findgeo")  # Execute the operation
+            # dp.exp("4DHV-all-geometry.json")  # Export the FindGeo JSON report with all geometry output regardless of regular or not
+            #
             cmd = self.__constructFindGeoCommand(cmd, iPath, oPath, tPath, lPath, b_filter=False)
             logger.info("to run metal-findgeo full commands: %s", cmd)
 
         elif op == "metal-findgeo-filter-regular":
             # run FindGeo for LigMod, output regular geometry only
+            #
+            # usage example:
+            # dp = RcsbDpUtility()
+            # dp.imp("4DHV.cif")  # Mandatory: Import the PDB/mmCIF model file input
+            # dp.addInput(name="timeout", value="36000")  # Optional: Set the timeout for the operation in seconds, default to 3600
+            # dp.addInput(name="workdir", value="/tmp")  # Optional: Set the working directory for the operation, default to metalcoord subfolder in the current folder
+            # dp.op("metal-findgeo-filter-regular")  # Execute the operation
+            # dp.exp("4DHV-regular-geometry.json")  # Export the FindGeo JSON report with regular geometry only
+            #
             cmd = self.__constructFindGeoCommand(cmd, iPath, oPath, tPath, lPath, b_filter=True)
             logger.info("to run metal-findgeo-filter-regular full commands: %s", cmd)
 
         elif op == "metal-metalcoord-stats":
             # run MetalCoord stats for AnnMod, output all geometry output regardless of regular or not
+            #
+            # usage example:
+            # dp = RcsbDpUtility()
+            # dp.imp("4DHV.cif")  # Mandatory: Import the PDB/mmCIF model file input
+            # dp.addInput(name="ligands", value="0KA,NCO")  # Mandatory: CCD ID(s) of the metal ligands
+            # dp.addInput(name="timeout", value="36000")  # Optional: Set the timeout for the operation in seconds, default to 3600
+            # dp.addInput(name="workdir", value="/tmp")  # Optional: Set the working directory for the operation, default to metalcoord subfolder in the current folder
+            # dp.op("metal-metalcoord-stats")  # Execute the operation
+            # dp.exp("4DHV-all-geometry.json")  # Export the MetalCoord JSON report with all geometry output regardless of regular or not
+            #
             cmd = self.__constructMetalCoordCommand(cmd, iPath, oPath, tPath, lPath, cpu_split=2, b_filter=False)
             logger.info("to run metal-metalcoord-stats full commands: %s", cmd)
 
         elif op == "metal-metalcoord-stats-filter-regular":
             # run MetalCoord stats for LigMod, output regular geometry only
+            #
+            # usage example:
+            # dp = RcsbDpUtility()
+            # dp.imp("4DHV.cif")  # Mandatory: Import the PDB/mmCIF model file input
+            # dp.addInput(name="ligands", value="0KA,NCO")  # Mandatory: CCD ID(s) of the metal ligands
+            # dp.addInput(name="timeout", value="36000")  # Optional: Set the timeout for the operation in seconds, default to 3600
+            # dp.addInput(name="workdir", value="/tmp")  # Optional: Set the working directory for the operation, default to metalcoord subfolder in the current folder
+            # dp.op("metal-metalcoord-stats-filter-regular")  # Execute the operation
+            # dp.exp("4DHV-regular-geometry.json")  # Export the MetalCoord JSON report with regular geometry only
+            #
             cmd = self.__constructMetalCoordCommand(cmd, iPath, oPath, tPath, lPath, cpu_split=2, b_filter=True)
             logger.info("to run metal-metalcoord-stats-filter-regular full commands: %s", cmd)
 
         elif op == "metal-metalcoord-update":
             # run MetalCoord update for LigMod, output updated cif with charge and ideal coordinates, and a json report with coordination info;
-            # use most_common option to find COD reference if no pdb input provided;
-            # default Procrustes distance threshold is 0.2 for finding COD reference;
-            # default metalcoord options can be overridden before setting self.op("metal-metalcoord-update"), e.g.
-            # self.addInput(name="acedrg_exe", value="")  # Acedrg executable file, only use for testing new versions
-            # self.addInput(name="metalcoord_exe", value="")  # MetalCoord executable file, only use for testing new versions
-            # self.addInput(name="servalcat_exe", value="")   # Servalcat executable file, only use for testing new versions
-            # self.addInput(name="workdir", value="/tmp")  # Directory to write outputs. Default is metalcoord subfolder in the current folder
-            # self.addInput(name="input", value="0KA.cif")  # Ligand cif file
-            # self.addInput(name="pdb", value="4DHV")  # PDB code or pdb file for coodination reference, if missing then use most_commond option
-            # self.addInput(name="threshold", value="0.2")  # Procrustes distance threshold for finding COD reference.
-            # self.setTimeout(1800)  # set timeout to 30 minutes for metalcoord processing if needed
+            #
+            # usage example:
+            # dp = RcsbDpUtility()
+            # dp.imp("0KA-in.cif")  # Mandatory: Import the CCD file input
+            # dp.addInput(name="pdb", value="4DHV")  # Optional: PDB code or pdb file for coordination reference, if missing then use most_common option
+            # dp.addInput(name="timeout", value="36000")  # Optional: Set the timeout for the operation in seconds, default to 3600
+            # dp.addInput(name="workdir", value="/tmp")  # Optional: Set the working directory for the operation, default to metalcoord subfolder in the current folder
+            # dp.op("metal-metalcoord-update")  # Execute the operation
+            # dp.expList(["0KA-out.cif", "0KA-out.json"])  # Export the list of output files generated by the operation
+            #
             # setup CCP4 environment first because Acedrg and Servalcat are CCP4 programs and will run for update mode
-            ccp4_setup = os.path.join(self.__packagePath, "metallo", "ccp4-9", "bin", "ccp4.setup-sh")
-            cmd += f" ; source {ccp4_setup} "
+            ccp4_setup = os.path.join(self.__packagePath, "ccp4", "bin", "ccp4.setup-sh")
+            cmd += f" ; source {ccp4_setup} "  # setup CCP4 environment first for Acedrg and Servalcat, which are used for update mode
             # retrieve metalcoord executable from package path, first check standalone, then CCP4 package
-            metalcoord_exe_standalone = os.path.join(self.__packagePath, "metallo", "metalcoord", "bin", "metalCoord")
+            metalcoord_exe_standalone = os.path.join(self.__packagePath, "metalcoord", "bin", "metalCoord")
             if os.path.exists(metalcoord_exe_standalone):
                 metalcoord_exe = metalcoord_exe_standalone
             else:
-                metalcoord_exe_ccp4 = os.path.join(self.__packagePath, "metallo", "ccp4-9", "bin", "metalCoord")
+                metalcoord_exe_ccp4 = os.path.join(self.__packagePath, "ccp4", "bin", "metalCoord")
                 if os.path.exists(metalcoord_exe_ccp4):
                     metalcoord_exe = metalcoord_exe_ccp4
                 else:
@@ -3950,7 +4133,7 @@ class RcsbDpUtility:
             logger.info("metalcoord caller-set options: %s", self.__inputParamDict)
             workdir = "metalcoord"  # default metalcoord output subfolder within the session folder
             for key, value in self.__inputParamDict.items():
-                if key in ["input", "pdb", "threshold", "workdir", "metalcoord_exe", "acedrg_exe", "servalcat_exe"]:
+                if key in ["input", "pdb", "threshold", "workdir", "metalcoord_exe", "acedrg_exe", "servalcat_exe", "timeout"]:
                     d_metalcoord_args[key] = value  # add or override defaults with caller-specified options
                 if key == "workdir":
                     workdir = value
@@ -3959,14 +4142,14 @@ class RcsbDpUtility:
                 l_metalcoord_args.append(f"--{key_new} {value_new}")
             # limit CPU/threads
             cpu_split = 2
-            n_cpu = math.ceil(os.cpu_count() / cpu_split)  # use 1/cpu_split CPUs, e.g. 1/4, but minimally 1 CPU
+            n_cpu = math.ceil((os.cpu_count() or 1) / cpu_split)  # use 1/cpu_split CPUs, e.g. 1/4, but minimally 1 CPU
             cmd += f" ; OMP_NUM_THREADS={n_cpu}; export OMP_NUM_THREADS"
-            # run metalcoord and generate updated ligand cif at <workdir>/servalcat_updated.cif, which will be
+            # run metalcoord and generate updated ligand cif at <workdir>/clean.cif, which will be
             # copied as result file with charge and ideal coordinates; coordination info will be parsed and copied
             # into <workdir>/metalcoord_report.json;
-            # use self.expList() to output both files in list of [servalcat_updated.cif, metalcoord_report.json]
+            # use self.expList() to output both files in list of [clean.cif, metalcoord_report.json]
             cmd += f" ; python -m wwpdb.utils.dp.metal.metalcoord.processMetalCoordUpdate {' '.join(l_metalcoord_args)}"
-            cmd += f" ; cp {os.path.join(workdir, 'servalcat_updated.cif')} {oPath}"
+            cmd += f" ; cp {os.path.join(workdir, 'clean.cif')} {oPath}"
             cmd += f" > {tPath} 2>&1 ; cat {tPath} > {lPath}"
             logger.info("to run metal-metalcoord-update full commands: %s", cmd)
 
@@ -4075,8 +4258,9 @@ class RcsbDpUtility:
 
             cmdPath = os.path.join(self.__packagePath, "dict", "bin", "cifexch2")
             thisCmd = (
-                " ; " + cmdPath + " -dicSdb " + sDictSdb + " -pdbxDicSdb " + dDictSdb + " -reorder  -strip -op in  -pdbids "  # pylint: disable=possibly-used-before-assignment
-            )  # If not set, crash is ok  # noqa: E501 pylint: disable=possibly-used-before-assignment
+                " ; " + cmdPath + " -dicSdb " + sDictSdb + " -pdbxDicSdb "  # pylint: disable=possibly-used-before-assignment,used-before-assignment
+                + dDictSdb + " -reorder  -strip -op in  -pdbids "  # pylint: disable=possibly-used-before-assignment,used-before-assignment
+            )  # If not set, crash is ok  # noqa: E501 pylint: disable=possibly-used-before-assignment,used-before-assignment
             cmd += thisCmd + " -input " + iPath + " -output " + oPath
 
             if "option" in self.__inputParamDict:
@@ -4086,7 +4270,7 @@ class RcsbDpUtility:
 
         elif op == "cif2pdbx":
             #   need to have an input file list.
-            cmdPath = os.path.join(self.__localAppsPath, "bin", "cifexch-v3.2")
+            cmdPath = os.path.join(self.__getLocalAppsPath(), "bin", "cifexch-v3.2")
             thisCmd = " ; " + cmdPath + " -ddlodb " + self.__pathDdlSdb + " -dicodb " + self.__pathPdbxDictSdb
             thisCmd += " -reorder  -strip -op in  -pdbids "
 
@@ -4095,20 +4279,20 @@ class RcsbDpUtility:
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
 
         elif op == "pdbx2xml":
-            cmdPath = os.path.join(self.__localAppsPath, "bin", "mmcif2XML")
+            cmdPath = os.path.join(self.__getLocalAppsPath(), "bin", "mmcif2XML")
             thisCmd = " ; " + cmdPath + " -prefix  pdbx -ns PDBx -funct mmcif2xmlall "
             thisCmd += " -dict mmcif_pdbxR.dic  -df " + self.__pathPdbxDictOdb
             cmd += thisCmd + " -f " + iPath
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
 
         elif op == "pdb2dssp":
-            cmdPath = os.path.join(self.__localAppsPath, "bin", "dssp")
+            cmdPath = os.path.join(self.__getLocalAppsPath(), "bin", "dssp")
             thisCmd = " ;  " + cmdPath
             cmd += thisCmd + "  " + iPath + " " + oPath
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
             #  /lcl/bin/dssp ${id}.ent ${id}.dssp >&  ${id}.dssp.log
         elif op == "pdb2stride":
-            cmdPath = os.path.join(self.__localAppsPath, "bin", "stride")
+            cmdPath = os.path.join(self.__getLocalAppsPath(), "bin", "stride")
             thisCmd = " ;  " + cmdPath
             cmd += thisCmd + " -f" + oPath + " " + iPath
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
@@ -4157,7 +4341,7 @@ class RcsbDpUtility:
                 + ":"
                 + os.path.join(self.__packagePath, "ccp4", "lib")
                 + ":"
-                + os.path.join(self.__localAppsPath, "lib")
+                + os.path.join(self.__getLocalAppsPath(), "lib")
                 + " ; export LD_LIBRARY_PATH "
             )
 
@@ -4182,7 +4366,7 @@ class RcsbDpUtility:
                 + " -of "
                 + oPath
                 + " -o "
-                + self.__wrkPath
+                + self.__getWrkPath()
                 + " -ifmt pdbx "
                 + " -id "
                 + entryId
@@ -4213,14 +4397,14 @@ class RcsbDpUtility:
                 + ":"
                 + os.path.join(self.__packagePath, "ccp4", "lib")
                 + ":"
-                + os.path.join(self.__localAppsPath, "lib")
+                + os.path.join(self.__getLocalAppsPath(), "lib")
                 + " ; export LD_LIBRARY_PATH "
             )
 
             cmd += " ; env ; rm -f " + oPath + " ; " + os.path.join(self.__ccAppsPath, "bin", "ChemCompAssign_main")
             entryId = self.__inputParamDict["id"]
             instId = self.__inputParamDict["cc_instance_id"]
-            cmd += " -i " + iPath + " -of " + oPath + " -o " + self.__wrkPath + " -ifmt comp -id " + entryId
+            cmd += " -i " + iPath + " -of " + oPath + " -o " + self.__getWrkPath() + " -ifmt comp -id " + entryId
             cmd += " -search_inst_id " + instId + " -libsdb " + self.__ccDictPathSdb + " -idxFile " + self.__ccDictPathIdx
             #
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
@@ -4239,7 +4423,7 @@ class RcsbDpUtility:
                 + ":"
                 + os.path.join(self.__packagePath, "ccp4", "lib")
                 + ":"
-                + os.path.join(self.__localAppsPath, "lib")
+                + os.path.join(self.__getLocalAppsPath(), "lib")
                 + " ; export LD_LIBRARY_PATH "
             )
             cmd += " ; env "
@@ -4252,7 +4436,7 @@ class RcsbDpUtility:
             #    link_file=self.__inputParamDict['link_file_path']
             #    cmd += " ;  cp " + link_file + " " + self.__wrkPath
             #
-            cmd += thisCmd + " -i " + iPath + " -of " + oPath + " -o " + self.__wrkPath + " -ifmt comp " + " -id " + entryId
+            cmd += thisCmd + " -i " + iPath + " -of " + oPath + " -o " + self.__getWrkPath() + " -ifmt comp " + " -id " + entryId
             cmd += " -libsdb " + self.__ccDictPathSdb + " -idxFile " + self.__ccDictPathIdx
             cmd += " -force "
             #
@@ -4453,20 +4637,20 @@ class RcsbDpUtility:
         # iret = os.system(cmd)
         #
         if op == "pdbx2xml":
-            pat = self.__wrkPath + "/*.xml*"
+            pat = self.__getWrkPath() + "/*.xml*"
             self.__resultPathList = glob.glob(pat)
         else:
-            self.__resultPathList = [os.path.join(self.__wrkPath, oPath)]
+            self.__resultPathList = [os.path.join(self.__getWrkPath(), oPath)]
 
         if op == "metal-metalcoord-update":
             self.__resultPathList = []
-            ligand_cif_out = os.path.join(self.__wrkPath, "metalcoord", "servalcat_updated.cif")
+            ligand_cif_out = os.path.join(self.__getWrkPath(), "metalcoord", "clean.cif")
             if os.access(ligand_cif_out, os.F_OK):
                 self.__resultPathList.append(ligand_cif_out)
             else:
                 self.__resultPathList.append("missing")
 
-            coordination_json_out = os.path.join(self.__wrkPath, "metalcoord", "metalcoord_report.json")
+            coordination_json_out = os.path.join(self.__getWrkPath(), "metalcoord", "metalcoord_report.json")
             if os.access(coordination_json_out, os.F_OK):
                 self.__resultPathList.append(coordination_json_out)
             else:
@@ -4474,7 +4658,7 @@ class RcsbDpUtility:
 
         return iret
 
-    def __pisaStep(self, op):
+    def __pisaStep(self, op: str) -> Optional[int]:
         """Internal method that performs assembly calculation and management tasks."""
         #
         pisaTopPath = self.__cICommon.get_site_pisa_top_path()
@@ -4508,42 +4692,48 @@ class RcsbDpUtility:
                 cmd += "; cp " + pPath + " " + iPath
         #
         if "pisa_session_name" in self.__inputParamDict:
-            pisaSession = str(self.__inputParamDict["pisa_session_name"])
+            pisaSession: Optional[str] = str(self.__inputParamDict["pisa_session_name"])
         else:
             pisaSession = None
+
+        def session() -> str:
+            if pisaSession is None:
+                raise ValueError("pisa_session_name input is required for %s" % op)
+            return pisaSession
+
         cmd += " ; PISA_TOP=" + os.path.abspath(pisaTopPath) + " ; export PISA_TOP "
-        cmd += " ; PISA_SESSIONS=" + os.path.abspath(self.__wrkPath) + " ; export PISA_SESSIONS "
+        cmd += " ; PISA_SESSIONS=" + os.path.abspath(self.__getWrkPath()) + " ; export PISA_SESSIONS "
         cmd += " ; PISA_CONF_FILE=" + os.path.abspath(os.path.join(pisaConfPath, "pisa-standalone.cfg")) + " ; export PISA_CONF_FILE "
         #
         # cmd += " ; PISA_CONF_FILE="   + os.path.abspath(os.path.join(pisaTopPath,"share","pisa","pisa.cfg")) + " ; export PISA_CONF_FILE "
         if op == "pisa-analysis":
             cmdPath = os.path.join(pisaTopPath, "bin", "pisa")
-            cmd += " ; " + cmdPath + " " + pisaSession + " -analyse " + iPathFull
+            cmd += " ; " + cmdPath + " " + session() + " -analyse " + iPathFull
             if "pisa_assembly_arguments" in self.__inputParamDict:
                 assemblyArgs = self.__inputParamDict["pisa_assembly_arguments"]
                 cmd += " " + assemblyArgs
             cmd += " > " + tPath + " 2>&1 ; cat " + tPath + " >> " + lPath
         elif op == "pisa-assembly-report-xml":
             cmdPath = os.path.join(pisaTopPath, "bin", "pisa")
-            cmd += " ; " + cmdPath + " " + pisaSession + " -xml assemblies > " + oPath
+            cmd += " ; " + cmdPath + " " + session() + " -xml assemblies > " + oPath
             cmd += " 2> " + tPath + " ; cat " + tPath + " >> " + lPath
         elif op == "pisa-assembly-report-text":
             cmdPath = os.path.join(pisaTopPath, "bin", "pisa")
-            cmd += " ; " + cmdPath + " " + pisaSession + " -list assemblies > " + oPath
+            cmd += " ; " + cmdPath + " " + session() + " -list assemblies > " + oPath
             cmd += " 2> " + tPath + " ; cat " + tPath + " >> " + lPath
         elif op == "pisa-interface-report-xml":
             cmdPath = os.path.join(pisaTopPath, "bin", "pisa")
-            cmd += " ; " + cmdPath + " " + pisaSession + " -xml interfaces > " + oPath
+            cmd += " ; " + cmdPath + " " + session() + " -xml interfaces > " + oPath
             cmd += " 2> " + tPath + " ; cat " + tPath + " >> " + lPath
         elif op == "pisa-assembly-coordinates-pdb":
             pisaAssemblyId = self.__inputParamDict["pisa_assembly_id"]
             cmdPath = os.path.join(pisaTopPath, "bin", "pisa")
-            cmd += " ; " + cmdPath + " " + pisaSession + " -download assembly " + pisaAssemblyId + "  > " + oPath
+            cmd += " ; " + cmdPath + " " + session() + " -download assembly " + pisaAssemblyId + "  > " + oPath
             cmd += " 2> " + tPath + " ; cat " + tPath + " >> " + lPath
         elif op == "pisa-assembly-coordinates-cif":
             pisaAssemblyId = self.__inputParamDict["pisa_assembly_id"]
             cmdPath = os.path.join(pisaTopPath, "bin", "pisa")
-            cmd += " ; " + cmdPath + " " + pisaSession + " -cif assembly " + str(pisaAssemblyId) + "  > " + oPath
+            cmd += " ; " + cmdPath + " " + session() + " -cif assembly " + str(pisaAssemblyId) + "  > " + oPath
             cmd += " 2> " + tPath + " ; cat " + tPath + " >> " + lPath
         elif op == "pisa-assembly-merge-cif":
             # MergePisaData -input input_ciffile -output output_ciffile -xml xmlfile_from_PISA_output
@@ -4600,7 +4790,7 @@ class RcsbDpUtility:
         #
         return iret
 
-    def __pointsuiteStep(self, op):
+    def __pointsuiteStep(self, op: str) -> Optional[int]:
         """Internal method that performs point suite operations."""
         #
         # Set application specific path details here -
@@ -4670,9 +4860,9 @@ class RcsbDpUtility:
         iret = self.__run(cmd, lPathFull, op)
 
         if op == "pointsuite-importmats":
-            biomtPath = os.path.abspath(os.path.join(self.__wrkPath, "import.biomt"))
-            cifPath = os.path.abspath(os.path.join(self.__wrkPath, "import.cif"))
-            matrixPath = os.path.abspath(os.path.join(self.__wrkPath, "import.matrix"))
+            biomtPath = os.path.abspath(os.path.join(self.__getWrkPath(), "import.biomt"))
+            cifPath = os.path.abspath(os.path.join(self.__getWrkPath(), "import.cif"))
+            matrixPath = os.path.abspath(os.path.join(self.__getWrkPath(), "import.matrix"))
             #
             self.__resultPathList = []
             #
@@ -4715,13 +4905,13 @@ class RcsbDpUtility:
 
         return iret
 
-    def __locateSeqDb(self, defPath, altPathList, fName):
+    def __locateSeqDb(self, defPath: str, altPathList: List[str], fName: str) -> str:
         for p in altPathList:
             if os.path.exists(os.path.join(p, fName)):
                 return p
         return defPath
 
-    def __sequenceStep(self, op):
+    def __sequenceStep(self, op: str) -> Optional[int]:
         """Internal method that performs sequence search and entry selection operations."""
         #
         packagePath = self.__cICommon.get_site_packages_path()
@@ -4788,7 +4978,7 @@ class RcsbDpUtility:
             self.__startingMemory = 20000  # this is used by RunRemote to set the starting about of RAM
         else:
             numThreads = "1"
-        self.__numThreads = numThreads
+        self.__numThreads = int(numThreads)
 
         if "max_hits" in self.__inputParamDict:
             maxHits = str(self.__inputParamDict["max_hits"])
@@ -4945,7 +5135,7 @@ class RcsbDpUtility:
         #
         return iret
 
-    def __writeFasta(self, filePath, sequence, comment="myquery"):
+    def __writeFasta(self, filePath: str, sequence: str, comment: str = "myquery") -> bool:
         num_per_line = 60
         ll = int(len(sequence) / num_per_line)
         x = len(sequence) % num_per_line
@@ -4969,7 +5159,7 @@ class RcsbDpUtility:
             logger.exception("+RcsbDpUtility.__writeFasta() failed for path %s with %s", filePath, str(e))
         return False
 
-    def __nameToDictPath(self, name, suffix=".sdb"):
+    def __nameToDictPath(self, name: str, suffix: str = ".sdb") -> str:
         """Returns the environment variable name for a particular dictionary"""
         mapping = {"archive_current": "ARCHIVE_CURRENT", "deposit": "DEPOSIT", "archive_next": "ARCHIVE_NEXT"}
         envName = mapping[name]
@@ -4979,12 +5169,12 @@ class RcsbDpUtility:
         fName = os.path.join(pdbxDictPath, dictBase + suffix)
         return fName
 
-    def __runTimeout(self, command, timeout, logPath=None):
+    def __runTimeout(self, command: str, timeout: int, logPath: Optional[str] = None) -> Optional[int]:
         """Execute the input command string (sh semantics) as a subprocess with a timeout."""
 
         logger.info("+RcsbDpUtility.__runTimeout() - Execution time out %d (seconds)\n", timeout)
         start = datetime.datetime.now()  # noqa: DTZ005
-        cmdfile = os.path.join(self.__wrkPath, "timeoutscript.sh")
+        cmdfile = os.path.join(self.__getWrkPath(), "timeoutscript.sh")
         ofh = open(cmdfile, "w")
         ofh.write("#!/bin/sh\n")
         ofh.write(command)
@@ -5015,14 +5205,28 @@ class RcsbDpUtility:
                     ofh.write("+ERROR - Execution terminated by timeout %d (seconds)\n" % timeout)
                     ofh.close()
                 return None
-        logger.info("+RcsbDpUtility.__runTimeout() completed with return code %r\n", process.stdout.read())
+        logger.info("+RcsbDpUtility.__runTimeout() completed with return code %r\n", process.stdout.read() if process.stdout else b"")
         return 0
 
-    def __run(self, command, lPathFull, op):
+    def __run(self, command: str, lPathFull: str, op: str) -> Optional[int]:
+        if self.__job_logger is not None:
+            self.__job_logger.info(dep_id=self.__dep_id, op=op, command=command)
+
+        if self.__dep_id is None:
+            # try to extract dep_id from command
+            # Might fail if command is not a simple string - like MagicMock
+            #   present during testing
+            try:
+                m = re.search(r"(D_\d+)", command)
+                if m:
+                    self.__dep_id = m.group(1)
+            except TypeError:
+                pass
+
         if self.__run_remote:
             random_suffix = random.randrange(9999999)  # noqa: S311
             job_name = "{}_{}".format(op, random_suffix)
-            return RunRemote(
+            result = RunRemote(
                 command=command,
                 job_name=job_name,
                 log_dir=os.path.dirname(lPathFull),
@@ -5033,9 +5237,20 @@ class RcsbDpUtility:
                 add_site_config=True,
             ).run()
 
+            if self.__job_logger is not None:
+                self.__job_logger.job_result(dep_id=self.__dep_id, op=op, runenv=RunEnvironment.REMOTE, wfhost=socket.gethostname(), job_result=result)
+
+            if result.status == JobStatus.COMPLETED:
+                return 0
+            return -1
+
         if self.__timeout > 0:
             return self.__runTimeout(command, self.__timeout, lPathFull)
+
         retcode = -1000
+        exec_time = 0.0
+        error_msg = None
+        start_time = time.time()
         try:
             retcode = call(command, shell=True)  # noqa: S602
             if retcode != 0:
@@ -5045,29 +5260,39 @@ class RcsbDpUtility:
                     retcode,
                 )
         except OSError as e:
-            logger.info("+RcsbDpUtility.__run() operation %s failed  with exception %r\n", self.__stepOpList, str(e))
-        except Exception:  # noqa: BLE001
+            error_msg = str(e)
+            logger.info("+RcsbDpUtility.__run() operation %s failed  with exception %r\n", self.__stepOpList, error_msg)
+        except Exception as e:  # noqa: BLE001
+            error_msg = str(e)
             logger.info("+RcsbDpUtility.__run() operation %s failed  with exception\n", self.__stepOpList)
+        finally:
+            exec_time = time.time() - start_time
+
+            # Log local execution to job logger
+            if self.__job_logger and op:
+                local_result = JobResult(
+                    status=retcode,
+                    total_time_seconds=exec_time,
+                    execution_time_seconds=exec_time,
+                )
+                self.__job_logger.job_result(dep_id=self.__dep_id, op=op, runenv=RunEnvironment.LOCAL, wfhost=socket.gethostname(), job_result=local_result)
         return retcode
 
-    def __constructFindGeoCommand(self, cmd, iPath, oPath, tPath, lPath, b_filter=False):
-        """Construct command for running FindGeo, to be re-used for different operations
-        """
+    def __constructFindGeoCommand(self, cmd: str, iPath: str, oPath: str, tPath: str, lPath: str, b_filter: bool = False) -> str:
+        """Construct command for running FindGeo, to be re-used for different operations"""
         # changes to the default FindGeo options must be set before setting self.op("metal-findgeo"), e.g.
         # self.addInput(name="metal", value="Fe")  # run on a specific metal element only
         # self.addInput(name="excluded-metals", value="Mg,Ca")  # exlcuding a list of metal elements
         # self.addInput(name="threshold", value="2.9")  # extend the default 2.8 range search
         # self.addInput(name="workdir", value="/tmp")  # output to a folder other than the default "./findgeo"
-        # self.setTimeout(1800)  # set timeout to 30 minutes for FindGeo processing if needed
+        # self.addInput(name="timeout", value="36000")  # set timeout for FindGeo processing in seconds, default to 3600
+        # self.setTimeout(1800)  # set timeout to 30 minutes for DP processing if needed, alternate way to control execution time
         # retrieve java binary and FindGeo jar file from package path
         java_exe = os.path.join(self.__packagePath, "java", "jre", "bin", "java")
         logger.info("To use java executable at %s", java_exe)
         if not os.path.exists(java_exe):
             java_exe = "java"  # fallback to just "java" in case it's in PATH
-        findgeo_locations = [
-            os.path.join(self.__packagePath, "FindGeo", "FindGeo.jar"),
-            os.path.join(self.__packagePath, "metallo", "FindGeo", "FindGeo.jar")
-        ]
+        findgeo_locations = [os.path.join(self.__packagePath, "FindGeo", "FindGeo.jar"), os.path.join(self.__packagePath, "metallo", "FindGeo", "FindGeo.jar")]
         findgeo_jar = next((path for path in findgeo_locations if os.path.exists(path)), None)
         if findgeo_jar:
             logger.info("To use FindGeo Jar file at %s", findgeo_jar)
@@ -5086,7 +5311,7 @@ class RcsbDpUtility:
         logger.info("findgeo caller-set options: %s", self.__inputParamDict)
         workdir = "findgeo"  # default FindGeo output subfolder within the session folder
         for key, value in self.__inputParamDict.items():
-            if key in ["excluded-donors", "metal", "excluded-metals", "threshold", "workdir", "pdb", "java-exe", "findgeo-jar", "input"]:
+            if key in ["excluded-donors", "metal", "excluded-metals", "threshold", "workdir", "pdb", "java-exe", "findgeo-jar", "input", "timeout"]:
                 d_findgeo_args[key] = value  # add or override defaults with caller-specified options
             if key == "workdir":
                 workdir = value  # update workdir if specified by caller
@@ -5102,9 +5327,8 @@ class RcsbDpUtility:
         cmd += f" > {tPath} 2>&1 ; cat {tPath} > {lPath}"
         return cmd
 
-    def __constructMetalCoordCommand(self, cmd, iPath, oPath, tPath, lPath, cpu_split=4, b_filter=False):
-        """Construct command for running MetalCoord, to be re-used for different operations
-        """
+    def __constructMetalCoordCommand(self, cmd: str, iPath: str, oPath: str, tPath: str, lPath: str, cpu_split: int = 4, b_filter: bool = False) -> str:
+        """Construct command for running MetalCoord, to be re-used for different operations"""
         # changes to the default metalcoord options must be set before setting self.op("metal-metalcoord-stats"), e.g.
         # self.addInput(name="ligands", value=["0KA", "NCO"])  # list or string of CCD ID(s) of the metal ligand to check on, accepts comma-separated string or list of strings
         # self.addInput(name="max_size", value="2000")  # Maximum sample size for reference statistics.
@@ -5112,15 +5336,16 @@ class RcsbDpUtility:
         # self.addInput(name="workdir", value="/tmp")  # output to a folder other than the default "./metalcoord"
         # self.addInput(name="pdb", value="4DHV")  # PDB code or pdb file as input
         # self.addInput(name="metalcoord_exe", value="")  # MetalCoord executable file, only use for testing new versions
-        # self.setTimeout(1800)  # set timeout to 30 minutes for metalcoord processing if needed
+        # self.addInput(name="timeout", value="36000")  # set timeout for MetalCoord processing in seconds, default to 3600
+        # self.setTimeout(1800)  # set timeout to 30 minutes for metalcoord processing if needed, alternate way to control execution time
         # retrieve metalcoord executable from package path, first check standalone, then CCP4 package
-        metalcoord_exe_standalone = os.path.join(self.__packagePath, "metallo", "metalcoord", "bin", "metalCoord")
+        metalcoord_exe_standalone = os.path.join(self.__packagePath, "metalcoord", "bin", "metalCoord")
         if os.path.exists(metalcoord_exe_standalone):
             metalcoord_exe = metalcoord_exe_standalone
         else:
-            ccp4_setup = os.path.join(self.__packagePath, "metallo", "ccp4-9", "bin", "ccp4.setup-sh")
+            ccp4_setup = os.path.join(self.__packagePath, "ccp4", "bin", "ccp4.setup-sh")
             cmd += f" ; source {ccp4_setup} "
-            metalcoord_exe_ccp4 = os.path.join(self.__packagePath, "metallo", "ccp4-9", "bin", "metalCoord")
+            metalcoord_exe_ccp4 = os.path.join(self.__packagePath, "ccp4", "bin", "metalCoord")
             if os.path.exists(metalcoord_exe_ccp4):
                 metalcoord_exe = metalcoord_exe_ccp4
             else:
@@ -5141,11 +5366,11 @@ class RcsbDpUtility:
         for key, value in self.__inputParamDict.items():
             if key == "ligands":  # list or string of CCD ID(s) of the metal ligand to check on
                 if isinstance(value, list):
-                    s_value = ','.join(value)
+                    s_value = ",".join(value)
                     d_metalcoord_args["ligands"] = s_value
                 else:
                     d_metalcoord_args["ligands"] = value
-            if key in ["max_size", "threshold", "workdir", "pdb", "metalcoord_exe"]:
+            if key in ["max_size", "threshold", "workdir", "pdb", "metalcoord_exe", "timeout"]:
                 d_metalcoord_args[key] = value  # add or override defaults with caller-specified options
             if key == "workdir":
                 workdir = value  # update workdir if specified by caller
@@ -5155,7 +5380,7 @@ class RcsbDpUtility:
         if b_filter:
             l_metalcoord_args.append("--filter")
         # limit CPU/threads
-        n_cpu = math.ceil(os.cpu_count() / cpu_split)  # use 1/cpu_split CPUs, e.g. 1/4, but minimally 1 CPU
+        n_cpu = math.ceil((os.cpu_count() or 1) / cpu_split)  # use 1/cpu_split CPUs, e.g. 1/4, but minimally 1 CPU
         cmd += f" ; OMP_NUM_THREADS={n_cpu}; export OMP_NUM_THREADS"
         # run metalcoord and parse results into <workdir>/metalcoord_report.json, which will be copied as result file
         cmd += f" ; python -m wwpdb.utils.dp.metal.metalcoord.processMetalCoordStats {' '.join(l_metalcoord_args)}"

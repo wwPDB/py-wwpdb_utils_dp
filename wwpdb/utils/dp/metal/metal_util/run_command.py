@@ -9,10 +9,11 @@ from the main application log, and handle errors by raising custom exceptions.
 The command-specific log can be used for debugging the 3rd party metal tools such as MetalCoord and FindGeo.
 """
 
-import subprocess
 import logging
-from datetime import datetime
 import os
+import subprocess
+from datetime import datetime
+from typing import List, Optional, Sequence, Union
 
 
 class MetalCommandExecutionError(Exception):
@@ -28,7 +29,8 @@ class MetalCommandExecutionError(Exception):
     :param stdout: The standard output from the command (if any).
     :type stdout: str or None
     """
-    def __init__(self, cmd, code=None, stderr=None, stdout=None):
+
+    def __init__(self, cmd: Union[str, Sequence[str]], code: Optional[int] = None, stderr: Optional[str] = None, stdout: Optional[str] = None) -> None:
         self.cmd = cmd
         self.code = code
         self.stderr = stderr
@@ -45,7 +47,7 @@ class MetalCommandTimeoutError(MetalCommandExecutionError):
     """
 
 
-def setup_logger(name="cmd", log_dir="metal_command_logs", b_debug=True):
+def setup_logger(name: str = "cmd", log_dir: str = "metal_command_logs", b_debug: bool = True) -> logging.Logger:
     """
     Create or retrieve a configured logger for command execution.
 
@@ -65,7 +67,7 @@ def setup_logger(name="cmd", log_dir="metal_command_logs", b_debug=True):
 
     if not logger.handlers:  # prevent duplicate handlers if called multiple times
         logger.setLevel(logging.DEBUG)
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")  # noqa: DTZ005
         log_path = os.path.join(log_dir, f"{name}_{timestamp}.log")
 
         # File handler
@@ -95,7 +97,7 @@ def setup_logger(name="cmd", log_dir="metal_command_logs", b_debug=True):
     return logger
 
 
-def run_command(cmd, timeout_sec, logger=None):
+def run_command(cmd: List[str], timeout_sec: Optional[float], logger: Optional[logging.Logger] = None) -> str:
     """
     Run a local command and raise MetalCommandExecutionError on failure.
 
@@ -113,16 +115,10 @@ def run_command(cmd, timeout_sec, logger=None):
     if logger is None:
         logger = setup_logger()
 
-    logger.info("▶ Running command: %s", ' '.join(cmd))
+    logger.info("▶ Running command: %s", " ".join(cmd))
 
     try:
-        result = subprocess.run(
-            cmd,
-            check=True,
-            capture_output=True,
-            text=True,
-            timeout=timeout_sec
-        )
+        result = subprocess.run(cmd, check=True, capture_output=True, text=True, timeout=timeout_sec)
         logger.debug("STDOUT:\n%s", result.stdout.strip())
         logger.info("✅ Command completed successfully.")
 

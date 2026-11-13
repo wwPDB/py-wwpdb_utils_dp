@@ -13,24 +13,29 @@ import json
 import logging
 import os
 import sys
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Dict, List
 
 if TYPE_CHECKING:
-    from wwpdb.utils.dp.metal.metalcoord.runMetalCoord import RunMetalCoord, MetalCoordCommandExecutionError, MetalCoordCommandTimeoutError, MetalCoordParametersError  # noqa: E402
-    from wwpdb.utils.dp.metal.metalcoord.parseMetalCoord import ParseMetalCoord, MetalCoordParseError  # noqa: E402
     from wwpdb.utils.dp.metal.metal_util.run_command import setup_logger  # noqa: E402
+    from wwpdb.utils.dp.metal.metalcoord.parseMetalCoord import MetalCoordParseError, ParseMetalCoord  # noqa: E402
+    from wwpdb.utils.dp.metal.metalcoord.runMetalCoord import (  # noqa: E402
+        MetalCoordCommandExecutionError,
+        MetalCoordCommandTimeoutError,
+        MetalCoordParametersError,
+        RunMetalCoord,
+    )
 else:
     sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    from metalcoord.runMetalCoord import RunMetalCoord, MetalCoordCommandExecutionError, MetalCoordCommandTimeoutError, MetalCoordParametersError  # noqa: E402
-    from metalcoord.parseMetalCoord import ParseMetalCoord, MetalCoordParseError  # noqa: E402
     from metal_util.run_command import setup_logger  # noqa: E402
+    from metalcoord.parseMetalCoord import MetalCoordParseError, ParseMetalCoord  # noqa: E402
+    from metalcoord.runMetalCoord import MetalCoordCommandExecutionError, MetalCoordCommandTimeoutError, MetalCoordParametersError, RunMetalCoord  # noqa: E402
 
 
 setup_logger(name="metalcoord", log_dir=".", b_debug=False)
 logger = logging.getLogger("metalcoord.processMetalCoordStats")
 
 
-def main():  # pylint: disable=too-many-locals,too-many-branches,too-many-statements
+def main() -> None:  # pylint: disable=too-many-locals,too-many-branches,too-many-statements
     """
     Run MetalCoord in stats mode and generate a report JSON file.
 
@@ -53,7 +58,9 @@ def main():  # pylint: disable=too-many-locals,too-many-branches,too-many-statem
     """
     parser = argparse.ArgumentParser()
     parser.add_argument("-b", "--metalcoord_exe", help="MetalCoord executable file", type=str, default=None)
-    parser.add_argument("-w", "--workdir", help="Directory to write outputs. Default is metalcoord subfolder in the current folder", type=str, default="metalcoord")
+    parser.add_argument(
+        "-w", "--workdir", help="Directory to write outputs. Default is metalcoord subfolder in the current folder", type=str, default="metalcoord"
+    )
     parser.add_argument("-l", "--ligands", help="Ligand code or comma-separated multiple codes, e.g. 0KA,NCO", type=str, required=True)
     parser.add_argument("-p", "--pdb", help="PDB code or pdb file", type=str, required=True)
     parser.add_argument("-x", "--max_size", help="Maximum sample size for statistics.", type=int, default=100)
@@ -65,12 +72,12 @@ def main():  # pylint: disable=too-many-locals,too-many-branches,too-many-statem
     l_args = ["metalcoord_exe", "workdir", "pdb", "max_size", "threshold", "timeout"]
 
     l_ligand = args.ligands.split(",")  # split multiple ligands if applicable
-    l_json_outputs = []
+    l_json_outputs: List[str] = []
 
     output_json = os.path.join(args.workdir, "metalcoord_report.json")
     # run MetalCoord for each ligand
     for ligand in l_ligand:
-        d_args = {"ligand": ligand}
+        d_args: Dict[str, Any] = {"ligand": ligand}
         for arg in l_args:
             d_args[arg] = getattr(args, arg)
 
@@ -122,11 +129,12 @@ def main():  # pylint: disable=too-many-locals,too-many-branches,too-many-statem
             sys.exit(0)
     if args.filter:
         logger.info("to filter MetalCoord results to keep regular geometry only for CCD annotation")
-        l_sites_filtered = []
+        l_sites_filtered: List[Dict[str, Any]] = []
         for d_site in pMC.l_sites:
             # filter to keep only regular geometry for CCD annotation
             # filter out empty class
-            if not d_site.get("class").strip():
+            site_class: Any = d_site.get("class")
+            if not site_class.strip():
                 continue
             # filter out non-Regular sites
             if d_site.get("tag") != "Regular":

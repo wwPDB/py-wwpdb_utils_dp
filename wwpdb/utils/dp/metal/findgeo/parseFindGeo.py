@@ -12,15 +12,15 @@ import logging
 import os
 import sys
 from collections import OrderedDict
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Dict, List, Optional, Tuple
 
 from mmcif.io.IoAdapterCore import IoAdapterCore
 
 if TYPE_CHECKING:
-    from wwpdb.utils.dp.metal.metal_util.readRef import readRefCoordNum, readRefCoordMap, readRefRedOx, readRefMetalCarbon, readRefCoordException
+    from wwpdb.utils.dp.metal.metal_util.readRef import readRefCoordException, readRefCoordMap, readRefCoordNum, readRefMetalCarbon, readRefRedOx
 else:
     sys.path.append(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "metal_util"))
-    from readRef import readRefCoordNum, readRefCoordMap, readRefRedOx, readRefMetalCarbon, readRefCoordException  # noqa: E402
+    from readRef import readRefCoordException, readRefCoordMap, readRefCoordNum, readRefMetalCarbon, readRefRedOx  # noqa: E402
 
 logger = logging.getLogger(__name__)
 
@@ -32,17 +32,18 @@ class ParseFindGeo:  # pylint: disable=too-many-instance-attributes
     pFG.parse()
     pFG.report("findgeo_report.json")
     """
-    def __init__(self, folder, input_format="cif"):
+
+    def __init__(self, folder: str, input_format: str = "cif") -> None:
         self.folder = folder
         self.input_format = input_format
-        self.l_sites = []
+        self.l_sites: List[Dict[str, str]] = []
         self.d_coord_num = readRefCoordNum()
         self.d_coord_map = readRefCoordMap("FindGeo")
         (self.d_redox, self.d_oxi) = readRefRedOx()
         self.l_carbon_metal = readRefMetalCarbon()
         self.d_coord_exception = readRefCoordException()
 
-    def parse(self):
+    def parse(self) -> None:
         """
         parse FindGeo output folder to extract top hit coordination geometry for each site.
         1. iterate through each site folder in self.folder
@@ -66,7 +67,7 @@ class ParseFindGeo:  # pylint: disable=too-many-instance-attributes
         else:
             logger.warning("no metal sites parsed in %s", self.folder)
 
-    def amend(self, d_tophit):  # pylint: disable=too-many-branches
+    def amend(self, d_tophit: Dict[str, str]) -> Dict[str, str]:  # pylint: disable=too-many-branches
         """
         amend d_tophit with additional information from reference data
         1. add generic geometry name from the coordination class mapping reference
@@ -84,7 +85,7 @@ class ParseFindGeo:  # pylint: disable=too-many-instance-attributes
 
         metal = d_tophit["metalElement"]
         if metal in self.d_coord_num:
-            allowed_coord_num = self.d_coord_num.get(metal)
+            allowed_coord_num = self.d_coord_num.get(metal, [])
             if d_tophit["coordination"] in allowed_coord_num:
                 d_tophit["coordination_number_allowed"] = "YES"
             else:
@@ -92,13 +93,16 @@ class ParseFindGeo:  # pylint: disable=too-many-instance-attributes
         else:
             d_tophit["coordination_number_allowed"] = ""
 
+        if d_tophit["coordination_number_allowed"] == "NO":
+            d_tophit["tag"] = "Coordination number exception"
+
         if metal in self.d_redox:
-            d_tophit["redox_active"] = self.d_redox.get(metal)
+            d_tophit["redox_active"] = self.d_redox.get(metal, "")
         else:
             d_tophit["redox_active"] = ""
 
         if metal in self.d_oxi:
-            d_tophit["oxidation_state"] = self.d_oxi.get(metal)
+            d_tophit["oxidation_state"] = self.d_oxi.get(metal, "")
         else:
             d_tophit["oxidation_state"] = ""
 
@@ -112,10 +116,15 @@ class ParseFindGeo:  # pylint: disable=too-many-instance-attributes
                 d_tophit["class_in_exception"] = "YES"
             else:
                 d_tophit["class_in_exception"] = "NO"
+        else:
+            d_tophit["class_in_exception"] = "NO"
+
+        if d_tophit["class_in_exception"] == "YES":
+            d_tophit["tag"] = "Coordination class exception"
 
         return d_tophit
 
-    def parseOneSite(self, site_name):
+    def parseOneSite(self, site_name: str) -> Optional[Dict[str, str]]:
         """
         parse one site folder to extract top hit coordination geometry and metal atom information
 
@@ -136,7 +145,7 @@ class ParseFindGeo:  # pylint: disable=too-many-instance-attributes
         if not d_tophit:
             return None
 
-        t_atom = ()
+        t_atom: Tuple[str, ...] = ()
         filepath_input = os.path.join(subfolder, "findgeo.input")
         if not os.path.isfile(filepath_input):
             logger.error("failed to find %s in %s", "findgeo.input", subfolder)
@@ -163,7 +172,7 @@ class ParseFindGeo:  # pylint: disable=too-many-instance-attributes
         d_tophit["altloc"] = alt
         return d_tophit
 
-    def parseFindGeoOutPut(self, filepath):  # pylint: disable=too-many-return-statements,too-many-branches,too-many-statements
+    def parseFindGeoOutPut(self, filepath: str) -> Optional[Dict[str, str]]:  # pylint: disable=too-many-return-statements,too-many-branches,too-many-statements
         """
         parse findgeo.out file to extract top hit coordination geometry
         1. coordination number
@@ -173,30 +182,29 @@ class ParseFindGeo:  # pylint: disable=too-many-instance-attributes
         :return: dict with top hit information, empty dict if parsing fails
         """
         b_found_coord = False
-        best_geo_name = None
+        best_geo_name: Optional[str] = None
         if not os.path.isfile(filepath):
             logger.error("failed to access %s", filepath)
             return {}
         logger.debug("to process %s", filepath)
-        d_tophit = {}
+        d_tophit: Dict[str, str] = {}
         with open(filepath, encoding="utf-8") as file:
-            l_hit = []
+            l_hit: List[Dict[str, str]] = []
             for line in file:
                 if line.startswith("Coordination number"):
-                    l_line = line.strip().split(':')
+                    l_line = line.strip().split(":")
                     d_tophit["coordination"] = l_line[-1].strip()
                     logger.debug("found coordination number %s", d_tophit["coordination"])
                     b_found_coord = True
                 if "-" in line and "|" in line:
                     l_line = line.strip().split("|")
                     if len(l_line) == 3:
-                        d_hit = {}
+                        d_hit: Dict[str, str] = {}
                         d_hit["class_abbr"] = l_line[0].split("-")[0].strip().upper()
                         d_hit["class"] = l_line[0].split("-")[1].strip().lower()
                         d_hit["tag"] = l_line[1].strip()
                         d_hit["rmsd"] = l_line[2].strip()
-                        logger.debug("found coordination geometry %s, %s with tag %s RMSD %s",
-                                     d_hit["class_abbr"], d_hit["class"], d_hit["tag"], d_hit["rmsd"])
+                        logger.debug("found coordination geometry %s, %s with tag %s RMSD %s", d_hit["class_abbr"], d_hit["class"], d_hit["tag"], d_hit["rmsd"])
                         l_hit.append(d_hit)
                 if line.startswith("Best geometry"):
                     _tmp = line.strip().split(":")[1]
@@ -237,7 +245,7 @@ class ParseFindGeo:  # pylint: disable=too-many-instance-attributes
                 d_tophit["class"] = "irregular"
                 d_tophit["class_abbr"] = ""
                 d_tophit["tag"] = "Irregular"
-                lowest_rmsd = 999
+                lowest_rmsd: float = 999
                 for d_hit in l_hit:
                     try:
                         rmsd = float(d_hit["rmsd"])
@@ -258,7 +266,7 @@ class ParseFindGeo:  # pylint: disable=too-many-instance-attributes
             logger.warning("could not find best geometry %s in hits in %s", best_geo_name, filepath)
             return None
 
-    def parseFindGeoPdbInput(self, filepath):
+    def parseFindGeoPdbInput(self, filepath: str) -> Tuple[str, ...]:
         """
         parse findgeo.input file in pdb format to extract metal atom information
 
@@ -268,7 +276,7 @@ class ParseFindGeo:  # pylint: disable=too-many-instance-attributes
         logger.info("to process %s", filepath)
         with open(filepath, encoding="utf-8") as file:
             line = file.readline()
-            if line.startswith("ATOM") or line.startswith("HETATM"):
+            if line.startswith("ATOM") or line.startswith("HETATM"):  # noqa: PIE810
                 if len(line.strip()) >= 54:
                     atom_label = line[12:16].strip()
                     alt = line[16:17]
@@ -281,7 +289,7 @@ class ParseFindGeo:  # pylint: disable=too-many-instance-attributes
         logger.error("failed to process %s", filepath)
         return ()
 
-    def parseFindGeoCifInput(self, filepath):
+    def parseFindGeoCifInput(self, filepath: str) -> Tuple[str, ...]:
         """
         parse findgeo.input file in cif format to extract metal atom information
 
@@ -302,7 +310,7 @@ class ParseFindGeo:  # pylint: disable=too-many-instance-attributes
         logger.info("to parse findgeo.input by column guess on: %s", filepath)
         with open(filepath, encoding="utf-8") as file:
             for line in file:
-                if line.startswith("ATOM") or line.startswith("HETATM"):
+                if line.startswith("ATOM") or line.startswith("HETATM"):  # noqa: PIE810
                     l_line = line.strip().split()
                     atom_label = l_line[3]
                     alt = l_line[4]
@@ -315,7 +323,7 @@ class ParseFindGeo:  # pylint: disable=too-many-instance-attributes
         logger.error("failed to process %s", filepath)
         return ()
 
-    def parseMmcif(self, fp):
+    def parseMmcif(self, fp: str) -> Dict[str, str]:
         """
         parse mmcif file to extract atom site information
 
@@ -329,11 +337,11 @@ class ParseFindGeo:  # pylint: disable=too-many-instance-attributes
             return {}
         dc0 = l_dc[0]
 
-        if 'atom_site' not in dc0.getObjNameList():
+        if "atom_site" not in dc0.getObjNameList():
             logger.error("no atom_site category found in mmcif file: %s", fp)
             return {}
-        c_atom_site = dc0.getObj('atom_site')
-        d_metal_row = c_atom_site.getRowAttributeDict(0)
+        c_atom_site = dc0.getObj("atom_site")
+        d_metal_row: Dict[str, str] = c_atom_site.getRowAttributeDict(0)
 
         if "auth_asym_id" not in d_metal_row:
             logger.error("failed to find auth_asym_id in atom_site category in mmcif file: %s", fp)
@@ -341,22 +349,38 @@ class ParseFindGeo:  # pylint: disable=too-many-instance-attributes
 
         return d_metal_row
 
-    def sort(self):
+    def sort(self) -> None:
         """
         sort self.l_sites by metal, chain, residue, sequence, icode, altloc,
         coordination, class, class_abbr, tag, rmsd
         """
-        key_order = ["metal", "metalElement", "chain", "residue", "sequence", "icode", "altloc",
-                     "coordination", "class", "class_abbr", "class_generic", "tag", "rmsd",
-                     "coordination_number_allowed", "redox_active", "oxidation_state",
-                     "carbon_metal", "class_in_exception"]
-        l_sorted = []
+        key_order = [
+            "metal",
+            "metalElement",
+            "chain",
+            "residue",
+            "sequence",
+            "icode",
+            "altloc",
+            "coordination",
+            "class",
+            "class_abbr",
+            "class_generic",
+            "tag",
+            "rmsd",
+            "coordination_number_allowed",
+            "redox_active",
+            "oxidation_state",
+            "carbon_metal",
+            "class_in_exception",
+        ]
+        l_sorted: List[Dict[str, str]] = []
         for d_row in self.l_sites:
             d_row_sorted = OrderedDict((key, d_row[key]) for key in key_order if key in d_row)
             l_sorted.append(d_row_sorted)
         self.l_sites = l_sorted
 
-    def report(self, filepath_json):
+    def report(self, filepath_json: str) -> None:
         """
         write self.l_sites to a json file
 

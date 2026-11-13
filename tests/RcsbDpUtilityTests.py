@@ -41,7 +41,7 @@ logger.setLevel(logging.INFO)
 
 
 class RcsbDpUtilityTests(unittest.TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         self.__tmpPath = TESTOUTPUT
         #
         self.__siteId = getSiteId(defaultSiteId=None)
@@ -50,10 +50,10 @@ class RcsbDpUtilityTests(unittest.TestCase):
         self.__testFilePath = os.path.join(TOPDIR, "wwpdb", "mock-data", "dp-utils")
         self.__testFileCif = "1xbb.cif"
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         pass
 
-    def testCifToPdb(self):
+    def testCifToPdb(self) -> None:
         """ """
         logger.info("\nStarting")
         try:
@@ -69,7 +69,7 @@ class RcsbDpUtilityTests(unittest.TestCase):
             self.fail()
 
     @unittest.skipIf(dictsmissing, "SITE_PDBX_DICTIONARY_NAME_DICT not in site-config")
-    def testCifCheck(self):
+    def testCifCheck(self) -> None:
         """ """
         logger.info("\nStarting")
         try:
@@ -85,7 +85,7 @@ class RcsbDpUtilityTests(unittest.TestCase):
             self.fail()
 
     @unittest.skipIf(dictsmissing, "SITE_PDBX_DICTIONARY_NAME_DICT not in site-config")
-    def testCifCheckExt(self):
+    def testCifCheckExt(self) -> None:
         """ """
         logger.info("\nStarting")
         try:
@@ -103,7 +103,7 @@ class RcsbDpUtilityTests(unittest.TestCase):
             self.fail()
 
     @unittest.skipIf(dictsmissing, "SITE_PDBX_DICTIONARY_NAME_DICT not in site-config")
-    def testCif2PdbxExt(self):
+    def testCif2PdbxExt(self) -> None:
         """ """
         logger.info("\nStarting")
         try:
@@ -121,13 +121,13 @@ class RcsbDpUtilityTests(unittest.TestCase):
             self.fail()
 
 
-def suiteMaxitTests():
+def suiteMaxitTests() -> unittest.TestSuite:
     suiteSelect = unittest.TestSuite()
     suiteSelect.addTest(RcsbDpUtilityTests("testCifToPdb"))
     return suiteSelect
 
 
-def suiteMiscTests():
+def suiteMiscTests() -> unittest.TestSuite:
     suiteSelect = unittest.TestSuite()
     suiteSelect.addTest(RcsbDpUtilityTests("testCifCheck"))
     suiteSelect.addTest(RcsbDpUtilityTests("testCifCheckExt"))

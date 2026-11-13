@@ -37,7 +37,7 @@ logger.setLevel(logging.INFO)
 
 @unittest.skipIf(toolsmissing, "Tools not available for testing")
 class RcsbDpUtilityTests(unittest.TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         self.__siteId = getSiteId(defaultSiteId="WWPDB_DEPLOY_TEST")
         logger.info("\nTesting with site environment for:  %s", self.__siteId)
         #
@@ -50,10 +50,10 @@ class RcsbDpUtilityTests(unittest.TestCase):
         logger.info("\nTest fasta protein file path %s", self.__testFileFastaP)
         logger.info("\nTest fasta RNA     file path %s", self.__testFileFastaN)
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         pass
 
-    def testProteinSequenceSearch(self):
+    def testProteinSequenceSearch(self) -> None:
         """ """
         logger.info("\nStarting RcsbDpUtilittySeqTests.testProteinSequenceSearch")
         try:
@@ -70,7 +70,7 @@ class RcsbDpUtilityTests(unittest.TestCase):
             logger.exception("Failing with %s", str(e))
             self.fail()
 
-    def testRnaSequenceSearch(self):
+    def testRnaSequenceSearch(self) -> None:
         """ """
         logger.info("\nStarting RcsbDpUtilitySeqTests.testRnaSequenceSearch")
         try:
@@ -88,7 +88,7 @@ class RcsbDpUtilityTests(unittest.TestCase):
             self.fail()
 
 
-def suiteSequenceSearchTests():
+def suiteSequenceSearchTests() -> unittest.TestSuite:
     suiteSelect = unittest.TestSuite()
     suiteSelect.addTest(RcsbDpUtilityTests("testProteinSequenceSearch"))
     suiteSelect.addTest(RcsbDpUtilityTests("testRnaSequenceSearch"))

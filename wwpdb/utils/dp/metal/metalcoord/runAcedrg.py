@@ -9,13 +9,13 @@ Wrapper to run Acedrg with arguments
 import logging
 import os
 import sys
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Dict, List
 
 if TYPE_CHECKING:
-    from wwpdb.utils.dp.metal.metal_util.run_command import run_command, MetalCommandExecutionError, MetalCommandTimeoutError  # noqa: E402
+    from wwpdb.utils.dp.metal.metal_util.run_command import MetalCommandExecutionError, MetalCommandTimeoutError, run_command  # noqa: E402
 else:
     sys.path.append(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "metal_util"))
-    from run_command import run_command, MetalCommandExecutionError, MetalCommandTimeoutError  # noqa: E402
+    from run_command import MetalCommandExecutionError, MetalCommandTimeoutError, run_command  # noqa: E402
 
 logger = logging.getLogger(__name__)
 
@@ -27,7 +27,8 @@ class AcedrgParametersError(Exception):
     :param errors: Dictionary of parameter errors.
     :type errors: dict
     """
-    def __init__(self, errors: dict):
+
+    def __init__(self, errors: Dict[str, str]) -> None:
         self.errors = errors
         super().__init__(str(errors))
 
@@ -58,23 +59,24 @@ class RunAcedrg:
         rAG = RunAcedrg(d_args)
         rAG.run()
     """
-    def __init__(self, d_args):
+
+    def __init__(self, d_args: Dict[str, Any]) -> None:
         """
         Initialize RunAcedrg with arguments and validate them.
 
         :param d_args: Dictionary of arguments for running Acedrg.
         :type d_args: dict
         """
-        self.d_args = d_args
+        self.d_args: Dict[str, Any] = d_args
         self.validateArgs()
 
-    def validateArgs(self):
+    def validateArgs(self) -> None:
         """
         Validate arguments in d_args.
 
         :raises AcedrgParametersError: If any validation fails, with a dictionary of errors.
         """
-        errors = {}
+        errors: Dict[str, str] = {}
         if self.d_args["acedrg_exe"]:
             if os.path.exists(self.d_args["acedrg_exe"]):
                 logger.info("use explicit Acedrg executable at %s", self.d_args["acedrg_exe"])
@@ -99,7 +101,7 @@ class RunAcedrg:
         if errors:
             raise AcedrgParametersError(errors)
 
-    def run(self):
+    def run(self) -> str:
         """
         Run Acedrg with arguments in d_args.
 
@@ -112,18 +114,21 @@ class RunAcedrg:
         :raises AcedrgCommandTimeoutError: If the command times out.
         :raises AcedrgCommandExecutionError: If the command fails.
         """
-        l_command = [self.d_args["acedrg_exe"]]
+        l_command: List[str] = [self.d_args["acedrg_exe"]]
         l_command.extend(["--mmcif", self.d_args["mmcif"]])
         l_command.extend(["--out", self.d_args["out"]])
+        l_command.append("--noProt")
 
-        logger.info("to run Acedrg full command:\n %s", ' '.join(l_command))
+        logger.info("to run Acedrg full command:\n %s", " ".join(l_command))
         try:
             cmd_stdout = run_command(l_command, self.d_args.get("timeout"))
             return cmd_stdout
         except MetalCommandTimeoutError as e:
-            raise AcedrgCommandTimeoutError(f"Acedrg command timed out after {self.d_args.get('timeout')} seconds: {e}") from e
+            msg = f"Acedrg command timed out after {self.d_args.get('timeout')} seconds: {e}"
+            raise AcedrgCommandTimeoutError(msg) from e
         except MetalCommandExecutionError as e:
-            raise AcedrgCommandExecutionError(f"Acedrg command execution error: {e}") from e
+            msg = f"Acedrg command execution error: {e}"
+            raise AcedrgCommandExecutionError(msg) from e
 
 
 # def main():

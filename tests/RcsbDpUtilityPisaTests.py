@@ -39,7 +39,7 @@ logger.setLevel(logging.INFO)
 @unittest.skipIf(toolsmissing, "Tools not available for testing")
 @unittest.skipIf(toolsmissing, "Tools not available for testing")
 class RcsbDpUtilityTests(unittest.TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         # Pick up site information from the environment or failover to the development site id.
         self.__siteId = getSiteId(defaultSiteId=None)
         logger.info("\nTesting with site environment for:  %s\n", self.__siteId)
@@ -53,10 +53,10 @@ class RcsbDpUtilityTests(unittest.TestCase):
         logger.info("\nTest file path %s\n", self.__testFilePath)
         logger.info("\nCIF  file path %s\n", self.__testFileCifPisa)
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         pass
 
-    def testPisaAnalysisPdb(self):
+    def testPisaAnalysisPdb(self) -> None:
         """ """
         logger.info("\nStarting")
         try:
@@ -71,7 +71,7 @@ class RcsbDpUtilityTests(unittest.TestCase):
             logger.exception("Failing with %s", str(e))
             self.fail()
 
-    def testPisaAnalysisCif(self):
+    def testPisaAnalysisCif(self) -> None:
         """ """
         logger.info("\nStarting")
         try:
@@ -86,7 +86,7 @@ class RcsbDpUtilityTests(unittest.TestCase):
             logger.exception("Failing with %s", str(e))
             self.fail()
 
-    def testPisaAssemblyReportXmlCif(self):
+    def testPisaAssemblyReportXmlCif(self) -> None:
         """ """
         logger.info("\nStarting")
         try:
@@ -108,7 +108,7 @@ class RcsbDpUtilityTests(unittest.TestCase):
             logger.exception("Failing with %s", str(e))
             self.fail()
 
-    def testPisaAssemblyReportXmlPdb(self):
+    def testPisaAssemblyReportXmlPdb(self) -> None:
         """ """
         logger.info("\nStarting")
         try:
@@ -126,7 +126,7 @@ class RcsbDpUtilityTests(unittest.TestCase):
             logger.exception("Failing with %s", str(e))
             self.fail()
 
-    def testPisaAssemblyDownloadModelCif(self):
+    def testPisaAssemblyDownloadModelCif(self) -> None:
         """ """
         logger.info("\nStarting")
         try:
@@ -152,7 +152,7 @@ class RcsbDpUtilityTests(unittest.TestCase):
             logger.exception("Failing with %s", str(e))
             self.fail()
 
-    def testPisaAssemblyDownloadModelPdb(self):
+    def testPisaAssemblyDownloadModelPdb(self) -> None:
         """ """
         logger.info("\nStarting")
         try:
@@ -178,7 +178,7 @@ class RcsbDpUtilityTests(unittest.TestCase):
             logger.exception("Failing with %s", str(e))
             self.fail()
 
-    def testPisaAssemblyMergeModelCif(self):
+    def testPisaAssemblyMergeModelCif(self) -> None:
         """ """
         logger.info("\nStarting")
         try:
@@ -207,7 +207,7 @@ class RcsbDpUtilityTests(unittest.TestCase):
             self.fail()
 
 
-def suitePisaTestsCif():
+def suitePisaTestsCif() -> unittest.TestSuite:
     suiteSelect = unittest.TestSuite()
     suiteSelect.addTest(RcsbDpUtilityTests("testPisaAnalysisCif"))
     suiteSelect.addTest(RcsbDpUtilityTests("testPisaAssemblyReportXmlCif"))
@@ -216,7 +216,7 @@ def suitePisaTestsCif():
     return suiteSelect
 
 
-def suitePisaTestsPdb():
+def suitePisaTestsPdb() -> unittest.TestSuite:
     suiteSelect = unittest.TestSuite()
     suiteSelect.addTest(RcsbDpUtilityTests("testPisaAnalysisPdb"))
     suiteSelect.addTest(RcsbDpUtilityTests("testPisaAssemblyReportXmlPdb"))

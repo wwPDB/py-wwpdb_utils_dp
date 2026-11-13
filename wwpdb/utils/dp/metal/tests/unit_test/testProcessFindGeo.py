@@ -32,13 +32,13 @@ class TestRunFindGeo(unittest.TestCase):
         - tearDown: Placeholder for cleanup operations after each test.
     """
 
-    def setUp(self):
+    def setUp(self) -> None:
         pass
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         pass
 
-    def testInternalFile(self):
+    def testInternalFile(self) -> None:
         onedep_package_dir = os.getenv("PACKAGE_DIR", None)
         if onedep_package_dir:
             print("Test in OneDep environment")
@@ -60,7 +60,7 @@ class TestRunFindGeo(unittest.TestCase):
 
         try:
             os.makedirs(TEST_TEMP_DIR, exist_ok=True)
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             print("cannot create workdir: %s with error %s", TEST_TEMP_DIR, e)
 
         os.chdir(TEST_TEMP_DIR)
@@ -73,7 +73,8 @@ class TestRunFindGeo(unittest.TestCase):
             data = json.load(f)
             self.assertTrue(data)  # test file is not empty
 
-    def testPdbId(self):
+    def testPdbId(self) -> None:
+        pdb_id = "2ZZB"
         onedep_package_dir = os.getenv("PACKAGE_DIR", None)
         if onedep_package_dir:
             print("Test in OneDep environment")
@@ -86,16 +87,16 @@ class TestRunFindGeo(unittest.TestCase):
         l_command = [sys.executable, os.path.join(METAL_DIR, "findgeo", "processFindGeo.py")]
         l_command.extend(["--java-exe", java_exe])
         l_command.extend(["--findgeo-jar", findgeo_jar])
-        l_command.extend(["--pdb", "4DHV"])
+        l_command.extend(["--pdb", pdb_id])
         l_command.append("--compare")
-        folder = "findgeo_4DHV_public_compare_all_geometry"
+        folder = f"findgeo_{pdb_id}_public_compare_all_geometry"
         l_command.extend(["--workdir", folder])
         command = " ".join(l_command)
         print(command)
 
         try:
             os.makedirs(TEST_TEMP_DIR, exist_ok=True)
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             print("cannot create workdir: %s with error %s", TEST_TEMP_DIR, e)
 
         os.chdir(TEST_TEMP_DIR)
@@ -108,7 +109,7 @@ class TestRunFindGeo(unittest.TestCase):
             data = json.load(f)
             self.assertTrue(data)  # test file is not empty
 
-    def testInternalFileFiltered(self):
+    def testInternalFileFiltered(self) -> None:
         onedep_package_dir = os.getenv("PACKAGE_DIR", None)
         if onedep_package_dir:
             print("Test in OneDep environment")
@@ -131,7 +132,7 @@ class TestRunFindGeo(unittest.TestCase):
 
         try:
             os.makedirs(TEST_TEMP_DIR, exist_ok=True)
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             print("cannot create workdir: %s with error %s", TEST_TEMP_DIR, e)
 
         os.chdir(TEST_TEMP_DIR)
@@ -144,7 +145,7 @@ class TestRunFindGeo(unittest.TestCase):
             data = json.load(f)
             self.assertFalse(data)  # test file is not empty
 
-    def testPdbIdFiltered(self):
+    def testPdbIdFiltered(self) -> None:
         onedep_package_dir = os.getenv("PACKAGE_DIR", None)
         if onedep_package_dir:
             print("Test in OneDep environment")
@@ -167,7 +168,7 @@ class TestRunFindGeo(unittest.TestCase):
 
         try:
             os.makedirs(TEST_TEMP_DIR, exist_ok=True)
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             print("cannot create workdir: %s with error %s", TEST_TEMP_DIR, e)
 
         os.chdir(TEST_TEMP_DIR)
@@ -180,7 +181,7 @@ class TestRunFindGeo(unittest.TestCase):
             data = json.load(f)
             self.assertTrue(data)  # test file is not empty
 
-    def testTimeout(self):
+    def testTimeout(self) -> None:
         onedep_package_dir = os.getenv("PACKAGE_DIR", None)
         if onedep_package_dir:
             print("Test in OneDep environment")
@@ -203,7 +204,7 @@ class TestRunFindGeo(unittest.TestCase):
 
         try:
             os.makedirs(TEST_TEMP_DIR, exist_ok=True)
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             print("cannot create workdir: %s with error %s", TEST_TEMP_DIR, e)
 
         os.chdir(TEST_TEMP_DIR)
@@ -216,7 +217,7 @@ class TestRunFindGeo(unittest.TestCase):
             data = json.load(f)
             self.assertTrue(data["error"] == "timeout")
 
-    def testParameterError(self):
+    def testParameterError(self) -> None:
         onedep_package_dir = os.getenv("PACKAGE_DIR", None)
         if onedep_package_dir:
             print("Test in OneDep environment")
@@ -239,7 +240,7 @@ class TestRunFindGeo(unittest.TestCase):
 
         try:
             os.makedirs(TEST_TEMP_DIR, exist_ok=True)
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             print("cannot create workdir: %s with error %s", TEST_TEMP_DIR, e)
 
         os.chdir(TEST_TEMP_DIR)
@@ -252,7 +253,7 @@ class TestRunFindGeo(unittest.TestCase):
             data = json.load(f)
             self.assertTrue(data["error"] == "parameters-error")
 
-    def testExecutionError(self):
+    def testExecutionError(self) -> None:
         onedep_package_dir = os.getenv("PACKAGE_DIR", None)
         if onedep_package_dir:
             print("Test in OneDep environment")
@@ -275,7 +276,7 @@ class TestRunFindGeo(unittest.TestCase):
 
         try:
             os.makedirs(TEST_TEMP_DIR, exist_ok=True)
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             print("cannot create workdir: %s with error %s", TEST_TEMP_DIR, e)
 
         os.chdir(TEST_TEMP_DIR)
@@ -288,7 +289,7 @@ class TestRunFindGeo(unittest.TestCase):
             data = json.load(f)
             self.assertTrue(data["error"] == "execution-error")
 
-    def testPermissionError(self):
+    def testPermissionError(self) -> None:
         onedep_package_dir = os.getenv("PACKAGE_DIR", None)
         if onedep_package_dir:
             print("Test in OneDep environment")
@@ -310,7 +311,7 @@ class TestRunFindGeo(unittest.TestCase):
 
         try:
             os.makedirs(TEST_TEMP_DIR, exist_ok=True)
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             print("cannot create workdir: %s with error %s", TEST_TEMP_DIR, e)
 
         os.chdir(TEST_TEMP_DIR)
@@ -331,5 +332,5 @@ if __name__ == "__main__":
     test_suite.addTest(TestRunFindGeo("testTimeout"))
     test_suite.addTest(TestRunFindGeo("testParameterError"))
     test_suite.addTest(TestRunFindGeo("testExecutionError"))
-    # test_suite.addTest(TestRunFindGeo("testPermissionError"))
+    test_suite.addTest(TestRunFindGeo("testPermissionError"))
     unittest.TextTestRunner().run(test_suite)

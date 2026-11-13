@@ -28,14 +28,14 @@ logger.setLevel(logging.INFO)
 
 
 class PdbxSFTests(unittest.TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         pass
 
-    def testImport(self):
+    def testImport(self) -> None:
         _p = PdbxSFMapCoefficients()  # noqa: F841
 
     @unittest.skipIf(toolsmissing, "Cannot test sf conversion without tools")
-    def testMtzConversion(self):
+    def testMtzConversion(self) -> None:
         """Tests conversion of MTZ file to sf file"""
         inpfile = os.path.join(mockTopPath, "dp-utils", "mtz-good.mtz")
         foout = os.path.join(TESTOUTPUT, "fo.cif")

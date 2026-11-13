@@ -14,20 +14,25 @@ best result for each metal site based on chemical rules, and generate a report j
 # pylint: disable=duplicate-code
 
 import argparse
-import logging
 import json
+import logging
 import os
 import sys
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Dict, Iterable, List, Tuple
 
 if TYPE_CHECKING:
-    from wwpdb.utils.dp.metal.findgeo.runFindGeo import RunFindGeo, FindGeoCommandExecutionError, FindGeoCommandTimeoutError, ValidateParametersError  # noqa: E402
     from wwpdb.utils.dp.metal.findgeo.parseFindGeo import ParseFindGeo  # noqa: E402
+    from wwpdb.utils.dp.metal.findgeo.runFindGeo import (  # noqa: E402
+        FindGeoCommandExecutionError,
+        FindGeoCommandTimeoutError,
+        RunFindGeo,
+        ValidateParametersError,
+    )
     from wwpdb.utils.dp.metal.metal_util.run_command import setup_logger  # noqa: E402
 else:
     sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    from findgeo.runFindGeo import RunFindGeo, FindGeoCommandExecutionError, FindGeoCommandTimeoutError, ValidateParametersError  # noqa: E402
     from findgeo.parseFindGeo import ParseFindGeo  # noqa: E402
+    from findgeo.runFindGeo import FindGeoCommandExecutionError, FindGeoCommandTimeoutError, RunFindGeo, ValidateParametersError  # noqa: E402
     from metal_util.run_command import setup_logger  # noqa: E402
 
 setup_logger(name="findgeo", log_dir=".", b_debug=False)
@@ -38,7 +43,7 @@ class jsonValidationError(Exception):
     """Raised when a JSON file cannot be read or parsed."""
 
 
-def readJson(fp):
+def readJson(fp: str) -> Any:
     """
     Read a JSON file containing a list of site entries and return the parsed content.
     Attempt to open and parse the JSON file at the given path. Any exception returns a empty list,
@@ -49,20 +54,24 @@ def readJson(fp):
     :rtype: list
     """
     try:
-        with open(fp, "r", encoding="utf-8") as f:
+        with open(fp, encoding="utf-8") as f:
             data = json.load(f)
             return data
     except FileNotFoundError as e:
-        raise jsonValidationError(f"JSON file not found: {fp}") from e
+        msg = f"JSON file not found: {fp}"
+        raise jsonValidationError(msg) from e
     except json.JSONDecodeError as e:
-        raise jsonValidationError(f"Invalid JSON in file {fp}: {e}") from e
+        msg = f"Invalid JSON in file {fp}: {e}"
+        raise jsonValidationError(msg) from e
     except OSError as e:
-        raise jsonValidationError(f"Error reading file {fp}: {e}") from e
+        msg = f"Error reading file {fp}: {e}"
+        raise jsonValidationError(msg) from e
     except Exception as e:  # pylint: disable=broad-exception-caught
-        raise jsonValidationError(f"Unexpected error reading JSON file {fp}: {e}") from e
+        msg = f"Unexpected error reading JSON file {fp}: {e}"
+        raise jsonValidationError(msg) from e
 
 
-def readSites(l_sites):
+def readSites(l_sites: Iterable[Dict[str, Any]]) -> Dict[Tuple[Any, ...], Dict[str, Any]]:
     """
     Create a mapping from a site-identifying tuple to the original site dictionary.
     The key tuple is used for identifying a unique metal site, and for comparision of results from different runs.
@@ -75,7 +84,7 @@ def readSites(l_sites):
               to the corresponding site dictionary.
     :rtype: dict
     """
-    d_sites = {}
+    d_sites: Dict[Tuple[Any, ...], Dict[str, Any]] = {}
     for d_one in l_sites:
         ccd_id = d_one.get("residue", "")
         atom_label = d_one.get("metal", "")
@@ -88,7 +97,7 @@ def readSites(l_sites):
     return d_sites
 
 
-def compareRmsd(d_site_exc, d_site_inc):
+def compareRmsd(d_site_exc: Dict[str, Any], d_site_inc: Dict[str, Any]) -> str:
     """
     Compare RMSD values from two site dictionaries and decide carbon handling.
     :param d_site_exc: Dictionary expected to contain key 'rmsd' for the exclude candidate.
@@ -100,8 +109,9 @@ def compareRmsd(d_site_exc, d_site_inc):
     :notes: RMSD values are converted to float; missing or non-numeric values are treated as 99.0.
     """
 
-    rmsd_exc = d_site_exc.get("rmsd")
-    rmsd_inc = d_site_inc.get("rmsd")
+    # values may be missing (None); float(None) raises TypeError, which is not caught (known issue)
+    rmsd_exc: Any = d_site_exc.get("rmsd")
+    rmsd_inc: Any = d_site_inc.get("rmsd")
     try:
         rmsd_exc = float(rmsd_exc)
     except ValueError:
@@ -115,7 +125,7 @@ def compareRmsd(d_site_exc, d_site_inc):
     return "include_carbon"
 
 
-def compareResults(l_exclude_carbon, l_include_carbon):  # pylint: disable=too-many-branches,too-many-statements
+def compareResults(l_exclude_carbon: List[Dict[str, Any]], l_include_carbon: List[Dict[str, Any]]) -> List[Dict[str, Any]]:  # pylint: disable=too-many-branches,too-many-statements
     """
     Compare results of two runs (excluding vs including carbon donors)s, and select based on the following chemical rules:
     If the metal-C bond type is allowed, then choose between the two results based on the following:
@@ -147,7 +157,7 @@ def compareResults(l_exclude_carbon, l_include_carbon):  # pylint: disable=too-m
     # combine all metal sites tuple keys from both runs to make sure all sites are included in the comparision, even if a site only has results in one run but not the other
     l_atom = list(set(d_site_exclude_carbon.keys()) | set(d_site_include_carbon.keys()))
     # initialize list of sites
-    l_sites = []
+    l_sites: List[Dict[str, Any]] = []
     # enumerate through each metal site identified by the tuple key
     for t_atom in l_atom:
         logger.debug("compare results for metal site %s", t_atom)
@@ -207,8 +217,8 @@ def compareResults(l_exclude_carbon, l_include_carbon):  # pylint: disable=too-m
                 continue
             # if both coordination numbers are allowed
             if coord_allowed_exc == "YES" and coord_allowed_inc == "YES":
-                coord_num_exc = d_site_exc.get("coordination")
-                coord_num_inc = d_site_inc.get("coordination")
+                coord_num_exc: Any = d_site_exc.get("coordination")
+                coord_num_inc: Any = d_site_inc.get("coordination")
                 try:
                     coord_num_exc = int(coord_num_exc)
                 except ValueError:
@@ -231,7 +241,7 @@ def compareResults(l_exclude_carbon, l_include_carbon):  # pylint: disable=too-m
                 continue
         # 5. If both results are Irregular, check if both coordination numbers are allowed.
         # If only one is allowed, select the allowed coordination.
-        if tag_exc == "Irregular" and tag_inc == "Irregular":
+        if (tag_exc not in ("Regular", "Distorted")) and (tag_inc not in ("Regular", "Distorted")):
             coord_allowed_exc = d_site_exc.get("coordination_number_allowed")
             coord_allowed_inc = d_site_inc.get("coordination_number_allowed")
             if coord_allowed_exc == "YES" and coord_allowed_inc != "YES":
@@ -249,7 +259,7 @@ def compareResults(l_exclude_carbon, l_include_carbon):  # pylint: disable=too-m
     return l_sites
 
 
-def runCompare(d_args):  # pylint: disable=too-many-statements
+def runCompare(d_args: Dict[str, Any]) -> bool:  # pylint: disable=too-many-statements
     """
     Run FindGeo twice (with and without Carbon donors) and compare results.
 
@@ -260,10 +270,10 @@ def runCompare(d_args):  # pylint: disable=too-many-statements
     """
     filepath_json = os.path.join(d_args["workdir"], "findgeo_report.json")  # final output json file path
     try:
-        os.makedirs(d_args['workdir'], exist_ok=True)
+        os.makedirs(d_args["workdir"], exist_ok=True)
     except Exception as e:  # pylint: disable=broad-exception-caught
-        logger.exception("cannot create workdir: %s with error %s", d_args['workdir'], e)
-        print(f"ERROR: cannot create workdir: {d_args['workdir']} with error {e}", file=sys.stderr)
+        logger.exception("cannot create workdir: %s with error %s", d_args["workdir"], e)
+        print(f"ERROR: cannot create workdir: {d_args['workdir']} with error {e}", file=sys.stderr)  # noqa: T201
         sys.exit(1)
 
     l_exclude_donors = d_args["excluded-donors"].split(",")
@@ -271,7 +281,7 @@ def runCompare(d_args):  # pylint: disable=too-many-statements
         l_exclude_carbon = l_exclude_donors
         l_include_carbon = [d for d in l_exclude_donors if d != "C"]
     else:
-        l_exclude_carbon = ["C"] + l_exclude_donors
+        l_exclude_carbon = ["C"] + l_exclude_donors  # noqa: RUF005
         l_include_carbon = l_exclude_donors
 
     # 1st run with Carbon donor excluded
@@ -330,7 +340,7 @@ def runCompare(d_args):  # pylint: disable=too-many-statements
     return True
 
 
-def runOne(d_args):
+def runOne(d_args: Dict[str, Any]) -> bool:
     """
     Run FindGeo once with the given arguments and write results to a JSON file.
 
@@ -374,7 +384,7 @@ def runOne(d_args):
     # no need to handle other exceptions because RunFindGeo.run() already handled them.
 
 
-def main():  # pylint: disable=too-many-statements
+def main() -> None:  # pylint: disable=too-many-statements
     """
     run FindGeo and take arguments exactly like the command line for findgeo,
     then parse the output and generate a report json file.
@@ -383,7 +393,13 @@ def main():  # pylint: disable=too-many-statements
     > python runFindGeo.py --java-exe /path/to/java --findgeo-jar /path/to/FindGeo.jar --pdb 2HYV
     """
     parser = argparse.ArgumentParser()
-    parser.add_argument("-e", "--excluded-donors", help="Chemical symbols of the atoms (separated by commas) excluded from metal ligands. Default is 'H,D' ", type=str, default="H,D")
+    parser.add_argument(
+        "-e",
+        "--excluded-donors",
+        help="Chemical symbols of the atoms (separated by commas) excluded from metal ligands. Default is 'H,D' ",
+        type=str,
+        default="H,D",
+    )
     parser.add_argument("-f", "--format", help="Local file format (i.e. cif or pdb).", type=str, default="cif")
     parser.add_argument("-i", "--input", help="Local PDB/mmCIF local file.", type=str, default=None)
     parser.add_argument("-m", "--metal", help="Chemical symbol of the metal of interest. Default is all metals.", type=str, default="All")
@@ -399,8 +415,21 @@ def main():  # pylint: disable=too-many-statements
     parser.add_argument("-s", "--timeout", help="Timeout in seconds for running FindGeo command, default is 3600 seconds (1 hour)", type=int, default=3600)
     args = parser.parse_args()
 
-    l_args = ["excluded-donors", "format", "input", "metal", "overwright", "pdb", "threshold", "workdir", "excluded-metals", "java-exe", "findgeo-jar", "timeout"]
-    d_args = {}
+    l_args = [
+        "excluded-donors",
+        "format",
+        "input",
+        "metal",
+        "overwright",
+        "pdb",
+        "threshold",
+        "workdir",
+        "excluded-metals",
+        "java-exe",
+        "findgeo-jar",
+        "timeout",
+    ]
+    d_args: Dict[str, Any] = {}
     for arg in l_args:
         key = arg.replace("-", "_")  # CLI arguments with - are converted to _ in argparse, e.g. --a-b args.a_b
         d_args[arg] = getattr(args, key)
@@ -416,16 +445,16 @@ def main():  # pylint: disable=too-many-statements
     # examine the results and exit if not found
     fp_json = os.path.join(d_args["workdir"], "findgeo_report.json")
     if not os.path.exists(fp_json):
-        print(f"ERROR: cannot find FindGeo report json at {fp_json}", file=sys.stderr)
+        print(f"ERROR: cannot find FindGeo report json at {fp_json}", file=sys.stderr)  # noqa: T201
         sys.exit(1)
 
     # no exception handling below as the file and folder permission were just checked in methods above
     if args.filter:
         # filter output for CCD annotation
         logger.info("to filter FindGeo results to keep regular geometry only for CCD annotation")
-        with open(fp_json, "r", encoding="utf-8") as f:
+        with open(fp_json, encoding="utf-8") as f:
             l_sites = json.load(f)
-        l_sites_filtered = []
+        l_sites_filtered: List[Dict[str, Any]] = []
         for d_site in l_sites:
             # filter to keep only regular geometry for CCD annotation
             # filter out empty class

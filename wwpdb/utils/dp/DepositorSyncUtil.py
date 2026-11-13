@@ -1,21 +1,23 @@
 import sys
 import traceback
+from typing import Any, Optional, TextIO
 
 from wwpdb.utils.dp.RcsbDpUtility import RcsbDpUtility
 
 
 class DepositorSyncUtil:
-    def __init__(self, reqObj=None, verbose=False, log=sys.stderr):
+    # reqObj is a wwpdb.utils.session request object; that package is not a dependency here
+    def __init__(self, reqObj: Any = None, verbose: bool = False, log: TextIO = sys.stderr) -> None:
         self.__verbose = verbose
         self.__lfh = log
         self.__reqObj = reqObj
-        self.__sObj = None
-        self.__sessionId = None
-        self.__sessionPath = None
+        self.__sObj: Any = None
+        self.__sessionId: Optional[str] = None
+        self.__sessionPath: Optional[str] = None
         self.__siteId = str(self.__reqObj.getValue("WWPDB_SITE_ID"))
         self.__getSession()
 
-    def syncWithDatabase(self, depId, modelFilePath):
+    def syncWithDatabase(self, depId: str, modelFilePath: str) -> None:
         self.__lfh.write("+DepositorSyncUtil.syncWithDatabase() - syncing depositor data in %s with database for %s\n" % (modelFilePath, depId))
 
         try:
@@ -28,7 +30,7 @@ class DepositorSyncUtil:
             self.__lfh.write("DepositorSyncUtil::syncWithDatabase(): failing, with exception.\n")
             traceback.print_exc(file=self.__lfh)
 
-    def __getSession(self):
+    def __getSession(self) -> None:
         """Join existing session or create new session as required."""
         self.__sObj = self.__reqObj.newSessionObj()
         self.__sessionId = self.__sObj.getId()

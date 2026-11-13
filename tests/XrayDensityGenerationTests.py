@@ -10,7 +10,7 @@ logger = logging.getLogger()
 
 
 class TestXrayMolStarMaps(unittest.TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         self.test_files = os.path.join(os.path.dirname(os.path.realpath(__file__)), "test_files")
         self.test_2fofc_map_coeff_file = os.path.join(self.test_files, "2gc2_validation_2fo-fc_map_coef.cif")
         self.test_fofc_map_coeff_file = os.path.join(self.test_files, "2gc2_validation_fo-fc_map_coef.cif")
@@ -30,7 +30,7 @@ class TestXrayMolStarMaps(unittest.TestCase):
 
         self.temp_out_map = os.path.join(self.working_dir, "out.map")
 
-    def test_none_map(self):
+    def test_none_map(self) -> None:
         ok = self.xrm.gemmi_sf2map(
             sf_mmcif_in=None,
             map_out=self.temp_out_map,
@@ -39,7 +39,7 @@ class TestXrayMolStarMaps(unittest.TestCase):
         )
         self.assertFalse(ok)
 
-    def test_missing_map(self):
+    def test_missing_map(self) -> None:
         ok = self.xrm.gemmi_sf2map(
             sf_mmcif_in="test.map",
             map_out=self.temp_out_map,
@@ -48,7 +48,7 @@ class TestXrayMolStarMaps(unittest.TestCase):
         )
         self.assertFalse(ok)
 
-    def test_incorrect_columns(self):
+    def test_incorrect_columns(self) -> None:
         ok = self.xrm.gemmi_sf2map(
             sf_mmcif_in=self.test_2fofc_map_coeff_file,
             map_out=self.temp_out_map,
@@ -57,7 +57,7 @@ class TestXrayMolStarMaps(unittest.TestCase):
         )
         self.assertFalse(ok)
 
-    def test_correct_columns(self):
+    def test_correct_columns(self) -> None:
         ok = self.xrm.gemmi_sf2map(
             sf_mmcif_in=self.test_2fofc_map_coeff_file,
             map_out=self.temp_out_map,
@@ -67,28 +67,28 @@ class TestXrayMolStarMaps(unittest.TestCase):
         self.assertTrue(ok)
         self.assertTrue(os.path.exists(self.temp_out_map))
 
-    def test_volume_server_incorrect_exe(self):
+    def test_volume_server_incorrect_exe(self) -> None:
         ok = self.xrm.make_volume_server_map(
-            two_fofc_map_in=None,
-            fofc_map_in=None,
+            two_fofc_map_in="missing_2fofc.map",
+            fofc_map_in="missing_fofc.map",
         )
         self.assertFalse(ok)
 
-    def test_volume_server_missing(self):
+    def test_volume_server_missing(self) -> None:
         ok = self.xrm.make_volume_server_map(
-            two_fofc_map_in=None,
-            fofc_map_in=None,
+            two_fofc_map_in="missing_2fofc.map",
+            fofc_map_in="missing_fofc.map",
         )
         self.assertFalse(ok)
 
-    def test_make_maps_to_serve_with_volume_server_no_exe(self):
+    def test_make_maps_to_serve_with_volume_server_no_exe(self) -> None:
         ok = self.xrm.make_maps_to_serve_with_volume_server(
             fofc_map_in=self.test_fofc_map_coeff_file,
             two_fofc_map_in=self.test_2fofc_map_coeff_file,
         )
         self.assertFalse(ok)
 
-    def test_run_process_with_gemmi_no_exe(self):
+    def test_run_process_with_gemmi_no_exe(self) -> None:
         ok = run_process_with_gemmi(
             node_path=None,
             two_fofc_mmcif_map_coeff_in=self.test_2fofc_map_coeff_file,
@@ -101,7 +101,7 @@ class TestXrayMolStarMaps(unittest.TestCase):
 
         self.assertFalse(ok)
 
-    def test_run_process_with_gemmi_volume_missing(self):
+    def test_run_process_with_gemmi_volume_missing(self) -> None:
         ok = run_process_with_gemmi(
             node_path="node",
             two_fofc_mmcif_map_coeff_in=self.test_2fofc_map_coeff_file,
@@ -114,7 +114,7 @@ class TestXrayMolStarMaps(unittest.TestCase):
 
         self.assertFalse(ok)
 
-    def test_run_process_with_gemmi_node_missing(self):
+    def test_run_process_with_gemmi_node_missing(self) -> None:
         ok = run_process_with_gemmi(
             node_path=None,
             two_fofc_mmcif_map_coeff_in=self.test_2fofc_map_coeff_file,
@@ -127,7 +127,7 @@ class TestXrayMolStarMaps(unittest.TestCase):
 
         self.assertFalse(ok)
 
-    def test_run_process_with_gemmi_missing_mmcif(self):
+    def test_run_process_with_gemmi_missing_mmcif(self) -> None:
         ok = run_process_with_gemmi(
             node_path="node",
             two_fofc_mmcif_map_coeff_in="missing",
@@ -140,7 +140,7 @@ class TestXrayMolStarMaps(unittest.TestCase):
 
         self.assertFalse(ok)
 
-    def test_run_process_with_gemmi_missing_out_map(self):
+    def test_run_process_with_gemmi_missing_out_map(self) -> None:
         ok = run_process_with_gemmi(
             node_path="node",
             two_fofc_mmcif_map_coeff_in=self.test_2fofc_map_coeff_file,
@@ -153,7 +153,7 @@ class TestXrayMolStarMaps(unittest.TestCase):
 
         self.assertFalse(ok)
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         shutil.rmtree(self.working_dir, ignore_errors=True)
 
 

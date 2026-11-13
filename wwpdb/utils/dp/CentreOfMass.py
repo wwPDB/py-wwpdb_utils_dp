@@ -2,6 +2,7 @@ import argparse
 import logging
 import os
 import sys
+from typing import List, Literal, Optional, Union
 
 import gemmi
 from mmcif.api.DataCategory import DataCategory
@@ -12,7 +13,7 @@ from wwpdb.utils.config.ConfigInfo import getSiteId
 logger = logging.getLogger()
 
 
-def get_model_file(depid, version_id, mileStone=None, siteId=None):
+def get_model_file(depid: str, version_id: str, mileStone: Optional[str] = None, siteId: Optional[str] = None) -> Optional[str]:
     if siteId is None:
         siteId = getSiteId()
     pi = PathInfo(siteId, sessionPath=".", verbose=True, log=sys.stderr)
@@ -21,7 +22,7 @@ def get_model_file(depid, version_id, mileStone=None, siteId=None):
     return mmcif
 
 
-def get_center_of_mass(data_block):
+def get_center_of_mass(data_block: gemmi.cif.Block) -> Union[gemmi.Position, Literal[False]]:  # pylint: disable=no-member
     try:
         st = gemmi.make_structure_from_block(data_block)
         model = st[0]
@@ -32,15 +33,15 @@ def get_center_of_mass(data_block):
         return False
 
 
-def get_deposition_ids(file):
-    deposition_ids = []
+def get_deposition_ids(file: str) -> List[str]:
+    deposition_ids: List[str] = []
     with open(file) as f:
         for line in f:
             deposition_ids.append(line.strip())
     return deposition_ids
 
 
-def process_entry(file_in, file_out):
+def process_entry(file_in: str, file_out: str) -> int:
     try:
         cif_file = gemmi.cif.read(file_in)  # pylint: disable=no-member
         data_block = cif_file[0]
@@ -116,14 +117,18 @@ def process_entry(file_in, file_out):
     return 0
 
 
-def calculate_for_list(args, siteId=None):
+def calculate_for_list(args: argparse.Namespace, siteId: Optional[str] = None) -> List[str]:
     logging.info("Calculating for list of entries")  # noqa: LOG015
     deposition_ids = get_deposition_ids(args.list)
-    failed_dep_ids = []
+    failed_dep_ids: List[str] = []
     for depid in deposition_ids:
         logging.info("Calculating for Dep ID: %s ", depid)  # noqa: LOG015
         latest_model = get_model_file(depid, "latest", siteId=siteId)
         next_model = get_model_file(depid, "next", siteId=siteId)
+        if latest_model is None or next_model is None:
+            logger.info("Failed to determine model file paths for %s", depid)
+            failed_dep_ids.append(depid)
+            continue
         result = process_entry(latest_model, next_model)
         if result:
             logger.info("Failed to Calculate Centre of Mass for %s", depid)
@@ -131,14 +136,14 @@ def calculate_for_list(args, siteId=None):
     return failed_dep_ids
 
 
-def calculate_for_file(args):
+def calculate_for_file(args: argparse.Namespace) -> None:
     logging.info("Calculating for a single file")  # noqa: LOG015
     result = process_entry(args.model_file_in, args.model_file_out)
     if result:
         logger.info("Failed to Calculate Centre of Mass")
 
 
-def main(args):
+def main(args: argparse.Namespace) -> int:
     if args.list and os.path.isfile(args.list):
         failures = calculate_for_list(args)
         if len(failures) > 0:
@@ -155,7 +160,7 @@ def main(args):
     return 0
 
 
-def parse_args():
+def parse_args() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("-i", "--model-file-in", help="Coordinate file to add centre of Mass", type=str)
     parser.add_argument("-o", "--model-file-out", help="Output Coordinate file, with added items", type=str)

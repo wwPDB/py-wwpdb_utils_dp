@@ -3,6 +3,7 @@
 import contextlib
 import os
 import platform
+from typing import Iterator
 
 HERE = os.path.abspath(os.path.dirname(__file__))
 TOPDIR = os.path.dirname(HERE)
@@ -39,13 +40,13 @@ else:
 
 
 class commonsetup:
-    def __init__(self):
+    def __init__(self) -> None:
         pass
 
 
 # From https://stackoverflow.com/questions/2059482/temporarily-modify-the-current-processs-environment
 @contextlib.contextmanager
-def modified_environ(*remove, **update):
+def modified_environ(*remove: str, **update: str) -> Iterator[None]:
     """
     Temporarily updates the ``os.environ`` dictionary in-place.
 
@@ -57,7 +58,7 @@ def modified_environ(*remove, **update):
     """
     env = os.environ
     update = update or {}
-    remove = remove or []
+    remove = remove or ()
 
     # List of environment variables being updated or removed.
     stomped = (set(update.keys()) | set(remove)) & set(env.keys())

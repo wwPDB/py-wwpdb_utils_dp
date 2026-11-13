@@ -29,10 +29,10 @@ from wwpdb.utils.dp.ValidationWrapper import ValidationWrapper
 
 
 class ImportTests(unittest.TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         pass
 
-    def testInstantiate(self):
+    def testInstantiate(self) -> None:
         _pmc = PdbxMergeCategory()  # noqa: F841
         _psc = PdbxStripCategory()  # noqa: F841
         _rdp = RcsbDpUtility()  # noqa: F841

@@ -31,15 +31,15 @@ logger.setLevel(logging.DEBUG)
 
 
 class ValidationWrapperTests(unittest.TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         pass
 
-    def testImport(self):
+    def testImport(self) -> None:
         _vw = ValidationWrapper(tmpPath=TESTOUTPUT, siteId=getSiteId())  # noqa: F841
 
     @unittest.skipIf(toolsmissing, "Cannot test validation without tools")
     @unittest.skipIf(True, "Tests do not work yet - need site-config for validation")
-    def testWrapper(self):
+    def testWrapper(self) -> None:
         """Tests wrapper"""
         modelfile = os.path.join(mockTopPath, "dp-utils", "1cbs.cif")
         sffile = os.path.join(mockTopPath, "dp-utils", "1cbs-sf.cif")
