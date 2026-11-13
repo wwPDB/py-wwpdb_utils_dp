@@ -166,7 +166,7 @@ import sys
 import tempfile
 import time
 from subprocess import call
-from typing import Any, Dict, List, Literal, Optional, Sequence, TextIO, Union, get_args
+from typing import Any, Dict, List, Literal, Optional, Sequence, TextIO, Tuple, Union, get_args
 
 from wwpdb.utils.dp.JobLogging import JobLogger, RunEnvironment
 
@@ -176,6 +176,7 @@ except ImportError:
     from itertools import izip_longest as zip_longest  # type: ignore[attr-defined,no-redef]
 
 from wwpdb.io.file.DataFile import DataFile
+from wwpdb.io.misc.ResourceAllocation import ResourceAllocation
 from wwpdb.utils.config.ConfigInfo import ConfigInfo
 from wwpdb.utils.config.ConfigInfoApp import (
     ConfigInfoAppCc,
@@ -188,6 +189,10 @@ from wwpdb.utils.dp.PdbxStripCategory import PdbxStripCategory
 from wwpdb.utils.dp.RunRemote import JobResult, JobStatus, RunRemote
 
 logger = logging.getLogger(__name__)
+
+# What a cluster job requests when neither the caller, the resource allocation file nor the operation says otherwise
+DEFAULT_STARTING_MEMORY_MB = 2000
+DEFAULT_NUM_THREADS = 1
 
 # Known operations, grouped by the step method that handles each one
 
@@ -462,8 +467,13 @@ class RcsbDpUtility:
         self.__stepNo = 0
         self.__stepNoSaved: Optional[int] = None
         self.__timeout = 0
-        self.__numThreads = 1  # this is used by RunRemote to set the number of cores requested
-        self.__startingMemory = 2000  # this is used by RunRemote to set the starting RAM to be requested
+        # Values set by the caller through setNumThreads() / setStartMemory(); None means "not set".  RunRemote is given
+        # the cores and starting RAM chosen by __requestedResources().
+        self.__numThreads: Optional[int] = None
+        self.__startingMemory: Optional[int] = None
+        # Defaults chosen by the operation being run; they apply to that operation only
+        self.__opMemoryDefault: Optional[int] = None
+        self.__opThreadsDefault: Optional[int] = None
 
         self.__run_remote = False
 
@@ -627,6 +637,9 @@ class RcsbDpUtility:
             return -1
 
         logger.info("Starting op %s with working path %s\n", op, self.__wrkPath)
+
+        self.__opMemoryDefault = None
+        self.__opThreadsDefault = None
 
         if self.__wrkPath is None:
             self.__makeTempWorkingDir()
@@ -1392,8 +1405,6 @@ class RcsbDpUtility:
             #
             #
 
-            # Set the initial memory for run remote use
-            self.__startingMemory = 2000
             validation_mode = "release"
             if "request_validation_mode" in self.__inputParamDict:
                 validation_mode = str(self.__inputParamDict["request_validation_mode"]).lower()
@@ -4076,7 +4087,7 @@ class RcsbDpUtility:
             # dp.op("metal-metalcoord-stats")  # Execute the operation
             # dp.exp("4DHV-all-geometry.json")  # Export the MetalCoord JSON report with all geometry output regardless of regular or not
             #
-            cmd = self.__constructMetalCoordCommand(cmd, iPath, oPath, tPath, lPath, cpu_split=2, b_filter=False)
+            cmd = self.__constructMetalCoordCommand(cmd, iPath, oPath, tPath, lPath, cpu_split=2, b_filter=False, op=op)
             logger.info("to run metal-metalcoord-stats full commands: %s", cmd)
 
         elif op == "metal-metalcoord-stats-filter-regular":
@@ -4091,7 +4102,7 @@ class RcsbDpUtility:
             # dp.op("metal-metalcoord-stats-filter-regular")  # Execute the operation
             # dp.exp("4DHV-regular-geometry.json")  # Export the MetalCoord JSON report with regular geometry only
             #
-            cmd = self.__constructMetalCoordCommand(cmd, iPath, oPath, tPath, lPath, cpu_split=2, b_filter=True)
+            cmd = self.__constructMetalCoordCommand(cmd, iPath, oPath, tPath, lPath, cpu_split=2, b_filter=True, op=op)
             logger.info("to run metal-metalcoord-stats-filter-regular full commands: %s", cmd)
 
         elif op == "metal-metalcoord-update":
@@ -4141,8 +4152,7 @@ class RcsbDpUtility:
             for key_new, value_new in d_metalcoord_args.items():
                 l_metalcoord_args.append(f"--{key_new} {value_new}")
             # limit CPU/threads
-            cpu_split = 2
-            n_cpu = math.ceil((os.cpu_count() or 1) / cpu_split)  # use 1/cpu_split CPUs, e.g. 1/4, but minimally 1 CPU
+            n_cpu = self.__metalThreads(op, cpu_split=2)  # configured, else 1/2 of the available CPUs, minimally 1
             cmd += f" ; OMP_NUM_THREADS={n_cpu}; export OMP_NUM_THREADS"
             # run metalcoord and generate updated ligand cif at <workdir>/clean.cif, which will be
             # copied as result file with charge and ideal coordinates; coordination info will be parsed and copied
@@ -4975,10 +4985,10 @@ class RcsbDpUtility:
 
         if "num_threads" in self.__inputParamDict:
             numThreads = str(self.__inputParamDict["num_threads"])
-            self.__startingMemory = 20000  # this is used by RunRemote to set the starting about of RAM
+            self.__opMemoryDefault = 20000  # RunRemote starting RAM for this operation
         else:
             numThreads = "1"
-        self.__numThreads = int(numThreads)
+        self.__opThreadsDefault = int(numThreads)
 
         if "max_hits" in self.__inputParamDict:
             maxHits = str(self.__inputParamDict["max_hits"])
@@ -5208,7 +5218,47 @@ class RcsbDpUtility:
         logger.info("+RcsbDpUtility.__runTimeout() completed with return code %r\n", process.stdout.read() if process.stdout else b"")
         return 0
 
+    def __requestedResources(self, op: str, memory_default: Optional[int], threads_default: Optional[int]) -> Tuple[int, int]:
+        """Return the (memory in MB, cores) to request from the cluster for ``op``.
+
+        In order: the value set by the caller, the resource allocation file, the operation's own default, and
+        finally 2000 MB / 1 core.  An explicit ``memory: all`` in the file is not turned into an unlimited request.
+        """
+        allocation = ResourceAllocation(config_info=self.__cI)
+        fallback_memory = memory_default if memory_default is not None else DEFAULT_STARTING_MEMORY_MB
+        fallback_threads = threads_default if threads_default is not None else DEFAULT_NUM_THREADS
+
+        memory: int
+        if self.__startingMemory is not None:
+            memory = self.__startingMemory
+        else:
+            configured_memory = allocation.get_memory_mb(op, default=fallback_memory)
+            if configured_memory is None:
+                logger.warning("Resource allocation for %s sets memory to 'all'; not supported for cluster jobs, requesting %d MB", op, fallback_memory)
+                configured_memory = fallback_memory
+            memory = configured_memory
+
+        threads: int = self.__numThreads if self.__numThreads is not None else allocation.get_cpus(op, default=fallback_threads)
+        return memory, threads
+
+    def __metalThreads(self, op: str, cpu_split: int) -> int:
+        """Return the thread count for a metal-coordination job: configured for ``op`` (never above the CPUs
+        available to this process), else the available CPUs divided by ``cpu_split`` and rounded up."""
+        allocation = ResourceAllocation(config_info=self.__cI)
+        available = allocation.available_cpus()
+        configured = allocation.get_cpus(op, default=None)
+        if configured is None:
+            return max(1, math.ceil(available / cpu_split))
+        if configured > available:
+            logger.warning("Resource allocation for %s asks for %d CPUs but only %d are available; using %d", op, configured, available, available)
+            return available
+        return int(configured)
+
     def __run(self, command: str, lPathFull: str, op: str) -> Optional[int]:
+        # Defaults chosen by the operation apply to this run only
+        op_memory_default, op_threads_default = self.__opMemoryDefault, self.__opThreadsDefault
+        self.__opMemoryDefault = self.__opThreadsDefault = None
+
         if self.__job_logger is not None:
             self.__job_logger.info(dep_id=self.__dep_id, op=op, command=command)
 
@@ -5224,6 +5274,7 @@ class RcsbDpUtility:
                 pass
 
         if self.__run_remote:
+            memory_mb, num_cores = self.__requestedResources(op, op_memory_default, op_threads_default)
             random_suffix = random.randrange(9999999)  # noqa: S311
             job_name = "{}_{}".format(op, random_suffix)
             result = RunRemote(
@@ -5232,8 +5283,8 @@ class RcsbDpUtility:
                 log_dir=os.path.dirname(lPathFull),
                 run_dir=self.__tmpPath,
                 timeout=self.__timeout,
-                number_of_processors=self.__numThreads,
-                memory_limit=self.__startingMemory,
+                number_of_processors=num_cores,
+                memory_limit=memory_mb,
                 add_site_config=True,
             ).run()
 
@@ -5327,7 +5378,9 @@ class RcsbDpUtility:
         cmd += f" > {tPath} 2>&1 ; cat {tPath} > {lPath}"
         return cmd
 
-    def __constructMetalCoordCommand(self, cmd: str, iPath: str, oPath: str, tPath: str, lPath: str, cpu_split: int = 4, b_filter: bool = False) -> str:
+    def __constructMetalCoordCommand(
+        self, cmd: str, iPath: str, oPath: str, tPath: str, lPath: str, cpu_split: int = 4, b_filter: bool = False, op: str = "metal-metalcoord-stats"
+    ) -> str:
         """Construct command for running MetalCoord, to be re-used for different operations"""
         # changes to the default metalcoord options must be set before setting self.op("metal-metalcoord-stats"), e.g.
         # self.addInput(name="ligands", value=["0KA", "NCO"])  # list or string of CCD ID(s) of the metal ligand to check on, accepts comma-separated string or list of strings
@@ -5380,7 +5433,7 @@ class RcsbDpUtility:
         if b_filter:
             l_metalcoord_args.append("--filter")
         # limit CPU/threads
-        n_cpu = math.ceil((os.cpu_count() or 1) / cpu_split)  # use 1/cpu_split CPUs, e.g. 1/4, but minimally 1 CPU
+        n_cpu = self.__metalThreads(op, cpu_split)  # configured, else 1/cpu_split of the available CPUs, minimally 1
         cmd += f" ; OMP_NUM_THREADS={n_cpu}; export OMP_NUM_THREADS"
         # run metalcoord and parse results into <workdir>/metalcoord_report.json, which will be copied as result file
         cmd += f" ; python -m wwpdb.utils.dp.metal.metalcoord.processMetalCoordStats {' '.join(l_metalcoord_args)}"
