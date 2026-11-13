@@ -14,8 +14,6 @@ import unittest
 from typing import Any, Dict, List, Optional
 from unittest import mock
 
-import yaml
-
 if __package__ is None or __package__ == "":
     from os import path
 
@@ -23,6 +21,7 @@ if __package__ is None or __package__ == "":
 
 import wwpdb.utils.dp.RcsbDpUtility as dpmod
 from wwpdb.utils.dp.RcsbDpUtility import RcsbDpUtility
+from wwpdb.utils.dp.RunRemote import JobStatus
 
 VALIDATE = "annot-wwpdb-validate-all-v2"
 BLAST = "seq-blastp"
@@ -60,7 +59,7 @@ class ResourceTestBase(unittest.TestCase):
     def write_config(self, data: Dict[str, Any]) -> str:
         path_ = os.path.join(self.tmp, "resource_allocation.yaml")
         with open(path_, "w", encoding="utf-8") as fh:
-            yaml.safe_dump(data, fh)
+            json.dump(data, fh)  # JSON is valid YAML
         self.site_config["RESOURCE_ALLOCATION_CONFIG_FILE"] = path_
         return path_
 
@@ -73,7 +72,7 @@ class ResourceTestBase(unittest.TestCase):
     def run_op(self, dp: RcsbDpUtility, op: str) -> Dict[str, Any]:
         """Run ``op`` and return the memory and CPUs given to RunRemote."""
         with mock.patch.object(dpmod, "RunRemote") as run_remote:
-            run_remote.return_value.run.return_value = mock.Mock(status=dpmod.JobStatus.COMPLETED)
+            run_remote.return_value.run.return_value = mock.Mock(status=JobStatus.COMPLETED)
             if op == BLAST:
                 dp.addInput(name="one_letter_code_sequence", value="MKV")
             else:
@@ -219,7 +218,7 @@ class RetryRegressionTests(ResourceTestBase):
         site_id = mock.patch("wwpdb.utils.dp.RunRemote.getSiteId", return_value="TEST")
         run = mock.patch("wwpdb.utils.dp.RunRemote.subprocess.run", side_effect=fake_run)
         sleep = mock.patch("wwpdb.utils.dp.RunRemote.time.sleep")
-        with remote_cfg as cfg, site_id, run, sleep:
+        with site_id, run, sleep, remote_cfg as cfg:
             cfg.return_value.get.return_value = "queue"
             self.assertEqual(self.run_real_remote(), 0)
 
