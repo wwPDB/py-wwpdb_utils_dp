@@ -2831,7 +2831,11 @@ class RcsbDpUtility:
             ]
 
             strpCt = PdbxStripCategory(verbose=self.__verbose, log=self.__lfh)
-            strpCt.strip(oPath2Full, oPathFull, stripList)  # This is defined for this op  # pylint: disable=possibly-used-before-assignment,used-before-assignment
+            strpCt.strip(
+                oPath2Full,  # pylint: disable=possibly-used-before-assignment,used-before-assignment
+                oPathFull,  # pylint: disable=possibly-used-before-assignment,used-before-assignment
+                stripList,
+            )  # These are defined for this op
 
         if (op == "annot-rcsb2pdbx-strip") or (op == "annot-rcsbeps2pdbx-strip"):
             # remove these derived categories for now --
@@ -3114,7 +3118,10 @@ class RcsbDpUtility:
                 # index file --
                 ipT = os.path.join(self.__getWrkPath(), "LIG_PEPTIDE.cif")
                 if os.access(ipT, os.R_OK):
-                    shutil.copyfile(ipT, outIndexPathFull)  # This is defined for this op  # pylint: disable=used-before-assignment,possibly-used-before-assignment
+                    shutil.copyfile(
+                        ipT,
+                        outIndexPathFull,  # pylint: disable=used-before-assignment,possibly-used-before-assignment
+                    )  # These are defined for this op
                 elif self.__verbose:
                     logger.info("+RcsbDpUtility._annotationStep()  - missing map index file %s\n", ipT)
 
@@ -4258,9 +4265,14 @@ class RcsbDpUtility:
 
             cmdPath = os.path.join(self.__packagePath, "dict", "bin", "cifexch2")
             thisCmd = (
-                " ; " + cmdPath + " -dicSdb " + sDictSdb + " -pdbxDicSdb "  # pylint: disable=possibly-used-before-assignment,used-before-assignment
-                + dDictSdb + " -reorder  -strip -op in  -pdbids "  # pylint: disable=possibly-used-before-assignment,used-before-assignment
-            )  # If not set, crash is ok  # noqa: E501 pylint: disable=possibly-used-before-assignment,used-before-assignment
+                " ; "
+                + cmdPath
+                + " -dicSdb "
+                + sDictSdb  # pylint: disable=possibly-used-before-assignment,used-before-assignment
+                + " -pdbxDicSdb "
+                + dDictSdb  # pylint: disable=possibly-used-before-assignment,used-before-assignment
+                + " -reorder  -strip -op in  -pdbids "
+            )  # If not set, crash is ok  # noqa: E501
             cmd += thisCmd + " -input " + iPath + " -output " + oPath
 
             if "option" in self.__inputParamDict:
