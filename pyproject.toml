@@ -23,7 +23,7 @@ classifiers = [
 dependencies = [
     "gemmi >= 0.4",
     "mmcif >= 0.18",
-    "wwpdb.io",
+    "wwpdb.io >= 1.4.0",
     "wwpdb.utils.config >= 0.34",
 ]
 
