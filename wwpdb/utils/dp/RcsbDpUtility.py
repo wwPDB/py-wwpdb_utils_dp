@@ -5219,7 +5219,7 @@ class RcsbDpUtility:
         return 0
 
     def __requestedResources(self, op: str, memory_default: Optional[int], threads_default: Optional[int]) -> Tuple[int, int]:
-        """Return the (memory in MB, cores) to request from the cluster for ``op``.
+        """Return the (memory in MB, cores) and number of threads to request from the cluster for ``op``.
 
         In order: the value set by the caller, the resource allocation file, the operation's own default, and
         finally 2000 MB / 1 core.  An explicit ``memory: all`` in the file is not turned into an unlimited request.
