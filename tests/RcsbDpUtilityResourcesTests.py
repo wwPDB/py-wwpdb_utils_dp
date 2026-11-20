@@ -180,7 +180,7 @@ class MetalThreadsTests(ResourceTestBase):
         return int(found[0])
 
     def with_cpus(self, count: int) -> "mock._patch[Any]":
-        return mock.patch.object(os, "sched_getaffinity", lambda _pid: set(range(count)), create=True)
+        return mock.patch.object(os, "sched_getaffinity", lambda _pid: set(range(count)), create=True)  # noqa: PT008
 
     def test_unconfigured_uses_the_legacy_fraction_of_available_cpus(self) -> None:
         with self.with_cpus(8):
