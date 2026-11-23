@@ -69,6 +69,11 @@ class ResourceTestBase(unittest.TestCase):
 
     def run_op(self, dp: RcsbDpUtility, op: str) -> Dict[str, Any]:
         """Run ``op`` and return the memory and CPUs given to RunRemote."""
+        kwargs = self.remote_kwargs(dp, op)
+        return {"memory": kwargs["memory_limit"], "cpus": kwargs["number_of_processors"]}
+
+    def remote_kwargs(self, dp: RcsbDpUtility, op: str) -> Dict[str, Any]:
+        """Run ``op`` and return every keyword argument given to RunRemote."""
         with mock.patch.object(dpmod, "RunRemote") as run_remote:
             run_remote.return_value.run.return_value = mock.Mock(status=JobStatus.COMPLETED)
             if op == BLAST:
@@ -77,8 +82,7 @@ class ResourceTestBase(unittest.TestCase):
                 dp.addInput(name="request_validation_mode", value="annotate")
                 dp.addInput(name="run_dir", value=os.path.join(self.tmp, "rundir"))
             self.assertEqual(dp.op(op), 0)  # type: ignore[arg-type]
-        kwargs = run_remote.call_args.kwargs
-        return {"memory": kwargs["memory_limit"], "cpus": kwargs["number_of_processors"]}
+        return dict(run_remote.call_args.kwargs)
 
 
 class OperationDefaultsTests(ResourceTestBase):
@@ -142,6 +146,43 @@ class ConfiguredResourcesTests(ResourceTestBase):
 
     def test_malformed_values_fall_back_to_defaults(self) -> None:
         self.write_config({"jobs": {VALIDATE: {"memory": "lots", "cpus": 0}}})
+        self.assertEqual(self.run_op(self.make(), VALIDATE), {"memory": 2000, "cpus": 1})
+
+
+class TimeLimitTests(ResourceTestBase):
+    """The cluster time limit is in minutes (what sbatch --time expects); 0 leaves RunRemote's own default."""
+
+    def timeout(self, dp: RcsbDpUtility, op: str = VALIDATE) -> Any:
+        return self.remote_kwargs(dp, op)["timeout"]
+
+    def test_unconfigured_leaves_the_runremote_default(self) -> None:
+        self.assertEqual(self.timeout(self.make()), 0)
+
+    def test_configured_operation_requests_its_time_limit(self) -> None:
+        self.write_config({"jobs": {VALIDATE: {"time_limit": "24h"}}})
+        self.assertEqual(self.timeout(self.make()), 1440)
+
+    def test_operation_without_an_entry_is_not_affected(self) -> None:
+        self.write_config({"jobs": {VALIDATE: {"time_limit": "24h"}}})
+        self.assertEqual(self.timeout(self.make(), BLAST), 0)
+
+    def test_defaults_section_applies_to_every_operation(self) -> None:
+        self.write_config({"defaults": {"time_limit": "6h"}})
+        self.assertEqual(self.timeout(self.make()), 360)
+        self.assertEqual(self.timeout(self.make(), BLAST), 360)
+
+    def test_caller_set_timeout_beats_configuration(self) -> None:
+        self.write_config({"jobs": {VALIDATE: {"time_limit": "24h"}}})
+        dp = self.make()
+        dp.setTimeout(600)
+        self.assertEqual(self.timeout(dp), 600)
+
+    def test_malformed_value_leaves_the_runremote_default(self) -> None:
+        self.write_config({"jobs": {VALIDATE: {"time_limit": "soon"}}})
+        self.assertEqual(self.timeout(self.make()), 0)
+
+    def test_time_limit_does_not_change_memory_or_cpus(self) -> None:
+        self.write_config({"jobs": {VALIDATE: {"time_limit": "24h"}}})
         self.assertEqual(self.run_op(self.make(), VALIDATE), {"memory": 2000, "cpus": 1})
 
 
@@ -214,7 +255,7 @@ class RetryRegressionTests(ResourceTestBase):
     """A configured first attempt requests the configured memory and an out-of-memory retry doubles it."""
 
     def test_first_attempt_uses_configured_memory_and_retry_doubles_it(self) -> None:
-        self.write_config({"jobs": {VALIDATE: {"memory": "4G", "cpus": 3}}})
+        self.write_config({"jobs": {VALIDATE: {"memory": "4G", "cpus": 3, "time_limit": "24h"}}})
         submitted: List[List[str]] = []
         states = iter(["OUT_OF_MEMORY", "COMPLETED"])
         next_job = iter([101, 102])
@@ -239,6 +280,8 @@ class RetryRegressionTests(ResourceTestBase):
         cpus = [next(a for a in cmd if a.startswith("--cpus-per-task=")) for cmd in submitted]
         self.assertEqual(mem, ["--mem=4096", "--mem=8192"])
         self.assertEqual(cpus, ["--cpus-per-task=3", "--cpus-per-task=3"])
+        times = [next(a for a in cmd if a.startswith("--time=")) for cmd in submitted]
+        self.assertEqual(times, ["--time=1440", "--time=1440"])
 
     def run_real_remote(self) -> Optional[int]:
         dp = self.make()
