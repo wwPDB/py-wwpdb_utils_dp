@@ -5230,11 +5230,13 @@ class RcsbDpUtility:
         logger.info("+RcsbDpUtility.__runTimeout() completed with return code %r\n", process.stdout.read() if process.stdout else b"")
         return 0
 
-    def __requestedResources(self, op: str, memory_default: Optional[int], threads_default: Optional[int]) -> Tuple[int, int]:
-        """Return the (memory in MB, cores) and number of threads to request from the cluster for ``op``.
+    def __requestedResources(self, op: str, memory_default: Optional[int], threads_default: Optional[int]) -> Tuple[int, int, int]:
+        """Return the (memory in MB, cores, time limit in minutes) to request from the cluster for ``op``.
 
-        In order: the value set by the caller, the resource allocation file, the operation's own default, and
-        finally 2000 MB / 1 core.  An explicit ``memory: all`` in the file is not turned into an unlimited request.
+        Memory and cores, in order: the value set by the caller, the resource allocation file, the operation's own
+        default, and finally 2000 MB / 1 core.  An explicit ``memory: all`` in the file is not turned into an unlimited
+        request.  The time limit is the value set by the caller with setTimeout(), else the file's ``time_limit``, else 0,
+        which leaves RunRemote's own default.
         """
         allocation = ResourceAllocation(config_info=self.__cI)
         fallback_memory = memory_default if memory_default is not None else DEFAULT_STARTING_MEMORY_MB
@@ -5251,7 +5253,9 @@ class RcsbDpUtility:
             memory = configured_memory
 
         threads: int = self.__numThreads if self.__numThreads is not None else allocation.get_cpus(op, default=fallback_threads)
-        return memory, threads
+
+        minutes: int = self.__timeout if self.__timeout else (allocation.get_time_limit_minutes(op, default=0) or 0)
+        return memory, threads, minutes
 
     def __metalThreads(self, op: str, cpu_split: int) -> int:
         """Return the thread count for a metal-coordination job: configured for ``op`` (never above the CPUs
@@ -5286,7 +5290,7 @@ class RcsbDpUtility:
                 pass
 
         if self.__run_remote:
-            memory_mb, num_cores = self.__requestedResources(op, op_memory_default, op_threads_default)
+            memory_mb, num_cores, time_limit = self.__requestedResources(op, op_memory_default, op_threads_default)
             random_suffix = random.randrange(9999999)  # noqa: S311
             job_name = "{}_{}".format(op, random_suffix)
             result = RunRemote(
@@ -5294,7 +5298,7 @@ class RcsbDpUtility:
                 job_name=job_name,
                 log_dir=os.path.dirname(lPathFull),
                 run_dir=self.__tmpPath,
-                timeout=self.__timeout,
+                timeout=time_limit,
                 number_of_processors=num_cores,
                 memory_limit=memory_mb,
                 add_site_config=True,
